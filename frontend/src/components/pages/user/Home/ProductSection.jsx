@@ -1,5 +1,5 @@
 import React from "react";
-import { products } from "../Utils/productData";
+import { products } from "../Utils/productSectionData";
 
 export default function ProductSection({ title }) {
   return (
