@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { FaStore, FaChevronDown } from 'react-icons/fa';
-import { menuItems } from './menuItems';
+import { FaChevronDown } from 'react-icons/fa';
+import { adminSidebarMenu } from './adminSidebarMenu';
 
-const VendorSidebar = () => {
+const AdminSidebar = () => {
   const [openMenus, setOpenMenus] = useState({});
 
   const toggleMenu = (key) => {
@@ -10,17 +10,17 @@ const VendorSidebar = () => {
   };
 
   return (
-    <aside className="w-full md:w-[20%] min-h-screen bg-white p-5 shadow-md shadow-gray-100 text-gray-800 border-r border-gray-300">
+    <aside className="w-full md:w-[20%] min-h-screen bg-white p-5 shadow-md text-gray-800 border-r border-gray-200">
       {/* Logo */}
       <div className="flex items-center gap-2 mb-6">
-        <div className="bg-black text-white p-2 rounded-full">
-          <FaStore />
+        <div className="bg-black text-white py-1 px-4 rounded-full">
+          <span className="font-bold text-xl">A</span>
         </div>
-        <h1 className="text-xl font-bold">Vendor Panel</h1>
+        <h1 className="text-xl font-bold">Admin Panel</h1>
       </div>
 
-      {/* Render Sections */}
-      {menuItems.map((section) => (
+      {/* Render menu sections */}
+      {adminSidebarMenu.map((section) => (
         <div key={section.section} className="mb-6">
           <p className="text-sm text-gray-400 font-medium mb-2">{section.section}</p>
           <ul className="space-y-3">
@@ -40,16 +40,17 @@ const VendorSidebar = () => {
                     </div>
                     {item.expandable && (
                       <FaChevronDown
-                        className={`text-xs transition-transform ${isOpen ? "rotate-180" : ""
-                          }`}
+                        className={`text-xs transition-transform ${
+                          isOpen ? "rotate-180" : ""
+                        }`}
                       />
                     )}
                   </div>
 
                   {item.expandable && isOpen && (
-                    <ul className="ml-6 text-sm text-gray-600 mt-2 space-y-2">
-                      {item.children.map((child, i) => (
-                        <li key={i} className="hover:text-black cursor-pointer">{child}</li>
+                    <ul className="ml-6 mt-2 text-sm text-gray-600 space-y-2">
+                      {item.children.map((child, idx) => (
+                        <li key={idx} className="hover:text-black cursor-pointer">{child}</li>
                       ))}
                     </ul>
                   )}
@@ -63,4 +64,4 @@ const VendorSidebar = () => {
   );
 };
 
-export default VendorSidebar;
+export default AdminSidebar;
