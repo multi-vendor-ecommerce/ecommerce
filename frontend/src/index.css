@@ -1,1 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
+
+/* === User Theme Colors === */
+
+/* Primary: For buttons, headers */
+.bg-user-primary    { background-color: #547792; }
+.text-user-primary  { color: #547792; }
+.border-user-primary { border-color: #547792; }
+
+/* Secondary: For highlights, hovers */
+.bg-user-secondary    { background-color: #94B4C1; }
+.text-user-secondary  { color: #94B4C1; }
+.border-user-secondary { border-color: #94B4C1; }
+
+/* Background/Base */
+.bg-user-base    { background-color: #ECEFCA; }
+.text-user-base  { color: #ECEFCA; }
+
+/* Text Contrast (for dark elements) */
+.text-user-dark  { color: #213448; }
+.bg-user-dark    { background-color: #213448; }
+.border-user-dark { border-color: #213448; }
+
+/* === Vendor Theme Colors === */
+
+/* Primary: For buttons, headers */
+.bg-vendor-primary    { background-color: #393E46; }
+.text-vendor-primary  { color: #393E46; }
+.border-vendor-primary { border-color: #393E46; }
+
+/* Secondary: For highlights, badges */
+.bg-vendor-secondary    { background-color: #DFD0B8; }
+.text-vendor-secondary  { color: #DFD0B8; }
+.border-vendor-secondary { border-color: #DFD0B8; }
+
+/* Background/Base */
+.bg-vendor-base    { background-color: #222831; }
+.text-vendor-base  { color: #222831; }
+
+/* Text Contrast (on dark background) */
+.text-vendor-light   { color: #DFD0B8; }
+.text-vendor-white   { color: #FFFFFF; }
