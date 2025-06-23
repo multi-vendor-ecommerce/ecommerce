@@ -5,7 +5,7 @@ export default function ProductSection({ title }) {
   return (
     <div className="p-4">
       <h3 className="text-xl font-semibold mb-3 text-gray-800">{title}</h3>
-      <div className="flex gap-4 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-4 overflow-x-auto no-scrollbar">
         {products.map((product) => (
           <div
             key={product.id}

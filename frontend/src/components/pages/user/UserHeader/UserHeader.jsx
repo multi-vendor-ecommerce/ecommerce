@@ -15,19 +15,19 @@ function UserHeader() {
   return (
     <div className="border-b">
       {/* Top Strip */}
-      <div className="bg-gray-100 py-2 border-t-2">
+      <div className="bg-user-base py-2 border-t-2">
         <div className="container mx-auto px-4 flex items-center justify-between text-sm">
-          <p className="text-gray-700">
+          <p className="text-user-dark">
             Get up to 50% off new season styles, limited time only
           </p>
-          <div className="flex items-center gap-6 text-gray-600">
-            <a href="#" className="hover:text-red-600">Help Center</a>
-            <a href="#" className="hover:text-red-600">Order Tracking</a>
-            <select className="bg-transparent outline-none">
+          <div className="flex items-center gap-6 text-user-dark">
+            <a href="#" className="hover:text-user-primary">Help Center</a>
+            <a href="#" className="hover:text-user-primary">Order Tracking</a>
+            <select className="bg-transparent outline-none text-user-dark">
               <option>🇺🇸 English</option>
               <option>🇮🇳 Hindi</option>
             </select>
-            <select className="bg-transparent outline-none">
+            <select className="bg-transparent outline-none text-user-dark">
               <option>USD</option>
               <option>INR</option>
             </select>
@@ -38,28 +38,28 @@ function UserHeader() {
       {/* Main Header */}
       <div className="bg-white py-4 shadow-sm">
         <div className="container mx-auto px-4 flex items-center justify-between">
-          <div className="text-2xl font-bold text-red-600">
-            <span className="text-black">CLASSY</span>SHOP
+          <div className="text-2xl font-bold text-user-primary">
+            <span className="text-user-dark">CLASSY</span>SHOP
           </div>
 
           <div className="w-[50%] flex">
             <input
               type="text"
               placeholder="Search products here..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none"
+              className="w-full px-4 py-2 border border-user-primary rounded-l-md focus:outline-none text-user-dark"
             />
-            <button className="bg-red-500 px-4 text-white font-semibold rounded-r-md">
+            <button className="bg-user-primary px-4 text-white font-semibold rounded-r-md">
               <FaSearch />
             </button>
           </div>
 
-          <div className="flex items-center gap-6 text-gray-700 text-lg">
-            <a href="#" className="hover:text-red-600">Login / Register</a>
-            <FaHeart className="cursor-pointer hover:text-red-600" />
-            <FaRandom className="cursor-pointer hover:text-red-600" />
+          <div className="flex items-center gap-6 text-user-dark text-lg">
+            <a href="#" className="hover:text-user-primary">Login / Register</a>
+            <FaHeart className="cursor-pointer hover:text-user-primary" />
+            <FaRandom className="cursor-pointer hover:text-user-primary" />
             <div className="relative cursor-pointer">
-              <FaShoppingCart className="hover:text-red-600" />
-              <span className="absolute -top-2 -right-2 text-xs bg-red-500 text-white w-5 h-5 flex items-center justify-center rounded-full">
+              <FaShoppingCart className="hover:text-user-primary" />
+              <span className="absolute -top-2 -right-2 text-xs bg-user-primary text-white w-5 h-5 flex items-center justify-center rounded-full">
                 1
               </span>
             </div>
@@ -68,11 +68,11 @@ function UserHeader() {
       </div>
 
       {/* Navigation */}
-      <div className="bg-gray-50 shadow-sm">
+      <div className="bg-user-base shadow-sm">
         <div className="container mx-auto px-4 py-3 flex items-start gap-8 relative">
           {/* Categories Dropdown */}
           <div className="relative group">
-            <div className="flex items-center gap-2 font-medium cursor-pointer hover:text-red-500">
+            <div className="flex items-center gap-2 font-medium cursor-pointer hover:text-user-primary text-user-dark">
               <FaBars />
               <span>SHOP BY CATEGORIES</span>
             </div>
@@ -83,7 +83,7 @@ function UserHeader() {
                 {mainCategories.map((category, index) => (
                   <li
                     key={index}
-                    className="px-4 py-2 text-sm cursor-pointer hover:bg-red-100 border-b"
+                    className="px-4 py-2 text-sm cursor-pointer hover:bg-user-secondary border-b"
                     onMouseEnter={() => setHoveredCategory(category)}
                   >
                     {category}
@@ -97,7 +97,7 @@ function UserHeader() {
                   {categoryData[hoveredCategory].map((sub, idx) => (
                     <li
                       key={idx}
-                      className="px-4 py-2 text-sm hover:bg-gray-100 border-b"
+                      className="px-4 py-2 text-sm hover:bg-user-base border-b"
                     >
                       {sub}
                     </li>
@@ -108,14 +108,14 @@ function UserHeader() {
           </div>
 
           {/* Top Navigation Dropdowns */}
-          <div className="flex items-center gap-6 text-sm font-medium text-gray-700">
+          <div className="flex items-center gap-6 text-sm font-medium text-user-dark">
             {Object.entries(navCategories).map(([main, subItems], index) => (
               <div key={index} className="relative group cursor-pointer">
-                <span className="hover:text-red-600">{main}</span>
+                <span className="hover:text-user-primary">{main}</span>
                 <div className="absolute top-full left-0 z-30 bg-white shadow-md rounded-md py-2 w-48 hidden group-hover:block">
                   <ul>
                     {subItems.map((sub, i) => (
-                      <li key={i} className="px-4 py-2 hover:bg-gray-100">
+                      <li key={i} className="px-4 py-2 hover:bg-user-base">
                         {sub}
                       </li>
                     ))}
@@ -126,7 +126,7 @@ function UserHeader() {
           </div>
 
           {/* Note */}
-          <div className="ml-auto text-sm text-green-600 font-semibold">
+          <div className="ml-auto text-sm text-green-700 font-semibold">
             Free International Delivery
           </div>
         </div>

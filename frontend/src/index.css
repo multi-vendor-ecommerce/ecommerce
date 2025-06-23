@@ -45,3 +45,15 @@ body {
 /* Text Contrast (on dark background) */
 .text-vendor-light   { color: #DFD0B8; }
 .text-vendor-white   { color: #FFFFFF; }
+
+
+/* 👇 Hide scrollbar for Chrome, Safari and Edge */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 👇 Hide scrollbar for Firefox */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE 10+ */
+}
