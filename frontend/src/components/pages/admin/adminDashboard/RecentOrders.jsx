@@ -1,35 +1,111 @@
-import React from 'react';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { recentOrdersData } from "./data/recentOrdersData";
 
-const mockOrders = [
-  { id: '#00123', user: 'Palchhin', total: '₹1,200', status: 'Delivered' },
-  { id: '#00124', user: 'Alex', total: '₹850', status: 'Pending' },
-  { id: '#00125', user: 'Mira', total: '₹3,150', status: 'Cancelled' }
-];
+// React Icons
+import { FaCheckCircle, FaClock, FaTimesCircle } from "react-icons/fa";
+
+const getStatusChip = (status) => {
+  switch (status.toLowerCase()) {
+    case "delivered":
+      return {
+        text: "Delivered",
+        icon: <FaCheckCircle className="text-green-600" size={12} />,
+        style: "text-green-700 bg-green-100",
+      };
+    case "pending":
+      return {
+        text: "Pending",
+        icon: <FaClock className="text-yellow-600" size={12} />,
+        style: "text-yellow-800 bg-yellow-100",
+      };
+    case "cancelled":
+      return {
+        text: "Cancelled",
+        icon: <FaTimesCircle className="text-red-600" size={12} />,
+        style: "text-red-700 bg-red-100",
+      };
+    default:
+      return {
+        text: status,
+        icon: null,
+        style: "text-gray-700 bg-gray-100",
+      };
+  }
+};
 
 const RecentOrders = () => {
+  const [showAll, setShowAll] = useState(false);
+  const ordersToShow = showAll ? recentOrdersData : recentOrdersData.slice(0, 5);
+
   return (
-    <div className="bg-white p-4 rounded shadow">
-      <h2 className="text-lg font-semibold mb-3">Recent Orders</h2>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="text-left p-2">Order ID</th>
-            <th className="text-left p-2">Customer</th>
-            <th className="text-left p-2">Total</th>
-            <th className="text-left p-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {mockOrders.map((order) => (
-            <tr key={order.id} className="border-t">
-              <td className="p-2">{order.id}</td>
-              <td className="p-2">{order.user}</td>
-              <td className="p-2">{order.total}</td>
-              <td className="p-2">{order.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="bg-white p-6 rounded-2xl shadow-md">
+      <div className="min-h-16 flex justify-between items-center mb-5">
+        <h2 className="text-2xl font-bold text-gray-800">Recent Orders</h2>
+        <Link
+          to="/admin/orders"
+          className="border-gray-300 px-4 py-2 rounded-xl font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
+        >
+          View Orders
+        </Link>
+      </div>
+
+      {ordersToShow.length === 0 ? (
+        <div className="text-center py-10 text-gray-500">No recent orders found.</div>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-gray-600">
+              <thead className="text-sm uppercase text-gray-500 bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3">Order</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3">Customer</th>
+                  <th className="px-4 py-3">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ordersToShow.map((order, idx) => {
+                  const chip = getStatusChip(order.status);
+                  return (
+                    <tr
+                      key={order.id}
+                      className={`hover:bg-blue-50 hover:shadow-sm transition duration-150 ${
+                        idx !== 0 ? "border-t border-gray-200" : ""
+                      }`}
+                    >
+                      <td className="px-4 py-3 hover:scale-105 transition duration-150 font-medium text-blue-600 hover:underline">
+                        <Link to={`/admin/orders/${order.id}`}>{order.id}</Link>
+                      </td>
+                      <td className="px-4 py-3 hover:scale-105 transition duration-150">
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${chip.style}`}>
+                          {chip.icon}
+                          {chip.text}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 hover:scale-105 transition duration-150">{order.date}</td>
+                      <td className="px-4 py-3 hover:scale-105 transition duration-150">{order.user}</td>
+                      <td className="px-4 py-3 hover:scale-105 transition duration-150 font-semibold text-gray-800">{order.total}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {recentOrdersData.length > 5 && (
+            <div className="text-center mt-4">
+              <button
+                onClick={() => setShowAll((prev) => !prev)}
+                className="text-blue-600 hover:underline cursor-pointer font-medium"
+              >
+                {showAll ? "Show Less" : "Show More"}
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

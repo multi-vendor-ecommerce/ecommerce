@@ -1,5 +1,5 @@
 // productData.js
-export const product = [
+export const products = [
   {
     id: 1,
     name: "Noise Smartwatch",
