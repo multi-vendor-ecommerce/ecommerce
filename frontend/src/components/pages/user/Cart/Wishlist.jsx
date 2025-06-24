@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import wishlistData from "../../../data/wishlistData";
-import { addToCart } from "../../../utils/cartUtils";
+import wishlistData from "../Utils/wishlistData";
+import { addToCart } from "../utils/cartUtils";
 
 export default function Wishlist() {
   const [wishlist, setWishlist] = useState(wishlistData);

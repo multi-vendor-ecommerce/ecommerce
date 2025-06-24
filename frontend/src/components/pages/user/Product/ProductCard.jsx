@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { addToCart } from "../../../utils/cartUtils"; // 📦 import cart logic
+import { addToCart } from "../Utils/CartUtils"; // 📦 import cart logic
 
 export default function ProductCard({ product }) {
   const handleAddToCart = () => {

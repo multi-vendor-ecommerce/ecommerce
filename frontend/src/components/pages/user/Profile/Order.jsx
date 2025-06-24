@@ -1,5 +1,5 @@
 import React from "react";
-import orders from "../../../data/orderData";
+import orders from "../Utils/OrderData";
 
 export default function Order() {
   return (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import addressesData from "../../../data/addressData";
+import addressesData from "../Utils/AddressData";
 
 export default function Address() {
   const [addresses, setAddresses] = useState(addressesData);
