@@ -3,6 +3,7 @@ import { productListData } from "../Utils/productListData";
 import { filters } from "../Utils/filters";
 import ProductCard from "./ProductCard";
 
+
 export default function ProductList() {
   return (
     <div className="mt-16 bg-user-base text-user-dark min-h-screen p-4">

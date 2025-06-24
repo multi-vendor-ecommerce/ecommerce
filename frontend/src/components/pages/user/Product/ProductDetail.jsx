@@ -1,9 +1,11 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { productListData } from "../Utils/productListData";
+import { addToCart } from "../Utils/CartUtils";
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const product = productListData.find((item) => item.id === parseInt(id));
 
   if (!product) {
@@ -13,6 +15,16 @@ export default function ProductDetail() {
       </div>
     );
   }
+
+  const handleAddToCart = () => {
+    addToCart(product);
+    alert("Added to cart 💜");
+  };
+
+  const handleBuyNow = () => {
+    addToCart(product); // Add to cart before checkout
+    navigate("/checkout");
+  };
 
   return (
     <div className="mt-16 bg-user-base min-h-screen text-user-dark p-6">
@@ -37,10 +49,16 @@ export default function ProductDetail() {
           </p>
 
           <div className="flex gap-4">
-            <button className="bg-user-primary text-white px-6 py-2 rounded hover:bg-user-secondary">
+            <button
+              onClick={handleAddToCart}
+              className="bg-user-primary text-white px-6 py-2 rounded hover:bg-user-secondary"
+            >
               Add to Cart
             </button>
-            <button className="border border-user-primary text-user-primary px-6 py-2 rounded hover:bg-user-secondary hover:text-white transition">
+            <button
+              onClick={handleBuyNow}
+              className="border border-user-primary text-user-primary px-6 py-2 rounded hover:bg-user-secondary hover:text-white transition"
+            >
               Buy Now
             </button>
           </div>

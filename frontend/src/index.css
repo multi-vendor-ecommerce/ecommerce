@@ -6,25 +6,24 @@ body {
 }
 
 /* === User Theme Colors === */
-
 /* Primary: For buttons, headers */
-.bg-user-primary    { background-color: #547792; }
-.text-user-primary  { color: #547792; }
-.border-user-primary { border-color: #547792; }
+.bg-user-primary     { background-color: #7F55B1; }
+.text-user-primary   { color: #7F55B1; }
+.border-user-primary { border-color: #7F55B1; }
 
 /* Secondary: For highlights, hovers */
-.bg-user-secondary    { background-color: #94B4C1; }
-.text-user-secondary  { color: #94B4C1; }
-.border-user-secondary { border-color: #94B4C1; }
+.bg-user-secondary     { background-color: #9B7EBD; }
+.text-user-secondary   { color: #9B7EBD; }
+.border-user-secondary { border-color: #9B7EBD; }
 
 /* Background/Base */
-.bg-user-base    { background-color: #ECEFCA; }
-.text-user-base  { color: #ECEFCA; }
+.bg-user-base     { background-color: #FFE1E0; }
+.text-user-base   { color: #FFE1E0; }
 
 /* Text Contrast (for dark elements) */
-.text-user-dark  { color: #213448; }
-.bg-user-dark    { background-color: #213448; }
-.border-user-dark { border-color: #213448; }
+.text-user-dark     { color: #272324; }
+.bg-user-dark       { background-color: #F49BAB; }
+.border-user-dark   { border-color: #F49BAB; }
 
 /* === Vendor Theme Colors === */
 

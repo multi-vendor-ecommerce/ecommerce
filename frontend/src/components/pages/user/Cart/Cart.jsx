@@ -1,5 +1,6 @@
 import React from "react";
-import { dummyCartItems } from "../Utils/cartData"; // ✅ Import dummy data
+import CartItems from "./CartItems";
+import { dummyCartItems } from "../Utils/cartData"; 
 
 export default function Cart() {
   const totalAmount = dummyCartItems.reduce(
@@ -69,6 +70,7 @@ export default function Cart() {
           </div>
         )}
       </div>
+      <CartItems />
     </div>
   );
 }

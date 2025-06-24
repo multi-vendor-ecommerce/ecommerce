@@ -1,7 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { addToCart } from "../../../utils/cartUtils"; // 📦 import cart logic
 
 export default function ProductCard({ product }) {
+  const handleAddToCart = () => {
+    addToCart(product);
+    alert("Added to cart 💜"); // 🔔 Optional: toast can be used later
+  };
+
   return (
     <div className="bg-white p-3 rounded shadow hover:shadow-md transition">
       {/* 🛍️ Clickable area goes to detail page */}
@@ -15,7 +21,10 @@ export default function ProductCard({ product }) {
         <p className="text-user-primary font-bold">₹{product.price}</p>
       </Link>
 
-      <button className="mt-2 w-full bg-user-primary text-white py-1 text-sm rounded hover:bg-user-secondary transition">
+      <button
+        onClick={handleAddToCart}
+        className="mt-2 w-full bg-user-primary text-white py-1 text-sm rounded hover:bg-user-secondary transition"
+      >
         Add to Cart
       </button>
     </div>
