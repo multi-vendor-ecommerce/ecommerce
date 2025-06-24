@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
-<Route path="/profile/address" element={<Address />} />
+{/* <Route path="/profile/address" element={<Address />} /> */}
 
 export default function UserProfile() {
   return (

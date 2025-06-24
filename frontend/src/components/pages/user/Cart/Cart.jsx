@@ -1,9 +1,11 @@
 import React from "react";
+import { useCart } from "../Cart/CartContext";
 import CartItems from "./CartItems";
-import { dummyCartItems } from "../Utils/cartData"; 
 
 export default function Cart() {
-  const totalAmount = dummyCartItems.reduce(
+  const { cartItems, removeFromCart, increaseQty, decreaseQty } = useCart();
+
+  const totalAmount = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
@@ -13,13 +15,13 @@ export default function Cart() {
       <div className="container mx-auto">
         <h2 className="text-2xl font-bold mb-6">Your Shopping Cart</h2>
 
-        {dummyCartItems.length === 0 ? (
-          <p className="text-lg text-center">Your cart is empty 😢</p>
+        {cartItems.length === 0 ? (
+          <p className="text-lg text-center">🛒 Your cart is empty 😢</p>
         ) : (
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Cart Items */}
             <div className="flex-1 space-y-4">
-              {dummyCartItems.map((item) => (
+              {cartItems.map((item) => (
                 <div
                   key={item.id}
                   className="bg-white p-4 rounded shadow flex items-center justify-between"
@@ -38,11 +40,30 @@ export default function Cart() {
                     </div>
                   </div>
 
+                  {/* Quantity Controls */}
                   <div className="flex items-center gap-2">
-                    <button className="px-2 bg-user-secondary text-white rounded">−</button>
-                    <span>{item.quantity}</span>
-                    <button className="px-2 bg-user-secondary text-white rounded">+</button>
+                    <button
+                      onClick={() => decreaseQty(item.id)}
+                      className="px-3 bg-user-secondary text-white rounded"
+                    >
+                      −
+                    </button>
+                    <span className="font-semibold">{item.quantity}</span>
+                    <button
+                      onClick={() => increaseQty(item.id)}
+                      className="px-3 bg-user-secondary text-white rounded"
+                    >
+                      +
+                    </button>
                   </div>
+
+                  {/* Remove Button */}
+                  <button
+                    onClick={() => removeFromCart(item.id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
                 </div>
               ))}
             </div>
@@ -70,6 +91,8 @@ export default function Cart() {
           </div>
         )}
       </div>
+
+      {/* Optional: Cart item list or summary below */}
       <CartItems />
     </div>
   );

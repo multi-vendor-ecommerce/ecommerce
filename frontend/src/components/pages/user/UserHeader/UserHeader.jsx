@@ -6,11 +6,14 @@ import {
   FaSearch,
   FaBars,
 } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import { categoryData, navCategories } from "../Utils/HeaderData";
+import { useCart } from "../Cart/CartContext";
 
 function UserHeader() {
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const mainCategories = Object.keys(categoryData);
+  const { cartItems } = useCart(); // 🎯 get items from cart context
 
   return (
     <div className="border-b">
@@ -38,10 +41,12 @@ function UserHeader() {
       {/* Main Header */}
       <div className="bg-white py-4 shadow-sm">
         <div className="container mx-auto px-4 flex items-center justify-between">
-          <div className="text-2xl font-bold text-user-primary">
+          {/* Logo */}
+          <Link to="/" className="text-2xl font-bold text-user-primary">
             <span className="text-user-dark">CLASSY</span>SHOP
-          </div>
+          </Link>
 
+          {/* Search Bar */}
           <div className="w-[50%] flex">
             <input
               type="text"
@@ -53,16 +58,26 @@ function UserHeader() {
             </button>
           </div>
 
+          {/* Icons */}
           <div className="flex items-center gap-6 text-user-dark text-lg">
-            <a href="#" className="hover:text-user-primary">Login / Register</a>
-            <FaHeart className="cursor-pointer hover:text-user-primary" />
+            <Link to="/login" className="hover:text-user-primary">
+              Login / Register
+            </Link>
+
+            <Link to="/wishlist">
+              <FaHeart className="cursor-pointer hover:text-user-primary" />
+            </Link>
+
             <FaRandom className="cursor-pointer hover:text-user-primary" />
-            <div className="relative cursor-pointer">
+
+            <Link to="/cart" className="relative">
               <FaShoppingCart className="hover:text-user-primary" />
-              <span className="absolute -top-2 -right-2 text-xs bg-user-primary text-white w-5 h-5 flex items-center justify-center rounded-full">
-                1
-              </span>
-            </div>
+              {cartItems.length > 0 && (
+                <span className="absolute -top-2 -right-2 text-xs bg-user-primary text-white w-5 h-5 flex items-center justify-center rounded-full">
+                  {cartItems.length}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </div>
@@ -107,7 +122,7 @@ function UserHeader() {
             </div>
           </div>
 
-          {/* Top Navigation Dropdowns */}
+          {/* Top Navigation Menus */}
           <div className="flex items-center gap-6 text-sm font-medium text-user-dark">
             {Object.entries(navCategories).map(([main, subItems], index) => (
               <div key={index} className="relative group cursor-pointer">

@@ -1,16 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { addToCart } from "../Utils/CartUtils"; // 📦 import cart logic
+import { FaHeart } from "react-icons/fa";
+import { useCart } from "../Cart/CartContext";
 
 export default function ProductCard({ product }) {
-  const handleAddToCart = () => {
-    addToCart(product);
-    alert("Added to cart 💜"); // 🔔 Optional: toast can be used later
-  };
+  const { addToCart } = useCart();
 
   return (
-    <div className="bg-white p-3 rounded shadow hover:shadow-md transition">
-      {/* 🛍️ Clickable area goes to detail page */}
+    <div className="relative bg-white p-3 rounded shadow hover:shadow-md transition">
       <Link to={`/product/${product.id}`}>
         <img
           src={product.image}
@@ -22,10 +19,14 @@ export default function ProductCard({ product }) {
       </Link>
 
       <button
-        onClick={handleAddToCart}
         className="mt-2 w-full bg-user-primary text-white py-1 text-sm rounded hover:bg-user-secondary transition"
+        onClick={() => addToCart(product)}
       >
         Add to Cart
+      </button>
+
+      <button className="absolute top-2 right-2 text-user-primary hover:text-red-500">
+        <FaHeart />
       </button>
     </div>
   );

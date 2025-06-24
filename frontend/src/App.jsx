@@ -20,7 +20,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/admin" element={<Admin />} />
-      <Route path="/User" element={<User/>}/>
+      <Route path="/*" element={<User />} /> 
           </Routes>
   );
 }

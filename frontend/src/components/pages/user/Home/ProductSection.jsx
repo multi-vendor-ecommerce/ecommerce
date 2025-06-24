@@ -1,27 +1,18 @@
 import React from "react";
-import { products } from "../Utils/productSectionData";
+import ProductCard from '../Product/ProductCard';
+import { productListData } from "../Utils/productListData";
 
 export default function ProductSection({ title }) {
   return (
-    <div className="p-4">
-      <h3 className="text-xl font-semibold mb-3 text-gray-800">{title}</h3>
-      <div className="flex gap-4 overflow-x-auto no-scrollbar">
-        {products.map((product) => (
-          <div
-            key={product.id}
-            className="min-w-[180px] max-w-[200px] bg-white rounded shadow p-2 hover:scale-105 transition"
-          >
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-40 object-contain"
-            />
-            <h4 className="mt-2 font-medium text-sm line-clamp-1">
-              {product.name}
-            </h4>
-            <p className="text-blue-600 font-semibold">₹{product.price}</p>
-          </div>
-        ))}
+    <div className="py-6 bg-white">
+      <div className="container mx-auto px-4">
+        <h2 className="text-xl font-bold mb-4 text-user-dark">{title}</h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {productListData.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
       </div>
     </div>
   );
