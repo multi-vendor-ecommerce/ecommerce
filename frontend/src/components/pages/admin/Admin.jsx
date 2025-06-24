@@ -4,7 +4,7 @@ import Sidebar from "./adminSidebar/Sidebar";
 
 const Admin = () => {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen relative">
       {/* Sidebar */}
       <Sidebar />
 
@@ -14,7 +14,7 @@ const Admin = () => {
         <Header />
 
         {/* Main Content */}
-        <main className="flex-grow p-4">
+        <main className="flex-grow">
           <Dashboard />
         </main>
       </div>

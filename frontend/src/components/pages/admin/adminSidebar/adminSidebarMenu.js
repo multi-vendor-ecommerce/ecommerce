@@ -1,13 +1,13 @@
 import {
-  FaTachometerAlt, FaClipboardList, FaUsers, FaTags, FaEnvelope, FaBoxOpen,
-  FaStore, FaPalette, FaChevronDown, FaCogs, FaShippingFast, FaHistory
-} from 'react-icons/fa';
+  FiBarChart2, FiClipboard, FiUsers, FiTag, FiMail, FiBox,
+  FiShoppingCart, FiLayers, FiSettings,
+} from 'react-icons/fi';
 
 export const adminSidebarMenu = [
   {
     section: "DASHBOARD",
     items: [
-      { label: "Analytics", icon: FaTachometerAlt, expandable: false },
+      { label: "Analytics", icon: FiBarChart2, expandable: false },
     ],
   },
   {
@@ -15,7 +15,7 @@ export const adminSidebarMenu = [
     items: [
       {
         label: "Manage Orders",
-        icon: FaClipboardList,
+        icon: FiClipboard,
         expandable: true,
         key: "orders",
         children: [
@@ -30,7 +30,7 @@ export const adminSidebarMenu = [
     items: [
       {
         label: "Customer Overview",
-        icon: FaUsers,
+        icon: FiUsers,
         expandable: false,
       },
     ],
@@ -40,7 +40,7 @@ export const adminSidebarMenu = [
     items: [
       {
         label: "Site-wide Coupons",
-        icon: FaTags,
+        icon: FiTag,
         expandable: false,
       },
     ],
@@ -50,7 +50,7 @@ export const adminSidebarMenu = [
     items: [
       {
         label: "Email Templates",
-        icon: FaEnvelope,
+        icon: FiMail,
         expandable: false,
       },
     ],
@@ -60,7 +60,7 @@ export const adminSidebarMenu = [
     items: [
       {
         label: "Products",
-        icon: FaBoxOpen,
+        icon: FiBox,
         expandable: true,
         key: "products",
         children: [
@@ -74,7 +74,7 @@ export const adminSidebarMenu = [
     items: [
       {
         label: "Vendors",
-        icon: FaStore,
+        icon: FiShoppingCart,
         expandable: true,
         key: "vendors",
         children: [
@@ -88,7 +88,7 @@ export const adminSidebarMenu = [
     items: [
       {
         label: "Online Theme Editor",
-        icon: FaPalette,
+        icon: FiLayers,
         expandable: true,
         key: "theme",
         children: [
@@ -102,7 +102,7 @@ export const adminSidebarMenu = [
     items: [
       {
         label: "Admin Settings",
-        icon: FaCogs,
+        icon: FiSettings,
         expandable: false,
       },
     ],
