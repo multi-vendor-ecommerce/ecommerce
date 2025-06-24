@@ -25,13 +25,10 @@ const User = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/profile" element={<UserProfile />}>
-          <Route
-            index
-            element={<div>Welcome to your dashboard, Sandhya 💜</div>}
-          />
-          <Route path="orders" element={<Order />} />
-          <Route path="address" element={<Address />} />
+          <Route index element={<div>Welcome to your dashboard, Sandhya 💜</div>} />
         </Route>
+        <Route path="/orders" element={<Order />} />
+          <Route path="/address" element={<Address />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/wishlist" element={<Wishlist />} />
       </Routes>

@@ -1,5 +1,6 @@
 import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, Route } from "react-router-dom";
+import Address from "./Address";
 <Route path="/profile/address" element={<Address />} />
 
 export default function UserProfile() {
