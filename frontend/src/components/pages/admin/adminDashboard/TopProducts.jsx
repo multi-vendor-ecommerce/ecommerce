@@ -16,11 +16,11 @@ const TopProducts = () => {
         <table className="w-full text-left text-gray-600">
           <thead className="text-sm uppercase text-gray-500 bg-gray-50">
             <tr>
-              <th className="px-4 py-3">Product ID</th>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Category</th>
-              <th className="px-4 py-3">Units Sold</th>
-              <th className="px-4 py-3">Revenue</th>
+              {["Product ID", "Name", "Category", "Units Sold", "Revenue"].map((header) => (
+                <th key={header} className="px-4 py-3">
+                  {header}
+                </th>
+              ))}  
             </tr>
           </thead>
           <tbody>
@@ -31,10 +31,10 @@ const TopProducts = () => {
                   idx !== 0 ? "border-t border-gray-200" : ""
                 }`}
               >
-                <td className="px-4 py-3 hover:scale-105 transition duration-150 font-medium text-blue-600">
+                <td className="px-4 py-3 hover:scale-105 transition duration-150 font-medium text-blue-600 hover:underline">
                   <Link to={`/admin/orders/${product.id}`}>{product.id}</Link>
                 </td>
-                <td className="px-4 py-3 hover:scale-105 transition duration-150">{product.name}</td>
+                <td className="px-4 py-3 hover:scale-105 transition duration-150 font-medium">{product.name}</td>
                 <td className="px-4 py-3 hover:scale-105 transition duration-150">{product.category}</td>
                 <td className="px-4 py-3 hover:scale-105 transition duration-150">{product.sales}</td>
                 <td className="px-4 py-3 hover:scale-105 transition duration-150 font-semibold text-gray-800">

@@ -31,7 +31,7 @@ export default function SummaryCards() {
                 "p-5 rounded-xl shadow-sm transition duration-200 flex items-center hover:shadow-md",
                 {
                   "hover:shadow-green-500": c.shadowColor === "shadow-green-500",
-                  "hover:shadow-blue-500": c.shadowColor === "shadow-blue-500",
+                  "hover:shadow-pink-500": c.shadowColor === "shadow-pink-500",
                   "hover:shadow-purple-500": c.shadowColor === "shadow-purple-500",
                   "hover:shadow-yellow-500": c.shadowColor === "shadow-yellow-500",
                 }

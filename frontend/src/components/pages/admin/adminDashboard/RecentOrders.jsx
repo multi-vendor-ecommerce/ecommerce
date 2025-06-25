@@ -58,11 +58,11 @@ const RecentOrders = () => {
             <table className="w-full text-left text-gray-600">
               <thead className="text-sm uppercase text-gray-500 bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3">Order</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Customer</th>
-                  <th className="px-4 py-3">Amount</th>
+                  {["Order ID", "Status", "Date", "User", "Total"].map((header) => (
+                    <th key={header} className="px-4 py-3"> 
+                      {header}
+                    </th> 
+                  ))}
                 </tr>
               </thead>
               <tbody>
