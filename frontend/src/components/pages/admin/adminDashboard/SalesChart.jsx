@@ -12,7 +12,7 @@ import {
 export default function SalesChart({ data }) {
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-300">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Sales Trend</h2>
+      <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">Sales Trend</h2>
       <ResponsiveContainer width="100%" height={280}>
         <LineChart
           data={data}

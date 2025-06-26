@@ -28,7 +28,7 @@ const Header = ({ onMenuToggle }) => {
   };
 
   return (
-    <header className="fixed lg:sticky top-0 w-full z-50 min-h-16 px-5 py-4 flex justify-between lg:justify-end items-center shadow-lg shadow-gray-100 bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 w-full z-50 min-h-16 px-5 py-4 flex justify-between lg:justify-end items-center shadow-lg shadow-gray-100 bg-white/80 backdrop-blur-md">
       {/* Left: Menu */}
       <div className="flex items-center group lg:hidden">
         <button onClick={onMenuToggle} className="focus:outline-none rounded-full hover:bg-gray-200 p-2 transition-all duration-300 cursor-pointer">
