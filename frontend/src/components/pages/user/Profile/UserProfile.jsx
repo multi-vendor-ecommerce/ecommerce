@@ -1,10 +1,7 @@
 import React from "react";
-import { Link, Outlet } from "react-router-dom";
-{/* <Route path="/profile/address" element={<Address />} /> */}
 import { Link, Outlet, Route } from "react-router-dom";
 import Address from "./Address";
 <Route path="/profile/address" element={<Address />} />
-
 export default function UserProfile() {
   return (
     <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-6">

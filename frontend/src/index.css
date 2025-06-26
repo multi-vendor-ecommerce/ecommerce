@@ -21,7 +21,7 @@ body {
 .text-user-base   { color: #FFE1E0; }
 
 /* Text Contrast (for dark elements) */
-.text-user-dark     { color: #272324; }
+.text-user-dark     { color: #3f3e3e; }
 .bg-user-dark       { background-color: #F49BAB; }
 .border-user-dark   { border-color: #F49BAB; }
 
