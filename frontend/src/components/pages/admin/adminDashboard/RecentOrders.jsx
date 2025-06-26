@@ -41,10 +41,10 @@ const RecentOrders = () => {
   return (
     <div className="bg-white p-6 rounded-2xl shadow-md">
       <div className="min-h-16 flex justify-between items-center mb-5">
-        <h2 className="text-2xl font-bold text-gray-800">Recent Orders</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800">Recent Orders</h2>
         <Link
-          to="/admin/orders"
-          className="border-gray-300 px-4 py-2 rounded-xl font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
+          to="/admin/all-orders"
+          className="border-gray-300 px-2 md:px-4 py-2 rounded-xl text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
         >
           View Orders
         </Link>
@@ -58,11 +58,11 @@ const RecentOrders = () => {
             <table className="w-full text-left text-gray-600">
               <thead className="text-sm uppercase text-gray-500 bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3">Order</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Customer</th>
-                  <th className="px-4 py-3">Amount</th>
+                  {["Order ID", "Status", "Date", "User", "Total"].map((header) => (
+                    <th key={header} className="px-4 py-3"> 
+                      {header}
+                    </th> 
+                  ))}
                 </tr>
               </thead>
               <tbody>

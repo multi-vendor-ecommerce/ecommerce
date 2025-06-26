@@ -19,9 +19,9 @@ function App() {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/admin" element={<Admin />} />
-      <Route path="/*" element={<User />} /> 
-          </Routes>
+      <Route path="/admin/*" element={<Admin />} />
+      <Route path="/*" element={<User/>}/>
+    </Routes>
   );
 }
 

@@ -9,18 +9,24 @@ const TopProducts = () => {
   return (
     <div className="bg-white p-6 rounded-2xl shadow-md transition duration-300">
       <div className="min-h-16 flex justify-between items-center mb-5">
-        <h2 className="text-2xl font-bold text-gray-800">Top Selling Products</h2>
+        <h2 className="textxl md:text-2xl font-bold text-gray-800">Top Selling Products</h2>
+        <Link
+          to="/admin/top-products"
+          className="border-gray-300 px-2 md:px-4 py-2 rounded-xl text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
+        >
+          View all
+        </Link>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-gray-600">
           <thead className="text-sm uppercase text-gray-500 bg-gray-50">
             <tr>
-              <th className="px-4 py-3">Product ID</th>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Category</th>
-              <th className="px-4 py-3">Units Sold</th>
-              <th className="px-4 py-3">Revenue</th>
+              {["Product ID", "Name", "Category", "Units Sold", "Revenue"].map((header) => (
+                <th key={header} className="px-4 py-3">
+                  {header}
+                </th>
+              ))}  
             </tr>
           </thead>
           <tbody>
@@ -31,10 +37,10 @@ const TopProducts = () => {
                   idx !== 0 ? "border-t border-gray-200" : ""
                 }`}
               >
-                <td className="px-4 py-3 hover:scale-105 transition duration-150 font-medium text-blue-600">
+                <td className="px-4 py-3 hover:scale-105 transition duration-150 font-medium text-blue-600 hover:underline">
                   <Link to={`/admin/orders/${product.id}`}>{product.id}</Link>
                 </td>
-                <td className="px-4 py-3 hover:scale-105 transition duration-150">{product.name}</td>
+                <td className="px-4 py-3 hover:scale-105 transition duration-150 font-medium">{product.name}</td>
                 <td className="px-4 py-3 hover:scale-105 transition duration-150">{product.category}</td>
                 <td className="px-4 py-3 hover:scale-105 transition duration-150">{product.sales}</td>
                 <td className="px-4 py-3 hover:scale-105 transition duration-150 font-semibold text-gray-800">
