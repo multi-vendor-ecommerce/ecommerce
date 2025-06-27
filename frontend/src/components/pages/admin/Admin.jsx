@@ -6,6 +6,7 @@ import Dashboard from "./adminDashboard/Dashboard";
 import Orders from "./adminOrders/Orders";
 import OrderDetails from "./adminOrders/OrderDetails";
 import NotFoundPage from "../../common/notPageFound";
+import Customers from "./adminCustomers/Customers";
 
 const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -33,6 +34,8 @@ const Admin = () => {
               <Route index element={<Orders />} />
               <Route path="order-details/:orderId" element={<OrderDetails />} />
             </Route>
+
+            <Route path="/all-customers" element={<Customers />} />
 
             {/* Fallback route for unmatched paths */}
             <Route path="*" element={<NotFoundPage destination="/admin" />} />

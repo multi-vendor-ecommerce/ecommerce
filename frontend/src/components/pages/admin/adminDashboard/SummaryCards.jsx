@@ -6,7 +6,7 @@ export default function SummaryCards() {
   const [selectedRange, setSelectedRange] = useState("This Month");
 
   return (
-    <div>
+    <section>
       {/* Header with range selector */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800 mt-3">Overview</h2>
@@ -56,6 +56,6 @@ export default function SummaryCards() {
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

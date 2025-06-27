@@ -1,45 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { recentOrdersData } from "./data/recentOrdersData";
-
-// React Icons
-import { FaCheckCircle, FaClock, FaTimesCircle } from "react-icons/fa";
-
-const getStatusChip = (status) => {
-  switch (status.toLowerCase()) {
-    case "delivered":
-      return {
-        text: "Delivered",
-        icon: <FaCheckCircle className="text-green-600" size={12} />,
-        style: "text-green-700 bg-green-100",
-      };
-    case "pending":
-      return {
-        text: "Pending",
-        icon: <FaClock className="text-yellow-600" size={12} />,
-        style: "text-yellow-800 bg-yellow-100",
-      };
-    case "cancelled":
-      return {
-        text: "Cancelled",
-        icon: <FaTimesCircle className="text-red-600" size={12} />,
-        style: "text-red-700 bg-red-100",
-      };
-    default:
-      return {
-        text: status,
-        icon: null,
-        style: "text-gray-700 bg-gray-100",
-      };
-  }
-};
+import StatusChip from "../helperComponents/StatusChip";
+import { ordersDummy } from "../adminOrders/data/ordersData";
+import OrdersData from "../adminOrders/OrdersData";
 
 const RecentOrders = () => {
   const [showAll, setShowAll] = useState(false);
-  const ordersToShow = showAll ? recentOrdersData : recentOrdersData.slice(0, 5);
+  const ordersToShow = showAll ? ordersDummy : ordersDummy.slice(0, 5);
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-md">
+    <section className="bg-white p-6 rounded-2xl shadow-md">
       <div className="min-h-16 flex justify-between items-center mb-5">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800">Recent Orders</h2>
         <Link
@@ -50,63 +20,23 @@ const RecentOrders = () => {
         </Link>
       </div>
 
-      {ordersToShow.length === 0 ? (
-        <div className="text-center py-10 text-gray-500">No recent orders found.</div>
-      ) : (
-        <>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-gray-600">
-              <thead className="text-sm uppercase text-gray-500 bg-gray-50">
-                <tr>
-                  {["Order ID", "Status", "Date", "User", "Total"].map((header) => (
-                    <th key={header} className="px-4 py-3"> 
-                      {header}
-                    </th> 
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {ordersToShow.map((order, idx) => {
-                  const chip = getStatusChip(order.status);
-                  return (
-                    <tr
-                      key={order.id}
-                      className={`hover:bg-blue-50 hover:shadow-sm transition duration-150 ${
-                        idx !== 0 ? "border-t border-gray-200" : ""
-                      }`}
-                    >
-                      <td className="px-4 py-3 hover:scale-105 transition duration-150 font-medium text-blue-600 hover:underline">
-                        <Link to={`/admin/orders/${order.id}`}>{order.id}</Link>
-                      </td>
-                      <td className="px-4 py-3 hover:scale-105 transition duration-150">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${chip.style}`}>
-                          {chip.icon}
-                          {chip.text}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 hover:scale-105 transition duration-150">{order.date}</td>
-                      <td className="px-4 py-3 hover:scale-105 transition duration-150">{order.user}</td>
-                      <td className="px-4 py-3 hover:scale-105 transition duration-150 font-semibold text-gray-800">{order.total}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+      <div>
+        <OrdersData orders={ordersToShow} StatusChip={StatusChip} />
+      </div>
 
-          {recentOrdersData.length > 5 && (
-            <div className="text-center mt-4">
-              <button
-                onClick={() => setShowAll((prev) => !prev)}
-                className="text-blue-600 hover:underline cursor-pointer font-medium"
-              >
-                {showAll ? "Show Less" : "Show More"}
-              </button>
-            </div>
-          )}
-        </>
-      )}
-    </div>
+      <div>
+        {ordersDummy.length > 5 && (
+          <div className="text-center mt-4">
+            <button
+              onClick={() => setShowAll((prev) => !prev)}
+              className="text-blue-600 hover:underline cursor-pointer font-medium"
+            >
+              {showAll ? "Show Less" : "Show More"}
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
   );
 };
 
