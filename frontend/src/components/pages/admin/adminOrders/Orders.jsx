@@ -1,24 +1,24 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ordersDummy, orderFilterOptions } from "./data/ordersData"
-import { FaCheckCircle, FaClock, FaTimesCircle } from "react-icons/fa";
+import { ordersDummy, orderFilterOptions } from "./data/ordersData";
+import { FaCheckCircle, FaHourglassHalf, FaTimesCircle, FaEye } from "react-icons/fa";
 
 /* Status Chip Helper */
 const StatusChip = ({ status }) => {
   const map = {
     delivered: {
       text: "Delivered",
-      icon: <FaCheckCircle size={12} className="text-green-600" />,
+      icon: <FaCheckCircle size={13} className="text-green-600" />,
       cls: "text-green-700 bg-green-100",
     },
     pending: {
       text: "Pending",
-      icon: <FaClock size={12} className="text-yellow-600" />,
+      icon: <FaHourglassHalf size={13} className="text-yellow-600" />,
       cls: "text-yellow-800 bg-yellow-100",
     },
     cancelled: {
       text: "Cancelled",
-      icon: <FaTimesCircle size={12} className="text-red-600" />,
+      icon: <FaTimesCircle size={13} className="text-red-600" />,
       cls: "text-red-700 bg-red-100",
     },
   };
@@ -30,7 +30,9 @@ const StatusChip = ({ status }) => {
   };
 
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${cfg.cls}`}>
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${cfg.cls}`}
+    >
       {cfg.icon}
       {cfg.text}
     </span>
@@ -48,7 +50,7 @@ export default function Orders() {
   });
 
   return (
-    <div className="bg-gray-100 min-h-screen p-6 rounded-2xl shadow-md">
+    <section className="bg-gray-100 min-h-screen p-6 rounded-2xl shadow-md">
       {/* Header + Filters */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800">All Orders</h2>
@@ -81,7 +83,9 @@ export default function Orders() {
           <thead className="bg-gray-50 uppercase text-sm text-gray-500">
             <tr>
               {["Order No", "Date", "Product", "Status", "Action"].map((h) => (
-                <th key={h} className="px-4 py-3">{h}</th>
+                <th key={h} className="px-4 py-3">
+                  {h}
+                </th>
               ))}
             </tr>
           </thead>
@@ -101,18 +105,34 @@ export default function Orders() {
                     i !== 0 ? "border-t border-gray-200" : ""
                   }`}
                 >
-                  <td className="px-4 py-3">{o.orderNo}</td>
-                  <td className="px-4 py-3">{o.date}</td>
-                  <td className="px-4 py-3">{o.product}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 hover:scale-105 transition duration-150" title="Order Number">
+                    {o.orderNo}
+                  </td>
+                  <td className="px-4 py-3 hover:scale-105 transition duration-150" title="Order Date">
+                    {o.date}
+                  </td>
+
+                  {/* ----  UPDATED CELL: use o.products[0].name  ---- */}
+                  <td className="px-4 py-3 hover:scale-105 transition duration-150" title="Products Name">
+                    {o.products[0].name}
+                    {o.products.length > 1 && (
+                      <span className="font-semibold">
+                        {" "}
+                        +{o.products.length - 1} more
+                      </span>
+                    )}
+                  </td>
+                  {/* -------------------------------------------------- */}
+
+                  <td className="px-4 py-3 hover:scale-105 transition duration-150" title={o.status}>
                     <StatusChip status={o.status} />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 hover:scale-105 transition duration-150">
                     <Link
                       to={`/admin/all-orders/order-details/${o.orderNo}`}
-                      className="text-blue-600 hover:underline font-medium"
+                      className="mx-auto font-medium" title="View"
                     >
-                      View
+                      <FaEye size={18} />
                     </Link>
                   </td>
                 </tr>
@@ -121,6 +141,6 @@ export default function Orders() {
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   );
 }

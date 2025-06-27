@@ -40,10 +40,10 @@ export const adminSidebarMenu = [
     section: "CUSTOMERS",
     items: [
       {
-        label: "Customer Overview",
+        label: "Manage Customers",
         icon: FiUsers,
         expandable: false,
-        path: "/admin/customers",
+        path: "/admin/all-customers",
       },
     ],
   },

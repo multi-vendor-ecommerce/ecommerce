@@ -1,26 +1,33 @@
 import { useParams } from "react-router-dom";
 import { ordersDummy } from "./data/ordersData";
-
-// React Icons
-import { FaBarcode, FaCalendarAlt, FaBoxOpen, FaUser, FaStore, FaMoneyBill, FaInfoCircle } from "react-icons/fa";
-
-const fieldMap = {
-  orderNo: { label: "Order Number", icon: <FaBarcode /> },
-  date: { label: "Order Date", icon: <FaCalendarAlt /> },
-  product: { label: "Product", icon: <FaBoxOpen /> },
-  customer: { label: "Customer", icon: <FaUser /> },
-  vendor: { label: "Vendor", icon: <FaStore /> },
-  payment: { label: "Payment", icon: <FaMoneyBill /> },
-  status: { label: "Status", icon: <FaInfoCircle /> },
-};
+import { FaCheckCircle, FaTimesCircle, FaHourglassHalf } from "react-icons/fa";
+import { MdEmail, MdPhone } from "react-icons/md";
 
 const getStatusBadge = (status) => {
-  const map = {
-    delivered: "bg-green-100 text-green-700",
-    pending: "bg-yellow-100 text-yellow-700",
-    cancelled: "bg-red-100 text-red-700",
-  };
-  return map[status.toLowerCase()] || "bg-gray-100 text-gray-700";
+  const base = "text-sm px-2 py-1 rounded-full font-semibold inline-flex items-center gap-1";
+  switch (status.toLowerCase()) {
+    case "delivered":
+      return `${base} text-green-700 bg-green-100`;
+    case "pending":
+      return `${base} text-yellow-700 bg-yellow-100`;
+    case "cancelled":
+      return `${base} text-red-700 bg-red-100`;
+    default:
+      return `${base} text-gray-700 bg-gray-100`;
+  }
+};
+
+const getStatusIcon = (status) => {
+  switch (status.toLowerCase()) {
+    case "delivered":
+      return <FaCheckCircle />;
+    case "pending":
+      return <FaHourglassHalf />;
+    case "cancelled":
+      return <FaTimesCircle />;
+    default:
+      return null;
+  }
 };
 
 const OrderDetails = () => {
@@ -36,36 +43,89 @@ const OrderDetails = () => {
   }
 
   return (
-    <div className="p-8 min-h-screen bg-gray-100">
-      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6"> Order Details</h2>
+    <section className="p-6 md:p-10 min-h-screen bg-gray-100">
+      <h1 className="text-xl md:text-2xl font-bold mb-8 text-gray-800">Order Details</h1>
 
-      <div className="bg-white rounded-3xl shadow-lg w-[90%] p-8 md:text-lg shadow-blue-500 transition duration-150">
-        <div className="grid gap-5">
-        {Object.entries(fieldMap).map(([key, { label, icon }]) => (
-          <div
-            key={key}
-            className="flex items-center justify-between pb-3"
-          >
-            <div className="flex items-center gap-2 text-gray-600 font-medium">
-              {icon}
-              {label}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Product Info */}
+        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
+          <h2 className="text-lg md:text-xl font-semibold text-gray-700 pb-2">Product Info</h2>
+          <div className="text-gray-800">
+            <div className="flex justify-between items-center mb-2">
+              <div className="mb-2">
+                <span className="font-semibold text-gray-600">Order No:</span> {order.orderNo}
+              </div>
+              <div className="mb-2">
+                <span className="font-semibold text-gray-600">Date:</span> {order.date}
+              </div>
             </div>
-            {key === "status" ? (
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusBadge(
-                  order[key]
-                )}`}
+            {order.products.map((prod, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between bg-gray-50 rounded-lg p-4 cursor-pointer"
               >
-                {order[key]}
-              </span>
-            ) : (
-              <span className="text-gray-800 font-semibold">{order[key]}</span>
-            )}
+                <div className="flex items-center gap-4">
+                  {/* Placeholder image */}
+                  <div className="w-12 h-12 bg-gray-200 rounded" />
+                  <div>
+                    <p className="font-semibold text-gray-800">{prod.name}</p>
+                    <p className="text-xs text-gray-500">ID: {order.orderNo}-{idx + 1}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  {/* price & qty placeholders */}
+                  <p className="font-semibold text-gray-800">₹{prod.price}</p>
+                  <p className="text-xs text-gray-500">Qty: {prod.qty}</p>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {/* Customer & Vendor Info */}
+        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
+          <h2 className="text-lg md:text-xl font-semibold text-gray-700 pb-2">Customer & Vendor</h2>
+          <div className="text-gray-800 flex flex-col items-stretch justify-between gap-5">
+            <div>
+              <div>
+                <span className="font-semibold text-gray-600">Customer: </span>
+                <span className="cursor-pointer hover:font-medium hover:text-black transition duration-200">{order.customer.name}</span>
+              </div>
+              <div className="text-sm text-blue-500 mt-1 hover:underline flex gap-3 items-center">
+                <span><MdEmail /></span>
+                <span>{order.customer.email}</span>
+              </div>
+              <div className="text-sm text-gray-500 mt-2 flex gap-3 items-center">
+                <span><MdPhone /></span>
+                <span>{order.customer.phone}</span>
+              </div>
+            </div>
+
+            <div className="mb-2">
+              <span className="font-semibold text-gray-600">Vendor:</span> {order.vendor.name}
+              <div className="text-sm text-gray-500">
+                {order.vendor.email}
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Payment & Status */}
+        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-150 space-y-4 md:col-span-2">
+          <h2 className="text-lg font-semibold text-gray-700 pb-2">Payment & Status</h2>
+          <div className="flex flex-col md:flex-row justify-between gap-4">
+            <div className="text-gray-800">
+              <span className="font-semibold text-gray-600">Payment:</span> {order.payment}
+            </div>
+            <div className={getStatusBadge(order.status)}>
+              {getStatusIcon(order.status)}
+              {order.status}
+            </div>
+          </div>
+        </div>
       </div>
-      </div>
-    </div>
+    </section>
   );
 };
 
