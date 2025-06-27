@@ -7,7 +7,7 @@ const TopProducts = () => {
   const productsToShow = showAll ? topProducts : topProducts.slice(0, 5);
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-md transition duration-300">
+    <section className="bg-white p-6 rounded-2xl shadow-md transition duration-300">
       <div className="min-h-16 flex justify-between items-center mb-5">
         <h2 className="textxl md:text-2xl font-bold text-gray-800">Top Selling Products</h2>
         <Link
@@ -18,7 +18,7 @@ const TopProducts = () => {
         </Link>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-xl">
         <table className="w-full text-left text-gray-600">
           <thead className="text-sm uppercase text-gray-500 bg-gray-50">
             <tr>
@@ -26,16 +26,15 @@ const TopProducts = () => {
                 <th key={header} className="px-4 py-3">
                   {header}
                 </th>
-              ))}  
+              ))}
             </tr>
           </thead>
           <tbody>
             {productsToShow.map((product, idx) => (
               <tr
                 key={product.id}
-                className={`hover:bg-blue-50 hover:shadow-sm transition duration-150 ${
-                  idx !== 0 ? "border-t border-gray-200" : ""
-                }`}
+                className={`hover:bg-blue-50 hover:shadow-sm transition duration-150 ${idx !== 0 ? "border-t border-gray-200" : ""
+                  }`}
               >
                 <td className="px-4 py-3 hover:scale-105 transition duration-150 font-medium text-blue-600 hover:underline">
                   <Link to={`/admin/orders/${product.id}`}>{product.id}</Link>
@@ -52,17 +51,19 @@ const TopProducts = () => {
         </table>
       </div>
 
-      {topProducts.length > 5 && (
-        <div className="text-center mt-4">
-          <button
-            onClick={() => setShowAll((prev) => !prev)}
-            className="text-blue-600 hover:underline cursor-pointer font-medium"
-          >
-            {showAll ? "Show Less" : "Show More"}
-          </button>
-        </div>
-      )}
-    </div>
+      <div>
+        {topProducts.length > 5 && (
+          <div className="text-center mt-4">
+            <button
+              onClick={() => setShowAll((prev) => !prev)}
+              className="text-blue-600 hover:underline cursor-pointer font-medium"
+            >
+              {showAll ? "Show Less" : "Show More"}
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
   );
 };
 

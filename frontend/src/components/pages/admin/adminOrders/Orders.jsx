@@ -1,43 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { ordersDummy, orderFilterOptions } from "./data/ordersData";
-import { FaCheckCircle, FaHourglassHalf, FaTimesCircle, FaEye } from "react-icons/fa";
-
-/* Status Chip Helper */
-const StatusChip = ({ status }) => {
-  const map = {
-    delivered: {
-      text: "Delivered",
-      icon: <FaCheckCircle size={13} className="text-green-600" />,
-      cls: "text-green-700 bg-green-100",
-    },
-    pending: {
-      text: "Pending",
-      icon: <FaHourglassHalf size={13} className="text-yellow-600" />,
-      cls: "text-yellow-800 bg-yellow-100",
-    },
-    cancelled: {
-      text: "Cancelled",
-      icon: <FaTimesCircle size={13} className="text-red-600" />,
-      cls: "text-red-700 bg-red-100",
-    },
-  };
-
-  const cfg = map[status.toLowerCase()] || {
-    text: status,
-    icon: null,
-    cls: "text-gray-700 bg-gray-100",
-  };
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${cfg.cls}`}
-    >
-      {cfg.icon}
-      {cfg.text}
-    </span>
-  );
-};
+import StatusChip from "../helperComponents/StatusChip";
+import OrdersData from "./OrdersData";
 
 /* Main Orders Component */
 export default function Orders() {
@@ -78,68 +42,8 @@ export default function Orders() {
       </div>
 
       {/* Table */}
-      <div className="bg-white shadow-md shadow-blue-500 overflow-x-auto rounded-xl border border-gray-200">
-        <table className="w-full text-left text-gray-600">
-          <thead className="bg-gray-50 uppercase text-sm text-gray-500">
-            <tr>
-              {["Order No", "Date", "Product", "Status", "Action"].map((h) => (
-                <th key={h} className="px-4 py-3">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody className="bg-white">
-            {filtered.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="py-10 text-center text-gray-500">
-                  No orders found.
-                </td>
-              </tr>
-            ) : (
-              filtered.map((o, i) => (
-                <tr
-                  key={o.orderNo}
-                  className={`hover:bg-blue-50 hover:shadow-sm transition ${
-                    i !== 0 ? "border-t border-gray-200" : ""
-                  }`}
-                >
-                  <td className="px-4 py-3 hover:scale-105 transition duration-150" title="Order Number">
-                    {o.orderNo}
-                  </td>
-                  <td className="px-4 py-3 hover:scale-105 transition duration-150" title="Order Date">
-                    {o.date}
-                  </td>
-
-                  {/* ----  UPDATED CELL: use o.products[0].name  ---- */}
-                  <td className="px-4 py-3 hover:scale-105 transition duration-150" title="Products Name">
-                    {o.products[0].name}
-                    {o.products.length > 1 && (
-                      <span className="font-semibold">
-                        {" "}
-                        +{o.products.length - 1} more
-                      </span>
-                    )}
-                  </td>
-                  {/* -------------------------------------------------- */}
-
-                  <td className="px-4 py-3 hover:scale-105 transition duration-150" title={o.status}>
-                    <StatusChip status={o.status} />
-                  </td>
-                  <td className="px-4 py-3 hover:scale-105 transition duration-150">
-                    <Link
-                      to={`/admin/all-orders/order-details/${o.orderNo}`}
-                      className="mx-auto font-medium" title="View"
-                    >
-                      <FaEye size={18} />
-                    </Link>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="shadow-md shadow-blue-500 rounded-xl border border-gray-200">
+        <OrdersData orders={filtered} StatusChip={StatusChip} />
       </div>
     </section>
   );
