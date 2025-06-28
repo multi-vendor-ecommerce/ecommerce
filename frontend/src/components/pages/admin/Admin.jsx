@@ -7,6 +7,7 @@ import Orders from "./adminOrders/Orders";
 import OrderDetails from "./adminOrders/OrderDetails";
 import NotFoundPage from "../../common/notPageFound";
 import Customers from "./adminCustomers/Customers";
+import CouponsManager from "./couponManager/CouponManager";
 
 const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -36,6 +37,7 @@ const Admin = () => {
             </Route>
 
             <Route path="/all-customers" element={<Customers />} />
+            <Route path="/coupons" element={<CouponsManager />} />
 
             {/* Fallback route for unmatched paths */}
             <Route path="*" element={<NotFoundPage destination="/admin" />} />
