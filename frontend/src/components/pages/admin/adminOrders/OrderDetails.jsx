@@ -88,23 +88,27 @@ const OrderDetails = () => {
           <div className="text-gray-800 flex flex-col items-stretch justify-between gap-5">
             <div>
               <div>
-                <span className="font-semibold text-gray-600">Customer: </span>
-                <span className="cursor-pointer hover:font-medium hover:text-black transition duration-200">{order.customer.name}</span>
+                <span className="text-[16px] md:text-lg font-semibold text-gray-600">Customer: </span>
+                <span className="text-[16px] md:text-lg cursor-pointer hover:font-medium hover:text-black transition duration-200">{order.customer.name}</span>
               </div>
-              <div className="text-sm text-blue-500 mt-1 hover:underline flex gap-3 items-center">
+              <div className="text-sm md:text-[16px] text-blue-500 mt-1 hover:underline flex gap-3 items-center">
                 <span><MdEmail /></span>
                 <span>{order.customer.email}</span>
               </div>
-              <div className="text-sm text-gray-500 mt-2 flex gap-3 items-center">
+              <div className="text-sm md:text-[16px] text-gray-500 mt-2 flex gap-3 items-center">
                 <span><MdPhone /></span>
                 <span>{order.customer.phone}</span>
               </div>
             </div>
 
             <div className="mb-2">
-              <span className="font-semibold text-gray-600">Vendor:</span> {order.vendor.name}
-              <div className="text-sm text-gray-500">
-                {order.vendor.email}
+              <div className="mb-1">
+                <span className="text-[16px] md:text-lg font-semibold text-gray-600">Vendor: </span>
+                <span className="text-[16px] md:text-lg cursor-pointer hover:font-medium hover:text-black transition duration-200">{order.vendor.name}</span>
+              </div>
+              <div className="text-sm md:text-[16px] text-blue-500 hover:underline flex gap-3 items-center">
+                <span><MdEmail /></span>
+                <span>{order.vendor.email}</span>
               </div>
             </div>
 
