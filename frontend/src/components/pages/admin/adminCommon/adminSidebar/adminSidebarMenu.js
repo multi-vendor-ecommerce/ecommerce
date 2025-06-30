@@ -66,10 +66,10 @@ export const adminSidebarMenu = [
     section: "EMAILS",
     items: [
       {
-        label: "Email Templates",
+        label: "Email Templates Editor",
         icon: FiMail,
         expandable: false,
-        path: "/admin/emails",
+        path: "/admin/emails-template-editor",
       },
     ],
   },
