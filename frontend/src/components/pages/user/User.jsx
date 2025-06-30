@@ -13,11 +13,15 @@ import PaymentSuccess from "./Checkout/PaymentSuccess";
 import Wishlist from "./Cart/Wishlist";
 
 import UserProfile from "./Profile/UserProfile";
-import Order from "./Profile/Order";
 import Address from "./Profile/Address";
 
 import ProductSection from "./Home/ProductSection";
 import ProductDetails from "./Product/ProductDetail";
+
+import Account from "./Account/Account";
+
+import Order from "./Order/Order";
+import OrderDetails from "./Order/OrderDetails";
 export default function User() {
   return (
     <>
@@ -32,10 +36,16 @@ export default function User() {
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/profile" element={<UserProfile />} />
-          <Route path="/profile/orders" element={<Order />} />
           <Route path="/profile/address" element={<Address />} />
-                  <Route path="/products" element={<ProductSection title="All Products" />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
+          <Route
+            path="/products"
+            element={<ProductSection title="All Products" />}
+          />
+          <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="Account" element={<Account />} />
+
+          <Route path="/order" element={<Order/>} />
+<Route path="/order/:orderId" element={<OrderDetails />} />
         </Routes>
         <UserFooter />
       </CartProvider>
