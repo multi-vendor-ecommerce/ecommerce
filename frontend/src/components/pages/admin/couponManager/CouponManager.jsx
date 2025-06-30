@@ -63,7 +63,7 @@ export default function CouponsManager() {
   };
 
   return (
-    <section className="bg-gray-100 min-h-screen p-6 rounded-2xl shadow-md">
+    <section className="bg-gray-100 min-h-screen p-6 shadow-md">
       <h2 className="text-2xl font-bold mb-6">Coupon Manager</h2>
 
       {/* form card */}

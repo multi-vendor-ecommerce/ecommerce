@@ -8,6 +8,7 @@ import OrderDetails from "./adminOrders/OrderDetails";
 import NotFoundPage from "../../common/notPageFound";
 import Customers from "./adminCustomers/Customers";
 import CouponsManager from "./couponManager/CouponManager";
+import EmailTemplateEditor from "./adminEmailEditor/EmailTemplateEditor";
 
 const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -38,6 +39,7 @@ const Admin = () => {
 
             <Route path="/all-customers" element={<Customers />} />
             <Route path="/coupons" element={<CouponsManager />} />
+            <Route path="/emails-template-editor" element={<EmailTemplateEditor />} />
 
             {/* Fallback route for unmatched paths */}
             <Route path="*" element={<NotFoundPage destination="/admin" />} />
