@@ -55,7 +55,7 @@ const OrdersData = ({ orders = [], StatusChip }) => {
                 <td className="px-4 py-3 hover:scale-105 transition duration-150">
                   <div className="flex items-center gap-4">
                     <Link
-                      to={`/admin/all-orders/order-details/${o.orderNo}`}
+                      to={`order-details/${o.orderNo}`}
                       title="View order"
                       className="hover:text-blue-600 transition"
                     >

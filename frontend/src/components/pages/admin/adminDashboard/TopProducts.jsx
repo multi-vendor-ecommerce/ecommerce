@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { topProducts } from "./data/topProductsData";
+import ProductsDetails from "../adminProducts/ProductsDetails";
+import { productsData } from "../adminProducts/data/productsData";
 
 const TopProducts = () => {
   const [showAll, setShowAll] = useState(false);
-  const productsToShow = showAll ? topProducts : topProducts.slice(0, 5);
+  const productsToShow = showAll ? productsData : productsData.slice(0, 5);
 
   return (
     <section className="bg-white p-6 rounded-2xl shadow-md transition duration-300">
@@ -18,41 +19,12 @@ const TopProducts = () => {
         </Link>
       </div>
 
-      <div className="overflow-x-auto rounded-xl">
-        <table className="w-full text-left text-gray-600">
-          <thead className="text-sm uppercase text-gray-500 bg-gray-50">
-            <tr>
-              {["Product ID", "Name", "Category", "Units Sold", "Revenue"].map((header) => (
-                <th key={header} className="px-4 py-3">
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {productsToShow.map((product, idx) => (
-              <tr
-                key={product.id}
-                className={`hover:bg-blue-50 hover:shadow-sm transition duration-150 ${idx !== 0 ? "border-t border-gray-200" : ""
-                  }`}
-              >
-                <td className="px-4 py-3 hover:scale-105 transition duration-150 font-medium text-blue-600 hover:underline">
-                  <Link to={`/admin/orders/${product.id}`}>{product.id}</Link>
-                </td>
-                <td className="px-4 py-3 hover:scale-105 transition duration-150 font-medium">{product.name}</td>
-                <td className="px-4 py-3 hover:scale-105 transition duration-150">{product.category}</td>
-                <td className="px-4 py-3 hover:scale-105 transition duration-150">{product.sales}</td>
-                <td className="px-4 py-3 hover:scale-105 transition duration-150 font-semibold text-gray-800">
-                  {product.revenue}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="rounded-xl overflow-x-auto">
+        <ProductsDetails currentItems={productsToShow} />
       </div>
 
       <div>
-        {topProducts.length > 5 && (
+        {productsData.length > 5 && (
           <div className="text-center mt-4">
             <button
               onClick={() => setShowAll((prev) => !prev)}

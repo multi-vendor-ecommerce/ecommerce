@@ -36,7 +36,7 @@ const OrderDetails = () => {
 
   if (!order) {
     return (
-      <div className="p-6 text-center text-gray-500 text-lg font-medium">
+      <div className="p-6 text-center bg-gray-100 text-gray-600 text-lg md:text-3xl font-medium md:font-bold">
         Order not found.
       </div>
     );

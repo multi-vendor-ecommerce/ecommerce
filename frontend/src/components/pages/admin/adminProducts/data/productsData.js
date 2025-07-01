@@ -1,0 +1,42 @@
+export const productsData = [
+  {
+    id: "P001",
+    name: "Canon EOS R50",
+    image: "https://via.placeholder.com/60",
+    category: "Cameras",
+    price: "240000",
+    sales: 134,
+  },
+  {
+    id: "P002",
+    name: "Sony Alpha ZV-E10",
+    image: "https://via.placeholder.com/60",
+    category: "Cameras",
+    price: "205000",
+    sales: 120,
+  },
+  {
+    id: "P003",
+    name: "GoPro Hero 11 Black",
+    image: "https://via.placeholder.com/60",
+    category: "Action Cameras",
+    price: "156000",
+    sales: 946,
+  },
+  {
+    id: "P004",
+    name: "Nikon Z50",
+    image: "https://via.placeholder.com/60",
+    category: "Cameras",
+    price: "145500",
+    sales: 844,
+  },
+  {
+    id: "P005",
+    name: "DJI Osmo Pocket 3",
+    image: "https://via.placeholder.com/60",
+    category: "Gimbals",
+    price: "112400",
+    sales: 726,
+  },
+];
