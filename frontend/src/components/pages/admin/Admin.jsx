@@ -45,7 +45,7 @@ const Admin = () => {
             {/* Nested route block for products */}
             <Route path="all-products/">
               <Route index element={<Products heading="All Products" />} />
-              <Route path="edit-dismiss/:productId" element={<OrderDetails />} />
+              <Route path="edit-delete/:productId" element={<OrderDetails />} />
             </Route>
 
             <Route path="top-products" element={<Products heading="Top Products" />} />

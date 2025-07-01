@@ -4,7 +4,7 @@ export const productsData = [
     name: "Canon EOS R50",
     image: "https://via.placeholder.com/60",
     category: "Cameras",
-    price: "240000",
+    revenue: "240000",
     sales: 134,
   },
   {
@@ -12,7 +12,7 @@ export const productsData = [
     name: "Sony Alpha ZV-E10",
     image: "https://via.placeholder.com/60",
     category: "Cameras",
-    price: "205000",
+    revenue: "205000",
     sales: 120,
   },
   {
@@ -20,7 +20,7 @@ export const productsData = [
     name: "GoPro Hero 11 Black",
     image: "https://via.placeholder.com/60",
     category: "Action Cameras",
-    price: "156000",
+    revenue: "156000",
     sales: 946,
   },
   {
@@ -28,7 +28,7 @@ export const productsData = [
     name: "Nikon Z50",
     image: "https://via.placeholder.com/60",
     category: "Cameras",
-    price: "145500",
+    revenue: "145500",
     sales: 844,
   },
   {
@@ -36,7 +36,7 @@ export const productsData = [
     name: "DJI Osmo Pocket 3",
     image: "https://via.placeholder.com/60",
     category: "Gimbals",
-    price: "112400",
+    revenue: "112400",
     sales: 726,
   },
 ];

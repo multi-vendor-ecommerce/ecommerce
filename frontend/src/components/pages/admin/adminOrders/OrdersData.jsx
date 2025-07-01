@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { FiEye, FiTrash2 } from "react-icons/fi";
 
 /* Accept orders + StatusChip from parent */
@@ -8,7 +8,7 @@ const OrdersData = ({ orders = [], StatusChip }) => {
       <table className="w-full text-left text-gray-600">
         <thead className="bg-gray-50 uppercase text-sm text-gray-500">
           <tr>
-            {["Order No", "Date", "Product", "Status", "Action"].map((h) => (
+            {["Order No", "Date", "Product", "Status", "Actions"].map((h) => (
               <th key={h} className="px-4 py-3">
                 {h}
               </th>
@@ -31,8 +31,8 @@ const OrdersData = ({ orders = [], StatusChip }) => {
                   i !== 0 ? "border-t border-gray-200" : ""
                 }`}
               >
-                <td className="px-4 py-3 text-blue-600 font-medium hover:scale-105 transition duration-150" title="Order Number">
-                  #{o.orderNo}
+                <td className="px-4 py-3 text-blue-600 font-medium hover:scale-105 transition duration-150 hover:underline" title="Order Number">
+                  <NavLink to={`order-details/${o.orderNo}`}>#{o.orderNo}</NavLink>
                 </td>
                 <td className="px-4 py-3 hover:scale-105 transition duration-150" title="Order Date">
                   {o.date}
@@ -54,20 +54,20 @@ const OrdersData = ({ orders = [], StatusChip }) => {
                 {/* actions */}
                 <td className="px-4 py-3 hover:scale-105 transition duration-150">
                   <div className="flex items-center gap-4">
-                    <Link
+                    <NavLink
                       to={`order-details/${o.orderNo}`}
                       title="View order"
-                      className="hover:text-blue-600 transition"
+                      className="hover:text-blue-600 hover:scale-110 transition duration-150"
                     >
-                      <FiEye size={18} />
-                    </Link>
+                      <FiEye size={20} />
+                    </NavLink>
 
                     <button
                       title="Delete order"
-                      className="hover:text-red-600 transition"
+                      className="hover:text-red-600 hover:scale-110 transition duration-150 cursor-pointer"
                       onClick={() => console.log("TODO: delete", o.orderNo)}
                     >
-                      <FiTrash2 size={18} />
+                      <FiTrash2 size={20} />
                     </button>
                   </div>
                 </td>
