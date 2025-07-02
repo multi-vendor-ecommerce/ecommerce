@@ -39,7 +39,7 @@ export default function EmailTemplateEditor() {
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
       <h2 className="text-2xl font-bold mb-6">Email Template Editor</h2>
 
-      <div className="bg-white border shadow-md rounded-xl p-6">
+      <div className="bg-white shadow-md shadow-blue-500 rounded-xl p-6">
         <label className="block font-medium text-gray-700 mb-2">
           Select Email Type:
         </label>

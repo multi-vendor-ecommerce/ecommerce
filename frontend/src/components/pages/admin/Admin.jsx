@@ -42,13 +42,9 @@ const Admin = () => {
             <Route path="coupons" element={<CouponsManager />} />
             <Route path="emails-template-editor" element={<EmailTemplateEditor />} />
 
-            {/* Nested route block for products */}
-            <Route path="all-products/">
-              <Route index element={<Products heading="All Products" />} />
-              <Route path="edit-delete/:productId" element={<OrderDetails />} />
-            </Route>
-
+            <Route path="all-products" element={<Products heading="All Products" />} />
             <Route path="top-products" element={<Products heading="Top Products" />} />
+            <Route path="product/edit-delete/:productId" element={<OrderDetails />} />
 
             {/* Fallback route for unmatched paths */}
             <Route path="*" element={<NotFoundPage destination="/admin" />} />

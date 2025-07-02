@@ -28,12 +28,17 @@ const ProductsData = ({ currentItems }) => {
                   <img
                     src={p.image}
                     alt={p.name}
-                    className="w-12 h-12 rounded object-cover shadow"
+                    className="w-12 h-12 rounded-lg object-cover shadow-md shadow-purple-400"
                   />
-                  <span className="font-semibold text-gray-800" title="Product Name">{p.name}</span>
+                  <span
+                    className="font-semibold text-gray-800 truncate max-w-[120px] sm:max-w-[160px] md:max-w-[200px] block"
+                    title={p.name}
+                  >
+                    {p.name}
+                  </span>
                 </td>
                 <td className="px-4 py-4 text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150" title="Product Number">
-                  <NavLink to={`product-details/${p.id}`}>#{p.id}</NavLink>
+                  <NavLink to={`/admin/product-details/${p.id}`}>#{p.id}</NavLink>
                 </td>
                 <td className="px-4 py-4 hover:scale-105 transition duration-150" title="Product Category">{p.category}</td>
                 <td className="px-4 py-4 font-medium hover:scale-105 transition duration-150" title="Product Sales">{p.sales}</td>
@@ -63,13 +68,13 @@ const ProductsData = ({ currentItems }) => {
                 </td>
                 <td className="px-4 py-4 hover:scale-105 transition duration-150">
                   <div className="flex items-center justify-end gap-4">
-                    <NavLink to={`product-details/${p.id}`} title="View Product" className="hover:text-blue-600 hover:scale-110 transition duration-150">
+                    <NavLink to={`/admin/product-details/${p.id}`} title="View Product" className="hover:text-blue-600 hover:scale-110 transition duration-150">
                       <FiEye size={20} />
                     </NavLink>
-                    <NavLink to={`edit-delete/${p.id}`} title="Edit Product" className="hover:text-blue-600 hover:scale-110 transition duration-150">
+                    <NavLink to={`/admin/product/edit-delete/${p.id}`} title="Edit Product" className="hover:text-blue-600 hover:scale-110 transition duration-150">
                       <FiEdit size={20} />
                     </NavLink>
-                    <NavLink to={`edit-delete/${p.id}`} title="Delete Product" className="hover:text-red-600 hover:scale-110 transition duration-150">
+                    <NavLink to={`/admin/product/edit-delete/${p.id}`} title="Delete Product" className="hover:text-red-600 hover:scale-110 transition duration-150">
                       <FiTrash2 size={20} />
                     </NavLink>
                   </div>
