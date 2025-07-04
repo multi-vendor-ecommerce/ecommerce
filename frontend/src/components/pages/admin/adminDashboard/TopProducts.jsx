@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import ProductsDetails from "../adminProducts/ProductsDetails";
 import { productsData } from "../adminProducts/data/productsData";
+import TabularData from "../../../common/layout/TabularData";
+import { RenderProductRow } from "../adminProducts/RenderProductRow";
 
 const TopProducts = () => {
   const [showAll, setShowAll] = useState(false);
@@ -19,8 +20,14 @@ const TopProducts = () => {
         </Link>
       </div>
 
-      <div className="rounded-xl overflow-x-auto">
-        <ProductsDetails currentItems={productsToShow} />
+      <div>
+        <TabularData
+          headers={["Product", "ID", "Category", "Units Sold", "Revenue", "Sales Progress", "Actions"]}
+          data={productsToShow}
+          renderRow={(p, i) => RenderProductRow(p, i)}
+          emptyMessage="No products available."
+          widthClass="w-full"
+        />
       </div>
 
       <div>

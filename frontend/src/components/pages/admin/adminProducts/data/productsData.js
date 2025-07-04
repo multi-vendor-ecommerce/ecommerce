@@ -1,4 +1,5 @@
 export const productsData = [
+  // ── original 5 ───────────────────────────────────────────────
   {
     id: "P001",
     name: "Canon EOS R50",
@@ -38,5 +39,87 @@ export const productsData = [
     category: "Gimbals",
     revenue: "112400",
     sales: 726,
+  },
+
+  // ── new additions ────────────────────────────────────────────
+  {
+    id: "P006",
+    name: "Fujifilm X-S20",
+    image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
+    category: "Cameras",
+    revenue: "98000",
+    sales: 412,
+  },
+  {
+    id: "P007",
+    name: "Canon RF 24-70 mm f/2.8L IS",
+    image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
+    category: "Lenses",
+    revenue: "86000",
+    sales: 257,
+  },
+  {
+    id: "P008",
+    name: "DJI Mini 4 Pro",
+    image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
+    category: "Drones",
+    revenue: "131500",
+    sales: 653,
+  },
+  {
+    id: "P009",
+    name: "Rode Wireless PRO",
+    image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
+    category: "Audio",
+    revenue: "54200",
+    sales: 318,
+  },
+  {
+    id: "P010",
+    name: "Blackmagic Pocket 6K G2",
+    image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
+    category: "Cinema Cameras",
+    revenue: "225000",
+    sales: 97,
+  },
+  {
+    id: "P011",
+    name: "Sigma 35 mm f/1.4 Art",
+    image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
+    category: "Lenses",
+    revenue: "74000",
+    sales: 284,
+  },
+  {
+    id: "P012",
+    name: "SanDisk Extreme Pro 256 GB",
+    image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
+    category: "Accessories",
+    revenue: "38200",
+    sales: 1_120,
+  },
+  {
+    id: "P013",
+    name: "Elgato Key Light Air",
+    image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
+    category: "Lighting",
+    revenue: "46500",
+    sales: 536,
+  },
+  {
+    id: "P014",
+    name: "Atomos Ninja V+",
+    image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
+    category: "Recorders",
+    revenue: "119900",
+    sales: 211,
+  },
+  {
+    id: "P015",
+    name: "Zhiyun Crane M3 S",
+    image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
+    category: "Gimbals",
+    revenue: "67500",
+    sales: 390,
   },
 ];

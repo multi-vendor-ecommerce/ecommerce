@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import StatusChip from "../helperComponents/StatusChip";
 import { ordersDummy } from "../adminOrders/data/ordersData";
-import OrdersData from "../adminOrders/OrdersData";
+import TabularData from "../../../common/layout/TabularData";
+import { RenderOrderRow } from "../adminOrders/RenderOrderRow";
 
 const RecentOrders = () => {
   const [showAll, setShowAll] = useState(false);
@@ -21,7 +22,13 @@ const RecentOrders = () => {
       </div>
 
       <div>
-        <OrdersData orders={ordersToShow} StatusChip={StatusChip} />
+        <TabularData
+          headers={["Order ID", "Customer", "Date", "Total", "Status", "Actions"]}
+          data={ordersToShow}
+          renderRow={(o, i) => RenderOrderRow(o, i, StatusChip)}
+          emptyMessage="No orders found."
+          widthClass="w-full"
+        />
       </div>
 
       <div>

@@ -18,7 +18,7 @@ const TabularData = ({
   widthClass = "w-screen",
 }) => {
   return (
-    <div className="overflow-x-auto bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
+    <div className="overflow-x-auto">
       <table className={`${widthClass} table-auto text-left text-gray-600`}>
         {/* ── HEAD ─────────────────────────────────────────────── */}
         <thead className="bg-gray-50 text-sm text-gray-500 uppercase">

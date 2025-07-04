@@ -1,24 +1,24 @@
+// components/admin/orders/Orders.jsx
 import { useState } from "react";
 import { ordersDummy, orderFilterOptions } from "./data/ordersData";
 import StatusChip from "../helperComponents/StatusChip";
-import OrdersData from "./OrdersData";
-import Pagination from "../../../common/Pagination";
-import ItemsPerPageSelector from "../../../common/ItemsPerPageSelector";
+import { RenderOrderRow } from "./RenderOrderRow";
+import PaginatedLayout from "../../../common/layout/PaginatedLayout";
+import TabularData from "../../../common/layout/TabularData";
 
 /* Main Orders Component */
 export default function Orders() {
   const [filters, setFilters] = useState({ status: "", date: "" });
-  const [currentPage, setCurrentPage] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  // ── filter logic ───────────────────────────────────────────
   const filtered = ordersDummy.filter((o) => {
     const statusOK = filters.status ? o.status === filters.status : true;
     const dateOK = filters.date ? o.date === filters.date : true;
     return statusOK && dateOK;
   });
 
-  const start = currentPage * itemsPerPage;
-  const currentItems = filtered.slice(start, start + itemsPerPage);
+  // ── table header labels ───────────────────────────────────
+  const headers = ["Order ID", "Customer", "Date", "Total", "Status", "Actions"];
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
@@ -29,10 +29,7 @@ export default function Orders() {
         <div className="flex gap-3 flex-wrap">
           <select
             value={filters.status}
-            onChange={(e) => {
-              setFilters({ ...filters, status: e.target.value });
-              setCurrentPage(0);
-            }}
+            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
             className="border border-gray-300 px-3 py-2 rounded-md text-sm"
           >
             {orderFilterOptions.status.map((opt) => (
@@ -45,36 +42,25 @@ export default function Orders() {
           <input
             type="date"
             value={filters.date}
-            onChange={(e) => {
-              setFilters({ ...filters, date: e.target.value });
-              setCurrentPage(0);
-            }}
+            onChange={(e) => setFilters({ ...filters, date: e.target.value })}
             className="border border-gray-300 px-3 py-2 rounded-md text-sm"
           />
         </div>
       </div>
 
-      {/* Table */}
-      <div className="shadow-md shadow-blue-500 rounded-xl border border-gray-200">
-        <OrdersData orders={currentItems} StatusChip={StatusChip} />
-      </div>
-
-      {/* Pagination + Items/Page */}
-      <div className="flex justify-between items-center mt-6 flex-wrap gap-3">
-        <Pagination
-          totalItems={filtered.length}
-          itemsPerPage={itemsPerPage}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-        />
-        <ItemsPerPageSelector
-          value={itemsPerPage}
-          onChange={(val) => {
-            setItemsPerPage(val);
-            setCurrentPage(0);
-          }}
-        />
-      </div>
+      {/* Table + Pagination handled by PaginatedLayout */}
+      <PaginatedLayout data={filtered} initialPerPage={10}>
+        {(currentItems) => (
+          <div className="overflow-hidden bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
+            <TabularData
+              headers={headers}
+              data={currentItems}
+              renderRow={(o, i) => RenderOrderRow(o, i, StatusChip)}
+              emptyMessage="No orders found."
+            />
+          </div>
+        )}
+      </PaginatedLayout>
     </section>
   );
 }
