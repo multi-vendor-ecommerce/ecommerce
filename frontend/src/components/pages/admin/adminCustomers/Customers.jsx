@@ -21,7 +21,7 @@ const Customers = () => {
       <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">Customers</h2>
 
       <div className="bg-white shadow-md shadow-blue-500 overflow-x-auto rounded-xl border border-gray-200">
-        <table className="w-full text-left text-gray-600">
+        <table className="w-screen text-left text-gray-600">
           <thead className="bg-gray-50 uppercase text-sm text-gray-500">
             <tr>
               {["Customer", "Email", "Location", "Total Orders", "Total Value", "Registered On"].map((header) => (
