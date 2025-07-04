@@ -52,7 +52,7 @@ export const RenderProductRow = (p, i) => {
       </td>
 
       {/* Sales progress bar */}
-      <td className="px-6 py-4 min-w-[220px] hover:scale-105 transition duration-150">
+      <td className="px-6 py-4 min-w-[220px] hover:scale-105 transition duration-150 relative">
         <p
           className={classNames("text-sm mb-1 font-semibold", {
             "text-green-600": isHighSales,
@@ -61,7 +61,7 @@ export const RenderProductRow = (p, i) => {
         >
           {p.sales.toLocaleString()} Sales
         </p>
-        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div className="w-[80%] h-2 bg-gray-200 rounded-full overflow-hidden absolute bottom-5">
           <div
             className={classNames("h-full rounded-full", {
               "bg-green-500": isHighSales,
