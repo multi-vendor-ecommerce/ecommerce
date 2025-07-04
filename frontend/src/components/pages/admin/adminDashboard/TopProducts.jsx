@@ -13,7 +13,7 @@ const TopProducts = () => {
       <div className="min-h-16 flex justify-between items-center mb-5">
         <h2 className="textxl md:text-2xl font-bold text-gray-800">Top Selling Products</h2>
         <Link
-          to="/admin/top-products"
+          to="/admin/top-selling-products"
           className="border-gray-300 px-2 md:px-4 py-2 rounded-xl text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
         >
           View all

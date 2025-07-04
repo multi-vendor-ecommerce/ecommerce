@@ -9,7 +9,7 @@ export const RenderOrderRow = (order, index, StatusChip) => (
   >
     {/* Order No */}
     <td className="px-6 py-3 min-w-[120px] text-blue-600 font-medium hover:underline">
-      <NavLink to={`/admin/orders/order-details/${order.orderNo}`} title="Order Number">
+      <NavLink to={`/admin/all-orders/order-details/${order.orderNo}`} title="Order Number">
         #{order.orderNo}
       </NavLink>
     </td>
@@ -43,7 +43,7 @@ export const RenderOrderRow = (order, index, StatusChip) => (
     <td className="px-6 py-3 min-w-[160px]">
       <div className="inline-flex items-center gap-4">
         <NavLink
-          to={`/admin/orders/order-details/${order.orderNo}`}
+          to={`/admin/all-orders/order-details/${order.orderNo}`}
           title="View order"
           className="hover:text-blue-600 hover:scale-110 transition duration-150"
         >
