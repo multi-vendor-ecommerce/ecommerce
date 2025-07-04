@@ -44,7 +44,7 @@ const Admin = () => {
             <Route path="emails-template-editor" element={<EmailTemplateEditor />} />
 
             <Route path="all-products" element={<Products heading="All Products" />} />
-            <Route path="top-products" element={<Products heading="Top Products" />} />
+            <Route path="top-selling-products" element={<Products heading="Top Selling Products" />} />
             <Route path="product/edit-delete/:productId" element={<OrderDetails />} />
             
             <Route path="all-vendors" element={<VendorManagement />} />
