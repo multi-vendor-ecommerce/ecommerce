@@ -41,7 +41,7 @@ export const RenderOrderRow = (order, index, StatusChip) => (
     <td className="px-4 py-3 hover:scale-105 transition duration-150">
       <div className="flex items-center gap-4">
         <NavLink
-          to={`/admin/orders/order-details/${order.orderNo}`}
+          to={`order-details/${order.orderNo}`}
           title="View order"
           className="hover:text-blue-600 hover:scale-110 transition duration-150"
         >

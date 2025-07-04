@@ -6,7 +6,7 @@ import {
   FaSearch,
   FaBars,
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { categoryData, navCategories } from "../Utils/HeaderData";
 import { useCart } from "../Cart/CartContext";
 
@@ -60,6 +60,8 @@ function UserHeader() {
 
           {/* Icons */}
           <div className="flex items-center gap-6 text-user-dark text-lg">
+            <NavLink to="/admin" className="font-bold">Admin</NavLink>
+
             <Link to="/login" className="hover:text-user-primary">
               Login / Register
             </Link>
