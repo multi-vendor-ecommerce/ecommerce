@@ -48,7 +48,7 @@ export const RenderProductRow = (p, i) => {
 
       {/* Revenue */}
       <td className="px-6 py-4 min-w-[140px] font-bold hover:scale-105 transition duration-150">
-        ₹{Number(p.revenue).toLocaleString()}
+        ₹{(p.revenue).toLocaleString()}
       </td>
 
       {/* Sales progress bar */}

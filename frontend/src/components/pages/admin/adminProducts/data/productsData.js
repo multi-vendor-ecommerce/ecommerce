@@ -5,7 +5,7 @@ export const productsData = [
     name: "Canon EOS R50",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Cameras",
-    revenue: "240000",
+    revenue: 240000,
     sales: 134,
   },
   {
@@ -13,7 +13,7 @@ export const productsData = [
     name: "Sony Alpha ZV-E10",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Cameras",
-    revenue: "205000",
+    revenue: 205000,
     sales: 120,
   },
   {
@@ -21,7 +21,7 @@ export const productsData = [
     name: "GoPro Hero 11 Black",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Action Cameras",
-    revenue: "156000",
+    revenue: 156000,
     sales: 946,
   },
   {
@@ -29,7 +29,7 @@ export const productsData = [
     name: "Nikon Z50",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Cameras",
-    revenue: "145500",
+    revenue: 145500,
     sales: 844,
   },
   {
@@ -37,7 +37,7 @@ export const productsData = [
     name: "DJI Osmo Pocket 3",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Gimbals",
-    revenue: "112400",
+    revenue: 112400,
     sales: 726,
   },
 
@@ -47,7 +47,7 @@ export const productsData = [
     name: "Fujifilm X-S20",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Cameras",
-    revenue: "98000",
+    revenue: 98000,
     sales: 412,
   },
   {
@@ -55,7 +55,7 @@ export const productsData = [
     name: "Canon RF 24-70 mm f/2.8L IS",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Lenses",
-    revenue: "86000",
+    revenue: 86000,
     sales: 257,
   },
   {
@@ -63,7 +63,7 @@ export const productsData = [
     name: "DJI Mini 4 Pro",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Drones",
-    revenue: "131500",
+    revenue: 131500,
     sales: 653,
   },
   {
@@ -71,7 +71,7 @@ export const productsData = [
     name: "Rode Wireless PRO",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Audio",
-    revenue: "54200",
+    revenue: 54200,
     sales: 318,
   },
   {
@@ -79,7 +79,7 @@ export const productsData = [
     name: "Blackmagic Pocket 6K G2",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Cinema Cameras",
-    revenue: "225000",
+    revenue: 225000,
     sales: 97,
   },
   {
@@ -87,7 +87,7 @@ export const productsData = [
     name: "Sigma 35 mm f/1.4 Art",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Lenses",
-    revenue: "74000",
+    revenue: 74000,
     sales: 284,
   },
   {
@@ -95,15 +95,15 @@ export const productsData = [
     name: "SanDisk Extreme Pro 256 GB",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Accessories",
-    revenue: "38200",
-    sales: 1_120,
+    revenue: 38200,
+    sales: 1120,
   },
   {
     id: "P013",
     name: "Elgato Key Light Air",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Lighting",
-    revenue: "46500",
+    revenue: 46500,
     sales: 536,
   },
   {
@@ -111,7 +111,7 @@ export const productsData = [
     name: "Atomos Ninja V+",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Recorders",
-    revenue: "119900",
+    revenue: 119900,
     sales: 211,
   },
   {
@@ -119,7 +119,7 @@ export const productsData = [
     name: "Zhiyun Crane M3 S",
     image: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
     category: "Gimbals",
-    revenue: "67500",
+    revenue: 67500,
     sales: 390,
   },
 ];

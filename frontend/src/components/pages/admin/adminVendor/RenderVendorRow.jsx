@@ -22,10 +22,10 @@ export const renderVendorRow = (v, i, toggleStatus) => (
     <td className="px-6 py-3 min-w-[160px] hover:scale-105 transition duration-150">{v.shopName}</td>
     <td className="px-6 py-3 min-w-[100px] text-center hover:scale-105 transition duration-150">{v.products}</td>
     <td className="px-6 py-3 min-w-[140px] text-center font-bold hover:scale-105 transition duration-150">
-      ₹{v.totalSales}
+      ₹{(v.totalSales).toLocaleString()}
     </td>
     <td className="px-6 py-3 min-w-[140px] text-center font-bold hover:scale-105 transition duration-150">
-      ₹{v.commission}
+      ₹{(v.commission).toLocaleString()}
     </td>
     <td className="px-6 py-3 min-w-[150px] hover:scale-105 transition duration-150">{v.date}</td>
     <td className="px-6 py-3 min-w-[140px]">

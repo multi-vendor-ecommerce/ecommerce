@@ -106,9 +106,7 @@ export const adminSidebarMenu = [
         path: "/admin/all-vendors",
         children: [
           { label: "All Vendors", path: "/admin/all-vendors" },
-          { label: "Shop Overview", path: "/admin/vendor/shop-overview" },
-          { label: "Commissions Viewer", path: "/admin/vendors/commission-viewer" },
-          { label: "Commissions Editor", path: "/admin/vendors/commission-editor" },
+          { label: "Commissions Overview", path: "/admin/vendors/commission-overview" },
         ],
       },
     ],

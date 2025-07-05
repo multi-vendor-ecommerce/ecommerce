@@ -11,6 +11,7 @@ import CouponsManager from "./couponManager/CouponManager";
 import EmailTemplateEditor from "./adminEmailEditor/EmailTemplateEditor";
 import Products from "./adminProducts/Products";
 import VendorManagement from "./adminVendor/VendorManagement";
+import CommissionOverview from "./adminCommissions/CommissionOverview";
 
 const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -48,6 +49,7 @@ const Admin = () => {
             <Route path="product/edit-delete/:productId" element={<OrderDetails />} />
             
             <Route path="all-vendors" element={<VendorManagement />} />
+            <Route path="vendors/commission-overview" element={<CommissionOverview />} />
 
             {/* Fallback route for unmatched paths */}
             <Route path="*" element={<NotFoundPage destination="/admin" />} />
