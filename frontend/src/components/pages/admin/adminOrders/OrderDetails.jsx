@@ -48,7 +48,7 @@ const OrderDetails = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Info */}
-        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
+        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-200 space-y-4">
           <h2 className="text-lg md:text-xl font-semibold text-gray-700 pb-2">Product Info</h2>
           <div className="text-gray-800">
             <div className="flex justify-between items-center mb-2">
@@ -83,7 +83,7 @@ const OrderDetails = () => {
         </div>
 
         {/* Customer & Vendor Info */}
-        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
+        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-200 space-y-4">
           <h2 className="text-lg md:text-xl font-semibold text-gray-700 pb-2">Customer & Vendor</h2>
           <div className="text-gray-800 flex flex-col items-stretch justify-between gap-5">
             <div>
@@ -116,7 +116,7 @@ const OrderDetails = () => {
         </div>
 
         {/* Payment & Status */}
-        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-150 space-y-4 md:col-span-2">
+        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-200 space-y-4 md:col-span-2">
           <h2 className="text-lg font-semibold text-gray-700 pb-2">Payment & Status</h2>
           <div className="flex flex-col md:flex-row justify-between gap-4">
             <div className="text-gray-800">

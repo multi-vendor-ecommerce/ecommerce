@@ -3,7 +3,7 @@ export const dummyVendors = [
     id: 1,
     name: "Radha Rani",
     shopName: "CamStore",
-    email: "Radha@camstore.com",
+    email: "radha@camstore.com",
     products: 12,
     totalSales: 12450,
     commission: 1450,

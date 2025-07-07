@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { clsx } from "clsx";
 import { dateOptions, cards } from "./data/summaryData";
 
 export default function SummaryCards() {
@@ -31,16 +30,7 @@ export default function SummaryCards() {
           return (
             <div
               key={card.label}
-              className={clsx(
-                card.bgColor,
-                "p-5 rounded-xl shadow-sm transition duration-200 flex items-center hover:shadow-md",
-                {
-                  "hover:shadow-green-500": card.shadowColor === "shadow-green-500",
-                  "hover:shadow-pink-500": card.shadowColor === "shadow-pink-500",
-                  "hover:shadow-purple-500": card.shadowColor === "shadow-purple-500",
-                  "hover:shadow-yellow-500": card.shadowColor === "shadow-yellow-500",
-                }
-              )}
+              className={`p-5 rounded-xl shadow-sm transition duration-200 flex items-center ${card.bgColor} hover:shadow-md ${card.shadowColor}`}
             >
               {/* Icon */}
               <Icon className="text-3xl mr-4" />

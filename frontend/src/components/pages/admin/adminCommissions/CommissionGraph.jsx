@@ -13,7 +13,7 @@ const CommissionGraph = ({ heading, chartData }) => {
     <div>
       {/* Line Chart */}
       <h2 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">{heading}</h2>
-      <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-md border-none">
+      <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-md hover:shadow-blue-500 transition duration-200 border-none">
         <ResponsiveContainer width="100%" height={280}>
           <LineChart
             data={chartData}

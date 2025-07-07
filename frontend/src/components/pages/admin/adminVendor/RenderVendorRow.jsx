@@ -18,8 +18,12 @@ export const renderVendorRow = (v, i, toggleStatus) => (
         {v.name}
       </span>
     </td>
-    <td className="px-6 py-3 min-w-[220px] hover:scale-105 transition duration-150">{v.email}</td>
-    <td className="px-6 py-3 min-w-[160px] hover:scale-105 transition duration-150">{v.shopName}</td>
+    <td className="px-6 py-3 min-w-[220px] hover:scale-105 hover:underline transition duration-150">
+      <a href={`mailto:${v.email}`} target="_blank" title={`Mail to ${(v.name).split(" ")[0]}`}>{v.email}</a>
+    </td>
+    <td className="px-6 py-3 min-w-[160px] hover:scale-105 hover:font-semibold hover:text-blue-500 hover:underline transition duration-150">
+      <NavLink to={`/admin/vendor/shop-overview/${v.shopName}`}>{v.shopName}</NavLink>
+    </td>
     <td className="px-6 py-3 min-w-[100px] text-center hover:scale-105 transition duration-150">{v.products}</td>
     <td className="px-6 py-3 min-w-[140px] text-center font-bold hover:scale-105 transition duration-150">
       ₹{(v.totalSales).toLocaleString()}
@@ -41,7 +45,7 @@ export const renderVendorRow = (v, i, toggleStatus) => (
     <td className="px-6 py-3 min-w-[160px] hover:scale-105 transition duration-150">
       <div className="flex items-center gap-3">
         <NavLink
-          to={`/admin/vendor/shop-overview`}
+          to={`/admin/vendor/shop-overview/${v.shopName}`}
           title="View Vendor"
           className="hover:text-blue-600 hover:scale-110 transition duration-150"
         >

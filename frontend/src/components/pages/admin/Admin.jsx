@@ -12,6 +12,7 @@ import EmailTemplateEditor from "./adminEmailEditor/EmailTemplateEditor";
 import Products from "./adminProducts/Products";
 import VendorManagement from "./adminVendor/VendorManagement";
 import CommissionOverview from "./adminCommissions/CommissionOverview";
+import ShopOverview from "./adminVendor/ShopOverview";
 
 const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -50,6 +51,7 @@ const Admin = () => {
             
             <Route path="all-vendors" element={<VendorManagement />} />
             <Route path="vendors/commission-overview" element={<CommissionOverview />} />
+            <Route path="vendor/shop-overview/:shopName" element={<ShopOverview />} />
 
             {/* Fallback route for unmatched paths */}
             <Route path="*" element={<NotFoundPage destination="/admin" />} />

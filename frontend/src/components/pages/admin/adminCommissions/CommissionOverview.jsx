@@ -24,11 +24,11 @@ const CommissionOverview = () => {
       <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Commission Overview</h2>
 
       <div className="flex flex-col gap-8 md:gap-10">
-        <div className="bg-white rounded-xl px-4 py-6 shadow-md shadow-blue-500">
-          <CommissionKeyMetrics heading="Key Metrics" stats={stats} />
+        <div className="bg-white rounded-xl px-4 py-6 shadow-md hover:shadow-blue-500 transition duration-200">
+          <CommissionKeyMetrics stats={stats} />
         </div>
 
-        <div className="bg-white rounded-xl px-4 py-6 shadow-md shadow-indigo-500">
+        <div className="px-4 py-6">
           <CommissionGraph heading="Sales vs Commission (Top 10 Vendors)" chartData={chartData} />
         </div>
       </div>

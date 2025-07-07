@@ -70,7 +70,7 @@ export default function CouponsManager() {
       <AddCoupon form={form} setForm={setForm} errors={errors} handleChange={handleChange} handleAddCoupon={handleAddCoupon}  />
 
       {/* list card */}
-      <div className="bg-white shadow-indigo-500 shadow-md rounded-xl border border-gray-200 p-6">
+      <div className="bg-white hover:shadow-blue-500 shadow-md transition duration-200 rounded-xl border border-gray-200 p-6">
         <h3 className="text-lg md:text-xl font-semibold mb-4">All Coupons</h3>
         {coupons.length === 0 ? (
           <p className="text-gray-500">No coupons available.</p>

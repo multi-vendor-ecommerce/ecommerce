@@ -1,6 +1,6 @@
 const AddCoupon = ({ form, errors, handleChange, handleAddCoupon }) => {
   return (
-    <div className="bg-white shadow-blue-500 shadow-md rounded-xl border border-gray-200 p-6 mb-8">
+    <div className="bg-white hover:shadow-blue-500 shadow-md transition duration-200 rounded-xl border border-gray-200 p-6 mb-8">
       <h3 className="text-lg md:text-xl font-semibold mb-4">Add New Coupon</h3>
 
       <div className="grid md:grid-cols-5 gap-4">
