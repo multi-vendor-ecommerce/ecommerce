@@ -12,7 +12,7 @@ const Dashboard = () => {
     <section aria-label="Admin Dashboard" className="p-6 min-h-screen bg-gray-50">
       <h1 className="text-3xl font-bold text-gray-800 mb-8 bg-gray-200 pl-4 pr-3 py-2.5 rounded-xl">Admin Dashboard</h1>
 
-      <div className="mt-6 bg-white px-4 py-6 rounded-xl shadow">
+      <div className="mt-6 bg-white px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
         <SummaryCards />
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
@@ -21,15 +21,15 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
         <RecentOrders />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
         <TopProducts />
       </div>
 
-      <div className="mt-10 p-4 bg-white rounded-xl shadow">
+      <div className="mt-10 p-4 bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
         <h2 className="text-xl font-semibold mb-3">Vendor Commission Management</h2>
         <p className="text-sm text-gray-600 mb-2">
           Vendor-wise commissions are editable by admin.

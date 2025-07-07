@@ -26,7 +26,7 @@ export default function SummaryCards() {
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card) => {
-          const Icon = card.icon;             // 🔑 extract icon component
+          const Icon = card.icon;
           return (
             <div
               key={card.label}

@@ -10,7 +10,7 @@ const countriesData = [
 
 const TopCountries = () => {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-300 w-full">
+    <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-purple-500 transition duration-300 w-full">
       <h2 className="text-lg md:text-xl ml font-semibold text-gray-800 mb-4">Top Countries</h2>
       <div className="flex flex-col lg:flex-row gap-6">
         {/* World Map Illustration */}
