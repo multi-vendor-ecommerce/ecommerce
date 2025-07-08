@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { dummyVendors } from "./data/dummyVendorsData";
-import { renderVendorRow } from "./renderVendorRow";
+import { RenderVendorRow } from "./RenderVendorRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
 
@@ -29,7 +29,7 @@ const VendorManagement = () => {
             <TabularData
               headers={headers}
               data={currentItems}
-              renderRow={(v, i) => renderVendorRow(v, i, toggleStatus)}
+              renderRow={(v, i) => RenderVendorRow(v, i, toggleStatus)}
               emptyMessage="No vendors found."
             />
           </div>

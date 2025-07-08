@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import { FaCheck, FaTimes } from "react-icons/fa";
 
-export const renderVendorRow = (v, i, toggleStatus) => (
+export const RenderVendorRow = (v, i, toggleStatus) => (
   <tr
     key={v.id}
     className={`hover:bg-blue-50 transition ${i !== 0 && "border-t border-gray-200"}`}
