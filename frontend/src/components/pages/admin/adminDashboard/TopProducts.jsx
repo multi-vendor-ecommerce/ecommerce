@@ -1,13 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import { NavLink } from "react-router-dom";
-import { productsData } from "../adminProducts/data/productsData";
+import ProductContext from "../../../../context/products/ProductContext";
 import TabularData from "../../../common/layout/TabularData";
 import { RenderProductRow } from "../adminProducts/RenderProductRow";
 import ShowLessMore from "../helperComponents/ShowLessMore";
 
 const TopProducts = () => {
+  const context = useContext(ProductContext);
+  const { products, getAllProducts } = context;
+
+  useEffect(() => {
+    getAllProducts();
+  }, []);
+
+  const maxUnitsSold = Math.max(...products.map((p) => p.unitsSold));
+  const topProducts  = [...products].filter(p => p.approved).sort((a, b) => b.unitsSold - a.unitsSold).slice(0, 100);
+
   const [showAll, setShowAll] = useState(false);
-  const productsToShow = showAll ? productsData : productsData.slice(0, 5);
+  const productsToShow = showAll ? topProducts : topProducts.slice(0, 5);
 
   return (
     <section className="bg-white p-6 rounded-2xl shadow-md transition duration-300">
@@ -23,15 +33,15 @@ const TopProducts = () => {
 
       <div>
         <TabularData
-          headers={["Product", "ID", "Category", "Units Sold", "Revenue", "Sales Progress", "Actions"]}
+          headers={["Product", "ID", "Category", "Price", "Units Sold", "Revenue", "Sales Progress", "Actions"]}
           data={productsToShow}
-          renderRow={(p, i) => RenderProductRow(p, i)}
+          renderRow={(p, i) => RenderProductRow(p, i, maxUnitsSold)}
           emptyMessage="No products available."
           widthClass="w-full"
         />
       </div>
 
-      <ShowLessMore showAll={showAll} toggleShowAll={() => setShowAll((prev) => !prev)} condition={productsData.length > 5} />
+      <ShowLessMore showAll={showAll} toggleShowAll={() => setShowAll((prev) => !prev)} condition={topProducts.length > 5} />
     </section>
   );
 };

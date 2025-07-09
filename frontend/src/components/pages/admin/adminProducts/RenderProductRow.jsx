@@ -8,32 +8,32 @@ import classNames from "classnames";
  * @param {object} p – product object
  * @param {number} i – index
  */
-export const RenderProductRow = (p, i) => {
-  const isHighSales = p.sales >= 500;
+export const RenderProductRow = (p, i, maxUnitsSold) => {
+  const isHighSales = p.unitsSold >= 500;
 
   return (
     <tr
-      key={p.id}
+      key={p._id}
       className={`hover:bg-blue-50 transition ${i !== 0 ? "border-t border-gray-200" : ""}`}
     >
       {/* Product (image + name) */}
       <td className="px-6 py-4 min-w-[200px] flex items-center gap-4 hover:scale-105 transition duration-150">
         <img
-          src={p.image}
-          alt={p.name}
+          src={p.images[0]}
+          alt={p.title}
           className="w-12 h-12 rounded-lg object-cover shadow-md shadow-purple-400"
         />
         <span
           className="font-semibold text-gray-800 max-w-[160px] truncate"
-          title={p.name}
+          title={p.title}
         >
-          {p.name}
+          {p.title}
         </span>
       </td>
 
       {/* ID */}
       <td className="px-6 py-4 min-w-[140px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150">
-        <NavLink to={`/admin/product-details/${p.id}`}>#{p.id}</NavLink>
+        <NavLink to={`/admin/product-details/${p._id}`}>#{p._id}</NavLink>
       </td>
 
       {/* Category */}
@@ -41,14 +41,19 @@ export const RenderProductRow = (p, i) => {
         {p.category}
       </td>
 
+      {/* Price */}
+      <td className="px-6 py-4 min-w-[120px] font-medium hover:scale-105 transition duration-150">
+        ₹{(p.price).toLocaleString()}
+      </td>
+
       {/* Units sold */}
       <td className="px-6 py-4 min-w-[120px] font-medium hover:scale-105 transition duration-150">
-        {p.sales}
+        {p.unitsSold}
       </td>
 
       {/* Revenue */}
       <td className="px-6 py-4 min-w-[140px] font-bold hover:scale-105 transition duration-150">
-        ₹{(p.revenue).toLocaleString()}
+        ₹{(p.totalRevenue).toLocaleString()}
       </td>
 
       {/* Sales progress bar */}
@@ -59,16 +64,16 @@ export const RenderProductRow = (p, i) => {
             "text-red-500": !isHighSales,
           })}
         >
-          {p.sales.toLocaleString()} Sales
+          {p.unitsSold.toLocaleString()} Sales
         </p>
-        <div className="w-[80%] h-2 bg-gray-200 rounded-full overflow-hidden absolute bottom-5">
+        <div className="w-[80%] h-2 bg-gray-200 rounded-full overflow-h_idden absolute bottom-5">
           <div
             className={classNames("h-full rounded-full", {
               "bg-green-500": isHighSales,
               "bg-red-400": !isHighSales,
             })}
-            style={{ width: `${Math.min((p.sales / 1200) * 100, 100)}%` }}
-          />
+            style={{ width: `${Math.min((p.unitsSold / maxUnitsSold) * 100, 100)}%` }}
+          ></div>
         </div>
       </td>
 
@@ -76,7 +81,7 @@ export const RenderProductRow = (p, i) => {
       <td className="px-6 py-4 min-w-[120px] hover:scale-105 transition duration-150">
         <div className="flex items-center gap-3">
           <NavLink
-            to={`/admin/product-details/${p.id}`}
+            to={`/admin/product-details/${p._id}`}
             title="View Product"
             className="hover:text-blue-600 hover:scale-110 transition duration-150"
           >
@@ -84,7 +89,7 @@ export const RenderProductRow = (p, i) => {
           </NavLink>
 
           <NavLink
-            to={`/admin/product/edit-delete/${p.id}`}
+            to={`/admin/product/edit-delete/${p._id}`}
             title="Edit Product"
             className="hover:text-blue-600 hover:scale-110 transition duration-150"
           >
@@ -94,7 +99,7 @@ export const RenderProductRow = (p, i) => {
           <button
             title="Delete Product"
             className="hover:text-red-600 hover:scale-110 transition duration-150"
-            onClick={() => console.log("TODO: delete", p.id)}
+            onClick={() => console.log("TODO: delete", p._id)}
           >
             <FiTrash2 size={20} />
           </button>

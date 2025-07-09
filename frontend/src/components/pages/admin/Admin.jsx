@@ -13,6 +13,7 @@ import Products from "./adminProducts/Products";
 import VendorManagement from "./adminVendor/VendorManagement";
 import CommissionOverview from "./adminCommissions/CommissionOverview";
 import ShopOverview from "./adminVendor/ShopOverview";
+import ProductDetails from "./adminProducts/ProductDetails";
 
 const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -46,6 +47,7 @@ const Admin = () => {
             <Route path="emails-template-editor" element={<EmailTemplateEditor />} />
 
             <Route path="all-products" element={<Products heading="All Products" />} />
+            <Route path="product-details/:productId" element={<ProductDetails />} />
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" />} />
             <Route path="product/edit-delete/:productId" element={<OrderDetails />} />
             
