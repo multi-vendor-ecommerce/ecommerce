@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import UserHeader from "./UserHeader/UserHeader";
-import UserFooter from "./UserFooter/UserFooter";
+// import UserFooter from "./UserFooter/UserFooter";
 
 import Home from "./Home/Home";
 import ProductList from "./Product/ProductList";
@@ -47,7 +47,7 @@ export default function User() {
           <Route path="/order" element={<Order/>} />
 <Route path="/order/:orderId" element={<OrderDetails />} />
         </Routes>
-        <UserFooter />
+        {/* <UserFooter /> */}
       </CartProvider>
     </>
   );

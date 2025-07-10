@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 
 import productsRoutes from "./routes/productRoutes.js"; 
+import categoryRoutes from "./routes/categoryRoutes.js";
 
 dotenv.config();
 connectToMongo();
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/products', productsRoutes);
+app.use('/api/categories', categoryRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend listening on port http://localhost:${PORT}`);
