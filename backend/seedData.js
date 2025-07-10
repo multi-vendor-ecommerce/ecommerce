@@ -1,8 +1,10 @@
 import Product from  "./models/Products.js";
 import Vendor from './models/Vendor.js'
+import Category from "./models/Category.js";
 
 import { productsData } from "./data/seedProducts.js";
 import { vendorsData } from "./data/seedVendors.js";
+import { categoriesData } from "./data/seedCategories.js";
 
 export const seedDatabase = async () => {
   try {
@@ -22,6 +24,15 @@ export const seedDatabase = async () => {
       console.log(`✅ Inserted ${productsData.length} dummy products.`);
     } else {
       console.log(`⏭️ Skipped product insertion — ${productCount} products already exist.`);
+    }
+    
+    // Seed Categories
+    const categoryCount = await Category.countDocuments();
+    if (categoryCount === 0) {
+      await Category.insertMany(categoriesData); 
+      console.log(`✅ Inserted ${categoriesData.length} categories.`);
+    } else {
+      console.log(`⏭️ Skipped category insertion — ${categoryCount} categories already exist.`);
     }
   } catch (error) {
     console.error("❌ Error seeding the database:", error.message);
