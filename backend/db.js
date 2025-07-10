@@ -1,22 +1,14 @@
 import mongoose from "mongoose";
-import Product from "./models/Products.js";
-import { productsData } from "./data/seedProducts.js";
+import { seedDatabase } from "./seedData.js";
 
 const connectToMongo = async () => {
   try {
     await mongoose.connect(process.env.DB_URI);
-    console.log("Connected to Database successfully!");
+    console.log("✅ Connected to Database successfully!");
 
-    const count = await Product.countDocuments();
-
-    if (count === 0) {
-      await Product.insertMany(productsData);
-      console.log(`Inserted ${productsData.length} dummy products.`);
-    } else {
-      console.log(`Skipped insertion — ${count} products already exist.`);
-    }
+    await seedDatabase(); // ✅ Call the separated seed logic
   } catch (error) {
-    console.log("Couldn't connect to Database!", error);
+    console.error("❌ Couldn't connect to Database!", error);
     process.exit(1);
   }
 };

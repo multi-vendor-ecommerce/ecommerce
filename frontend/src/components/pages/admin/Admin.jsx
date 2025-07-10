@@ -12,7 +12,7 @@ import EmailTemplateEditor from "./adminEmailEditor/EmailTemplateEditor";
 import Products from "./adminProducts/Products";
 import VendorManagement from "./adminVendor/VendorManagement";
 import CommissionOverview from "./adminCommissions/CommissionOverview";
-import ShopOverview from "./adminVendor/ShopOverview";
+import VendorProfile from "./adminVendor/VendorProfile";
 import ProductDetails from "./adminProducts/ProductDetails";
 
 const Admin = () => {
@@ -53,7 +53,7 @@ const Admin = () => {
             
             <Route path="all-vendors" element={<VendorManagement />} />
             <Route path="vendors/commission-overview" element={<CommissionOverview />} />
-            <Route path="vendor/shop-overview/:shopName" element={<ShopOverview />} />
+            <Route path="vendor/profile/:vendorId" element={<VendorProfile />} />
 
             {/* Fallback route for unmatched paths */}
             <Route path="*" element={<NotFoundPage destination="/admin" />} />
