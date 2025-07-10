@@ -1,23 +1,20 @@
-import { useState } from "react";
-import { dummyVendors } from "./data/dummyVendorsData";
+import { useState, useEffect, useContext } from "react";
+import VendorContext from "../../../../context/vendors/VendorContext";
 import { RenderVendorRow } from "./RenderVendorRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
 
 const VendorManagement = () => {
-  const [vendors, setVendors] = useState(dummyVendors);
+  const context = useContext(VendorContext);
+  const { vendors, getAllVendors } = context;
 
-  const toggleStatus = (id) => {
-    setVendors((prev) =>
-      prev.map((v) =>
-        v.id === id
-          ? { ...v, status: v.status === "active" ? "inactive" : "active" }
-          : v
-      )
-    );
-  };
+  console.log(vendors);
 
-  const headers = ["Vendor", "Email", "Shop", "Products", "Total Sales", "Commission", "Registered On", "Status", "Actions"];
+  useEffect(() => {
+    getAllVendors();
+  }, []);
+  
+  const headers = ["Vendor", "Email", "Shop", "Products Qty", "Total Sales", "Commission", "Registered On", "Status", "Actions"];
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
@@ -29,7 +26,7 @@ const VendorManagement = () => {
             <TabularData
               headers={headers}
               data={currentItems}
-              renderRow={(v, i) => RenderVendorRow(v, i, toggleStatus)}
+              renderRow={(v, i) => RenderVendorRow(v, i)}
               emptyMessage="No vendors found."
             />
           </div>

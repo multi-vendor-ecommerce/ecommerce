@@ -1,20 +1,70 @@
-// components/admin/vendor/pages/ShopOverview.jsx
+// components/admin/vendor/pages/VendorProfile.jsx
 import { useParams, NavLink } from "react-router-dom";
-import { dummyVendors } from "./data/dummyVendorsData";
+import { useContext, useState, useEffect, useMemo } from "react";
+import VendorContext from "../../../../context/vendors/VendorContext";
 import { ordersDummy } from "../adminOrders/data/ordersData";
 import TabularData from "../../../common/layout/TabularData";
-import { FaStore, FaBoxOpen, FaEnvelope, FaMoneyBillWave, FaCoins, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaStore, FaEnvelope, FaBoxOpen, FaMoneyBillWave, FaCoins, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { useMemo } from "react";
 import StatusChip from "../helperComponents/StatusChip";
 import { formatNumber } from "../../../../utils/formatNumber";
 import { RenderOrderRow } from "../adminOrders/RenderOrderRow";
 import StatGrid from "../helperComponents/StatGrid";
+import { getFormatDate } from "../../../../utils/formatDate";
 
-const ShopOverview = () => {
-  const { shopName } = useParams();
-  const vendor = dummyVendors.find((v) => v.shopName === shopName);
+const VendorProfile = () => {
+  const { vendorId } = useParams();
+  const { getVendorById } = useContext(VendorContext);
+  const [vendor, setVendor] = useState(null);
+
+  useEffect(() => {
+    const fetchVendor = async () => {
+      const result = await getVendorById(vendorId);
+      setVendor(result);
+    };
+
+    fetchVendor();
+  }, [vendorId, getVendorById]);
+
+  const vendorOrders = useMemo(() => {
+    if (!vendor) return [];
+    return ordersDummy
+      .filter((o) => o.vendor?.name === vendor.shopName)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+  }, [vendor]);
+
+  const recentOrders = useMemo(() => vendorOrders.slice(0, 6), [vendorOrders]);
+
+  const monthlyData = useMemo(() => {
+    if (!vendorOrders.length) return [];
+
+    const map = {};
+    vendorOrders.forEach((o) => {
+      const d = new Date(o.date);
+      const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
+      map[key] = (map[key] || 0) + o.products.reduce((sum, p) => sum + p.price * p.qty, 0);
+    });
+
+    return Object.entries(map)
+      .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+      .slice(-6)
+      .map(([k, v]) => {
+        const [year, month] = k.split("-");
+        const formattedMonth = getFormatDate(`${year}-${month}-01`).split(" ").slice(1).join(" ");
+        return { month: formattedMonth, Sales: v };
+      });
+  }, [vendorOrders]);
+
+  // ✅ Now safe to conditionally render UI
+  if (!vendor) {
+    return (
+      <div className="p-6 text-center text-gray-600 font-semibold">
+        Vendor not Found
+      </div>
+    );
+  }
+
   const getVendorCardData = [
     {
       icon: FaStore,
@@ -33,8 +83,7 @@ const ShopOverview = () => {
     {
       icon: vendor.status === "active" ? FaCheckCircle : FaTimesCircle,
       label: "Status",
-      value:
-        vendor.status.charAt(0).toUpperCase() + vendor.status.slice(1),
+      value: vendor.status.charAt(0).toUpperCase() + vendor.status.slice(1),
       bg: "bg-blue-100",
       shadow: "hover:shadow-blue-500",
     },
@@ -55,49 +104,18 @@ const ShopOverview = () => {
     {
       icon: FaCoins,
       label: "Commission",
-      value: `₹${formatNumber(vendor.commission)}`,
+      value: `₹${formatNumber(vendor.commissionRate)}`,
       bg: "bg-red-100",
-      shadow: "hover:shadow-red-500"
-    }
+      shadow: "hover:shadow-red-500",
+    },
   ];
-
-  // ‑‑ safeguard ‑‑
-  if (!vendor) {
-    return (
-      <div className="p-6 text-center text-red-600 font-semibold">
-        Vendor with shop name "{shopName}" not found.
-      </div>
-    );
-  }
-
-  /* ── filter recent orders for this vendor ───────────────── */
-  const vendorOrders = ordersDummy
-    .filter((o) => o.vendor?.name === vendor.shopName)
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  /* Last 6 orders for table */
-  const recentOrders = vendorOrders.slice(0, 6);
-
-  /* Build monthly totals for chart (last 6 months) */
-  const monthlyData = useMemo(() => {
-    const map = {};
-    vendorOrders.forEach((o) => {
-      const d = new Date(o.date);
-      const key = `${d.getFullYear()}-${d.getMonth() + 1}`; // e.g., 2025-6
-      map[key] = (map[key] || 0) + o.products.reduce((sum, p) => sum + p.price * p.qty, 0);
-    });
-    return Object.entries(map)
-      .sort((a, b) => new Date(a[0]) - new Date(b[0]))
-      .slice(-6)
-      .map(([k, v]) => ({ month: k, Sales: v }));
-  }, [vendorOrders]);
 
   return (
     <section className="p-6 w-full bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">{vendor.shopName} - Overview</h2>
         <NavLink
-          to={`/admin/vendor/edit-delete/${vendor.id}`}
+          to={`/admin/vendor/edit-delete/${vendor._id}`}
           className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
         >
           <FiEdit size={20} />
@@ -105,12 +123,10 @@ const ShopOverview = () => {
         </NavLink>
       </div>
 
-      {/* Stats Grid */}
       <div className="bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-300 px-4 py-6 mb-8">
         <StatGrid cards={getVendorCardData} />
       </div>
 
-      {/* Bar Chart */}
       <h3 className="text-lg font-semibold text-gray-800 mb-4">Monthly Sales (Last 6 Months)</h3>
       <div className="bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-300 border border-gray-200 p-4 mb-10">
         {monthlyData.length ? (
@@ -128,7 +144,6 @@ const ShopOverview = () => {
         )}
       </div>
 
-      {/* Recent Orders Table */}
       <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Orders</h3>
       <div className="overflow-hidden bg-white shadow-md hover:shadow-blue-500 transition duration-200 rounded-xl border border-gray-200">
         <TabularData
@@ -143,4 +158,4 @@ const ShopOverview = () => {
   );
 };
 
-export default ShopOverview;
+export default VendorProfile;
