@@ -12,7 +12,7 @@ export const RenderVendorRow = (v, i) => (
       <img
         src={v.profileImage}
         alt={`${v.name} profile`}
-        className="w-10 h-10 rounded-full object-cover shadow-md shadow-blue-400 scale-105 transition duration-150"
+        className="w-10 h-10 rounded-full object-cover shadow-md shadow-purple-400"
       />
       <span className="font-medium text-gray-800 truncate max-w-[160px] group-hover:font-semibold">
         {v.name}

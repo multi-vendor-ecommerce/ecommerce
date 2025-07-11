@@ -4,21 +4,19 @@ import { RenderVendorRow } from "./RenderVendorRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
 
-const VendorManagement = () => {
+const VendorManagement = ({ heading }) => {
   const context = useContext(VendorContext);
   const { vendors, getAllVendors } = context;
-
-  console.log(vendors);
 
   useEffect(() => {
     getAllVendors();
   }, []);
-  
+
   const headers = ["Vendor", "Email", "Shop", "Products Qty", "Total Sales", "Commission", "Registered On", "Status", "Actions"];
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
-      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">All Vendors</h2>
+      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{heading}</h2>
 
       <PaginatedLayout data={vendors} initialPerPage={10}>
         {(currentItems) => (

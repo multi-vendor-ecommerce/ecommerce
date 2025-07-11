@@ -51,7 +51,8 @@ const Admin = () => {
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" />} />
             <Route path="product/edit-delete/:productId" element={<OrderDetails />} />
             
-            <Route path="all-vendors" element={<VendorManagement />} />
+            <Route path="all-vendors" element={<VendorManagement heading="All Vendors" />} />
+            <Route path="top-vendors" element={<VendorManagement heading="Top Vendors" />} />
             <Route path="vendors/commission-overview" element={<CommissionOverview />} />
             <Route path="vendor/profile/:vendorId" element={<VendorProfile />} />
 

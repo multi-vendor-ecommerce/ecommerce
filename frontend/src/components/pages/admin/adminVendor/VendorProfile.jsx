@@ -90,7 +90,7 @@ const VendorProfile = () => {
     {
       icon: FaBoxOpen,
       label: "Products",
-      value: vendor.products,
+      value: vendor.productQuantity,
       bg: "bg-purple-100",
       shadow: "hover:shadow-purple-500",
     },
@@ -123,12 +123,22 @@ const VendorProfile = () => {
         </NavLink>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-300 px-4 py-6 mb-8">
-        <StatGrid cards={getVendorCardData} />
+      <div className="w-full h-full flex flex-col-reverse md:flex-row md:items-center justify-between gap-5 mb-8">
+        <div className="md:w-[85%] h-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 px-4 py-6">
+          <StatGrid cards={getVendorCardData} />
+        </div>
+        <div className="w-[80%] mx-auto md:w-[15%] md:mx-0 h-full bg-white rounded-xl shadow-md shadow-purple-500 overflow-hidden">
+          <img
+            src={vendor.profileImage}
+            alt={vendor.name}
+            title={`${vendor.name}'s profile image`}
+            className="w-full h-[210px] md:h-[250px] object-cover rounded-xl hover:scale-105 transition duration-150"
+          />
+        </div>
       </div>
 
       <h3 className="text-lg font-semibold text-gray-800 mb-4">Monthly Sales (Last 6 Months)</h3>
-      <div className="bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-300 border border-gray-200 p-4 mb-10">
+      <div className="bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 border border-gray-200 p-4 mb-10">
         {monthlyData.length ? (
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={monthlyData}>
