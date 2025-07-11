@@ -6,13 +6,16 @@ const categorySchema = new Schema(
   {
     name: {
       type: String,
-      required: true,
+      maxlength: 100,
+      required: [true, "Category name is required"],
       unique: true,
       trim: true,
     },
     description: {
       type: String,
       trim: true,
+      default: "",
+      maxlength: 500,
     },
   },
   { timestamps: true }
