@@ -7,7 +7,7 @@ const productSchema = new Schema(
     vendorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vendor",
-      // required: true,
+      required: true,
     },
     title: {
       type: String,
@@ -31,10 +31,9 @@ const productSchema = new Schema(
       default: 0,
     },
     category: {
-      // type: mongoose.Schema.Types.ObjectId,
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
-      // ref: "Category",
+      ref: "Category",
     },
     tags: {
       type: [String],

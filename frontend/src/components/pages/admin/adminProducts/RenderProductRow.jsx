@@ -38,12 +38,12 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
 
       {/* Category */}
       <td className="px-6 py-4 min-w-[160px] hover:scale-105 transition duration-150">
-        {p.category}
+        {p.category !== null ? p.category.name : "Uncategorized"}
       </td>
 
       {/* Price */}
       <td className="px-6 py-4 min-w-[120px] font-medium hover:scale-105 transition duration-150">
-        ₹{(p.price).toLocaleString()}
+        ₹{p.price > 0 ? (p.price).toLocaleString() : 0}
       </td>
 
       {/* Units sold */}
