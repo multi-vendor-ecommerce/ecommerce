@@ -3,11 +3,13 @@ import ProductContext from "./ProductContext";
 
 const NoteState = (props) => {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const host = "http://localhost:5000";
   
   const getAllProducts = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`${host}/api/products/admin`);
       if (!response.ok) {
         throw new Error('Failed to fetch products.');
@@ -15,14 +17,15 @@ const NoteState = (props) => {
 
       const data = await response.json();
       setProducts(data.products);
-      console.log(data.products)
     } catch (error) {
       console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <ProductContext.Provider value={{ products, getAllProducts }}>
+    <ProductContext.Provider value={{ products, loading, getAllProducts }}>
       {props.children}
     </ProductContext.Provider>
   )

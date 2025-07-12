@@ -3,11 +3,13 @@ import VendorContext from "./VendorContext";
 
 const NoteState = (props) => {
   const [vendors, setVendors] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const host = "http://localhost:5000";
   
   const getAllVendors = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`${host}/api/vendors`);
       if (!response.ok) {
         throw new Error('Failed to fetch vendors.');
@@ -17,11 +19,14 @@ const NoteState = (props) => {
       setVendors(data.vendors);
     } catch (error) {
       console.error('Error fetching vendors:', error);
+    } finally {
+      setLoading(false);
     }
   }
 
   const getVendorById = useCallback(async (id) => {
     try {
+      setLoading(true);
       const response = await fetch(`${host}/api/vendors/${id}`);
       if (!response.ok) throw new Error("Failed to fetch the vendor.");
 
@@ -29,11 +34,13 @@ const NoteState = (props) => {
       return data.vendor;
     } catch (error) {
       console.error("Error fetching vendor:", error);
+    } finally {
+      setLoading(false);
     }
   }, [host]);
 
   return (
-    <VendorContext.Provider value={{ vendors, getAllVendors, getVendorById }}>
+    <VendorContext.Provider value={{ vendors, loading, getAllVendors, getVendorById }}>
       {props.children}
     </VendorContext.Provider>
   )

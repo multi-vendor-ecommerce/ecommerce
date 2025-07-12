@@ -4,18 +4,27 @@ import ProductContext from "../../../../context/products/ProductContext";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
 import { RenderProductRow } from "./RenderProductRow";
+import Spinner from "../../../common/Spinner";
 
 export default function Products({ heading }) {
   const context = useContext(ProductContext);
-  const { products, getAllProducts } = context;
+  const { products, getAllProducts, loading } = context;
 
   useEffect(() => {
     getAllProducts();
   }, []);
 
+  if (loading) {
+    return (
+      <section className="bg-gray-100 min-h-screen flex items-center justify-center">
+        <Spinner />
+      </section>
+    );
+  }
+
   const maxUnitsSold = Math.max(...products.map((p) => p.unitsSold));
-  const topProducts  = [...products].filter(p => p.approved).sort((a, b) => b.unitsSold - a.unitsSold);
-  
+  const topProducts = [...products].filter(p => p.approved).sort((a, b) => b.unitsSold - a.unitsSold);
+
   const headers = ["Product", "ID", "Category", "Price", "Units Sold", "Revenue", "Sales Progress", "Actions"];
 
   return (

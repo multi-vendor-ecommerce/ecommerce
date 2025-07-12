@@ -3,11 +3,6 @@ import { NavLink } from "react-router-dom";
 import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import classNames from "classnames";
 
-/**
- * Render a single product row for TabularData.
- * @param {object} p – product object
- * @param {number} i – index
- */
 export const RenderProductRow = (p, i, maxUnitsSold) => {
   const isHighSales = p.unitsSold >= 500;
 

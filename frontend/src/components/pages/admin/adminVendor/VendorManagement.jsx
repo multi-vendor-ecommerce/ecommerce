@@ -3,19 +3,27 @@ import VendorContext from "../../../../context/vendors/VendorContext";
 import { RenderVendorRow } from "./RenderVendorRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
+import Spinner from "../../../common/Spinner";
 
 const VendorManagement = ({ heading }) => {
-  const context = useContext(VendorContext);
-  const { vendors, getAllVendors } = context;
+  const { vendors, getAllVendors, loading } = useContext(VendorContext);
 
   useEffect(() => {
     getAllVendors();
   }, []);
 
+  if (loading) {
+    return (
+      <section className="bg-gray-100 min-h-screen flex items-center justify-center">
+        <Spinner />
+      </section>
+    );
+  }
+
   const headers = ["Vendor", "Email", "Shop", "Products Qty", "Total Sales", "Commission", "Registered On", "Status", "Actions"];
 
   return (
-    <section className="bg-gray-100 min-h-screen p-6 shadow-md">
+    <section className="bg-gray-100 w-full min-h-screen p-6 shadow-md">
       <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{heading}</h2>
 
       <PaginatedLayout data={vendors} initialPerPage={10}>
