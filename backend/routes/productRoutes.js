@@ -11,7 +11,8 @@ const router = express.Router();
 router.get("/", getAllProducts);
 
 // ROUTE 2: GET /api/products/admin
-// Desc: Showcase all the products to the user
+// Desc: Showcase all the products to the admin
 router.get("/admin", getAllProducts);
+
 
 export default router;

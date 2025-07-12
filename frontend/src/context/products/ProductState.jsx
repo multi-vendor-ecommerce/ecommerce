@@ -24,8 +24,25 @@ const NoteState = (props) => {
     }
   }
 
+  const getApprovedProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${host}/api/products/admin/approved-products`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch products.');
+      }
+
+      const data = await response.json();
+      setProducts(data.products);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <ProductContext.Provider value={{ products, loading, getAllProducts }}>
+    <ProductContext.Provider value={{ products, loading, getAllProducts, getApprovedProducts }}>
       {props.children}
     </ProductContext.Provider>
   )

@@ -1,4 +1,3 @@
-// components/admin/products/renderProductRow.jsx
 import { NavLink } from "react-router-dom";
 import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import classNames from "classnames";
@@ -12,42 +11,72 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
       className={`hover:bg-blue-50 transition ${i !== 0 ? "border-t border-gray-200" : ""}`}
     >
       {/* Product (image + name) */}
-      <td className="px-6 py-4 min-w-[200px] hover:scale-105 transition duration-150">
+      <td
+        className="px-6 py-4 min-w-[200px] hover:scale-105 transition duration-150"
+        title={p.title || "No Title"}
+      >
         <NavLink to={`/admin/product-details/${p._id}`} className="flex items-center gap-4">
           <img
-            src={p.images[0]}
-            alt={p.title}
+            src={p.images?.[0] || "/placeholder.jpg"}
+            alt={p.title || "Product Image"}
             className="w-12 h-12 rounded-lg object-cover shadow-md shadow-purple-400"
           />
-          <span className="font-semibold text-gray-800 max-w-[160px] truncate" title={p.title}>
-            {p.title}
+          <span className="font-semibold text-gray-800 max-w-[160px] truncate">
+            {p.title || "Untitled"}
           </span>
         </NavLink>
       </td>
 
       {/* ID */}
-      <td className="px-6 py-4 min-w-[140px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150">
-        <NavLink to={`/admin/product-details/${p._id}`}>#{p._id}</NavLink>
+      <td
+        className="px-6 py-4 min-w-[140px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150"
+        title={p._id || "No ID"}
+      >
+        <NavLink to={`/admin/product-details/${p._id}`}>#{p._id || "N/A"}</NavLink>
       </td>
 
       {/* Category */}
-      <td className="px-6 py-4 min-w-[160px] hover:scale-105 transition duration-150">
-        {p.category !== null ? p.category.name : "Uncategorized"}
+      <td
+        className="px-6 py-4 min-w-[160px] hover:scale-105 transition duration-150"
+        title={p.category?.name || "Uncategorized"}
+      >
+        {p.category?.name || "Uncategorized"}
       </td>
 
       {/* Price */}
-      <td className="px-6 py-4 min-w-[120px] font-medium hover:scale-105 transition duration-150">
-        ₹{p.price > 0 ? (p.price).toLocaleString() : 0}
+      <td
+        className="px-6 py-4 min-w-[120px] font-medium hover:scale-105 transition duration-150"
+        title={`₹${p.price?.toLocaleString() || "0"}`}
+      >
+        ₹{p.price > 0 ? p.price.toLocaleString() : "0"}
       </td>
 
       {/* Units sold */}
-      <td className="px-6 py-4 min-w-[120px] font-medium hover:scale-105 transition duration-150">
-        {p.unitsSold}
+      <td
+        className="px-6 py-4 min-w-[120px] font-medium hover:scale-105 transition duration-150"
+        title={`${p.unitsSold ?? 0} units`}
+      >
+        {p.unitsSold ?? 0}
       </td>
 
       {/* Revenue */}
-      <td className="px-6 py-4 min-w-[140px] font-bold hover:scale-105 transition duration-150">
-        ₹{(p.totalRevenue).toLocaleString()}
+      <td
+        className="px-6 py-4 min-w-[140px] font-bold hover:scale-105 transition duration-150"
+        title={`₹${p.totalRevenue?.toLocaleString() || "0"}`}
+      >
+        ₹{p.totalRevenue?.toLocaleString() || "0"}
+      </td>
+
+      {/* Approval Status */}
+      <td
+        className="px-6 py-4 min-w-[200px] text-xs md:text-sm font-semibold hover:scale-105 transition duration-150"
+        title={p.approved ? "Approved" : "Not Approved"}
+      >
+        {p.approved ? (
+          <p className="text-green-600">Approved</p>
+        ) : (
+          <p className="text-red-600">Not Approved</p>
+        )}
       </td>
 
       {/* Sales progress bar */}
@@ -57,16 +86,21 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
             "text-green-600": isHighSales,
             "text-red-500": !isHighSales,
           })}
+          title={`${p.unitsSold?.toLocaleString() || 0} sales`}
         >
-          {p.unitsSold.toLocaleString()} Sales
+          {p.unitsSold?.toLocaleString() || 0} Sales
         </p>
-        <div className="w-[80%] h-2 bg-gray-200 rounded-full overflow-h_idden absolute bottom-5">
+        <div className="w-[80%] h-2 bg-gray-200 rounded-full overflow-hidden absolute bottom-5">
           <div
             className={classNames("h-full rounded-full", {
               "bg-green-500": isHighSales,
               "bg-red-400": !isHighSales,
             })}
-            style={{ width: `${Math.min((p.unitsSold / maxUnitsSold) * 100, 100)}%` }}
+            style={{
+              width: `${
+                maxUnitsSold ? Math.min((p.unitsSold / maxUnitsSold) * 100, 100) : 0
+              }%`,
+            }}
           ></div>
         </div>
       </td>

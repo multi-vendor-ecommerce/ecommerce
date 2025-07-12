@@ -4,7 +4,6 @@ import { useContext, useState, useEffect, useMemo } from "react";
 import VendorContext from "../../../../context/vendors/VendorContext";
 import { ordersDummy } from "../adminOrders/data/ordersData";
 import TabularData from "../../../common/layout/TabularData";
-import { FaStore, FaEnvelope, FaBoxOpen, FaMoneyBillWave, FaCoins, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import StatusChip from "../helperComponents/StatusChip";

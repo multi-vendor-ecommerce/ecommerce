@@ -25,7 +25,7 @@ export default function Products({ heading }) {
   const maxUnitsSold = Math.max(...products.map((p) => p.unitsSold));
   const topProducts = [...products].filter(p => p.approved).sort((a, b) => b.unitsSold - a.unitsSold);
 
-  const headers = ["Product", "ID", "Category", "Price", "Units Sold", "Revenue", "Sales Progress", "Actions"];
+  const headers = ["Product", "ID", "Category", "Price", "Units Sold", "Revenue", "Approval Status", "Sales Progress", "Actions"];
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 rounded-2xl shadow-md">
