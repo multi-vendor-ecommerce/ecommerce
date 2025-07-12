@@ -8,7 +8,7 @@ import { FaStore, FaEnvelope, FaBoxOpen, FaMoneyBillWave, FaCoins, FaCheckCircle
 import { FiEdit } from "react-icons/fi";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import StatusChip from "../helperComponents/StatusChip";
-import { formatNumber } from "../../../../utils/formatNumber";
+import { getVendorCardData } from "./data/vendorProfileCards";
 import { RenderOrderRow } from "../adminOrders/RenderOrderRow";
 import StatGrid from "../helperComponents/StatGrid";
 import { getFormatDate } from "../../../../utils/formatDate";
@@ -65,51 +65,6 @@ const VendorProfile = () => {
     );
   }
 
-  const getVendorCardData = [
-    {
-      icon: FaStore,
-      label: "Vendor",
-      value: vendor.name,
-      bg: "bg-green-100",
-      shadow: "hover:shadow-green-500",
-    },
-    {
-      icon: FaEnvelope,
-      label: "Email",
-      value: vendor.email,
-      bg: "bg-yellow-100",
-      shadow: "hover:shadow-yellow-500",
-    },
-    {
-      icon: vendor.status === "active" ? FaCheckCircle : FaTimesCircle,
-      label: "Status",
-      value: vendor.status.charAt(0).toUpperCase() + vendor.status.slice(1),
-      bg: "bg-blue-100",
-      shadow: "hover:shadow-blue-500",
-    },
-    {
-      icon: FaBoxOpen,
-      label: "Products",
-      value: vendor.productQuantity,
-      bg: "bg-purple-100",
-      shadow: "hover:shadow-purple-500",
-    },
-    {
-      icon: FaMoneyBillWave,
-      label: "Total Sales",
-      value: `₹${formatNumber(vendor.totalSales)}`,
-      bg: "bg-orange-100",
-      shadow: "hover:shadow-orange-500",
-    },
-    {
-      icon: FaCoins,
-      label: "Commission",
-      value: `₹${formatNumber(vendor.commissionRate)}`,
-      bg: "bg-red-100",
-      shadow: "hover:shadow-red-500",
-    },
-  ];
-
   return (
     <section className="p-6 w-full bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
@@ -125,14 +80,14 @@ const VendorProfile = () => {
 
       <div className="w-full h-full flex flex-col-reverse md:flex-row md:items-center justify-between gap-5 mb-8">
         <div className="md:w-[85%] h-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 px-4 py-6">
-          <StatGrid cards={getVendorCardData} />
+          <StatGrid cards={getVendorCardData(vendor)} />
         </div>
         <div className="w-[80%] mx-auto md:w-[15%] md:mx-0 h-full bg-white rounded-xl shadow-md shadow-purple-500 overflow-hidden">
           <img
             src={vendor.profileImage}
             alt={vendor.name}
             title={`${vendor.name}'s profile image`}
-            className="w-full h-[210px] md:h-[250px] object-cover rounded-xl hover:scale-105 transition duration-150"
+            className="w-full h-[210px] md:h-[250px] object-cover rounded-xl hover:scale-105 transition duration-300"
           />
         </div>
       </div>

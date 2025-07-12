@@ -8,15 +8,17 @@ export const RenderVendorRow = (v, i) => (
     key={v._id}
     className={`hover:bg-blue-50 transition ${i !== 0 && "border-t border-gray-200"}`}
   >
-    <td className="px-6 py-3 min-w-[200px] flex items-center gap-4 hover:scale-105 transition duration-150">
-      <img
-        src={v.profileImage}
-        alt={`${v.name} profile`}
-        className="w-10 h-10 rounded-full object-cover shadow-md shadow-purple-400"
-      />
-      <span className="font-medium text-gray-800 truncate max-w-[160px] group-hover:font-semibold">
-        {v.name}
-      </span>
+    <td className="px-6 py-3 min-w-[200px] hover:scale-105 transition duration-150">
+      <NavLink to={`/admin/vendor/profile/${v._id}`} className="flex items-center gap-4">
+        <img
+          src={v.profileImage}
+          alt={`${v.name} profile`}
+          className="w-10 h-10 rounded-full object-cover shadow-md shadow-purple-400"
+        />
+        <span className="font-medium text-gray-800 truncate max-w-[160px] group-hover:font-semibold" title={v.name}>
+          {v.name}
+        </span>
+      </NavLink>
     </td>
     <td className="px-6 py-3 min-w-[220px] hover:scale-105 hover:underline transition duration-150">
       <a href={`mailto:${v.email}`} target="_blank" title={`Mail to ${(v.name).split(" ")[0]}`}>{v.email}</a>

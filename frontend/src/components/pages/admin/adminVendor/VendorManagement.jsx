@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useEffect, useContext } from "react";
 import VendorContext from "../../../../context/vendors/VendorContext";
 import { RenderVendorRow } from "./RenderVendorRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";

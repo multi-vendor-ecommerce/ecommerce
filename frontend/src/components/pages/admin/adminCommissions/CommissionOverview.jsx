@@ -1,21 +1,32 @@
-import { useMemo } from "react";
-import { dummyVendors } from "../adminVendor/data/dummyVendorsData";
+import { useMemo, useContext, useEffect } from "react";
+import VendorContext from "../../../../context/vendors/VendorContext";
 import CommissionKeyMetrics from "./CommissionKeyMetrics";
 import CommissionGraph from "./CommissionGraph";
 
 const CommissionOverview = () => {
-  const stats = useMemo(() => {
-    const totalCommission = dummyVendors.reduce((sum, v) => sum + v.commission, 0);
-    const totalSales = dummyVendors.reduce((sum, v) => sum + v.totalSales, 0);
-    const activeVendors = dummyVendors.filter((v) => v.status === "active").length;
-    const topVendor = dummyVendors.reduce((top, v) => (v.totalSales > top.totalSales ? v : top), dummyVendors[0]);
+  const context = useContext(VendorContext);
+  const { vendors, getAllVendors } = context;
 
-    return { totalCommission, totalSales, activeVendors, topVendor };
+  useEffect(() => {
+    getAllVendors();
   }, []);
 
-  const chartData = dummyVendors.slice(0, 10).map((v) => ({
+  const stats = useMemo(() => {
+    if (!vendors || vendors.length === 0) {
+      return { totalCommission: 0, totalSales: 0, activeVendors: 0, topVendor: "Nill" };
+    }
+
+    const totalCommission = vendors.reduce((sum, v) => sum + v.commissionRate, 0);
+    const totalSales = vendors.reduce((sum, v) => sum + v.totalSales, 0);
+    const activeVendors = vendors.filter((v) => v.status === "active").length;
+    const topVendor = vendors.reduce((top, v) => (v.totalSales > top.totalSales ? v : top), vendors[0]);
+
+    return { totalCommission, totalSales, activeVendors, topVendor };
+  }, [vendors]);
+
+  const chartData = vendors.slice(0, 10).map((v) => ({
     name: v.name.split(" ")[0],
-    Commission: v.commission,
+    Commission: v.commissionRate,
     Sales: v.totalSales,
   }));
 

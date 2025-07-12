@@ -7,14 +7,14 @@ const CommissionKeyMetrics = ({ stats }) => {
     {
       icon: FaRupeeSign,
       label: "Total Commission",
-      value: `${formatNumber(stats.totalCommission)}`,
+      value: `${formatNumber(stats.totalCommission || 0)}`,
       bg: "bg-green-100",
       shadow: "hover:shadow-green-500",
     },
     {
       icon: FaUserTie,
       label: "Vendor Sales",
-      value: `${formatNumber(stats.totalSales)}`,
+      value: `${formatNumber(stats.totalSales || 0) }`,
       bg: "bg-yellow-100",
       shadow: "hover:shadow-yellow-500",
     },

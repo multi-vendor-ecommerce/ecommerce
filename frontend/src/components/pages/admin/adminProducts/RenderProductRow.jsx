@@ -17,18 +17,17 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
       className={`hover:bg-blue-50 transition ${i !== 0 ? "border-t border-gray-200" : ""}`}
     >
       {/* Product (image + name) */}
-      <td className="px-6 py-4 min-w-[200px] flex items-center gap-4 hover:scale-105 transition duration-150">
-        <img
-          src={p.images[0]}
-          alt={p.title}
-          className="w-12 h-12 rounded-lg object-cover shadow-md shadow-purple-400"
-        />
-        <span
-          className="font-semibold text-gray-800 max-w-[160px] truncate"
-          title={p.title}
-        >
-          {p.title}
-        </span>
+      <td className="px-6 py-4 min-w-[200px] hover:scale-105 transition duration-150">
+        <NavLink to={`/admin/product-details/${p._id}`} className="flex items-center gap-4">
+          <img
+            src={p.images[0]}
+            alt={p.title}
+            className="w-12 h-12 rounded-lg object-cover shadow-md shadow-purple-400"
+          />
+          <span className="font-semibold text-gray-800 max-w-[160px] truncate" title={p.title}>
+            {p.title}
+          </span>
+        </NavLink>
       </td>
 
       {/* ID */}
