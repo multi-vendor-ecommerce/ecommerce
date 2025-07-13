@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import { validationResult } from 'express-validator';
 
+// Public: Get all customers
 export const getAllCustomers = async (req, res) => {
   try {
     // Fetch the customers' details except password using the id
@@ -13,6 +14,7 @@ export const getAllCustomers = async (req, res) => {
   }
 }
 
+// Public: Get a user by id
 export const getUser = async (req, res) => {
   try {
     // Fetch the user's details except password using the id
@@ -25,6 +27,7 @@ export const getUser = async (req, res) => {
   }
 }
 
+// Private: Update user
 export const updateUser = async (req, res) => {
   // Check if there are any errors or not
   const errors = validationResult(req);

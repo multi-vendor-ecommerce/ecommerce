@@ -24,25 +24,22 @@ const NoteState = (props) => {
     }
   }
 
-  const getApprovedProducts = async () => {
+  const getProductById = async (id) => {
     try {
-      setLoading(true);
-      const response = await fetch(`${host}/api/products/admin/approved-products`);
+      const response = await fetch(`${host}/api/products/admin/${id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch products.');
       }
 
       const data = await response.json();
-      setProducts(data.products);
+      return data.product;
     } catch (error) {
       console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
     }
   }
 
   return (
-    <ProductContext.Provider value={{ products, loading, getAllProducts, getApprovedProducts }}>
+    <ProductContext.Provider value={{ products, loading, getAllProducts, getProductById }}>
       {props.children}
     </ProductContext.Provider>
   )

@@ -2,7 +2,7 @@ import express from "express";
 // import Product from "../models/Products.js";
 
 // Controllers
-import { getAllProducts } from "../controllers/productController.js";
+import { getAllProducts, getProduct } from "../controllers/productController.js";
 
 const router = express.Router();
 
@@ -13,5 +13,9 @@ router.get("/", getAllProducts);
 // ROUTE 2: GET /api/products/admin
 // Desc: Showcase all the products to the admin
 router.get("/admin", getAllProducts);
+
+// ROUTE 3: GET /api/products/admin/:id
+// Desc: Showcase a product to the admin by id
+router.get("/admin/:id", getProduct);
 
 export default router;
