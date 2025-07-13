@@ -29,7 +29,6 @@ export default function User() {
         <UserHeader />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/products" element={<ProductList />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
@@ -44,8 +43,8 @@ export default function User() {
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="Account" element={<Account />} />
 
-          <Route path="/order" element={<Order/>} />
-<Route path="/order/:orderId" element={<OrderDetails />} />
+          <Route path="/order" element={<Order />} />
+          <Route path="/order/:orderId" element={<OrderDetails />} />
         </Routes>
         {/* <UserFooter /> */}
       </CartProvider>

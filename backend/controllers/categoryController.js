@@ -3,7 +3,7 @@ import Category from "../models/Category.js";
 // Create a new category
 export const createCategory = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, description = "" } = req.body;
 
     if (!name || !name.trim()) {
       return res.status(400).send({
@@ -13,6 +13,7 @@ export const createCategory = async (req, res) => {
     }
 
     const trimmedName = name.trim();
+    const trimmedDescription = description.trim();
 
     // Check if category already exists (case-insensitive)
     const existingCategory = await Category.findOne({
@@ -26,7 +27,11 @@ export const createCategory = async (req, res) => {
       });
     }
 
-    const category = await Category.create({ name: trimmedName });
+    // Create category with name and description
+    const category = await Category.create({
+      name: trimmedName,
+      description: trimmedDescription,
+    });
 
     res.status(201).send({ success: true, category });
   } catch (err) {
@@ -41,7 +46,7 @@ export const createCategory = async (req, res) => {
 // Get all categories
 export const getCategories = async (req, res) => {
   try {
-    const categories = await Category.find().sort({ name: 1 }); 
+    const categories = await Category.find().sort({ name: 1 });
     res.send({ success: true, categories });
   } catch (err) {
     res.status(500).send({
