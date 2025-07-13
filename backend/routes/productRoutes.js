@@ -14,5 +14,4 @@ router.get("/", getAllProducts);
 // Desc: Showcase all the products to the admin
 router.get("/admin", getAllProducts);
 
-
 export default router;
