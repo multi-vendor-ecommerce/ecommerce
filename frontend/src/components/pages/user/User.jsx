@@ -29,18 +29,11 @@ export default function User() {
         <UserHeader />
         <Routes>
           <Route path="/" element={<Home />} />
-<<<<<<< HEAD
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-=======
           <Route path="products" element={<ProductList />} />
           <Route path="product/:id" element={<ProductDetail />} />
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="payment-success" element={<PaymentSuccess />} />
->>>>>>> 8a47ede9ef2315bf3a12af93cd154a7ff67591e7
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/profile/address" element={<Address />} />

@@ -12,6 +12,7 @@ import User from "./components/pages/user/User";
 function App() {
   return (
     <>
+      <CategoryState>
         <VendorState>
           <ProductState>
             <Router>
@@ -19,6 +20,7 @@ function App() {
             </Router>
           </ProductState>
         </VendorState>
+      </CategoryState>
     </>
   )
 }
