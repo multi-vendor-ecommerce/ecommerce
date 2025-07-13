@@ -6,8 +6,10 @@ const PaginatedLayout = ({ data, initialPerPage = 10, children }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(initialPerPage);
 
+  const safeData = data || []; // fallback if undefined
+
   const startIndex = currentPage * itemsPerPage;
-  const currentItems = data.slice(startIndex, startIndex + itemsPerPage);
+  const currentItems = safeData.slice(startIndex, startIndex + itemsPerPage);
 
   const handleItemsPerPageChange = (value) => {
     setItemsPerPage(value);
@@ -19,7 +21,7 @@ const PaginatedLayout = ({ data, initialPerPage = 10, children }) => {
       {children(currentItems)}
       <div className="flex justify-between items-center gap-2 mt-6 flex-wrap">
         <Pagination
-          totalItems={data.length}
+          totalItems={safeData.length}
           itemsPerPage={itemsPerPage}
           currentPage={currentPage}
           onPageChange={setCurrentPage}

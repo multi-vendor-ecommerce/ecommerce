@@ -13,3 +13,17 @@ export const getAllProducts = async (req, res) => {
     res.status(500).json({ success: false, error: "Server error" });
   }
 };
+
+// Public: Get a product
+export const getProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id)
+      .populate("category", "name")
+      .populate("vendorId", "name email shopName")
+    ;
+
+    res.send({ success: true, product });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+};

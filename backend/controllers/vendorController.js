@@ -10,6 +10,7 @@ export const getAllVendors = async (req, res) => {
   }
 };
 
+// Public: Get a vendor by id
 export const getVendorById = async (req, res) => {
   try {
     const vendor = await Vendor.findById(req.params.id);
