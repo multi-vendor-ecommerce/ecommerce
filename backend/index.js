@@ -17,7 +17,12 @@ const PORT = process.env.PORT || 5000;
 // Middlewares
 app.use(express.json());
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+  ],
+  credentials: true
+}));
 
 app.get('/', (req, res) => {
   res.send('Welcome to Mutli-Vendor Project Backend Side!');
