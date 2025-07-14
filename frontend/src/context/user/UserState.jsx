@@ -1,7 +1,7 @@
 import { useState } from "react";
 import UserContext from "./UserContext";
 
-const NoteState = (props) => {
+const UserState = (props) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 

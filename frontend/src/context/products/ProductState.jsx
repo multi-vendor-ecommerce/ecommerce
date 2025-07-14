@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ProductContext from "./ProductContext";
 
-const NoteState = (props) => {
+const ProductState = (props) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -45,4 +45,4 @@ const NoteState = (props) => {
   )
 }
 
-export default NoteState;
+export default ProductState;

@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import VendorContext from "./VendorContext";
 
-const NoteState = (props) => {
+const VendorState = (props) => {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(false);
 
