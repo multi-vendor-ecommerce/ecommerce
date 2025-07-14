@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import CategoryContext from "../../../../context/categories/CategoryContext";
 import Spinner from "../../../common/Spinner";
+import { encryptData } from "../Utils/Encryption";
 
 export default function CategorySection() {
   const { categories, loading, getAllCategories } = useContext(CategoryContext);
@@ -15,7 +16,15 @@ export default function CategorySection() {
     fetchCategories();
   }, []);
 
-   if (loading) {
+  const secretKey = import.meta.env.VITE_SECRET_KEY;
+  const navigateTo = useNavigate();
+
+  const handleNavigate = (id) => {
+    const encryptedId = encryptData(id, secretKey);
+    navigateTo(`product/category/${encodeURIComponent(encryptedId)}`);
+  };
+
+  if (loading) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
         <Spinner />
@@ -31,19 +40,17 @@ export default function CategorySection() {
       {!isLoaded || loading ? (
         <p className="text-sm text-gray-500">Loading categories...</p>
 
-      // No categories found
       ) : Array.isArray(categories) && categories.length === 0 ? (
         <p className="text-sm text-gray-500">No categories available.</p>
 
-      // Display categories
       ) : (
-        <div className="w-full overflow-x-auto ">
+        <div className="w-full overflow-x-auto">
           <div className="flex gap-4 py-4 lg:mx-auto align-items-center scrollbar-hide">
             {categories.map((cat) => (
-              <NavLink
+              <div
                 key={cat._id}
-                to={`/category/${cat._id}`}
-                className="flex-shrink-0 w-20 flex flex-col items-center text-center"
+                onClick={() => handleNavigate(cat._id)}
+                className="cursor-pointer flex-shrink-0 w-20 flex flex-col items-center text-center"
               >
                 <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-300 shadow-sm">
                   <img
@@ -55,7 +62,7 @@ export default function CategorySection() {
                 <span className="mt-1 text-xs font-medium text-user-dark truncate w-full">
                   {cat.name}
                 </span>
-              </NavLink>
+              </div>
             ))}
           </div>
         </div>

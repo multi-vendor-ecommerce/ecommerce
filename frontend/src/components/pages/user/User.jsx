@@ -30,7 +30,7 @@ export default function User() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="products" element={<ProductList />} />
-          <Route path="product/:id" element={<ProductDetail />} />
+          <Route path="product/category/:id" element={<ProductDetail />} />
           <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="payment-success" element={<PaymentSuccess />} />

@@ -2,10 +2,10 @@
   "name": "ecommerce",
   "version": "1.0.0",
   "main": "index.js",
-"scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
-},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\""
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Mukesh469/ecommerce.git"
@@ -20,5 +20,8 @@
   "description": "",
   "devDependencies": {
     "concurrently": "^9.2.0"
+  },
+  "dependencies": {
+    "crypto-js": "^4.2.0"
   }
 }

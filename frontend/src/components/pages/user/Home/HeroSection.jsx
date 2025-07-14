@@ -17,7 +17,7 @@ export default function HeroSection() {
       } else {
         container.scrollBy({ left: bannerWidth, behavior: "smooth" });
       }
-    }, 30000); // scroll every 30 seconds
+    }, 30000); 
 
     return () => clearInterval(interval);
   }, []);

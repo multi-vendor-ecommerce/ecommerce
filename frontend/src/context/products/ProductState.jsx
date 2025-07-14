@@ -6,7 +6,7 @@ const ProductState = (props) => {
   const [loading, setLoading] = useState(false);
 
   const host = "http://localhost:5000";
-  
+
   const getAllProducts = async () => {
     try {
       setLoading(true);
@@ -38,8 +38,22 @@ const ProductState = (props) => {
     }
   }
 
+  const getProductsByCategoryId = async (categoryId) => {
+    try {
+      const response = await fetch(`${host}/api/products/category/${categoryId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch products by category.');
+      }
+
+      const data = await response.json();
+      return data.products;
+    } catch (error) {
+      console.error('Error fetching products by category:', error);
+    } 
+  };
+
   return (
-    <ProductContext.Provider value={{ products, loading, getAllProducts, getProductById }}>
+    <ProductContext.Provider value={{ products, loading, getAllProducts, getProductById, getProductsByCategoryId }}>
       {props.children}
     </ProductContext.Provider>
   )
