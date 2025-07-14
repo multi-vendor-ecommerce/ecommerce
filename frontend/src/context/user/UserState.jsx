@@ -31,4 +31,4 @@ const UserState = (props) => {
   )
 }
 
-export default NoteState;
+export default UserState;

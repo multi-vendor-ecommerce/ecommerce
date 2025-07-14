@@ -46,4 +46,4 @@ const VendorState = (props) => {
   )
 }
 
-export default NoteState;
+export default VendorState;
