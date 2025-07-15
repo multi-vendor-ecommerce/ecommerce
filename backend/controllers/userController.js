@@ -4,15 +4,37 @@ import { validationResult } from 'express-validator';
 // Public: Get all customers
 export const getAllCustomers = async (req, res) => {
   try {
-    // Fetch the customers' details except password using the id
-    const users = await User.find().select("-password");
+    const { search, date } = req.query;
+    const query = {};
+
+    // Handle search filter
+    if (search) {
+      const regex = new RegExp(search, "i");
+      query.$or = [
+        { name: { $regex: regex } },
+        { email: { $regex: regex } },
+        { address: { $regex: regex } }
+      ];
+    }
+
+    // Handle date filter
+    if (date && !isNaN(Date.parse(date))) {
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+
+      query.createdAt = { $gte: start, $lte: end };
+    }
+
+    const users = await User.find(query).select("-password");
     res.json({ success: true, users });
   } catch (err) {
-    // Catch the error
-    console.log(err.message);
-    return res.status(500).json({ success: false, error: 'Interal Server Error', message: err.message });
+    console.error("getAllCustomers error:", err.message);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-}
+};
 
 // Public: Get a user by id
 export const getUser = async (req, res) => {

@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProductState from "./context/products/ProductState";
 import VendorState from "./context/vendors/VendorState";
-import CategoryState from "./context/categories/CategoryState"
+import CategoryState from "./context/categories/CategoryState";
+import UserState from "./context/user/UserState";
 
 // Admin components
 import Admin from "./components/pages/admin/Admin";
@@ -12,15 +13,17 @@ import User from "./components/pages/user/User";
 function App() {
   return (
     <>
-      <CategoryState>
-        <VendorState>
-          <ProductState>
-            <Router>
-              <AppRoutes />
-            </Router>
-          </ProductState>
-        </VendorState>
-      </CategoryState>
+      <UserState>
+        <CategoryState>
+          <VendorState>
+            <ProductState>
+              <Router>
+                <AppRoutes />
+              </Router>
+            </ProductState>
+          </VendorState>
+        </CategoryState>
+      </UserState>
     </>
   )
 }

@@ -1,9 +1,9 @@
 const AddCoupon = ({ form, errors, handleChange, handleAddCoupon }) => {
   return (
-    <div className="bg-white hover:shadow-blue-500 shadow-md transition duration-200 rounded-xl border border-gray-200 p-6 mb-8">
+    <div className="w-full bg-white hover:shadow-blue-500 shadow-md transition duration-200 rounded-xl border border-gray-200 p-6 mb-8">
       <h3 className="text-lg md:text-xl font-semibold mb-4">Add New Coupon</h3>
 
-      <div className="grid md:grid-cols-5 gap-4">
+      <div className="w-full grid md:grid-cols-5 gap-4">
         {/* Code */}
         <div className="flex flex-col gap-1">
           <label htmlFor="code" className="text-sm font-medium text-gray-600">

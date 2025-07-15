@@ -1,17 +1,43 @@
 // components/admin/customers/Customers.jsx
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import UserContext from "../../../../context/user/UserContext";
 import { RenderCustomerRow } from "./RenderCustomerRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
 import Spinner from "../../../common/Spinner";
+import FilterBar from "../../../common/FilterBar";
 
 const Customers = () => {
   const { users, getAllCustomers, loading } = useContext(UserContext);
+  const [filters, setFilters] = useState({ search: "", date: "" });
 
   useEffect(() => {
     getAllCustomers();
   }, []);
+
+  const handleChange = (name, value) => {
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleApply = () => {
+    getAllCustomers(filters);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleApply();
+    }
+  };
+
+  const handleClear = () => {
+    setFilters({ search: "", date: "" });
+    getAllCustomers();
+  };
+
+  const customerFilterFields = [
+    { name: "search", label: "Search by name/email/location", type: "text" },
+    { name: "date", label: "Date", type: "date" }
+  ];
 
   if (loading) {
     return (
@@ -20,12 +46,23 @@ const Customers = () => {
       </section>
     );
   }
-  
+
   const headers = ["Customer", "Email", "Location", "Total Orders", "Total Value", "Registered On"];
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
       <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">Customers</h2>
+
+      <div>
+        <FilterBar
+          fields={customerFilterFields}
+          values={filters}
+          onChange={handleChange}
+          onApply={handleApply}
+          onClear={handleClear}
+          onKeyDown={handleKeyDown}
+        />
+      </div>
 
       <PaginatedLayout data={users} initialPerPage={10}>
         {(currentItems) => (
