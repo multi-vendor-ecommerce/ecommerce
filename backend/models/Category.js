@@ -17,6 +17,10 @@ const categorySchema = new Schema(
       default: "",
       maxlength: 500,
     },
+    image: {
+      type: String,
+      default: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
+    }
   },
   { timestamps: true }
 );

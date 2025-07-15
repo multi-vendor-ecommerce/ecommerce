@@ -3,7 +3,7 @@ import Category from "../models/Category.js";
 // Create a new category
 export const createCategory = async (req, res) => {
   try {
-    const { name, description = "" } = req.body;
+    const { name, description = "", image = "" } = req.body;
 
     if (!name || !name.trim()) {
       return res.status(400).send({
@@ -14,6 +14,7 @@ export const createCategory = async (req, res) => {
 
     const trimmedName = name.trim();
     const trimmedDescription = description.trim();
+    const trimmedImage = image.trim();
 
     // Check if category already exists (case-insensitive)
     const existingCategory = await Category.findOne({
