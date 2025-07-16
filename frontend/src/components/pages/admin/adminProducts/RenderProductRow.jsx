@@ -69,7 +69,7 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
 
       {/* Approval Status */}
       <td
-        className="px-6 py-4 min-w-[200px] text-xs md:text-sm font-semibold hover:scale-105 transition duration-150"
+        className="px-6 py-4 min-w-[200px] text-sm font-semibold hover:scale-105 transition duration-150"
         title={p.approved ? "Approved" : "Not Approved"}
       >
         {p.approved ? (

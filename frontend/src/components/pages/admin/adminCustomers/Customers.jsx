@@ -30,8 +30,9 @@ const Customers = () => {
   };
 
   const handleClear = () => {
-    setFilters({ search: "", date: "" });
-    getAllCustomers();
+    const reset = { search: "", date: "" };
+    setFilters(reset);
+    getAllCustomers(reset);
   };
 
   const customerFilterFields = [
