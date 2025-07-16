@@ -1,32 +1,11 @@
 import User from "../models/User.js";
 import { validationResult } from 'express-validator';
+import buildQuery from "../utils/queryBuilder.js";
 
 // Public: Get all customers
 export const getAllCustomers = async (req, res) => {
   try {
-    const { search, date } = req.query;
-    const query = {};
-
-    // Handle search filter
-    if (search) {
-      const regex = new RegExp(search, "i");
-      query.$or = [
-        { name: { $regex: regex } },
-        { email: { $regex: regex } },
-        { address: { $regex: regex } }
-      ];
-    }
-
-    // Handle date filter
-    if (date && !isNaN(Date.parse(date))) {
-      const start = new Date(date);
-      start.setHours(0, 0, 0, 0);
-
-      const end = new Date(date);
-      end.setHours(23, 59, 59, 999);
-
-      query.createdAt = { $gte: start, $lte: end };
-    }
+    const query = buildQuery(req.query, ["name", "email", "address"]);
 
     const users = await User.find(query).select("-password");
     res.json({ success: true, users });

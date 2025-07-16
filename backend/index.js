@@ -22,7 +22,7 @@ app.use(cors({
     'http://localhost:5173',
     'https://glistening-klepon-792fcd.netlify.app'
   ],
-  credentials: true
+  // credentials: true
 }));
 
 app.get('/', (req, res) => {
