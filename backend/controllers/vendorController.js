@@ -1,9 +1,12 @@
 import Vendor from "../models/Vendor.js";
+import buildQuery from "../utils/queryBuilder.js";
 
 // Public: Get all vendors
 export const getAllVendors = async (req, res) => {
   try {
-    const vendors = await Vendor.find();
+    const query = buildQuery(req.query, ["name", "email", "shopName"]);
+    
+    const vendors = await Vendor.find(query);
     res.send({ success: true, vendors });
   } catch (err) {
     res.status(500).json({ success: false, error: "Server error" });

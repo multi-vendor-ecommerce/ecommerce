@@ -51,6 +51,20 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
     },
+    freeDelivery: {
+      type: Boolean,
+      default: false,
+    },
+    rating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+    },
+    totalReviews: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
