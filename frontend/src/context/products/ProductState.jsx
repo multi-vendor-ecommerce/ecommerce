@@ -5,12 +5,23 @@ const ProductState = (props) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
-  const getAllProducts = async () => {
+  const getAllProducts = async ({ search = "", status = "" } = {}) => {
     try {
       setLoading(true);
-      const response = await fetch(`${host}/api/products/admin`);
+
+      const params = new URLSearchParams();
+      if (search?.trim()) params.append("search", search);
+      if (status) params.append("status", status);
+
+      const response = await fetch(
+        `${host}/api/products/admin?${params.toString()}`,
+        {
+          method: "GET",
+          // credentials: "include",
+        });
       if (!response.ok) {
         throw new Error('Failed to fetch products.');
       }
@@ -49,7 +60,7 @@ const ProductState = (props) => {
       return data.products;
     } catch (error) {
       console.error('Error fetching products by category:', error);
-    } 
+    }
   };
 
   return (

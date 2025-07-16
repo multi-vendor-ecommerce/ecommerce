@@ -1,18 +1,40 @@
 // Products.jsx
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import ProductContext from "../../../../context/products/ProductContext";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
 import { RenderProductRow } from "./RenderProductRow";
 import Spinner from "../../../common/Spinner";
+import FilterBar from "../../../common/FilterBar";
+import { productFilterFields } from "./data/productFilterFields";
 
 export default function Products({ heading }) {
   const context = useContext(ProductContext);
   const { products, getAllProducts, loading } = context;
+  const [filters, setFilters] = useState({ search: "", status: "" });
 
   useEffect(() => {
     getAllProducts();
   }, []);
+
+  const handleChange = (name, value) => {
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleApply = () => {
+    getAllProducts(filters);
+  };
+
+  const handleClear = () => {
+    setFilters({ search: "", status: "" });
+    getAllProducts();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleApply();
+    }
+  };
 
   if (loading) {
     return (
@@ -30,6 +52,17 @@ export default function Products({ heading }) {
   return (
     <section className="bg-gray-100 min-h-screen p-6 rounded-2xl shadow-md">
       <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{heading}</h2>
+
+      <div>
+        <FilterBar
+          fields={productFilterFields}
+          values={filters}
+          onChange={handleChange}
+          onApply={handleApply}
+          onClear={handleClear}
+          onKeyDown={handleKeyDown}
+        />
+      </div>
 
       <PaginatedLayout data={heading === "Top Selling Products" ? topProducts : products} initialPerPage={10}>
         {(currentItems) => (
