@@ -3,7 +3,7 @@ import { decryptData } from "../Utils/Encryption";
 import ProductContext from "../../../../context/products/ProductContext";
 import Spinner from "../../../common/Spinner";
 
-export default function YourComponent() {
+export default function () {
   const { getProductsByCategoryId } = useContext(ProductContext);
 
   const secretKey = import.meta.env.VITE_SECRET_KEY;
@@ -80,4 +80,4 @@ export default function YourComponent() {
       )}
     </div>
   );
-}
+} 
