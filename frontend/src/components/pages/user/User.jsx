@@ -5,7 +5,6 @@ import UserHeader from "./UserHeader/UserHeader";
 
 import Home from "./Home/Home";
 import ProductList from "./Product/ProductList";
-import ProductDetail from "./Product/ProductDetail";
 import Cart from "./Cart/Cart";
 import { CartProvider } from "../user/Cart/CartContext";
 import Checkout from "./Checkout/Checkout";
@@ -16,7 +15,8 @@ import UserProfile from "./Profile/UserProfile";
 import Address from "./Profile/Address";
 
 import ProductSection from "./Home/ProductSection";
-import ProductDetails from "./Product/ProductDetail";
+import ProductsByCategory from "./Product/ProductsByCategory";
+import ProductDetails from "./Product/ProductDetails";
 
 import Account from "./Account/Account";
 
@@ -29,23 +29,19 @@ export default function User() {
         <UserHeader />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="products" element={<ProductList />} />
-          <Route path="product/category/:id" element={<ProductDetail />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="payment-success" element={<PaymentSuccess />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/profile/address" element={<Address />} />
-          <Route
-            path="/products"
-            element={<ProductSection title="All Products" />}
-          />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="Account" element={<Account />} />
+          <Route path="product/category/:id" element={<ProductsByCategory />} />
+          {/* <Route path="cart" element={<Cart />} /> */}
+          {/* <Route path="checkout" element={<Checkout />} /> */}
+          {/* <Route path="payment-success" element={<PaymentSuccess />} /> */}
+          {/* <Route path="/wishlist" element={<Wishlist />} /> */}
+          {/* <Route path="/profile" element={<UserProfile />} /> */}
+          {/* <Route path="/profile/address" element={<Address />} /> */}
+         
+          <Route path="product/:id" element={<ProductDetails />} />
+          {/* <Route path="Account" element={<Account />} /> */}
 
-          <Route path="/order" element={<Order />} />
-          <Route path="/order/:orderId" element={<OrderDetails />} />
+          {/* <Route path="/order" element={<Order />} /> */}
+          {/* <Route path="/order/:orderId" element={<OrderDetails />} /> */}
         </Routes>
         {/* <UserFooter /> */}
       </CartProvider>

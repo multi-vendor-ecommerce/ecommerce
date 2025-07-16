@@ -1,29 +1,34 @@
 import React, { useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import ProductContext from "../../../../context/products/ProductContext";
+import { encryptData } from "../Utils/Encryption";
 
 export default function ProductSection({ title }) {
   const { products, loading, getAllProducts } = useContext(ProductContext);
+  const navigateTo = useNavigate();
 
   useEffect(() => {
     getAllProducts();
   }, []);
 
   const handleProductClick = (productId) => {
+    const secretKey = import.meta.env.VITE_SECRET_KEY;
+    const encryptedProductId = encryptData(productId, secretKey);
     console.log("Product clicked:", productId);
-    // Navigate to product detail page if needed
+    console.log("Encrypted Product ID: ", encryptedProductId);
+    navigateTo(`product/${encodeURIComponent(encryptedProductId)}`);
   };
 
   return (
-    <div className="py-8 bg-white">
+    <div className="py-0 bg-white">
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl font-semibold mb-6 text-gray-800">{title}</h2>
-        <p className="text-gray-700 text-lg mb-6 font-semibold ">Products for you</p>
+        <h2 className="text-xl font-semibold py-4 text-gray-800">Products for you</h2>
 
         {loading ? (
           <p className="text-gray-500">Loading products...</p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {products.length > 0 ? (
               products.map((product) => (
                 <div
