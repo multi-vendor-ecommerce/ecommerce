@@ -11,24 +11,36 @@ const AddCoupon = ({ form, errors, handleChange, handleAddCoupon }) => {
             <label htmlFor={id} className="text-sm font-medium text-gray-600">
               {label}
             </label>
-            <input
-              id={id}
-              name={id}
-              type={type}
-              min={min}
-              step={step}
-              value={form[id]}
-              onChange={handleChange}
-              placeholder={placeholder}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
+
+            {type === "checkbox" ? (
+              <input
+                id={id}
+                name={id}
+                type="checkbox"
+                checked={form[id] || false}
+                onChange={(e) => handleChange({ target: { name: id, value: e.target.checked } })}
+                className="w-5 h-5 mt-1"
+              />
+            ) : (
+              <input
+                id={id}
+                name={id}
+                type={type}
+                min={min}
+                step={step}
+                value={form[id] ?? ""}
+                onChange={handleChange}
+                placeholder={placeholder}
+                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            )}
+
             {errors[id] && (
               <span className="text-sm text-red-600">{errors[id]}</span>
             )}
           </div>
         ))}
       </div>
-
 
       <button
         onClick={handleAddCoupon}
@@ -37,7 +49,7 @@ const AddCoupon = ({ form, errors, handleChange, handleAddCoupon }) => {
         Add Coupon
       </button>
     </div>
-  )
-}
+  );
+};
 
 export default AddCoupon;

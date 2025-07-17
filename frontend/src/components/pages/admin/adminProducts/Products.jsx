@@ -50,7 +50,7 @@ export default function Products({ heading }) {
   const headers = ["Product", "ID", "Category", "Price", "Units Sold", "Revenue", "Approval Status", "Sales Progress", "Actions"];
 
   return (
-    <section className="bg-gray-100 min-h-screen p-6 rounded-2xl shadow-md">
+    <section className="bg-gray-100 min-h-screen p-6 shadow-md">
       <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{heading}</h2>
 
       <div>

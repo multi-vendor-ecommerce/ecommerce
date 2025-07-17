@@ -17,7 +17,7 @@ const UserState = (props) => {
       if (date?.trim()) params.append("date", date);
 
       const response = await fetch(
-        `${host}/api/user/admin/all-customers?${params.toString()}`,
+        `${host}/api/users/admin/all-customers?${params.toString()}`,
         {
           method: "GET",
           // credentials: "include",

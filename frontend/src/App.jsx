@@ -3,6 +3,7 @@ import ProductState from "./context/products/ProductState";
 import VendorState from "./context/vendors/VendorState";
 import CategoryState from "./context/categories/CategoryState";
 import UserState from "./context/user/UserState";
+import CouponState from "./context/coupons/CouponState";
 
 // Admin components
 import Admin from "./components/pages/admin/Admin";
@@ -13,17 +14,19 @@ import User from "./components/pages/user/User";
 function App() {
   return (
     <>
-      <UserState>
-        <CategoryState>
-          <VendorState>
-            <ProductState>
-              <Router>
-                <AppRoutes />
-              </Router>
-            </ProductState>
-          </VendorState>
-        </CategoryState>
-      </UserState>
+      <CouponState>
+        <UserState>
+          <CategoryState>
+            <VendorState>
+              <ProductState>
+                <Router>
+                  <AppRoutes />
+                </Router>
+              </ProductState>
+            </VendorState>
+          </CategoryState>
+        </UserState>
+      </CouponState>
     </>
   )
 }

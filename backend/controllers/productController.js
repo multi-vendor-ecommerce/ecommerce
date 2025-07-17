@@ -4,7 +4,7 @@ import buildQuery from "../utils/queryBuilder.js";
 // Public: Get all products
 export const getAllProducts = async (req, res) => {
   try {
-    const query = buildQuery(req.query, ["title", "category.name"]);
+    const query = buildQuery(req.query, ["title"]);
 
     const products = await Product.find(query)
       .populate("category", "name")
