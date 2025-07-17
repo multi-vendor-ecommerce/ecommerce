@@ -102,9 +102,9 @@ const ProductDetails = () => {
           </div>
 
           {/* Units Sold & Revenue */}
-          <p className="text-sm text-gray-500">
+          {/* <p className="text-sm text-gray-500">
             Sold: <strong>{productDetails.unitsSold}</strong> · Revenue: ₹{productDetails.totalRevenue.toLocaleString()}
-          </p>
+          </p> */}
 
           {/* Category */}
           <p className="text-sm text-gray-500">
