@@ -1,14 +1,8 @@
-/**
- * Build a MongoDB query based on common filters like search, date, status.
- * @param {Object} params - Query parameters from req.query
- * @param {Array} searchFields - Fields to apply the search regex on
- * @returns {Object} Mongoose query object
- */
-export const buildQuery = (params, searchFields = []) => {
+const buildQuery = (params, searchFields = []) => {
   const { search, date, status } = params;
   const query = {};
 
-  // Generic Search across given fields
+  // Generic Search
   if (search && searchFields.length > 0) {
     const regex = new RegExp(search, "i");
     query.$or = searchFields.map(field => ({
@@ -16,7 +10,7 @@ export const buildQuery = (params, searchFields = []) => {
     }));
   }
 
-  // Date filtering
+  // Date filter
   if (date && !isNaN(Date.parse(date))) {
     const start = new Date(date);
     start.setHours(0, 0, 0, 0);
@@ -27,9 +21,16 @@ export const buildQuery = (params, searchFields = []) => {
     query.createdAt = { $gte: start, $lte: end };
   }
 
-  // Status (optional)
+  // Handle both boolean-style "status" and string "status"
   if (status) {
-    query.status = status;
+    if (status === "approved") {
+      query.approved = true;
+    } else if (status === "not_approved") {
+      query.approved = false;
+    } else {
+      // Assume it's for models that use status string like "active", "suspended"
+      query.status = status;
+    }
   }
 
   return query;

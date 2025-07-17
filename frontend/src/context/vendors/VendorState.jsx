@@ -5,15 +5,25 @@ const VendorState = (props) => {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
-  
-  const getAllVendors = async () => {
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
+
+  const getAllVendors = async ({ search = "", status = "" } = {}) => {
     try {
       setLoading(true);
-      const response = await fetch(`${host}/api/vendors`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch vendors.');
-      }
+
+      const params = new URLSearchParams();
+      if (search?.trim()) params.append("search", search);
+      if (status) params.append("status", status);
+
+      const response = await fetch(
+        `${host}/api/vendors?${params.toString()}`,
+        {
+          method: "GET",
+          // credentials: "include"
+        });
+
+      if (!response.ok) throw new Error('Failed to fetch vendors.');
 
       const data = await response.json();
       setVendors(data.vendors);

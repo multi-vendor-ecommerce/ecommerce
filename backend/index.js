@@ -7,6 +7,7 @@ import productsRoutes from "./routes/productRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import CouponRoutes from "./routes/couponRoutes.js";
 
 dotenv.config();
 connectToMongo();
@@ -33,8 +34,8 @@ app.get('/', (req, res) => {
 app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/vendors', vendorRoutes);
-app.use('/api/user', userRoutes);
-app.use("/api/products/", productsRoutes);
+app.use('/api/users', userRoutes);
+app.use("/api/coupons", CouponRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend listening on port http://localhost:${PORT}`);

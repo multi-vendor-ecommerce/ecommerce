@@ -1,9 +1,12 @@
 import Product from "../models/Products.js";
+import buildQuery from "../utils/queryBuilder.js";
 
 // Public: Get all products
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find()
+    const query = buildQuery(req.query, ["title"]);
+
+    const products = await Product.find(query)
       .populate("category", "name")
       .populate("vendorId", "name email shopName")
     ;

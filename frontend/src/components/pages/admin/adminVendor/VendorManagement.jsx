@@ -1,16 +1,39 @@
-import { useEffect, useContext } from "react";
+import { useEffect, useContext, useState } from "react";
 import VendorContext from "../../../../context/vendors/VendorContext";
 import { RenderVendorRow } from "./RenderVendorRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
 import Spinner from "../../../common/Spinner";
+import { vendorFilterFields } from "./data/vendorFilterFields";
+import FilterBar from "../../../common/FilterBar";
 
 const VendorManagement = ({ heading }) => {
   const { vendors, getAllVendors, loading } = useContext(VendorContext);
+  const [filters, setFilters] = useState({ search: "", status: "" });
 
   useEffect(() => {
     getAllVendors();
   }, []);
+
+  const handleChange = (name, value) => {
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleApply = () => {
+    // Example filter logic – adapt it to real backend/API usage
+    getAllVendors(filters);
+  };
+
+  const handleClear = () => {
+    setFilters({ search: "", status: "" });
+    getAllVendors(); // no filters
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleApply();
+    }
+  };
 
   if (loading) {
     return (
@@ -25,6 +48,17 @@ const VendorManagement = ({ heading }) => {
   return (
     <section className="bg-gray-100 w-full min-h-screen p-6 shadow-md">
       <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{heading}</h2>
+
+      <div>
+        <FilterBar
+          fields={vendorFilterFields}
+          values={filters}
+          onChange={handleChange}
+          onApply={handleApply}
+          onClear={handleClear}
+          onKeyDown={handleKeyDown}
+        />
+      </div>
 
       <PaginatedLayout data={vendors} initialPerPage={10}>
         {(currentItems) => (

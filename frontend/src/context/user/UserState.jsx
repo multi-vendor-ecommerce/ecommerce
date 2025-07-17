@@ -5,21 +5,24 @@ const UserState = (props) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
   const getAllCustomers = async ({ search = "", date = "" } = {}) => {
     try {
       setLoading(true);
 
       const params = new URLSearchParams();
-      if (search) params.append("search", search);
-      if (date) params.append("date", date); // should be YYYY-MM-DD
+      if (search?.trim()) params.append("search", search);
+      if (date?.trim()) params.append("date", date);
 
-      const response = await fetch(`${host}/api/user/admin/all-customers?${params.toString()}`,
+      const response = await fetch(
+        `${host}/api/users/admin/all-customers?${params.toString()}`,
         {
           method: "GET",
-          credentials: "include"
-        });
+          // credentials: "include",
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to fetch customers.");
 
