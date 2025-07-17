@@ -1,5 +1,6 @@
 import { FiFilter } from "react-icons/fi";
 import { BsXCircle } from "react-icons/bs";
+import CustomSelect from "./layout/CustomSelect";
 
 const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, onKeyDown }) => {
   return (
@@ -11,33 +12,30 @@ const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, onKey
 
           if (type === "text" || type === "date") {
             return (
-              <input
-                key={name}
-                type={type}
-                value={value}
-                placeholder={label}
-                onChange={(e) => onChange(name, e.target.value)}
-                onKeyDown={onKeyDown}
-                className="w-full md:w-auto p-2 border border-gray-300 bg-white rounded-md shadow-sm"
-              />
+              <div key={name} className="w-full md:w-auto">
+                <input
+                  key={name}
+                  type={type}
+                  value={value}
+                  placeholder={label}
+                  onChange={(e) => onChange(name, e.target.value)}
+                  onKeyDown={onKeyDown}
+                  className="w-full h-full md:min-w-[300px] bg-white px-3 py-2 border border-gray-300 rounded-xl shadow-sm text-sm md:text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 hover:border-blue-300 transition-all duration-150"
+                />
+              </div>
             );
           }
 
           if (type === "select") {
             return (
-              <select
-                key={name}
-                value={value}
-                onChange={(e) => onChange(name, e.target.value)}
-                onKeyDown={onKeyDown}
-                className="w-full md:w-auto p-2 border border-gray-300 rounded-md shadow-sm"
-              >
-                {options.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+              <div key={name}>
+                <CustomSelect
+                  value={value}
+                  onChange={(val) => onChange(name, val)}
+                  options={options}
+                  menuPlacement="bottom"
+                />
+              </div>
             );
           }
 

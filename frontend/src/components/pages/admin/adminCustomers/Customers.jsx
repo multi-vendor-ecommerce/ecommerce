@@ -36,7 +36,7 @@ const Customers = () => {
   };
 
   const customerFilterFields = [
-    { name: "search", label: "Search by name/email/location", type: "text" },
+    { name: "search", label: "Search by name, email, or location", type: "text" },
     { name: "date", label: "Date", type: "date" }
   ];
 
