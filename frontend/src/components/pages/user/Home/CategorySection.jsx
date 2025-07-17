@@ -34,7 +34,7 @@ export default function CategorySection() {
   return (
     <div className="py-2 sm:py-4 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-xl font-semibold py-4 text-gray-800">Shop by Categories</p>
+        <p className="text-xl md:text-2xl font-semibold py-4 text-gray-700">Shop by Categories</p>
 
         {!isLoaded || loading ? (
           <p className="text-sm text-gray-500">Loading categories...</p>
@@ -49,7 +49,7 @@ export default function CategorySection() {
                   onClick={() => handleNavigate(cat._id)}
                   className="cursor-pointer flex-shrink-0 w-20 flex flex-col items-center text-center"
                 >
-                  <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-300 shadow-sm">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border border-gray-300 shadow-sm">
                     <img
                       src={cat.image}
                       alt={cat.name}

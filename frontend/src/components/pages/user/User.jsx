@@ -4,7 +4,7 @@ import UserHeader from "./UserHeader/UserHeader";
 // import UserFooter from "./UserFooter/UserFooter";
 
 import Home from "./Home/Home";
-import ProductList from "./Product/ProductList";
+// import ProductList from "./Product/ProductList";
 import Cart from "./Cart/Cart";
 import { CartProvider } from "../user/Cart/CartContext";
 import Checkout from "./Checkout/Checkout";
