@@ -18,8 +18,8 @@ export default function ProductSection({ title }) {
   };
 
   return (
-    <div className="py-0 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-gray-100">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-xl md:text-2xl font-semibold py-4 text-gray-700 text-start"> Products for you
         </h2>
 

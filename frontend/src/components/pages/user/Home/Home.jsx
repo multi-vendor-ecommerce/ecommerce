@@ -1,14 +1,15 @@
-import React from 'react';
-import HeroSection from './HeroSection';
 import CategorySection from './CategorySection';
 import ProductSection from './ProductSection';
+import SliderData from "../Utils/BannersData.js";
+import HeroSlider from '../../../common/HeroSlider';
 
 
 export default function Home() {
   return (
-    <div className="bg-user-base text-user-dark">
+    <div className="bg-gray-100">
       <CategorySection />
-      <HeroSection />
+      <HeroSlider banners={SliderData} />
+
       <ProductSection />
       {/* <ProductSection title="Electronics Bestsellers" />
       <ProductSection title="Fashion Picks" /> */}

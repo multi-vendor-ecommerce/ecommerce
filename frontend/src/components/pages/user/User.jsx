@@ -5,23 +5,23 @@ import UserHeader from "./UserHeader/UserHeader";
 
 import Home from "./Home/Home";
 // import ProductList from "./Product/ProductList";
-import Cart from "./Cart/Cart";
+// import Cart from "./Cart/Cart";
 import { CartProvider } from "../user/Cart/CartContext";
-import Checkout from "./Checkout/Checkout";
-import PaymentSuccess from "./Checkout/PaymentSuccess";
-import Wishlist from "./Cart/Wishlist";
+// import Checkout from "./Checkout/Checkout";
+// import PaymentSuccess from "./Checkout/PaymentSuccess";
+// import Wishlist from "./Cart/Wishlist";
 
-import UserProfile from "./Profile/UserProfile";
-import Address from "./Profile/Address";
+// import UserProfile from "./Profile/UserProfile";
+// import Address from "./Profile/Address";
 
-import ProductSection from "./Home/ProductSection";
+// import ProductSection from "./Home/ProductSection";
 import ProductsByCategory from "./Product/ProductsByCategory";
 import ProductDetails from "./Product/ProductDetails";
 
-import Account from "./Account/Account";
+// import Account from "./Account/Account";
 
-import Order from "./Order/Order";
-import OrderDetails from "./Order/OrderDetails";
+// import Order from "./Order/Order";
+// import OrderDetails from "./Order/OrderDetails";
 export default function User() {
   return (
     <>
