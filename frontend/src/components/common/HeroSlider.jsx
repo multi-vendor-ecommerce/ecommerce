@@ -1,5 +1,3 @@
-// components/common/HeroSlider.jsx
-
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
@@ -10,33 +8,35 @@ const HeroSlider = ({ banners = [] }) => {
   if (!Array.isArray(banners) || banners.length === 0) return null;
 
   return (
-    <div className="w-full bg-white py-2">
-      <div className="mx-auto px-4 sm:px-4 lg:px-6">
+    <div className="w-full bg-white py-4 lg:py-7">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Swiper
           modules={[Autoplay, Pagination]}
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
           loop={true}
-          className="rounded-lg overflow-hidden"
+          className="rounded-xl overflow-hidden shadow-lg"
         >
           {banners.map((banner, index) => (
             <SwiperSlide key={banner.id || index}>
-              <div className="w-full h-60 md:h-80 relative">
+              <div className="w-full h-64 md:h-96 relative group">
                 <img
                   src={banner.image}
                   alt={banner.title || `Banner ${index + 1}`}
-                  className="w-full h-full object-cover brightness-75"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-transparent z-10" />
+
                 {(banner.title || banner.description) && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
                     {banner.title && (
-                      <h2 className="text-2xl md:text-4xl font-bold text-white drop-shadow-md">
+                      <h2 className="text-3xl md:text-5xl font-extrabold text-white drop-shadow-lg">
                         {banner.title}
                       </h2>
                     )}
                     {banner.description && (
-                      <p className="text-sm md:text-lg mt-1 text-white drop-shadow-sm">
+                      <p className="text-base md:text-xl mt-2 text-white max-w-2xl drop-shadow">
                         {banner.description}
                       </p>
                     )}

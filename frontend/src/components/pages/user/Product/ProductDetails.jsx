@@ -59,14 +59,14 @@ const ProductDetails = () => {
 
   return (
     <div className="bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className=" mx-auto bg-white shadow-lg rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-2 ">
         
         {/* LEFT: IMAGE */}
         <div className="p-6 bg-gray-100 flex items-center justify-center">
           <img
             src={productDetails.images?.[0] || "https://via.placeholder.com/600"}
             alt={productDetails.title}
-            className="max-h-[500px] w-full object-contain rounded-lg"
+            className="max-h-[500px] w-full object-cover rounded-lg"
           />
         </div>
 

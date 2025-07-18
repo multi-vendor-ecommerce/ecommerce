@@ -35,7 +35,7 @@ export default function CategorySection() {
   }
 
   return (
-    <div className=" bg-gray-100">
+    <div className=" bg-gray-100 pb-6">
       <div className=" mx-auto px-4 sm:px-6 ">
         <h2 className="text-xl md:text-2xl font-semibold py-4 text-gray-700 text-start">Shop by Categories</h2>
 

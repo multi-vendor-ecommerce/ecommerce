@@ -51,7 +51,7 @@ export default function ProductSection({ title }) {
                   </p>
 
                   <div className="flex justify-between items-center mt-1">
-                    <span className="text-pink-600 font-bold text-lg">₹{product.price}</span>
+                    <span className="text-[#7F55B1] font-bold text-lg ">₹{product.price}</span>
                     <span className="text-sm sm:text-lg text-yellow-600 font-medium">
                       {product.rating} ★
                     </span>

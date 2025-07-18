@@ -50,6 +50,15 @@ export default function ProductByCategory() {
     navigateTo(`/product/${encodeURIComponent(encryptedProductId)}`);
   };
 
+  // Navigate to previous state 
+  const handleBack = () => {
+  if (window.history.length > 1) {
+    navigateTo(-1);
+  } else {
+    navigateTo("/");
+  }
+};
+
   if (productsLoading) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
@@ -59,10 +68,10 @@ export default function ProductByCategory() {
   }
 
   return (
-    <div className="py-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="py-4  mx-auto px-4 sm:px-6 lg:px-8 bg-gray-100">
       {/* <h2 className="text-xl sm:text-2xl font-bold mb-4 text-gray-600">Category Products</h2> */}
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => handleBack(-1)}
         className="mb-6 inline-flex items-center gap-1 text-sm sm:text-base md:text-lg font-medium text-gray-600 hover:text-gray-800 hover:underline transition duration-200"
       >
         <span className="text-lg">←</span> Back to Products
@@ -94,7 +103,7 @@ export default function ProductByCategory() {
               </p>
 
               <div className="flex justify-between items-center mt-1">
-                <span className="text-pink-600 font-bold text-lg">₹{product.price}</span>
+                <span className="text-[#7F55B1] font-bold text-lg ">₹{product.price}</span>
                 <span className="text-sm sm:text-lg text-yellow-600 font-medium">
                   {product.rating} ★
                 </span>

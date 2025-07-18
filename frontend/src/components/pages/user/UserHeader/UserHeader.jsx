@@ -8,7 +8,7 @@ function UserHeader() {
   return (
     <div className="w-full relative">
       {/* Header */}
-      <div className="bg-white py-3 shadow-sm z-40">
+      <div className="bg-white py-3 shadow-sm z-40 lg:px-16">
         <div className="container mx-auto px-4 flex items-center justify-between gap-4 flex-wrap">
           {/* Logo */}
           <Link to="/" className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap">

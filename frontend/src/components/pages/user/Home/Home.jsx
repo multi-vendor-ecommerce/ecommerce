@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <div className="bg-gray-100">
       <CategorySection />
-      <HeroSlider banners={SliderData} />
+        <HeroSlider banners={SliderData} />
 
       <ProductSection />
       {/* <ProductSection title="Electronics Bestsellers" />
