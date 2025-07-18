@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { RiMenu2Line } from 'react-icons/ri';
-import { IoGlobeOutline, IoNotificationsOutline, IoSettingsOutline } from 'react-icons/io5';
+import { FiSettings } from 'react-icons/fi';
+import { IoGlobeOutline, IoNotificationsOutline } from 'react-icons/io5';
 
 import ProfileMenu from './ProfileMenu';
 
@@ -50,7 +51,7 @@ const Header = ({ onMenuToggle }) => {
         </button>
 
         <button className="hover:text-black hover:scale-105 transition-all duration-300 cursor-pointer hover:animate-spin">
-          <IoSettingsOutline className="text-2xl md:text-3xl" title="Settings" />
+          <FiSettings className="text-2xl md:text-3xl" title="Settings" />
         </button>
 
         {/* Profile Icon + Dropdown */}
