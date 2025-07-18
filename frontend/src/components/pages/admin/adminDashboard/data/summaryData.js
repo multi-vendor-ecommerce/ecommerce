@@ -1,14 +1,22 @@
 import { FaRupeeSign, FaUser, FaBoxOpen } from "react-icons/fa";
 import { BiCart } from "react-icons/bi";
 
-export const dateOptions = [
-  "Today",
-  "Yesterday",
-  "This Week",
-  "This Month",
-  "Quarterly",
-  "Yearly",
-  "Custom Date",
+export const dateFilterFields = [
+  {
+    name: "date",
+    label: "Filter by Date",
+    type: "select",
+    options: [
+      { value: "", label: "All Dates" },
+      { value: "today", label: "Today" },
+      { value: "yesterday", label: "Yesterday" },
+      { value: "this_week", label: "This Week" },
+      { value: "this_month", label: "This Month" },
+      { value: "quarterly", label: "Quarterly" },
+      { value: "yearly", label: "Yearly" },
+      { value: "custom", label: "Custom Date" },
+    ],
+  },
 ];
 
 export const cards = [

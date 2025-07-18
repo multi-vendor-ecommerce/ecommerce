@@ -1,8 +1,13 @@
+import { dateFilterFields, cards } from "./data/summaryData";
+import CustomSelect from "../../.././common/layout/CustomSelect";
 import { useState } from "react";
-import { dateOptions, cards } from "./data/summaryData";
 
 export default function SummaryCards() {
-  const [selectedRange, setSelectedRange] = useState("This Month");
+  const [dateValue, setDateValue] = useState("");
+
+  const handleChange = (name, value) => {
+    if (name === "date") setDateValue(value);
+  };
 
   return (
     <section>
@@ -10,17 +15,14 @@ export default function SummaryCards() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800 mt-3">Overview</h2>
 
-        <select
-          value={selectedRange}
-          onChange={(e) => setSelectedRange(e.target.value)}
-          className="mt-4 md:mt-0 border border-gray-300 p-2 rounded-md text-sm focus:outline-none"
-        >
-          {dateOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+        <div>
+          <CustomSelect
+            options={dateFilterFields[0].options}
+            value={dateValue}
+            onChange={(newValue) => handleChange("date", newValue)}
+            menuPlacement="bottom"
+          />
+        </div>
       </div>
 
       {/* Summary cards */}

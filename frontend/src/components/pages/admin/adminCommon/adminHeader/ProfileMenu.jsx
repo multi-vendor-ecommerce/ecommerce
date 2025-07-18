@@ -1,5 +1,5 @@
 import { HiOutlineUser, HiOutlineLogout } from 'react-icons/hi';
-import { IoSettingsOutline as IoSetting } from 'react-icons/io5';
+import { FiSettings } from 'react-icons/fi';
 import { RiHistoryLine } from 'react-icons/ri';
 
 const ProfileMenu = () => {
@@ -24,7 +24,7 @@ const ProfileMenu = () => {
           <span>Profile</span>
         </li>
         <li className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer">
-          <IoSetting className="text-xl font-semibold" /> 
+          <FiSettings className="text-xl font-semibold" />
           <span>Account Setting</span>
         </li>
         <li className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer">
