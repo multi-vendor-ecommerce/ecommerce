@@ -7,9 +7,9 @@ export const getAllVendors = async (req, res) => {
     const query = buildQuery(req.query, ["name", "email", "shopName"]);
     
     const vendors = await Vendor.find(query);
-    res.send({ success: true, vendors });
+    res.status(200).send({ success: true, message: "Vendors fetched successfully.", vendors });
   } catch (err) {
-    res.status(500).json({ success: false, error: "Server error" });
+    res.status(500).json({ success: false, error: "Server error.", error: err.message, });
   }
 };
 
@@ -19,12 +19,12 @@ export const getVendorById = async (req, res) => {
     const vendor = await Vendor.findById(req.params.id);
 
     if (!vendor) {
-      return res.status(404).json({ success: false, message: 'Vendor not found!' });
+      return res.status(404).json({ success: false, message: 'Vendor not found.' });
     }
 
-    res.json({ success: true, vendor });
+    res.status(200).json({ success: true, message: "Vendor fetched successfully.", vendor });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    res.status(500).json({ success: false, message: "Internal Server Error.", error: err.message, });
   }
 }

@@ -8,10 +8,10 @@ export const getAllCustomers = async (req, res) => {
     const query = buildQuery(req.query, ["name", "email", "address"]);
 
     const users = await User.find(query).select("-password");
-    res.json({ success: true, users });
+    res.status(200).json({ success: true, message: "Customers fetched successfully.", users });
   } catch (err) {
     console.error("getAllCustomers error:", err.message);
-    return res.status(500).json({ success: false, message: "Internal Server Error" });
+    return res.status(500).json({ success: false, message: "Internal Server Error.", error: err.message });
   }
 };
 
@@ -20,11 +20,11 @@ export const getUser = async (req, res) => {
   try {
     // Fetch the user's details except password using the id
     const user = await User.findById(req.user.id).select("-password");
-    res.json({ success: true, user });
+    res.status(200).json({ success: true, message: "User fetched successfully.", user });
   } catch (err) {
     // Catch the error
     console.log(err.message);
-    return res.status(500).json({ success: false, error: 'Interal Server Error', message: err.message });
+    return res.status(500).json({ success: false, message: "Internal Server Error.", error: err.message });
   }
 }
 
@@ -48,10 +48,9 @@ export const updateUser = async (req, res) => {
 
   try {
     const updatedUser = await User.findByIdAndUpdate(req.user.id, { $set: updateFields }, { new: true });
-    res.json({ success: true, user: updatedUser });
+    res.status(200).json({ success: true, message: "User updated successfully.", user: updatedUser });
   } catch (err) {
-    // Catch the error
     console.log(err.message);
-    return res.status(500).json({ success: false, error: 'Interal Server Error', message: err.message });
+    return res.status(500).json({ success: false, message: "Internal Server Error.", error: err.message });
   }
 }

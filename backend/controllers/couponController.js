@@ -4,9 +4,9 @@ import Coupon from "../models/Coupon.js";
 export const getAllCoupons = async (req, res) => {
   try {
     const coupons = await Coupon.find();
-    res.send({ success: true, coupons });
+    res.status(200).json({ success: true, message: "Coupons fetched successfully.", coupons });
   } catch (err) {
-    res.status(500).send({ success: false, message: "Error fetching coupons", error: err.message });
+    res.status(500).send({ success: false, message: "Error fetching coupons.", error: err.message });
   }
 };
 
@@ -18,14 +18,14 @@ export const addCoupon = async (req, res) => {
     // Check if coupon with same code already exists
     const existing = await Coupon.findOne({ code: code.toUpperCase() });
     if (existing) {
-      return res.status(400).json({ message: "Coupon code already exists" });
+      return res.status(400).json({ message: "Coupon code already exists." });
     }
 
     const newCoupon = await Coupon.create({ code: code.toUpperCase(), discount, minPurchase, maxDiscount, expiryDate, usageLimit, isActive });
-    res.status(201).json({ success: true, message: "Coupon created successfully", coupon: newCoupon });
+    res.status(201).json({ success: true, message: "Coupon created successfully.", coupon: newCoupon });
   } catch (error) {
     console.error("Error adding coupon:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({ success: false, message: "Server error.", error: err.message });
   }
 };
 
@@ -39,10 +39,10 @@ export const deleteCoupon = async (req, res) => {
 
     // Check if coupon with same code already exists
     coupon = await Coupon.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "Given coupon has been deleted successfully!", coupon: coupon });
+    res.status(200).json({ success: true, message: "Given coupon has been deleted successfully!", coupon });
   } catch (error) {
     console.error("Error adding coupon:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({ success: false, message: "Server error.", error: err.message });
   }
 };
 

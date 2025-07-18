@@ -51,7 +51,7 @@ const CouponState = (props) => {
       // Check success from the response data, not just response.ok
       if (!response.ok || !data.success) {
         return {
-          success: false,
+          success: data.success,
           message: data.message || "Failed to add coupon.",
         };
       }
@@ -59,7 +59,7 @@ const CouponState = (props) => {
       // Update state
       setCoupons(coupons.concat(data.coupon));
 
-      return { success: true, message: data.message || "Coupon added." };
+      return { success: data.success, message: data.message || "Coupon added." };
     } catch (error) {
       console.error("Error adding coupon:", error);
       return { success: false, message: "Server error" };
@@ -75,6 +75,8 @@ const CouponState = (props) => {
         'Content-Type': 'application/json',
       }
     });
+
+    if (!response.ok) throw new Error("Delete to fetch coupons.");
 
     // Delete the coupon from frontend
     const newCoupons = coupons.filter((coupon) => { return coupon._id !== id });
