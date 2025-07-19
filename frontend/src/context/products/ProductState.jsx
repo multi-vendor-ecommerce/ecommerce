@@ -5,8 +5,8 @@ const ProductState = (props) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // const host = import.meta.env.VITE_BACKEND_URL;
-  const host = "http://localhost:5000";
+  const host = import.meta.env.VITE_BACKEND_URL;
+  // const host = "http://localhost:5000";
 
   const getAllProducts = async ({ search = "", status = "" } = {}) => {
     try {
