@@ -9,6 +9,7 @@ const ProductDetails = () => {
   const [decryptedProductId, setDecryptedProductId] = useState("");
   const [productDetails, setProductDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeImage, setActiveImage] = useState(0);
   const navigate = useNavigate();
 
   const secretKey = import.meta.env.VITE_SECRET_KEY;
@@ -43,7 +44,7 @@ const ProductDetails = () => {
 
   if (loading) {
     return (
-      <section className="bg-gray-100 min-h-screen flex items-center justify-center">
+      <section className="bg-[#F3EDFA] min-h-screen flex items-center justify-center">
         <Spinner />
       </section>
     );
@@ -58,42 +59,75 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className="bg-gray-50 p-6">
-      <div className=" mx-auto bg-white shadow-lg rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-2 ">
-        
+    <div className="bg-[#F3EDFA] min-h-screen p-4 md:p-10">
+      <div className="max-w-7xl mx-auto bg-white shadow-lg border border-[#E4D9F7] rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* LEFT: IMAGE */}
-        <div className="p-6 bg-gray-100 flex items-center justify-center">
-          <img
-            src={productDetails.images?.[0] || "https://via.placeholder.com/600"}
-            alt={productDetails.title}
-            className="max-h-[500px] w-full object-cover rounded-lg"
-          />
+        <div className="p-6">
+          {productDetails.images?.length > 1 ? (
+            <>
+              <div className="aspect-square w-full rounded-xl overflow-hidden mb-4">
+                <img
+                  src={productDetails.images[activeImage]}
+                  alt="product"
+                  className="w-full h-full object-cover rounded-xl"
+                />
+              </div>
+              <div className="flex gap-2 overflow-x-auto">
+                {productDetails.images.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`thumb-${idx}`}
+                    onClick={() => setActiveImage(idx)}
+                    className={`w-20 h-20 object-cover rounded-md cursor-pointer border transition ${activeImage === idx
+                        ? "border-[#7F55B1]"
+                        : "border-transparent hover:border-[#BFA5E0]"
+                      }`}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="aspect-square w-full rounded-xl overflow-hidden">
+              <img
+                src={productDetails.images?.[0] || "https://via.placeholder.com/600"}
+                alt={productDetails.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
         </div>
 
         {/* RIGHT: DETAILS */}
-        <div className="p-6 space-y-4">
-          <h1 className="text-3xl font-bold text-gray-800">{productDetails.title}</h1>
-          
-          {/* Rating & Reviews */}
-          <div className="flex items-center gap-2 text-yellow-500 text-sm">
-            <span className="font-semibold text-black">{productDetails.rating} ★</span>
+        <div className="p-6 space-y-6">
+          {/* Title */}
+          <h1 className="text-3xl font-bold text-gray-900 break-words">
+            {productDetails.title}
+          </h1>
+
+          {/* Rating */}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-semibold text-yellow-500">{productDetails.rating} ★</span>
             <span className="text-gray-500">({productDetails.totalReviews.toLocaleString()} reviews)</span>
           </div>
 
-          {/* Price */}
-          <div className="text-2xl font-bold text-pink-600">₹{productDetails.price}</div>
-
-          {/* Free Delivery */}
-          {productDetails.freeDelivery && (
-            <div className="text-green-600 font-medium text-sm">✅ Free Delivery</div>
-          )}
+          {/* Price & Delivery */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="text-2xl font-bold text-[#7F55B1]">
+              ₹{productDetails.price.toLocaleString()}
+            </div>
+            {productDetails.freeDelivery && (
+              <span className="text-green-600 font-medium text-sm">✅ Free Delivery</span>
+            )}
+          </div>
 
           {/* Stock Status */}
           <div>
             <span
-              className={`inline-block px-3 py-1 text-sm rounded-full font-medium ${
-                productDetails.stock > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
-              }`}
+              className={`inline-block px-3 py-1 text-sm rounded-full font-medium ${productDetails.stock > 0
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-600"
+                }`}
             >
               {productDetails.stock > 0
                 ? `In Stock (${productDetails.stock})`
@@ -101,51 +135,60 @@ const ProductDetails = () => {
             </span>
           </div>
 
-          {/* Units Sold & Revenue */}
-          {/* <p className="text-sm text-gray-500">
-            Sold: <strong>{productDetails.unitsSold}</strong> · Revenue: ₹{productDetails.totalRevenue.toLocaleString()}
-          </p> */}
-
           {/* Category */}
-          <p className="text-sm text-gray-500">
-            Category: <strong>{productDetails.category?.name}</strong>
-          </p>
+          {productDetails.category?.name && (
+            <p className="text-sm text-gray-500">
+              Category:{" "}
+              <span className="font-medium text-gray-700">
+                {productDetails.category.name}
+              </span>
+            </p>
+          )}
 
           {/* Tags */}
           {productDetails.tags?.length > 0 && (
             <div className="flex flex-wrap gap-2 text-xs">
               {productDetails.tags.map((tag, i) => (
-                <span key={i} className="bg-gray-200 text-gray-700 px-2 py-1 rounded-md">{tag}</span>
+                <span
+                  key={i}
+                  className="bg-[#EFE7FB] text-[#7F55B1] px-2 py-1 rounded-md"
+                >
+                  {tag}
+                </span>
               ))}
             </div>
           )}
 
           {/* Description */}
-          <p className="text-gray-700 text-sm mt-4">{productDetails.description}</p>
+          <p className="text-gray-700 text-sm leading-relaxed">
+            {productDetails.description}
+          </p>
 
-          {/* Buttons */}
-          <div className="flex gap-4 mt-6">
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-4 mt-4">
             <button
-              className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded-lg shadow transition"
+              className="bg-[#7F55B1] hover:bg-[#6d48a1] text-white px-6 py-2 rounded-lg shadow-md transition"
               onClick={() => alert("Buy Now clicked!")}
             >
               Buy Now
             </button>
             <button
-              className="bg-white border border-pink-600 text-pink-600 px-6 py-2 rounded-lg shadow hover:bg-pink-50 transition"
+              className="bg-white border border-[#7F55B1] text-[#7F55B1] px-6 py-2 rounded-lg shadow-md hover:bg-[#f4ecff] transition"
               onClick={() => alert("Added to Cart!")}
             >
               Add to Cart
             </button>
           </div>
 
+          {/* Back Link */}
           <button
             onClick={() => navigate(-1)}
-            className="mt-6 inline-block text-sm text-gray-500 hover:underline"
+            className="inline-block text-sm text-gray-500 hover:text-[#7F55B1] transition hover:underline mt-2"
           >
             ← Back to Products
           </button>
         </div>
+
       </div>
     </div>
   );

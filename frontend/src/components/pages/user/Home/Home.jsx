@@ -6,9 +6,9 @@ import HeroSlider from '../../../common/HeroSlider';
 
 export default function Home() {
   return (
-    <div className="bg-gray-100">
+    <div className="bg-[#F9F7FC]">
       <CategorySection />
-        <HeroSlider banners={SliderData} />
+      <HeroSlider banners={SliderData} />
 
       <ProductSection />
       {/* <ProductSection title="Electronics Bestsellers" />

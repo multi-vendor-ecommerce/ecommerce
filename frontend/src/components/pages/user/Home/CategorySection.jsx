@@ -28,15 +28,15 @@ export default function CategorySection() {
 
   if (loading) {
     return (
-      <section className="bg-gray-100 min-h-50 flex items-center justify-center">
+      <section className="bg-gray-100 min-h-100 flex items-center justify-center">
         <Spinner />
       </section>
     );
   }
 
   return (
-    <div className=" bg-gray-100 pb-6">
-      <div className=" mx-auto px-4 sm:px-6 ">
+    <div className="bg-[#F9F7FC] py-2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 ">
         <h2 className="text-xl md:text-2xl font-semibold py-4 text-gray-700 text-start">Shop by Categories</h2>
 
         <Swiper
@@ -54,11 +54,11 @@ export default function CategorySection() {
                 onClick={() => handleNavigate(cat._id)}
                 className="cursor-pointer w-full flex flex-col items-center text-center "
               >
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border border-gray-300 shadow-md">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-md">
                   <img
                     src={cat.image}
                     alt={cat.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover "
                   />
                 </div>
                 <span className="mt-1 text-sm  lg:text-md font-medium text-black truncate w-full">
