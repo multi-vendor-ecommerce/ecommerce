@@ -5,8 +5,8 @@ const VendorState = (props) => {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // const host = import.meta.env.VITE_BACKEND_URL;
-  const host = "http://localhost:5000";
+  const host = import.meta.env.VITE_BACKEND_URL;
+  // const host = "http://localhost:5000";
 
   const getAllVendors = async ({ search = "", status = "" } = {}) => {
     try {
