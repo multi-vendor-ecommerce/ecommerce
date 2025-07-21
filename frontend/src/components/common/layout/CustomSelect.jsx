@@ -14,7 +14,7 @@ const customStyles = {
     ...responsiveFont,
     borderRadius: "0.75rem",
     borderColor: "#e5e7eb",
-    minWidth: "160px",
+    minWidth: "140px",
     fontWeight: 500,
     padding: "4px 6px",
     boxShadow: "none",

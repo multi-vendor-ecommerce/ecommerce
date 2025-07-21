@@ -5,6 +5,7 @@ import Spinner from "../../../common/Spinner";
 import StatGrid from "../helperComponents/StatGrid";
 import { FiEdit } from "react-icons/fi";
 import { getProfileCardData } from "./data/productStatCards";
+import HeroSlider from "../../../common/HeroSlider";
 
 const ProductDetails = () => {
   const { productId } = useParams();

@@ -1,13 +1,39 @@
-import { dateFilterFields, cards } from "./data/summaryData";
+import { useState, useContext, useEffect } from "react";
+import { dateFilterFields, getCards } from "./data/summaryData";
 import CustomSelect from "../../.././common/layout/CustomSelect";
-import { useState } from "react";
+import ProductContext from "../../../../context/products/ProductContext";
+import UserContext from "../../../../context/user/UserContext";
+import { formatNumber } from "../../../../utils/formatNumber";
+import { format } from "crypto-js";
 
 export default function SummaryCards() {
-  const [dateValue, setDateValue] = useState("");
+  const { products, getAllProducts } = useContext(ProductContext);
+  const { users, getAllCustomers } = useContext(UserContext);
+
+  useEffect(() => {
+    getAllProducts();
+    getAllCustomers();
+  }, [getAllProducts, getAllCustomers]);
+
+  const [dateValue, setDateValue] = useState("today");
 
   const handleChange = (name, value) => {
     if (name === "date") setDateValue(value);
   };
+
+  // Calculate values
+  const totalRevenue = products?.reduce(
+    (sum, p) => sum + (p.revenue || p.price * p.unitsSold || 0),
+    0
+  );
+  const totalProducts = products?.length || 0;
+  const totalCustomers = users?.filter(u => u.role === "customer").length || 0;
+
+  const cards = getCards({
+    totalRevenue: formatNumber(totalRevenue),
+    totalProducts,
+    totalCustomers,
+  });
 
   return (
     <section>

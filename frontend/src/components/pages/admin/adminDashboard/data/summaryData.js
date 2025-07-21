@@ -7,7 +7,6 @@ export const dateFilterFields = [
     label: "Filter by Date",
     type: "select",
     options: [
-      { value: "", label: "All Dates" },
       { value: "today", label: "Today" },
       { value: "yesterday", label: "Yesterday" },
       { value: "this_week", label: "This Week" },
@@ -19,10 +18,10 @@ export const dateFilterFields = [
   },
 ];
 
-export const cards = [
+export const getCards = ({ totalRevenue, totalCustomers, totalProducts }) => [
   {
     label: "Revenue",
-    value: "145K",
+    value: `₹${totalRevenue}`,
     bgColor: "bg-green-100",
     shadowColor: "hover:shadow-green-500",
     icon: FaRupeeSign,
@@ -36,14 +35,14 @@ export const cards = [
   },
   {
     label: "Customers",
-    value: 1583,
+    value: totalCustomers,
     bgColor: "bg-purple-100",
     shadowColor: "hover:shadow-purple-500",
     icon: FaUser,
   },
   {
     label: "Products",
-    value: 264,
+    value: totalProducts,
     bgColor: "bg-yellow-100",
     shadowColor: "hover:shadow-yellow-500",
     icon: FaBoxOpen,

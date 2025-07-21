@@ -2,7 +2,7 @@ export const productsData = [
   {
     title: "Canon EOS R50",
     description: "High-quality mirrorless camera with advanced autofocus.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 1790,
     stock: 12,
     category: "68768c2797f55185dcebfe61",
@@ -18,7 +18,7 @@ export const productsData = [
   {
     title: "Sony Alpha ZV-E10",
     description: "Vlogger-friendly camera with flip screen and fast focus.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 1708,
     stock: 8,
     category: "68768c2797f55185dcebfe64",
@@ -34,7 +34,7 @@ export const productsData = [
   {
     title: "GoPro Hero 11 Black",
     description: "Action camera with stunning 5K video and stabilization.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 165,
     stock: 30,
     category: "68768c2797f55185dcebfe63",
@@ -50,7 +50,7 @@ export const productsData = [
   {
     title: "Nikon Z50",
     description: "Compact DX-format mirrorless camera with fast autofocus.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 172,
     stock: 16,
     category: "68768c2797f55185dcebfe61",
@@ -66,7 +66,7 @@ export const productsData = [
   {
     title: "DJI Osmo Pocket 3",
     description: "Portable gimbal camera for smooth, high-quality footage.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 155,
     stock: 20,
     category: "68768c2797f55185dcebfe64",
@@ -82,7 +82,7 @@ export const productsData = [
   {
     title: "Fujifilm X-S20",
     description: "Powerful hybrid mirrorless camera with film simulation.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 238,
     stock: 22,
     category: "68768c2797f55185dcebfe63",
@@ -98,7 +98,7 @@ export const productsData = [
   {
     title: "Canon RF 24-70 mm f/2.8L IS",
     description: "Premium zoom lens for Canon RF-mount cameras.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 334,
     stock: 10,
     category: "68768c2797f55185dcebfe61",
@@ -114,7 +114,7 @@ export const productsData = [
   {
     title: "DJI Mini 4 Pro",
     description: "Lightweight drone with 4K camera and intelligent flight modes.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 201,
     stock: 15,
     category: "68768c2797f55185dcebfe64",
@@ -130,7 +130,7 @@ export const productsData = [
   {
     title: "Rode Wireless PRO",
     description: "Wireless microphone system for content creators and vloggers.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 170,
     stock: 25,
     category: "68768c2797f55185dcebfe63",
@@ -146,7 +146,7 @@ export const productsData = [
   {
     title: "Blackmagic Pocket 6K G2",
     description: "Cinema-quality handheld camera for professional creators.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 2319,
     stock: 5,
     category: "68768c2797f55185dcebfe61",
@@ -162,7 +162,7 @@ export const productsData = [
   {
     title: "Sigma 35 mm f/1.4 Art",
     description: "High-performance prime lens with wide aperture.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 260,
     stock: 12,
     category: "68768c2797f55185dcebfe64",
@@ -178,7 +178,7 @@ export const productsData = [
   {
     title: "SanDisk Extreme Pro 256 GB",
     description: "High-speed memory card for 4K and burst photography.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 34,
     stock: 60,
     category: "68768c2797f55185dcebfe63",
@@ -194,7 +194,7 @@ export const productsData = [
   {
     title: "Elgato Key Light Air",
     description: "Adjustable lighting solution for creators and streamers.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 87,
     stock: 18,
     category: "68768c2797f55185dcebfe61",
@@ -210,7 +210,7 @@ export const productsData = [
   {
     title: "Atomos Ninja V+",
     description: "External recorder with 4K/6K ProRes and touchscreen.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 568,
     stock: 7,
     category: "68768c2797f55185dcebfe64",
@@ -226,7 +226,7 @@ export const productsData = [
   {
     title: "Zhiyun Crane M3 S",
     description: "Lightweight gimbal stabilizer for mirrorless cameras.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
     price: 173,
     stock: 14,
     category: "68768c2797f55185dcebfe63",

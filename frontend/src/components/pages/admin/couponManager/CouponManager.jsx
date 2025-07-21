@@ -4,6 +4,7 @@ import AddCoupon from "./AddCoupon";
 import CouponContext from "../../../../context/coupons/CouponContext";
 import { getFormatDate } from "../../../../utils/formatDate";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
+import Spinner from "../../../common/Spinner";
 
 export default function CouponsManager() {
   const { coupons, getAllCoupons, addCoupon, deleteCoupon, loading } = useContext(CouponContext);
@@ -75,7 +76,7 @@ export default function CouponsManager() {
       
       {/* Loading or No Coupons */}
       {loading ? (
-        <p className="text-gray-500 mt-6">Loading coupons...</p>
+        <p className="flex justify-center pt-10 mt-6"><Spinner /></p>
       ) : coupons.length === 0 ? (
         <p className="text-gray-500 mt-6">No coupons available.</p>
       ) : (
