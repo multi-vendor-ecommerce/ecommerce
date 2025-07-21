@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import BackButton from "../../../common/layout/BackButton";
 
 const emailTemplatesDummy = {
   orderConfirmation: {
@@ -37,7 +38,9 @@ export default function EmailTemplateEditor() {
 
   return (
     <section className="bg-gray-100 min-h-screen w-full p-6 shadow-md">
-      <h2 className="text-2xl font-bold mb-6">Email Template Editor</h2>
+      <BackButton />
+
+      <h2 className="text-2xl font-bold mt-4 mb-6">Email Template Editor</h2>
 
       <div className="bg-white shadow-md shadow-blue-500 rounded-xl p-6">
         <label className="block font-medium text-gray-700 mb-2">

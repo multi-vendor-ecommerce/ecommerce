@@ -5,6 +5,7 @@ import CouponContext from "../../../../context/coupons/CouponContext";
 import { getFormatDate } from "../../../../utils/formatDate";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import Spinner from "../../../common/Spinner";
+import BackButton from "../../../common/layout/BackButton";
 
 export default function CouponsManager() {
   const { coupons, getAllCoupons, addCoupon, deleteCoupon, loading } = useContext(CouponContext);
@@ -61,7 +62,10 @@ export default function CouponsManager() {
 
   return (
     <section className="bg-gray-100 min-h-screen w-full p-6 shadow-md">
-      <h2 className="text-2xl font-bold mb-6">Coupon Manager</h2>
+      <BackButton />
+
+      {/* Header */}
+      <h2 className="text-2xl font-bold mt-4 mb-6">Coupon Manager</h2>
 
       {/* Form */}
       <AddCoupon

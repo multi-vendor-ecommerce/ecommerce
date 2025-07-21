@@ -7,6 +7,7 @@ import { RenderProductRow } from "./RenderProductRow";
 import Spinner from "../../../common/Spinner";
 import FilterBar from "../../../common/FilterBar";
 import { productFilterFields } from "./data/productFilterFields";
+import BackButton from "../../../common/layout/BackButton";
 
 export default function Products({ heading }) {
   const context = useContext(ProductContext);
@@ -51,17 +52,21 @@ export default function Products({ heading }) {
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
-      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{heading}</h2>
+      <BackButton />
 
-      <div>
-        <FilterBar
-          fields={productFilterFields}
-          values={filters}
-          onChange={handleChange}
-          onApply={handleApply}
-          onClear={handleClear}
-          onKeyDown={handleKeyDown}
-        />
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 lg:gap-0 mt-4 mb-6">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800">{heading}</h2>
+
+        <div>
+          <FilterBar
+            fields={productFilterFields}
+            values={filters}
+            onChange={handleChange}
+            onApply={handleApply}
+            onClear={handleClear}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
       </div>
 
       <PaginatedLayout data={heading === "Top Selling Products" ? topProducts : products} initialPerPage={10}>

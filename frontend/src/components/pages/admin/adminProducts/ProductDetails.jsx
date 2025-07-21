@@ -5,7 +5,7 @@ import Spinner from "../../../common/Spinner";
 import StatGrid from "../helperComponents/StatGrid";
 import { FiEdit } from "react-icons/fi";
 import { getProfileCardData } from "./data/productStatCards";
-import HeroSlider from "../../../common/HeroSlider";
+import BackButton from "../../../common/layout/BackButton";
 
 const ProductDetails = () => {
   const { productId } = useParams();
@@ -39,16 +39,19 @@ const ProductDetails = () => {
   return (
     <section className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">{product.title} - Overview</h2>
+      <div className="flex justify-between items-center mb-3">
+        <BackButton />
+        
         <NavLink
           to={`/admin/vendor/edit-delete/${product._id}`}
           className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
         >
-          <FiEdit size={20} />
+          <FiEdit className="text-lg md:text-2xl"/>
           <span className="hidden md:inline-block">Edit Product</span>
         </NavLink>
       </div>
+
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">{product.title} - Overview</h2>
 
       <div className="w-full h-full bg-white flex items-center justify-center md:justify-start gap-7 md:gap-x-14 flex-wrap rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 px-6 md:px-15 py-6 mb-8">
         <div>

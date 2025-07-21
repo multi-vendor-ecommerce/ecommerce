@@ -5,6 +5,7 @@ import StatusChip from "../helperComponents/StatusChip";
 import { RenderOrderRow } from "./RenderOrderRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
+import BackButton from "../../../common/layout/BackButton";
 
 /* Main Orders Component */
 export default function Orders() {
@@ -22,8 +23,10 @@ export default function Orders() {
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
+      <BackButton />
+      
       {/* Header + Filters */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mt-4 mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800">All Orders</h2>
 
         <div className="flex gap-3 flex-wrap">
