@@ -4,8 +4,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 
-console.log("JWT: ", process.env.JWT_SECRET);
-
 //  Register a new user
 export const registerUser = async (req, res) => {
   const errors = validationResult(req);

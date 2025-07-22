@@ -3,6 +3,7 @@ import { decryptData, encryptData } from "../Utils/Encryption";
 import ProductContext from "../../../../context/products/ProductContext";
 import Spinner from "../../../common/Spinner";
 import { useNavigate } from "react-router-dom";
+import { FaStar } from "react-icons/fa";
 
 export default function ProductByCategory() {
   const { getProductsByCategoryId } = useContext(ProductContext);
@@ -105,7 +106,7 @@ export default function ProductByCategory() {
                 <div className="flex justify-between items-center mt-1">
                   <span className="text-[#7F55B1] font-bold text-lg ">₹{product.price}</span>
                   <span className="text-sm sm:text-lg text-yellow-600 font-medium">
-                    {product.rating} ★
+                    {product.rating} <FaStar />
                   </span>
                 </div>
 

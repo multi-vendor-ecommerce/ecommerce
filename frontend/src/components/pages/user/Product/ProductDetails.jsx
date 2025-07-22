@@ -3,6 +3,7 @@ import ProductContext from "../../../../context/products/ProductContext";
 import { decryptData } from "../Utils/Encryption";
 import Spinner from "../../../common/Spinner";
 import { useNavigate } from "react-router-dom";
+import { FaStar } from 'react-icons/fa';
 
 const ProductDetails = () => {
   const { getProductById } = useContext(ProductContext);
@@ -80,8 +81,8 @@ const ProductDetails = () => {
                     alt={`thumb-${idx}`}
                     onClick={() => setActiveImage(idx)}
                     className={`w-20 h-20 object-cover rounded-md cursor-pointer border transition ${activeImage === idx
-                        ? "border-[#7F55B1]"
-                        : "border-transparent hover:border-[#BFA5E0]"
+                      ? "border-[#7F55B1]"
+                      : "border-transparent hover:border-[#BFA5E0]"
                       }`}
                   />
                 ))}
@@ -106,9 +107,16 @@ const ProductDetails = () => {
           </h1>
 
           {/* Rating */}
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-semibold text-yellow-500">{productDetails.rating} ★</span>
-            <span className="text-gray-500">({productDetails.totalReviews.toLocaleString()} reviews)</span>
+          <div className="flex items-center gap-2 text-md">
+            <span className="font-semibold text-yellow-500">
+              {productDetails.rating}
+            </span>
+            <span className="text-yellow-500">
+              <FaStar />
+            </span>
+            <span className="text-gray-500">
+              ({productDetails.totalReviews.toLocaleString()} reviews)
+            </span>
           </div>
 
           {/* Price & Delivery */}
@@ -117,7 +125,7 @@ const ProductDetails = () => {
               ₹{productDetails.price.toLocaleString()}
             </div>
             {productDetails.freeDelivery && (
-              <span className="text-green-600 font-medium text-sm">✅ Free Delivery</span>
+              <span className="text-green-600 font-medium text-sm"> Free Delivery</span>
             )}
           </div>
 
@@ -125,8 +133,8 @@ const ProductDetails = () => {
           <div>
             <span
               className={`inline-block px-3 py-1 text-sm rounded-full font-medium ${productDetails.stock > 0
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-600"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-600"
                 }`}
             >
               {productDetails.stock > 0

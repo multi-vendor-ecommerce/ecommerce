@@ -28,7 +28,7 @@ export default function CategorySection() {
 
   if (loading) {
     return (
-      <section className="bg-gray-100 min-h-100 flex items-center justify-center">
+      <section className="bg-gray-100 min-h-screen flex items-center justify-center">
         <Spinner />
       </section>
     );
