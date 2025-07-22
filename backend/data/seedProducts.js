@@ -18,7 +18,7 @@ export const productsData = [
   {
     title: "Sony Alpha ZV-E10",
     description: "Vlogger-friendly camera with flip screen and fast focus.",
-    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg"],
+    images: ["https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg", "https://fastly.picsum.photos/id/1018/600/600.jpg?hmac=B_xXmnBCwBofg-Be3_2ZKV3toiHbMHhlfYmi9TleAaU"],
     price: 1708,
     stock: 8,
     category: "68768c2797f55185dcebfe64",
