@@ -11,6 +11,9 @@ import Admin from "./components/pages/admin/Admin";
 // User components
 import User from "./components/pages/user/User";
 
+// Vendor components
+import Vendor from "./components/pages/vendor/Vendor";
+
 function App() {
   return (
     <>
@@ -34,6 +37,7 @@ function App() {
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/vendor/*" element={<Vendor />} />
       <Route path="/admin/*" element={<Admin />} />
       <Route path="/*" element={<User />} />
     </Routes>
