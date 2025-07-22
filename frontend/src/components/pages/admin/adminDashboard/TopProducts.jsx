@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import ProductContext from "../../../../context/products/ProductContext";
 import TabularData from "../../../common/layout/TabularData";
 import { RenderProductRow } from "../adminProducts/RenderProductRow";
-import ShowLessMore from "../helperComponents/ShowLessMore";
+import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 
 const TopProducts = () => {
   const context = useContext(ProductContext);

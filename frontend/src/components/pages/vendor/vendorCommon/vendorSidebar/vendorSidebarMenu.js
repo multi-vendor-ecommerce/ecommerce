@@ -2,12 +2,9 @@ import {
   FiBarChart2,
   FiClipboard,
   FiBox,
-  FiDollarSign,
   FiUser,
   FiSettings,
   FiHome,
-  FiTruck,
-  FiFileText,
 } from "react-icons/fi";
 
 import { BiRupee } from "react-icons/bi";

@@ -4,7 +4,7 @@ import StatusChip from "../helperComponents/StatusChip";
 import { ordersDummy } from "../adminOrders/data/ordersData";
 import TabularData from "../../../common/layout/TabularData";
 import { RenderOrderRow } from "../adminOrders/RenderOrderRow";
-import ShowLessMore from "../helperComponents/ShowLessMore";
+import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 
 const RecentOrders = () => {
   const [showAll, setShowAll] = useState(false);

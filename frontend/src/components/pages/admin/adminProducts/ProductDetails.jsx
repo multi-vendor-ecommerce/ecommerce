@@ -2,7 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { useParams, NavLink } from "react-router-dom";
 import ProductContext from "../../../../context/products/ProductContext";
 import Spinner from "../../../common/Spinner";
-import StatGrid from "../helperComponents/StatGrid";
+import StatGrid from "../../../common/helperComponents/StatGrid";
 import { FiEdit } from "react-icons/fi";
 import { getProfileCardData } from "./data/productStatCards";
 import BackButton from "../../../common/layout/BackButton";

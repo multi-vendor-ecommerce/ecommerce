@@ -3,7 +3,7 @@ import VendorContext from "../../../../context/vendors/VendorContext";
 import { NavLink } from "react-router-dom";
 import TabularData from "../../../common/layout/TabularData";
 import { RenderVendorRow } from "../adminVendor/RenderVendorRow";
-import ShowLessMore from "../helperComponents/ShowLessMore";
+import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Spinner from "../../../common/Spinner";
 
 const TopVendors = () => {

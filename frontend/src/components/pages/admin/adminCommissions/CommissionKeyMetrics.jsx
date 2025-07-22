@@ -1,6 +1,6 @@
 import { FaUserTie, FaUsers, FaTrophy, FaRupeeSign } from "react-icons/fa";
 import { formatNumber } from "../../../../utils/formatNumber";
-import StatGrid from "../helperComponents/StatGrid";
+import StatGrid from "../../../common/helperComponents/StatGrid";
 
 const CommissionKeyMetrics = ({ stats }) => {
   const cardsData = [
@@ -14,7 +14,7 @@ const CommissionKeyMetrics = ({ stats }) => {
     {
       icon: FaUserTie,
       label: "Vendor Sales",
-      value: `${formatNumber(stats.totalSales || 0) }`,
+      value: `${formatNumber(stats.totalSales || 0)}`,
       bg: "bg-yellow-100",
       shadow: "hover:shadow-yellow-500",
     },
@@ -35,7 +35,7 @@ const CommissionKeyMetrics = ({ stats }) => {
   ];
 
   return (
-      <StatGrid cards={cardsData} />
+    <StatGrid cards={cardsData} />
   )
 }
 
