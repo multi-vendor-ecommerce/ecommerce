@@ -10,23 +10,27 @@ import Admin from "./components/pages/admin/Admin";
 
 // User components
 import User from "./components/pages/user/User";
+import AuthState from "./context/auth/AuthState";
 
 function App() {
   return (
     <>
-      <CouponState>
-        <UserState>
-          <CategoryState>
-            <VendorState>
-              <ProductState>
-                <Router>
-                  <AppRoutes />
-                </Router>
-              </ProductState>
-            </VendorState>
-          </CategoryState>
-        </UserState>
-      </CouponState>
+      <AuthState>
+        <CouponState>
+          <UserState>
+            <CategoryState>
+              <VendorState>
+                <ProductState>
+                  <Router>
+                    <AppRoutes />
+                  </Router>
+                </ProductState>
+              </VendorState>
+            </CategoryState>
+          </UserState>
+        </CouponState>
+      </AuthState>
+
     </>
   )
 }
