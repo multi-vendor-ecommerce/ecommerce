@@ -11,10 +11,12 @@ import { getVendorCardData } from "./data/vendorProfileCards";
 import { RenderOrderRow } from "../adminOrders/RenderOrderRow";
 import StatGrid from "../helperComponents/StatGrid";
 import { getFormatDate } from "../../../../utils/formatDate";
+import Spinner from "../../../common/Spinner";
+import BackButton from "../../../common/layout/BackButton";
 
 const VendorProfile = () => {
   const { vendorId } = useParams();
-  const { getVendorById } = useContext(VendorContext);
+  const { getVendorById, loading } = useContext(VendorContext);
   const [vendor, setVendor] = useState(null);
 
   useEffect(() => {
@@ -55,19 +57,24 @@ const VendorProfile = () => {
       });
   }, [vendorOrders]);
 
+  if (loading) {
+    return (
+      <section className="bg-gray-100 min-h-screen flex items-center justify-center">
+        <Spinner />
+      </section>
+    );
+  }
+
   // ✅ Now safe to conditionally render UI
   if (!vendor) {
-    return (
-      <div className="p-6 text-center text-gray-600 font-semibold">
-        Vendor not Found
-      </div>
-    );
+    return <div className="text-center mt-10 text-red-600">Vendor not found.</div>;
   }
 
   return (
     <section className="p-6 w-full bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">{vendor.shopName} - Overview</h2>
+      <div className="flex justify-between items-center mb-3">
+        <BackButton />
+        
         <NavLink
           to={`/admin/vendor/edit-delete/${vendor._id}`}
           className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
@@ -76,6 +83,8 @@ const VendorProfile = () => {
           <span className="hidden md:inline-block">Edit Vendor</span>
         </NavLink>
       </div>
+
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">{vendor.shopName} - Overview</h2>
 
       <div className="w-full h-full flex flex-col-reverse md:flex-row md:items-center justify-between gap-5 mb-8">
         <div className="md:w-[85%] h-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 px-4 py-6">

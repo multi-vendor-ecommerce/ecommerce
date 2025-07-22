@@ -4,7 +4,7 @@ import CustomSelect from "./layout/CustomSelect";
 
 const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, onKeyDown }) => {
   return (
-    <div className="w-full flex flex-wrap gap-4 items-start mb-6">
+    <div className="w-full flex flex-wrap gap-4 items-start">
       <div className="flex flex-wrap gap-4 w-full md:w-auto">
         {fields.map((field) => {
           const { name, label, type, options = [] } = field;
@@ -20,7 +20,7 @@ const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, onKey
                   placeholder={label}
                   onChange={(e) => onChange(name, e.target.value)}
                   onKeyDown={onKeyDown}
-                  className="w-full h-full md:min-w-[300px] bg-white px-3 py-2 border border-gray-300 rounded-xl shadow-sm text-sm md:text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 hover:border-blue-300 transition-all duration-150"
+                  className="w-full h-full lg:min-w-[300px] bg-white px-3 py-2 border border-gray-300 rounded-xl shadow-sm text-sm md:text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 hover:border-blue-300 transition-all duration-150"
                 />
               </div>
             );

@@ -6,6 +6,7 @@ import TabularData from "../../../common/layout/TabularData";
 import Spinner from "../../../common/Spinner";
 import { vendorFilterFields } from "./data/vendorFilterFields";
 import FilterBar from "../../../common/FilterBar";
+import BackButton from "../../../common/layout/BackButton";
 
 const VendorManagement = ({ heading }) => {
   const { vendors, getAllVendors, loading } = useContext(VendorContext);
@@ -47,17 +48,21 @@ const VendorManagement = ({ heading }) => {
 
   return (
     <section className="bg-gray-100 w-full min-h-screen p-6 shadow-md">
-      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{heading}</h2>
+      <BackButton />
 
-      <div>
-        <FilterBar
-          fields={vendorFilterFields}
-          values={filters}
-          onChange={handleChange}
-          onApply={handleApply}
-          onClear={handleClear}
-          onKeyDown={handleKeyDown}
-        />
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 lg:gap-0 mt-4 mb-6">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800">{heading}</h2>
+
+        <div>
+          <FilterBar
+            fields={vendorFilterFields}
+            values={filters}
+            onChange={handleChange}
+            onApply={handleApply}
+            onClear={handleClear}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
       </div>
 
       <PaginatedLayout data={vendors} initialPerPage={10}>

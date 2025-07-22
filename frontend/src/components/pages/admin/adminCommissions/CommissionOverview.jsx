@@ -2,6 +2,7 @@ import { useMemo, useContext, useEffect } from "react";
 import VendorContext from "../../../../context/vendors/VendorContext";
 import CommissionKeyMetrics from "./CommissionKeyMetrics";
 import CommissionGraph from "./CommissionGraph";
+import BackButton from "../../../common/layout/BackButton";
 
 const CommissionOverview = () => {
   const context = useContext(VendorContext);
@@ -32,9 +33,11 @@ const CommissionOverview = () => {
 
   return (
     <section className="bg-gray-100 min-h-screen min-w-full p-6 shadow-md">
-      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Commission Overview</h2>
+      <BackButton />
 
-      <div className="flex flex-col gap-8 md:gap-10">
+      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mt-4 mb-6">Commission Overview</h2>
+
+      <div className="flex flex-col gap-6 md:gap-8">
         <div className="bg-white rounded-xl px-4 py-6 shadow-md hover:shadow-blue-500 transition duration-200">
           <CommissionKeyMetrics stats={stats} />
         </div>
