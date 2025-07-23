@@ -4,13 +4,13 @@ import { addToCart, removeFromCart, getCart } from '../controllers/cartControlle
 
 const router = express.Router();
 
-// @route   GET /api/cart
+// Get all items in user's cart
 router.get('/', fetchuser, getCart);
 
-// @route   POST /api/cart
+// Add/update item in cart
 router.post('/', fetchuser, addToCart);
 
-// @route   DELETE /api/cart
-router.delete('/', fetchuser, removeFromCart);
+// Remove item by productId using route param
+router.delete('/:productId', fetchuser, removeFromCart);
 
 export default router;
