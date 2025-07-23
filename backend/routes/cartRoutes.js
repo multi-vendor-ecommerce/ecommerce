@@ -1,7 +1,6 @@
 import express from 'express';
 import verifyToken from '../middleware/verifyToken.js';
 import { addToCart, removeFromCart, getCart } from '../controllers/cartController.js';
-import { verify } from 'jsonwebtoken';
 
 const router = express.Router();
 
