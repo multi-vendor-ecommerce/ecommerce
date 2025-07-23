@@ -4,6 +4,7 @@ import Product from "../models/Products.js";
 
 export const placeOrder = async (req, res) => {
   const userId = req.user.id;
+  console.log("req.user", req.user);
 
   try {
     const user = await User.findById(userId).populate("cart.product");
@@ -13,7 +14,7 @@ export const placeOrder = async (req, res) => {
 
     const ordersByVendor = {};
     user.cart.forEach(item => {
-      const vendorId = item.product.vendor.toString();
+      const vendorId = item.product.vendorId.toString();
       if (!ordersByVendor[vendorId]) ordersByVendor[vendorId] = [];
       ordersByVendor[vendorId].push(item);
     });
