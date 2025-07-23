@@ -1,11 +1,12 @@
 import express from "express";
-import fetchuser from "../middleware/fetchuser.js";
+import verifyToken from "../middleware/verifyToken.js";
+import authenticateVendor from "../middleware/authenticateVendor.js";
 import { placeOrder, getUserOrders, getVendorOrders } from "../controllers/orderController.js";
 
 const router = express.Router();
 
-router.post("/placeOrder", fetchuser, placeOrder);
-router.get("/myOrder", fetchuser, getUserOrders);
-router.get("/vendor", fetchuser, getVendorOrders);
+router.post("/placeOrder", verifyToken, placeOrder);
+router.get("/myOrder", verifyToken, getUserOrders);
+router.get("/vendor", authenticateVendor, getVendorOrders);
 
 export default router;

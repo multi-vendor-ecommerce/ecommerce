@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import StatusChip from "../../../common/helperComponents/StatusChip";
-import { ordersDummy } from "../adminOrders/data/ordersData";
+import { ordersDummy } from "../../admin/adminOrders/data/ordersData";
 import TabularData from "../../../common/layout/TabularData";
-import { RenderOrderRow } from "../adminOrders/RenderOrderRow";
+import { RenderOrderRow } from "../../admin/adminOrders/RenderOrderRow";
 import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 
 const RecentOrders = () => {

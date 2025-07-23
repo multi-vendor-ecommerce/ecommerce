@@ -7,9 +7,7 @@ import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Spinner from "../../../common/Spinner";
 
 const TopVendors = () => {
-  const context = useContext(VendorContext);
-  const { vendors, getAllVendors, loading } = context;
-
+  const { vendors, getAllVendors, loading } = useContext(VendorContext);
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {

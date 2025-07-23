@@ -4,7 +4,6 @@ import CustomSelect from "../../.././common/layout/CustomSelect";
 import ProductContext from "../../../../context/products/ProductContext";
 import UserContext from "../../../../context/user/UserContext";
 import { formatNumber } from "../../../../utils/formatNumber";
-import { format } from "crypto-js";
 
 export default function SummaryCards() {
   const { products, getAllProducts } = useContext(ProductContext);

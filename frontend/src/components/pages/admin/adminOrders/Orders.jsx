@@ -1,7 +1,7 @@
 // components/admin/orders/Orders.jsx
 import { useState } from "react";
 import { ordersDummy, orderFilterOptions } from "./data/ordersData";
-import { StatusChip } from "../../../common/helperComponents/StatusChip";
+import StatusChip from "../../../common/helperComponents/StatusChip";
 import { RenderOrderRow } from "./RenderOrderRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
