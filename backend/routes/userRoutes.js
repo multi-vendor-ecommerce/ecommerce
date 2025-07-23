@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import fetchuser from '../middleware/fetchuser.js';
+import verifyToken from '../middleware/verifyToken.js';
 
 import { getAllCustomers, getUser, updateUser } from '../controllers/userController.js';
 
@@ -12,7 +12,7 @@ router.get('/admin/all-customers', getAllCustomers);
 
 // ROUTE 2: GET /api/auth/profile
 // Desc: Get loggedIn user's details via the jwt token (Login required)
-router.get('/profile', fetchuser, getUser);
+router.get('/profile', verifyToken, getUser);
 
 let checkers = [
   body('name', 'Enter a valid name').optional().isLength({ min: 3 }).notEmpty().trim(),
@@ -22,6 +22,6 @@ let checkers = [
 
 // ROUTE 3: PUT /api/auth/profile
 // Desc: Update the existing user (Login required)
-router.put('/profile', checkers, fetchuser, updateUser);
+router.put('/profile', checkers, verifyToken, updateUser);
 
 export default router;

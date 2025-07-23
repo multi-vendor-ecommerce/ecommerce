@@ -45,8 +45,14 @@ export default function Products({ heading }) {
     );
   }
 
-  const maxUnitsSold = Math.max(...products.map((p) => p.unitsSold));
-  const topProducts = [...products].filter(p => p.approved).sort((a, b) => b.unitsSold - a.unitsSold);
+  const approvedProducts = products?.filter(p => p.approved) || [];
+
+  const topProducts = approvedProducts
+    .sort((a, b) => b.unitsSold - a.unitsSold)
+    .slice(0, 100);
+  const maxUnitsSold = topProducts.length > 0
+    ? Math.max(...topProducts.map(p => p.unitsSold || 0))
+    : 0;
 
   const headers = ["Product", "ID", "Category", "Price", "Units Sold", "Revenue", "Approval Status", "Sales Progress", "Actions"];
 

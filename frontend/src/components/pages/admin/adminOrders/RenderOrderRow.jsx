@@ -8,24 +8,24 @@ export const RenderOrderRow = (order, index, StatusChip) => (
     className={`hover:bg-blue-50 hover:shadow-sm transition ${index !== 0 ? "border-t border-gray-200" : ""}`}
   >
     {/* Order No */}
-    <td className="px-6 py-3 min-w-[120px] text-blue-600 font-medium hover:underline">
+    <td className="px-6 py-3 min-w-[120px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150">
       <NavLink to={`/admin/all-orders/order-details/${order.orderNo}`} title="Order Number">
         #{order.orderNo}
       </NavLink>
     </td>
 
     {/* Customer */}
-    <td className="px-6 py-3 min-w-[200px]">
+    <td className="px-6 py-3 min-w-[200px] hover:scale-105 transition duration-150">
       {order.customer?.name}
     </td>
 
     {/* Date */}
-    <td className="px-6 py-3 min-w-[140px]">
+    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
       {order.date}
     </td>
 
     {/* Products (first + more count) */}
-    <td className="px-6 py-3 min-w-[220px]">
+    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
       {order.products?.[0]?.name}
       {order.products?.length > 1 && (
         <span className="font-semibold">
@@ -35,12 +35,12 @@ export const RenderOrderRow = (order, index, StatusChip) => (
     </td>
 
     {/* Status */}
-    <td className="px-6 py-3 min-w-[140px]">
+    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
       <StatusChip status={order.status} />
     </td>
 
     {/* ✅ Aligned Actions */}
-    <td className="px-6 py-3 min-w-[160px]">
+    <td className="px-6 py-3 min-w-[160px] hover:scale-105 transition duration-150">
       <div className="inline-flex items-center gap-4">
         <NavLink
           to={`/admin/all-orders/order-details/${order.orderNo}`}
