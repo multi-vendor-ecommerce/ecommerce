@@ -1,4 +1,3 @@
-import { JWT_SECRET } from "../config/config.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -33,7 +32,7 @@ export const registerUser = async (req, res) => {
     });
 
     const payload = { user: { id: user.id, role: user.role } };
-    const authToken = jwt.sign(payload, JWT_SECRET);
+    const authToken = jwt.sign(payload, process.env.JWT_SECRET);
 
     res.status(201).json({ success: true, message: "User registered successfully.", authToken });
   } catch (err) {
@@ -56,20 +55,10 @@ export const loginUser = async (req, res) => {
     if (!isMatch) return res.status(400).json({ success: false, error: "Invalid credentials" });
 
     const payload = { user: { id: user.id, role: user.role } };
-    const authToken = jwt.sign(payload, JWT_SECRET);
+    const authToken = jwt.sign(payload, process.env.JWT_SECRET);
 
     res.json({ success: true, message: "Login successful.", authToken });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Internal Server Error', message: err.message });
-  }
-};
-
-//  Get current logged-in user (no password)
-export const getUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select("-password");
-    res.status(200).json({ success: true, user });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
   }
 };

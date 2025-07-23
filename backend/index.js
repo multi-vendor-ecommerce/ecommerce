@@ -9,6 +9,7 @@ import vendorRoutes from "./routes/vendorRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import CouponRoutes from "./routes/couponRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use('/api/vendors', vendorRoutes);
 app.use('/api/users', userRoutes);
 app.use("/api/coupons", CouponRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/cart", cartRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend listening on port http://localhost:${PORT}`);

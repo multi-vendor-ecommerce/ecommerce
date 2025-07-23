@@ -9,10 +9,8 @@ export default function Home() {
     <div className="bg-[#F9F7FC]">
       <CategorySection />
       <HeroSlider banners={SliderData} />
-
       <ProductSection />
-      {/* <ProductSection title="Electronics Bestsellers" />
-      <ProductSection title="Fashion Picks" /> */}
+      
     </div>
   );
 }
