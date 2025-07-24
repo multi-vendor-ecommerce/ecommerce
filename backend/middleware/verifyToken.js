@@ -9,7 +9,7 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.user; // contains id and role
+    req.person = decoded.user; // contains id and role
     next();
   } catch (error) {
     return res.status(401).json({ success: false, error: "Invalid token" });

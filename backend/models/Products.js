@@ -39,9 +39,10 @@ const productSchema = new Schema(
       type: [String],
       default: [],
     },
-    approved: {
-      type: Boolean,
-      default: false,
+    approvalStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
     },
     unitsSold: {
       type: Number,
