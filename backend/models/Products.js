@@ -6,7 +6,7 @@ const productSchema = new Schema(
   {
     vendorId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Vendor",
+      ref: "Person",
       required: true,
     },
     title: {
