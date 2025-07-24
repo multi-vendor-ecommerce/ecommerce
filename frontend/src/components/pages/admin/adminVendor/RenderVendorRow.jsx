@@ -12,7 +12,7 @@ export const RenderVendorRow = (v, i) => (
     <td className="px-6 py-3 min-w-[200px] hover:scale-105 transition duration-150">
       <NavLink to={`/admin/vendor/profile/${v._id}`} className="flex items-center gap-4">
         <img
-          src={v.profileImage || "/default-avatar.png"}
+          src={v.profileImage || `https://api.dicebear.com/7.x/initials/svg?seed=${v.name || "V"}`}
           alt={`${v.name || "Vendor"} profile`}
           title={v.name || "Vendor Name not available"}
           className="w-10 h-10 rounded-full object-cover shadow-md shadow-purple-400"

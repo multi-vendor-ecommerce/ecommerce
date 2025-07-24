@@ -6,11 +6,11 @@ import { getAllCustomers, getUser, updateUser } from '../controllers/userControl
 
 const router = express.Router();
 
-// ROUTE 1: GET /api/auth/profile
+// ROUTE 1: GET /api/all-customers
 // Desc: Get customers' details
 router.get('/admin/all-customers', getAllCustomers);
 
-// ROUTE 2: GET /api/auth/profile
+// ROUTE 2: GET /api/profile
 // Desc: Get loggedIn user's details via the jwt token (Login required)
 router.get('/profile', verifyToken, getUser);
 
@@ -20,7 +20,7 @@ let checkers = [
   body('phone', 'Enter a valid phone number').optional().isMobilePhone('any').isLength({ min: 10 }).notEmpty().trim(),
 ]
 
-// ROUTE 3: PUT /api/auth/profile
+// ROUTE 3: PUT /api/profile
 // Desc: Update the existing user (Login required)
 router.put('/profile', checkers, verifyToken, updateUser);
 
