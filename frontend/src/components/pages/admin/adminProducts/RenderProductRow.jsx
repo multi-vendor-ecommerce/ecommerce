@@ -3,7 +3,7 @@ import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import classNames from "classnames";
 
 export const RenderProductRow = (p, i, maxUnitsSold) => {
-  const isHighSales = p.unitsSold >= 500;
+  const isHighSales = p.unitsSold >= maxUnitsSold / 2;
 
   return (
     <tr
@@ -17,11 +17,11 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
       >
         <NavLink to={`/admin/product-details/${p._id}`} className="flex items-center gap-4">
           <img
-            src={p.images?.[0] || "/placeholder.jpg"}
+            src={p.images?.[0] || "https://m.media-amazon.com/images/I/71Ls4akTeeL._AC_SL1500_.jpg"}
             alt={p.title || "Product Image"}
             className="w-12 h-12 rounded-lg object-cover shadow-md shadow-purple-400"
           />
-          <span className="font-semibold text-gray-800 max-w-[160px] truncate">
+          <span className="w-[152px] font-semibold text-gray-800 max-w-[160px] truncate">
             {p.title || "Untitled"}
           </span>
         </NavLink>
@@ -68,15 +68,21 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
       </td>
 
       {/* Approval Status */}
-      <td
-        className="px-6 py-4 min-w-[200px] text-sm font-semibold hover:scale-105 transition duration-150"
-        title={p.approved ? "Approved" : "Not Approved"}
-      >
-        {p.approved ? (
-          <p className="text-green-600">Approved</p>
-        ) : (
-          <p className="text-red-600">Not Approved</p>
-        )}
+      <td className="px-6 py-3 min-w-[140px]">
+        <span
+          title={p.approvalStatus || "Status unknown"}
+          className={`inline-flex items-center px-3 py-1 rounded-full hover:scale-105 transition duration-150 text-xs font-semibold
+        ${p.approvalStatus === "approved"
+              ? "bg-green-100 text-green-700"
+              : p.approvalStatus === "rejected"
+                ? "bg-red-100 text-red-700"
+                : p.approvalStatus === "pending"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : "bg-blue-100 text-blue-700"
+            }`}
+        >
+          {p.approvalStatus || "Unknown"}
+        </span>
       </td>
 
       {/* Sales progress bar */}
@@ -97,9 +103,8 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
               "bg-red-400": !isHighSales,
             })}
             style={{
-              width: `${
-                maxUnitsSold ? Math.min((p.unitsSold / maxUnitsSold) * 100, 100) : 0
-              }%`,
+              width: `${maxUnitsSold ? Math.min((p.unitsSold / maxUnitsSold) * 100, 100) : 0
+                }%`,
             }}
           ></div>
         </div>

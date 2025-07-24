@@ -14,7 +14,7 @@ const TopProducts = () => {
     getAllProducts();
   }, []);
 
-  const approvedProducts = products?.filter(p => p.approved) || [];
+  const approvedProducts = products?.filter(p => p.approvalStatus) || [];
 
   const topProducts = approvedProducts
     .sort((a, b) => b.unitsSold - a.unitsSold)
