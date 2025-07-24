@@ -71,7 +71,7 @@ export const registerPerson = async (req, res) => {
     res.status(201).json({
       success: true,
       authToken,
-      message: `${person.role} registered successfully`,
+      message: `${toTitleCase(person.role)} registered successfully`,
     });
   } catch (err) {
     console.error(err.message);
@@ -107,7 +107,7 @@ export const loginPerson = async (req, res) => {
 
     const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    res.json({ success: true, message: "Login successful", authToken });
+    res.json({ success: true, message: `${toTitleCase(person.role)} login successful`, authToken });
   } catch (err) {
     res.status(500).json({ success: false, error: "Internal Server Error", message: err.message });
   }
