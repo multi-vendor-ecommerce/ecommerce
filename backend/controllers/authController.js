@@ -15,7 +15,6 @@ export const registerPerson = async (req, res) => {
   let { name, email, password, phone, address, role, shopName } = req.body;
 
   try {
-    // Normalize input
     email = email.toLowerCase();
     name = toTitleCase(name);
     address = address ? toTitleCase(address) : "";
