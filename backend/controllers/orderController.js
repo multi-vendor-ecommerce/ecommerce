@@ -1,9 +1,10 @@
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Product from "../models/Products.js";
+import Vendor from "../models/Vendor.js";
 
 export const placeOrder = async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.person.id;
   console.log("req.user", req.user);
 
   try {
@@ -53,7 +54,7 @@ export const placeOrder = async (req, res) => {
 
 export const getUserOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user.id }).populate("products.product vendor");
+    const orders = await Order.find({ user: req.person.id }).populate("products.product vendor");
     res.status(200).json({ success: true, orders });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server Error", error: err.message });
@@ -62,9 +63,26 @@ export const getUserOrders = async (req, res) => {
 
 export const getVendorOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ vendor: req.user.id }).populate("products.product user");
+    const orders = await Order.find({ vendor: req.person.id }).populate("products.product user");
     res.status(200).json({ success: true, orders });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server Error", error: err.message });
+  }
+};
+
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate("products.product")
+      .populate("user")
+      .populate("vendor");
+
+    res.status(200).json({ success: true, orders });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: err.message,
+    });
   }
 };

@@ -3,7 +3,7 @@ import Product from "../models/Products.js";
 
 // Add to Cart
 export const addToCart = async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.person.id;
   const { productId, quantity } = req.body;
 
   if (!productId || quantity <= 0) {
@@ -35,7 +35,7 @@ export const addToCart = async (req, res) => {
 
 // Remove from Cart
 export const removeFromCart = async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.person.id;
   const { productId } = req.params;
 
   try {
@@ -58,7 +58,7 @@ export const removeFromCart = async (req, res) => {
 // Get Cart
 export const getCart = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate("cart.product");
+    const user = await User.findById(req.person.id).populate("cart.product");
     res.status(200).json({ success: true, cart: user.cart });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error", error: error.message });
@@ -67,7 +67,7 @@ export const getCart = async (req, res) => {
 
 // Update Quantity
 export const updateCartItemQuantity = async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.person.id;
   const { productId, quantity } = req.body;
 
   if (!productId || quantity == null || quantity < 0) {
@@ -98,7 +98,7 @@ export const updateCartItemQuantity = async (req, res) => {
 // Clear Entire Cart
 export const clearCart = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.person.id);
     user.cart = [];
     await user.save();
 

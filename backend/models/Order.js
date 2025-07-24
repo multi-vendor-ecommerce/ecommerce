@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  vendor: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor", required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "Person", required: true },
+  vendor: { type: mongoose.Schema.Types.ObjectId, ref: "Person", required: true },
   products: [
     {
       product: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
