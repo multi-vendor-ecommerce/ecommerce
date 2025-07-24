@@ -3,7 +3,7 @@ import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import classNames from "classnames";
 
 export const RenderProductRow = (p, i, maxUnitsSold) => {
-  const isHighSales = p.unitsSold >= maxUnitsSold / 2;
+  const isHighSales = (p.unitsSold || 0) >= maxUnitsSold * 0.6;
 
   return (
     <tr
