@@ -11,6 +11,8 @@ import Admin from "./components/pages/admin/Admin";
 // User components
 import User from "./components/pages/user/User";
 import AuthState from "./context/auth/AuthState";
+import CartState from "./context/cart/cartState";
+import OrderState from "./context/orders/OrderContext";
 
 // Vendor components
 import Vendor from "./components/pages/vendor/Vendor";
@@ -19,21 +21,25 @@ function App() {
   return (
     <>
       <AuthState>
-        <CouponState>
-          <UserState>
-            <CategoryState>
-              <VendorState>
-                <ProductState>
-                  <Router>
-                    <AppRoutes />
-                  </Router>
-                </ProductState>
-              </VendorState>
-            </CategoryState>
-          </UserState>
-        </CouponState>
+        <OrderState>
+          <CartState>
+            <CouponState>
+              <UserState>
+                <CategoryState>
+                  <VendorState>
+                    <ProductState>
+                      <Router>
+                        <AppRoutes />
+                      </Router>
+                    </ProductState>
+                  </VendorState>
+                </CategoryState>
+              </UserState>
+            </CouponState>
+          </CartState>
+        </OrderState>
       </AuthState>
-
+      
     </>
   )
 }

@@ -7,6 +7,6 @@ const router = express.Router();
 router.post("/placeOrder", verifyToken, placeOrder);
 router.get("/myOrder", verifyToken, getUserOrders);
 router.get("/vendor", verifyToken, getVendorOrders);
-router.get("/admin", getAllOrders);
+router.get("/admin", verifyToken, getAllOrders);
 
 export default router;

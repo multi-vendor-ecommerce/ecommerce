@@ -71,6 +71,9 @@ export const getVendorOrders = async (req, res) => {
 };
 
 export const getAllOrders = async (req, res) => {
+  if (req.person.role !== 'admin') {
+    return res.status(403).json({ success: false, message: "Access denied" });
+  }
   try {
     const orders = await Order.find()
       .populate("products.product")
