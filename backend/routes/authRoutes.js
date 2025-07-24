@@ -56,4 +56,4 @@ const loginValidator = [
 router.post("/register", registerValidator, registerPerson);
 router.post("/login", loginValidator, loginPerson);
 
-export default router;
+export default router
