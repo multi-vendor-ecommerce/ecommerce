@@ -4,15 +4,15 @@ import VendorState from "./context/vendors/VendorState";
 import CategoryState from "./context/categories/CategoryState";
 import UserState from "./context/user/UserState";
 import CouponState from "./context/coupons/CouponState";
+import AuthState from "./context/auth/AuthState";
+import CartState from "./context/cart/cartState";
+import OrderState from "./context/orders/OrderState";
 
 // Admin components
 import Admin from "./components/pages/admin/Admin";
 
 // User components
 import User from "./components/pages/user/User";
-import AuthState from "./context/auth/AuthState";
-import CartState from "./context/cart/cartState";
-import OrderState from "./context/orders/OrderContext";
 
 // Vendor components
 import Vendor from "./components/pages/vendor/Vendor";
@@ -39,7 +39,6 @@ function App() {
           </CartState>
         </OrderState>
       </AuthState>
-      
     </>
   )
 }

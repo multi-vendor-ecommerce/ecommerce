@@ -1,6 +1,5 @@
-import { useContext } from 'react';
-import OrderContext from './OrderContext';
+import { createContext } from 'react';
 
-const OrderState = useContext();
+const OrderContext = createContext();
 
-export default OrderState;
+export default OrderContext;
