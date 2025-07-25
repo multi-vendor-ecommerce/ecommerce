@@ -11,7 +11,8 @@ export const productFilterFields = [
     options: [
       { value: "", label: "All" },
       { value: "approved", label: "Approved" },
-      { value: "not_approved", label: "Not Approved" },
+      { value: "pending", label: "Pending" },
+      { value: "rejected", label: "Rejected" },
     ],
   },
 ];

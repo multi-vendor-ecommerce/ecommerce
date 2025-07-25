@@ -68,20 +68,20 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
       </td>
 
       {/* Approval Status */}
-      <td className="px-6 py-3 min-w-[140px]">
+      <td className="px-6 py-3 min-w-[200px]">
         <span
-          title={p.approvalStatus || "Status unknown"}
+          title={p.status || "Status unknown"}
           className={`inline-flex items-center px-3 py-1 rounded-full hover:scale-105 transition duration-150 text-xs font-semibold
-        ${p.approvalStatus === "approved"
+        ${p.status === "approved"
               ? "bg-green-100 text-green-700"
-              : p.approvalStatus === "rejected"
+              : p.status === "rejected"
                 ? "bg-red-100 text-red-700"
-                : p.approvalStatus === "pending"
+                : p.status === "pending"
                   ? "bg-yellow-100 text-yellow-800"
                   : "bg-blue-100 text-blue-700"
             }`}
         >
-          {p.approvalStatus || "Unknown"}
+          {p.status || "Unknown"}
         </span>
       </td>
 

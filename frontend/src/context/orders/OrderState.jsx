@@ -73,7 +73,6 @@ const OrderState = ({ children }) => {
       const data = await res.json();
       if (data.success) setOrders(data.orders);
       else console.error("Server Error:", data.message || "Unknown error");
-
     } catch (error) {
       console.error("Error fetching admin orders:", error);
     } finally {

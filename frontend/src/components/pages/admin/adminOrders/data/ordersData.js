@@ -11,10 +11,10 @@ export const orderFilterFields = [
     type: "select",
     options: [
       { value: "", label: "All" },
-      { value: "Pending", label: "Pending" },
-      { value: "Shipped", label: "Shipped" },
-      { value: "Delivered", label: "Delivered" },
-      { value: "Cancelled", label: "Cancelled" }
+      { value: "pending", label: "Pending" },
+      { value: "shipped", label: "Shipped" },
+      { value: "delivered", label: "Delivered" },
+      { value: "cancelled", label: "Cancelled" }
     ]
   },
   {

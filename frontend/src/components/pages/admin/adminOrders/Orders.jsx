@@ -54,7 +54,7 @@ export default function Orders() {
     return statusOK && dateOK;
   });
 
-  const headers = ["Order ID", "Customer", "Date", "Total", "Status", "Actions"];
+  const headers = ["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Status", "Actions"];
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">

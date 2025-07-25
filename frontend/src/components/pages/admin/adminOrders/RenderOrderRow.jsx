@@ -25,21 +25,31 @@ export const RenderOrderRow = (order, index, StatusChip) => (
     </td>
 
     {/* Customer Name */}
-    <td className="px-6 py-3 min-w-[200px] hover:scale-105 transition duration-150">
-      {order.user?.name || "Guest"}
-    </td>
-
-    {/* Order Date */}
     <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
-      {getFormatDate(order.createdAt)}
+      {order.user?.name || "Customer"}
     </td>
 
-    {/* Products */}
+    {/* Vendor Name */}
+    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
+      {order.vendor?.name || "Vendor"}
+    </td>
+
+    {/* Total Products */}
     <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
       {order.products?.[0]?.product?.title || "No Products"}
       {order.products?.length > 1 && (
         <span className="font-semibold"> +{order.products.length - 1} more</span>
       )}
+    </td>
+
+    {/* Mode of Delivery */}
+    <td className="px-6 py-3 min-w-[120px] hover:scale-105 transition duration-150">
+      {order.paymentMethod}
+    </td>
+
+    {/* Order Date */}
+    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
+      {getFormatDate(order.createdAt)}
     </td>
 
     {/* Status */}

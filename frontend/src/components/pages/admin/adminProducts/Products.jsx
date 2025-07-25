@@ -45,7 +45,7 @@ export default function Products({ heading }) {
     );
   }
 
-  const approvedProducts = products?.filter(p => p.approvalStatus) || [];
+  const approvedProducts = products?.filter(p => p.status) || [];
 
   const topProducts = approvedProducts
     .sort((a, b) => b.unitsSold - a.unitsSold)
