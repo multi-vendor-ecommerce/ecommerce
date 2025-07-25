@@ -3,6 +3,8 @@ import OrderContext from "./OrderContext";
 
 const OrderState = ({ children }) => {
   const [orders, setOrders] = useState([]);
+  const [adminOrders, setAdminOrders] = useState([]);
+  const [vendorOrders, setVendorOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const host = import.meta.env.VITE_BACKEND_URL;
@@ -52,8 +54,55 @@ const OrderState = ({ children }) => {
     }
   };
 
+  // Fetching all orders for admin
+  const getAllOrders = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${host}/api/order/admin`, {
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token
+        }
+      });
+      const data = await res.json();
+      if (data.success) setAdminOrders(data.orders);
+    } catch (error) {
+      console.error("Error fetching admin orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Vendor orders
+  const getVendorOrders = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${host}/api/order/vendor`, {
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token
+        }
+      });
+      const data = await res.json();
+      if (data.success) setVendorOrders(data.orders);
+    } catch (error) {
+      console.error("Error fetching vendor orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <OrderContext.Provider value={{ orders, placeOrder, getMyOrders, loading }}>
+    <OrderContext.Provider value={{
+      orders,
+      adminOrders,
+      vendorOrders,
+      placeOrder,
+      getMyOrders,
+      getAllOrders,
+      getVendorOrders,
+      loading
+    }}>
       {children}
     </OrderContext.Provider>
   )
