@@ -68,11 +68,7 @@ export const registerPerson = async (req, res) => {
       expiresIn: "7d",
     });
 
-    res.status(201).json({
-      success: true,
-      authToken,
-      message: `${toTitleCase(person.role)} registered successfully`,
-    });
+    res.status(201).json({ success: true, authToken, message: `${toTitleCase(person.role)} registered successfully`});
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ success: false, error: "Internal server error" });
@@ -107,7 +103,7 @@ export const loginPerson = async (req, res) => {
 
     const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    res.json({ success: true, message: `${toTitleCase(person.role)} login successful`, authToken });
+    res.json({ success: true, message: `${toTitleCase(person.role)} login successful`, authToken, role: person.role });
   } catch (err) {
     res.status(500).json({ success: false, error: "Internal Server Error", message: err.message });
   }

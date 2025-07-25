@@ -1,7 +1,28 @@
 // ——— filter options ——————————————————————————
-export const orderFilterOptions = {
-  status: ["", "Pending", "Delivered", "Cancelled"],
-};
+export const orderFilterFields = [
+  {
+    name: "search",
+    label: "Search by customer or vendor",
+    type: "text"
+  },
+  {
+    name: "status",
+    label: "Order Status",
+    type: "select",
+    options: [
+      { value: "", label: "All" },
+      { value: "Pending", label: "Pending" },
+      { value: "Shipped", label: "Shipped" },
+      { value: "Delivered", label: "Delivered" },
+      { value: "Cancelled", label: "Cancelled" }
+    ]
+  },
+  {
+    name: "date",
+    label: "Order Date",
+    type: "date"
+  }
+];
 
 // ——— dummy orders ————————————————————————————
 export const ordersDummy = [

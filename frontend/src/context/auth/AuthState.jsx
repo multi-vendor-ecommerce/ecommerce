@@ -1,21 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AuthContext from "./AuthContext";
 
 const AuthState = ({ children }) => {
   const [authToken, setAuthToken] = useState(localStorage.getItem("authToken") || null);
   const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
-  // fetch user details if token is present
-  useEffect(() => {
-    if (authToken) {
-      getUserDetails();
-    }
-  }, [authToken]);
-
+  // LOGIN FUNCTION
   const login = async (email, password) => {
+    setLoading(true);
     try {
       const res = await fetch(`${host}/api/auth/login`, {
         method: "POST",
@@ -25,57 +21,35 @@ const AuthState = ({ children }) => {
 
       const data = await res.json();
 
-      if (data.success) {
+      if (data.success && data.authToken) {
         localStorage.setItem("authToken", data.authToken);
         setAuthToken(data.authToken);
-        return { success: true };
+        setUser({ role: data.role }); // TEMP role assignment
+
+        return { success: true, role: data.role };
       } else {
         return { success: false, error: data.error || "Login failed" };
       }
-
     } catch (err) {
-      console.error("Login error: ", err);
-      return { success: false, error: "Something went wrong" }
+      console.error("Login error:", err);
+      return { success: false, error: "Something went wrong" };
+    } finally {
+      setLoading(false);
     }
   };
 
+  // LOGOUT FUNCTION
   const logout = () => {
     localStorage.removeItem("authToken");
     setAuthToken(null);
     setUser(null);
-  }
-
-  const getUserDetails = async () => {
-    setAuthLoading(true);
-    try {
-      const res = await fetch(`${host}/api/auth/getuser`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "applicaiton/json",
-          "auth-token": authToken,
-        },
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setUser(data.user);
-      } else {
-        logout();
-      }
-    } catch (err) {
-      console.error("Fetching user error: ", err);
-      logout();
-    } finally {
-      setAuthLoading(false);
-    }
   };
 
   return (
-    <AuthContext.Provider value={{ authToken, user, authLoading, login, logout }}>
+    <AuthContext.Provider value={{ authToken, user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
-
-  )
-}
+  );
+};
 
 export default AuthState;

@@ -1,36 +1,44 @@
-// components/admin/orders/renderOrderRow.jsx
 import { NavLink } from "react-router-dom";
 import { FiEye, FiTrash2 } from "react-icons/fi";
+import { getFormatDate } from "../../../../utils/formatDate";
 
+/**
+ * Renders a single order row for the admin order table.
+ *
+ * @param {Object} order - The order object containing all details.
+ * @param {number} index - The index of the row.
+ * @param {function} StatusChip - A component that renders the order status visually.
+ */
 export const RenderOrderRow = (order, index, StatusChip) => (
   <tr
-    key={order.orderNo}
+    key={index}
     className={`hover:bg-blue-50 hover:shadow-sm transition ${index !== 0 ? "border-t border-gray-200" : ""}`}
   >
-    {/* Order No */}
+    {/* Order ID */}
     <td className="px-6 py-3 min-w-[120px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150">
-      <NavLink to={`/admin/all-orders/order-details/${order.orderNo}`} title="Order Number">
-        #{order.orderNo}
+      <NavLink
+        to={`/admin/all-orders/order-details/${order._id}`}
+        title="Order ID"
+      >
+        #{order._id}
       </NavLink>
     </td>
 
-    {/* Customer */}
+    {/* Customer Name */}
     <td className="px-6 py-3 min-w-[200px] hover:scale-105 transition duration-150">
-      {order.customer?.name}
+      {order.user?.name || "Guest"}
     </td>
 
-    {/* Date */}
+    {/* Order Date */}
     <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
-      {order.date}
+      {getFormatDate(order.createdAt)}
     </td>
 
-    {/* Products (first + more count) */}
+    {/* Products */}
     <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
-      {order.products?.[0]?.name}
+      {order.products?.[0]?.product?.title || "No Products"}
       {order.products?.length > 1 && (
-        <span className="font-semibold">
-          {" "}+{order.products.length - 1} more
-        </span>
+        <span className="font-semibold"> +{order.products.length - 1} more</span>
       )}
     </td>
 
@@ -39,11 +47,11 @@ export const RenderOrderRow = (order, index, StatusChip) => (
       <StatusChip status={order.status} />
     </td>
 
-    {/* ✅ Aligned Actions */}
+    {/* Actions */}
     <td className="px-6 py-3 min-w-[160px] hover:scale-105 transition duration-150">
       <div className="inline-flex items-center gap-4">
         <NavLink
-          to={`/admin/all-orders/order-details/${order.orderNo}`}
+          to={`/admin/all-orders/order-details/${order._id}`}
           title="View order"
           className="hover:text-blue-600 hover:scale-110 transition duration-150"
         >
@@ -53,7 +61,7 @@ export const RenderOrderRow = (order, index, StatusChip) => (
         <button
           title="Delete order"
           className="hover:text-red-600 hover:scale-110 transition duration-150 cursor-pointer"
-          onClick={() => console.log("TODO: delete", order.orderNo)}
+          onClick={() => console.log("TODO: delete", order._id)}
         >
           <FiTrash2 size={20} />
         </button>

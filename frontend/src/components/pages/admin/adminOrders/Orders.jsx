@@ -1,58 +1,83 @@
 // components/admin/orders/Orders.jsx
-import { useState } from "react";
-import { ordersDummy, orderFilterOptions } from "./data/ordersData";
+import { useState, useContext, useEffect } from "react";
 import StatusChip from "../../../common/helperComponents/StatusChip";
+import { orderFilterFields } from "./data/ordersData";
 import { RenderOrderRow } from "./RenderOrderRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
 import BackButton from "../../../common/layout/BackButton";
+import OrderContext from "../../../../context/orders/OrderContext";
+import Spinner from "../../../common/Spinner";
+import { getFormatDate } from "../../../../utils/formatDate";
+import FilterBar from "../../../common/FilterBar";
 
-/* Main Orders Component */
 export default function Orders() {
-  const [filters, setFilters] = useState({ status: "", date: "" });
+  const { orders, getAllOrders, loading } = useContext(OrderContext);
+  const [filters, setFilters] = useState({ search: "", status: "" });
 
-  // ── filter logic ───────────────────────────────────────────
-  const filtered = ordersDummy.filter((o) => {
-    const statusOK = filters.status ? o.status === filters.status : true;
-    const dateOK = filters.date ? o.date === filters.date : true;
+  useEffect(() => {
+    getAllOrders();
+  }, []);
+
+  const handleChange = (name, value) => {
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleApply = () => {
+    getAllOrders(filters);
+  };
+
+  const handleClear = () => {
+    setFilters({ search: "", status: "" });
+    getAllOrders();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleApply();
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className="bg-gray-100 min-h-screen flex items-center justify-center">
+        <Spinner />
+      </section>
+    );
+  }
+
+  const filteredOrders = orders.filter((order) => {
+    const statusOK = filters.status ? order.status === filters.status : true;
+    const dateOK = filters.date
+      ? getFormatDate(order.createdAt) === filters.date
+      : true;
     return statusOK && dateOK;
   });
 
-  // ── table header labels ───────────────────────────────────
   const headers = ["Order ID", "Customer", "Date", "Total", "Status", "Actions"];
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
       <BackButton />
-      
+
       {/* Header + Filters */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mt-4 mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800">All Orders</h2>
 
-        <div className="flex gap-3 flex-wrap">
-          <select
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            className="border border-gray-300 px-3 py-2 rounded-md text-sm"
-          >
-            {orderFilterOptions.status.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt || "All Statuses"}
-              </option>
-            ))}
-          </select>
-
-          <input
-            type="date"
-            value={filters.date}
-            onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-            className="border border-gray-300 px-3 py-2 rounded-md text-sm"
+        <div>
+          <FilterBar
+            fields={orderFilterFields}
+            values={filters}
+            onChange={handleChange}
+            onApply={handleApply}
+            onClear={handleClear}
+            onKeyDown={handleKeyDown}
           />
         </div>
       </div>
 
-      {/* Table + Pagination handled by PaginatedLayout */}
-      <PaginatedLayout data={filtered} initialPerPage={10}>
+      {/* Table + Pagination */}
+      <PaginatedLayout data={filteredOrders} initialPerPage={10}>
         {(currentItems) => (
           <div className="overflow-hidden bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
             <TabularData

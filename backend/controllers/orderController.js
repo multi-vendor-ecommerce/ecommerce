@@ -1,7 +1,6 @@
 import Order from "../models/Order.js";
 import User from "../models/User.js";
-import Product from "../models/Products.js";
-import Vendor from "../models/Vendor.js";
+import buildQuery from "../utils/queryBuilder.js";
 
 export const placeOrder = async (req, res) => {
   const userId = req.person.id;
@@ -71,21 +70,21 @@ export const getVendorOrders = async (req, res) => {
 };
 
 export const getAllOrders = async (req, res) => {
-  if (req.person.role !== 'admin') {
+  if (req.person.role !== "admin") {
     return res.status(403).json({ success: false, message: "Access denied" });
   }
-  try {
-    const orders = await Order.find()
-      .populate("products.product")
-      .populate("user")
-      .populate("vendor");
 
-    res.status(200).json({ success: true, orders });
+  try {
+    // Build search query (example: search on 'status')
+    const query = buildQuery(req.query);
+
+    const orders = await Order.find(query)
+      .populate("products.product")
+      .populate("vendor", "name email shopName")
+      .populate("user", "name email");
+
+    res.status(200).json({ success: true, message: "Orders fetched successfully.", orders });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Server Error",
-      error: err.message,
-    });
+    res.status(500).json({ success: false, message: "Server Error", error: err.message });
   }
 };

@@ -8,14 +8,13 @@ import AuthState from "./context/auth/AuthState";
 import CartState from "./context/cart/cartState";
 import OrderState from "./context/orders/OrderState";
 
-// Admin components
+// Person components
 import Admin from "./components/pages/admin/Admin";
-
-// User components
 import User from "./components/pages/user/User";
-
-// Vendor components
 import Vendor from "./components/pages/vendor/Vendor";
+
+// Auth components
+import Login from "./components/common/Login";
 
 function App() {
   return (
@@ -46,6 +45,11 @@ function App() {
 function AppRoutes() {
   return (
     <Routes>
+       {/* Public Auth Routes */}
+      <Route path="/login" element={<Login />} />
+      {/* <Route path="/signup" element={<Signup />} /> */}
+
+      {/* Role-Based Dashboards */}
       <Route path="/vendor/*" element={<Vendor />} />
       <Route path="/admin/*" element={<Admin />} />
       <Route path="/*" element={<User />} />

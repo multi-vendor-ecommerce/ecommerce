@@ -23,14 +23,7 @@ const buildQuery = (params, searchFields = []) => {
 
   // Handle both boolean-style "status" and string "status"
   if (status) {
-    if (status === "approved") {
-      query.approved = true;
-    } else if (status === "not_approved") {
-      query.approved = false;
-    } else {
-      // Assume it's for models that use status string like "active", "suspended"
-      query.status = status;
-    }
+    query.status = status;
   }
 
   return query;
