@@ -53,7 +53,10 @@ export const placeOrder = async (req, res) => {
 
 export const getUserOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.person.id }).populate("products.product vendor");
+    const orders = await Order.find({ user: req.person.id }).populate([
+      { path: "products.product", select: "title price" },
+      { path: "vendor", select: "name shopName email" }
+    ]);
     res.status(200).json({ success: true, orders });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server Error", error: err.message });
@@ -62,7 +65,10 @@ export const getUserOrders = async (req, res) => {
 
 export const getVendorOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ vendor: req.person.id }).populate("products.product user");
+    const orders = await Order.find({ vendor: req.person.id }).populate([
+      { path: "products.product", select: "title price" },
+      { path: "user", select: "name email" }
+    ]);
     res.status(200).json({ success: true, orders });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server Error", error: err.message });
@@ -79,10 +85,9 @@ export const getAllOrders = async (req, res) => {
     const query = buildQuery(req.query);
 
     const orders = await Order.find(query)
-      .populate("products.product")
-      .populate("vendor", "name email shopName")
-      .populate("user", "name email");
-
+      .populate({ path: "products.product", select: "title price" })
+      .populate({ path: "vendor", select: "name email shopName" })
+      .populate({ path: "user", select: "name email" });
     res.status(200).json({ success: true, message: "Orders fetched successfully.", orders });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server Error", error: err.message });
