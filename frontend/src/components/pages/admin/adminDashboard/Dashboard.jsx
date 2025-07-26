@@ -1,7 +1,6 @@
 import SummaryCards from "./SummaryCards";
 import RecentOrders from "./RecentOrders";
 import SalesChart from "./SalesChart";
-import TopCountries from "./TopCountries";
 import TopProducts from "./TopProducts";
 import { monthlySalesData } from "./data/salesData";
 import TopVendors from "./TopVendors";
@@ -14,9 +13,8 @@ const Dashboard = () => {
       <div className="mt-6 bg-white px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
         <SummaryCards />
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+        <div className="mt-6">
           <SalesChart data={monthlySalesData} />
-          <TopCountries />
         </div>
       </div>
 

@@ -1,6 +1,5 @@
 import { HiOutlineUser, HiOutlineLogout } from 'react-icons/hi';
 import { FiSettings } from 'react-icons/fi';
-import { RiHistoryLine } from 'react-icons/ri';
 
 const ProfileMenu = () => {
   return (
@@ -9,12 +8,12 @@ const ProfileMenu = () => {
         <div className="flex items-center gap-3">
           <img
             src="https://randomuser.me/api/portraits/women/44.jpg"
-            alt="User"
+            alt="Admin"
             className="w-10 h-10 rounded-full"
           />
           <div>
-            <p className="font-semibold text-gray-800">Angelina Gotelli</p>
-            <p className="text-gray-500 text-xs">admin-01@ecme.com</p>
+            <p className="font-semibold text-gray-800">Sandeep Singh</p>
+            <p className="text-gray-500 text-xs">admin@yourdomain.com</p>
           </div>
         </div>
       </div>
@@ -27,14 +26,10 @@ const ProfileMenu = () => {
           <FiSettings className="text-xl font-semibold" />
           <span>Account Setting</span>
         </li>
-        <li className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer">
-          <RiHistoryLine className="text-xl font-semibold" />
-          <span>Activity Log</span>
-        </li>
         <hr className="my-1" />
         <li className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer text-red-600">
           <HiOutlineLogout className="text-xl font-semibold" />
-          <span>Sign Out</span>
+          <span>Log Out</span>
         </li>
       </ul>
     </div>

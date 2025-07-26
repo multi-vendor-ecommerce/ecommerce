@@ -4,15 +4,17 @@ import CustomSelect from "../../.././common/layout/CustomSelect";
 import ProductContext from "../../../../context/products/ProductContext";
 import UserContext from "../../../../context/user/UserContext";
 import { formatNumber } from "../../../../utils/formatNumber";
-import { format } from "crypto-js";
+import OrderContext from "../../../../context/orders/OrderContext";
 
 export default function SummaryCards() {
   const { products, getAllProducts } = useContext(ProductContext);
   const { users, getAllCustomers } = useContext(UserContext);
+  const { orders, getAllOrders } = useContext(OrderContext);
 
   useEffect(() => {
     getAllProducts();
     getAllCustomers();
+    getAllOrders();
   }, []);
 
   const [dateValue, setDateValue] = useState("today");
@@ -26,11 +28,13 @@ export default function SummaryCards() {
     (sum, p) => sum + (p.revenue || p.price * p.unitsSold || 0),
     0
   );
+  const totalOrders = orders?.length || 0;
   const totalProducts = products?.length || 0;
   const totalCustomers = users?.filter(u => u.role === "customer").length || 0;
 
   const cards = getCards({
     totalRevenue: formatNumber(totalRevenue),
+    totalOrders,
     totalProducts,
     totalCustomers,
   });

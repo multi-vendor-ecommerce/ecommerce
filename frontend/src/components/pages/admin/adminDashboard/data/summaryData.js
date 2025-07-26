@@ -18,7 +18,7 @@ export const dateFilterFields = [
   },
 ];
 
-export const getCards = ({ totalRevenue, totalCustomers, totalProducts }) => [
+export const getCards = ({ totalRevenue, totalOrders, totalCustomers, totalProducts }) => [
   {
     label: "Revenue",
     value: `₹${totalRevenue}`,
@@ -28,7 +28,7 @@ export const getCards = ({ totalRevenue, totalCustomers, totalProducts }) => [
   },
   {
     label: "Orders",
-    value: 932,
+    value: totalOrders,
     bgColor: "bg-pink-200",
     shadowColor: "hover:shadow-pink-500",
     icon: BiCart,
