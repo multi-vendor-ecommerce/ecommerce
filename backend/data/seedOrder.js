@@ -1,7 +1,7 @@
 export const orderSeedData = [
   {
     user: "6883b69d6e9b3a1e276eb283",
-    vendor: "6883b7e86e9b3a1e276eb291",
+    vendor: "6883b44b42d3fea6d9f9d99e",
     products: [
       { product: "68837ab664a9695d0703d7be", quantity: 1, priceAtPurchase: 1790 },
       { product: "68837ab664a9695d0703d7c0", quantity: 2, priceAtPurchase: 1400 },
@@ -10,11 +10,10 @@ export const orderSeedData = [
     status: "delivered",
     paymentMethod: "COD",
     shippingAddress: "Bihar",
-    createdAt: new Date(),
   },
   {
     user: "6883b60e6e9b3a1e276eb27b",
-    vendor: "6883b7e86e9b3a1e276eb291",
+    vendor: "6881bbe2e57aadbfc4c11940",
     products: [
       { product: "68837ab664a9695d0703d7c5", quantity: 1, priceAtPurchase: 500 },
     ],
@@ -22,11 +21,10 @@ export const orderSeedData = [
     status: "shipped",
     paymentMethod: "UPI",
     shippingAddress: "Bihar",
-    createdAt: new Date(),
   },
   {
     user: "68821ab2aa28b3d2e77f020a",
-    vendor: "6883b7e86e9b3a1e276eb291",
+    vendor: "6883b44b42d3fea6d9f9d99e",
     products: [
       { product: "68837ab664a9695d0703d7c7", quantity: 3, priceAtPurchase: 650 },
     ],
@@ -34,11 +32,10 @@ export const orderSeedData = [
     status: "pending",
     paymentMethod: "COD",
     shippingAddress: "F-212",
-    createdAt: new Date(),
   },
   {
     user: "6883b60e6e9b3a1e276eb27b",
-    vendor: "6883b7e86e9b3a1e276eb291",
+    vendor: "6881bbe2e57aadbfc4c11940",
     products: [
       { product: "68837ab664a9695d0703d7c0", quantity: 1, priceAtPurchase: 1400 },
     ],
@@ -46,11 +43,10 @@ export const orderSeedData = [
     status: "cancelled",
     paymentMethod: "UPI",
     shippingAddress: "Delhi",
-    createdAt: new Date(),
   },
   {
     user: "6883b69d6e9b3a1e276eb283",
-    vendor: "6883b7e86e9b3a1e276eb291",
+    vendor: "6883b44b42d3fea6d9f9d99e",
     products: [
       { product: "68837ab664a9695d0703d7be", quantity: 2, priceAtPurchase: 1790 },
     ],
@@ -58,11 +54,10 @@ export const orderSeedData = [
     status: "shipped",
     paymentMethod: "Card",
     shippingAddress: "Mumbai",
-    createdAt: new Date(),
   },
   {
     user: "68821ab2aa28b3d2e77f020a",
-    vendor: "6883b7e86e9b3a1e276eb291",
+    vendor: "6881bbe2e57aadbfc4c11940",
     products: [
       { product: "68837ab664a9695d0703d7c5", quantity: 1, priceAtPurchase: 500 },
       { product: "68837ab664a9695d0703d7c7", quantity: 1, priceAtPurchase: 650 },
@@ -71,11 +66,10 @@ export const orderSeedData = [
     status: "delivered",
     paymentMethod: "COD",
     shippingAddress: "Patna",
-    createdAt: new Date(),
   },
   {
     user: "6883b60e6e9b3a1e276eb27b",
-    vendor: "6883b7e86e9b3a1e276eb291",
+    vendor: "6883b44b42d3fea6d9f9d99e",
     products: [
       { product: "68837ab664a9695d0703d7c0", quantity: 2, priceAtPurchase: 1400 },
     ],
@@ -83,11 +77,10 @@ export const orderSeedData = [
     status: "pending",
     paymentMethod: "UPI",
     shippingAddress: "Pune",
-    createdAt: new Date(),
   },
   {
     user: "6883b69d6e9b3a1e276eb283",
-    vendor: "6883b7e86e9b3a1e276eb291",
+    vendor: "6881bbe2e57aadbfc4c11940",
     products: [
       { product: "68837ab664a9695d0703d7c7", quantity: 2, priceAtPurchase: 650 },
     ],
@@ -95,11 +88,10 @@ export const orderSeedData = [
     status: "delivered",
     paymentMethod: "Netbanking",
     shippingAddress: "Hyderabad",
-    createdAt: new Date(),
   },
   {
     user: "68821ab2aa28b3d2e77f020a",
-    vendor: "6883b7e86e9b3a1e276eb291",
+    vendor: "6883b44b42d3fea6d9f9d99e",
     products: [
       { product: "68837ab664a9695d0703d7be", quantity: 1, priceAtPurchase: 1790 },
     ],
@@ -107,11 +99,10 @@ export const orderSeedData = [
     status: "shipped",
     paymentMethod: "COD",
     shippingAddress: "Lucknow",
-    createdAt: new Date(),
   },
   {
     user: "6883b69d6e9b3a1e276eb283",
-    vendor: "6883b7e86e9b3a1e276eb291",
+    vendor: "6881bbe2e57aadbfc4c11940",
     products: [
       { product: "68837ab664a9695d0703d7c5", quantity: 2, priceAtPurchase: 500 },
     ],
@@ -119,6 +110,5 @@ export const orderSeedData = [
     status: "delivered",
     paymentMethod: "Card",
     shippingAddress: "Jaipur",
-    createdAt: new Date(),
   },
 ];

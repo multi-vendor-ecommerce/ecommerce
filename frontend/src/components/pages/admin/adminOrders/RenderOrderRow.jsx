@@ -25,13 +25,13 @@ export const RenderOrderRow = (order, index, StatusChip) => (
     </td>
 
     {/* Customer Name */}
-    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
-      {order.user?.name || "Customer"}
+    <td className="px-6 py-3 min-w-[120px] hover:scale-105 transition duration-150">
+      {order.user?.name || "Unassigned Customer"}
     </td>
 
     {/* Vendor Name */}
     <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
-      {order.vendor?.name || "Vendor"}
+      {order.vendor?.name || "Unassigned Vendor"}
     </td>
 
     {/* Total Products */}

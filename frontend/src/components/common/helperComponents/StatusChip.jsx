@@ -1,4 +1,4 @@
-import { FaCheckCircle, FaHourglassHalf, FaTimesCircle } from "react-icons/fa";
+import { FaCheckCircle, FaHourglassHalf, FaTimesCircle, FaTruck } from "react-icons/fa";
 
 const StatusChip = ({ status }) => {
   const map = {
@@ -16,6 +16,11 @@ const StatusChip = ({ status }) => {
       text: "Cancelled",
       icon: <FaTimesCircle size={13} className="text-red-600" />,
       cls: "text-red-700 bg-red-100",
+    },
+    shipped: {
+      text: "Shipped",
+      icon: <FaTruck size={13} className="text-blue-600" />,
+      cls: "text-blue-700 bg-blue-100",
     },
   };
 
