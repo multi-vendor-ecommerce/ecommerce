@@ -1,11 +1,18 @@
-// components/admin/vendor/pages/VendorProfile.jsx
 import { useParams, NavLink } from "react-router-dom";
 import { useContext, useState, useEffect, useMemo } from "react";
 import VendorContext from "../../../../context/vendors/VendorContext";
-import { ordersDummy } from "../adminOrders/data/ordersData";
+import OrderContext from "../../../../context/orders/OrderContext";
 import TabularData from "../../../common/layout/TabularData";
 import { FiEdit } from "react-icons/fi";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
 import StatusChip from "../../../common/helperComponents/StatusChip";
 import { getVendorCardData } from "./data/vendorProfileCards";
 import { RenderOrderRow } from "../adminOrders/RenderOrderRow";
@@ -17,25 +24,24 @@ import BackButton from "../../../common/layout/BackButton";
 const VendorProfile = () => {
   const { vendorId } = useParams();
   const { getVendorById, loading } = useContext(VendorContext);
+  const { vendorOrders, getVendorOrders } = useContext(OrderContext);
   const [vendor, setVendor] = useState(null);
 
+  // 1. Fetch vendor
   useEffect(() => {
     const fetchVendor = async () => {
       const result = await getVendorById(vendorId);
       setVendor(result);
     };
-
     fetchVendor();
   }, [vendorId, getVendorById]);
 
-  const vendorOrders = useMemo(() => {
-    if (!vendor) return [];
-    return ordersDummy
-      .filter((o) => o.vendor?.name === vendor.shopName)
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
+  // 2. Fetch vendor orders *after* vendor state is set
+  useEffect(() => {
+    if (vendor?._id) {
+      getVendorOrders(); // no await needed unless you need result here
+    }
   }, [vendor]);
-
-  const recentOrders = useMemo(() => vendorOrders.slice(0, 6), [vendorOrders]);
 
   const monthlyData = useMemo(() => {
     if (!vendorOrders.length) return [];
@@ -65,7 +71,6 @@ const VendorProfile = () => {
     );
   }
 
-  // ✅ Now safe to conditionally render UI
   if (!vendor) {
     return <div className="text-center mt-10 text-red-600">Vendor not found.</div>;
   }
@@ -74,7 +79,7 @@ const VendorProfile = () => {
     <section className="p-6 w-full bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-3">
         <BackButton />
-        
+
         <NavLink
           to={`/admin/vendor/edit-delete/${vendor._id}`}
           className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
@@ -92,9 +97,12 @@ const VendorProfile = () => {
         </div>
         <div className="w-[80%] mx-auto md:w-[15%] md:mx-0 h-full bg-white rounded-xl shadow-md shadow-purple-500 overflow-hidden">
           <img
-            src={vendor.profileImage}
-            alt={vendor.name}
-            title={`${vendor.name}'s profile image`}
+            src={
+              vendor.profileImage ||
+              `https://api.dicebear.com/7.x/initials/svg?seed=${vendor.name || "V"}`
+            }
+            alt={vendor.name || "Unknown Vendor"}
+            title={`${vendor.name || "Unknown Vendor"}'s avatar`}
             className="w-full h-[210px] md:h-[250px] object-cover rounded-xl hover:scale-105 transition duration-300"
           />
         </div>
@@ -120,8 +128,8 @@ const VendorProfile = () => {
       <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Orders</h3>
       <div className="overflow-hidden bg-white shadow-md hover:shadow-blue-500 transition duration-200 rounded-xl border border-gray-200">
         <TabularData
-          headers={["Order ID", "Customer", "Date", "Total", "Status", "Actions"]}
-          data={recentOrders}
+          headers={["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Status", "Actions"]}
+          data={vendorOrders}
           renderRow={(o, i) => RenderOrderRow(o, i, StatusChip)}
           emptyMessage="No orders found."
           widthClass="w-full"

@@ -30,8 +30,13 @@ export const RenderOrderRow = (order, index, StatusChip) => (
     </td>
 
     {/* Vendor Name */}
-    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
-      {order.vendor?.name || "Unassigned Vendor"}
+    <td className="px-6 py-3 min-w-[140px] hover:scale-105 hover:underline hover:font-semibold transition duration-150">
+      <NavLink
+        to={`/admin/vendor/profile/${order.vendor._id}`}
+        title="Vendor Name"
+      >
+        {order.vendor?.name || "Unassigned Vendor"}
+      </NavLink>
     </td>
 
     {/* Total Products */}

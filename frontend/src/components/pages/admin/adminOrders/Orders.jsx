@@ -12,7 +12,7 @@ import { getFormatDate } from "../../../../utils/formatDate";
 import FilterBar from "../../../common/FilterBar";
 
 export default function Orders() {
-  const { orders, getAllOrders, loading } = useContext(OrderContext);
+  const { adminOrders, getAllOrders, loading } = useContext(OrderContext);
   const [filters, setFilters] = useState({ search: "", status: "" });
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function Orders() {
     );
   }
 
-  const filteredOrders = orders.filter((order) => {
+  const filteredOrders = adminOrders.filter((order) => {
     const statusOK = filters.status ? order.status === filters.status : true;
     const dateOK = filters.date
       ? getFormatDate(order.createdAt) === filters.date

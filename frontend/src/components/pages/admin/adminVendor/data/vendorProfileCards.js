@@ -1,4 +1,5 @@
 import {
+  FaUser,
   FaStore,
   FaEnvelope,
   FaBoxOpen,
@@ -11,10 +12,18 @@ import { formatNumber } from "../../../../../utils/formatNumber";
 
 export const getVendorCardData = (vendor) => [
   {
-    icon: FaStore,
-    label: "Vendor",
+    icon: FaUser,
+    label: "Name",
     value: vendor.name || "N/A",
     title: vendor.name || "Vendor name not available",
+    bg: "bg-gray-200",
+    shadow: "hover:shadow-gray-500",
+  },
+  {
+    icon: FaStore,
+    label: "Shop",
+    value: vendor.shopName || "N/A",
+    title: vendor.shopName || "Vendor shop name not available",
     bg: "bg-green-100",
     shadow: "hover:shadow-green-500",
   },

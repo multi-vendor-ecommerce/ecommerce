@@ -12,7 +12,7 @@ export const RenderCustomerRow = (user, i) => {
         <div className="flex items-center gap-4">
           <img
             src={user.profileImage || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name || "U"}`}
-            alt={user.name || "Customer"}
+            alt={user.name || "Unknown Customer"}
             title={`${user.name || "Unknown User"}'s avatar`}
             className="w-10 h-10 rounded-full object-cover shadow-md shadow-purple-400"
           />
