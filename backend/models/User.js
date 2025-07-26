@@ -14,9 +14,6 @@ const User = Person.discriminator("customer", new mongoose.Schema({
       quantity: { type: Number, default: 1 }
     }
   ],
-  orders: [
-    { type: mongoose.Schema.Types.ObjectId, ref: "Order" }
-  ]
 }));
 
 export default User;

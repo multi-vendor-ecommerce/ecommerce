@@ -1,4 +1,6 @@
 import dotenv from "dotenv";
+dotenv.config();
+
 import connectToMongo from "./db.js";
 import express from "express";
 import cors from "cors";
@@ -11,8 +13,6 @@ import CouponRoutes from "./routes/couponRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
-
-dotenv.config();
 
 connectToMongo();
 
