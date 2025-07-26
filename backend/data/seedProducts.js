@@ -97,7 +97,9 @@ export const productsData = [
     title: "Olympus OM-D E-M10 Mark IV",
     description: "Compact and stylish camera with in-body image stabilization.",
     images: [
-      "https://m.media-amazon.com/images/I/51il5V4mK+L._SL1000_.jpg"
+      "https://tse1.mm.bing.net/th/id/OIP.kiGkC1mRT0mXLso5irnYhQHaHa?pid=Api&P=0&h=180",
+      "https://tse2.mm.bing.net/th/id/OIP.NgF4smPUCljJzMCWDjmdmQHaE8?pid=Api&P=0&h=180",
+      "https://tse2.mm.bing.net/th/id/OIP.GTigJJkN5VGIb7zcLAb3nwHaEK?pid=Api&P=0&h=180"
     ],
     price: 950,
     stock: 15,
@@ -115,7 +117,7 @@ export const productsData = [
     title: "Leica D-Lux 7",
     description: "Premium compact camera with large sensor and fast lens.",
     images: [
-      "https://m.media-amazon.com/images/I/81DuSi1j6sL._SL1500_.jpg"
+      "https://tse1.mm.bing.net/th/id/OIP.A8QKraJuhxJMdSvsXq5njQHaEK?pid=Api&P=0&h=180"
     ],
     price: 2200,
     stock: 5,
@@ -133,7 +135,7 @@ export const productsData = [
     title: "GoPro Hero11 Black",
     description: "Action camera with HyperSmooth stabilization and waterproof body.",
     images: [
-      "https://m.media-amazon.com/images/I/71AnJtdp5CL._SL1500_.jpg"
+      "https://m.media-amazon.com/images/I/71+iq4gPgTL._AC_SL1500_.jpg"
     ],
     price: 500,
     stock: 25,
@@ -151,7 +153,8 @@ export const productsData = [
     title: "DJI Pocket 2",
     description: "Compact camera with 3-axis gimbal stabilization and 4K video.",
     images: [
-      "https://m.media-amazon.com/images/I/61bE+3uXZQL._SL1500_.jpg"
+      "https://tse1.mm.bing.net/th/id/OIP.gtuUhw7H0qNqucaMIEDLKQHaJ4?pid=Api&P=0&h=180",
+      "https://i.pinimg.com/originals/3a/2c/15/3a2c15690a7d42e73ecb3d02d476d2cd.jpg"
     ],
     price: 600,
     stock: 18,
@@ -169,7 +172,7 @@ export const productsData = [
     title: "Insta360 X3",
     description: "360-degree action camera with FlowState stabilization and waterproof body.",
     images: [
-      "https://m.media-amazon.com/images/I/61csJ8Oqg+L._SL1500_.jpg"
+      "https://media.takealot.com/covers_images/9572c9f77cca4118aeb09d93f286ac0e/s-zoom.file"
     ],
     price: 650,
     stock: 10,

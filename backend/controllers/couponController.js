@@ -23,8 +23,8 @@ export const addCoupon = async (req, res) => {
 
     const newCoupon = await Coupon.create({ code: code.toUpperCase(), discount, minPurchase, maxDiscount, expiryDate, usageLimit, isActive });
     res.status(201).json({ success: true, message: "Coupon created successfully.", coupon: newCoupon });
-  } catch (error) {
-    console.error("Error adding coupon:", error);
+  } catch (err) {
+    console.error("Error adding coupon:", err);
     res.status(500).json({ success: false, message: "Server error.", error: err.message });
   }
 };
@@ -40,8 +40,8 @@ export const deleteCoupon = async (req, res) => {
     // Check if coupon with same code already exists
     coupon = await Coupon.findByIdAndDelete(req.params.id);
     res.status(200).json({ success: true, message: "Given coupon has been deleted successfully!", coupon });
-  } catch (error) {
-    console.error("Error adding coupon:", error);
+  } catch (err) {
+    console.error("Error adding coupon:", err);
     res.status(500).json({ success: false, message: "Server error.", error: err.message });
   }
 };

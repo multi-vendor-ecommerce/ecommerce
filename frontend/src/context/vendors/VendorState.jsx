@@ -7,6 +7,7 @@ const VendorState = (props) => {
 
   const host = import.meta.env.VITE_BACKEND_URL;
   // const host = "http://localhost:5000";
+  const token = localStorage.getItem("authToken");
 
   const getAllVendors = async ({ search = "", status = "" } = {}) => {
     try {
@@ -20,7 +21,11 @@ const VendorState = (props) => {
         `${host}/api/vendors?${params.toString()}`,
         {
           method: "GET",
-          // credentials: "include"
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token
+          }
+          // credentials: "include",
         });
 
       if (!response.ok) throw new Error('Failed to fetch vendors.');
@@ -37,7 +42,15 @@ const VendorState = (props) => {
   const getVendorById = useCallback(async (id) => {
     try {
       setLoading(true);
-      const response = await fetch(`${host}/api/vendors/${id}`);
+      const response = await fetch(`${host}/api/vendors/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token
+          }
+          // credentials: "include",
+        });
       if (!response.ok) throw new Error("Failed to fetch the vendor.");
 
       const data = await response.json();

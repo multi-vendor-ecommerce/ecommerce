@@ -7,6 +7,7 @@ const ProductState = (props) => {
 
   // const host = import.meta.env.VITE_BACKEND_URL;
   const host = "http://localhost:5000";
+  const token = localStorage.getItem("authToken");
 
   const getAllProducts = async ({ search = "", status = "" } = {}) => {
     try {
@@ -20,6 +21,10 @@ const ProductState = (props) => {
         `${host}/api/products/admin?${params.toString()}`,
         {
           method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token
+          }
           // credentials: "include",
         });
       if (!response.ok) {
@@ -37,7 +42,15 @@ const ProductState = (props) => {
 
   const getProductById = async (id) => {
     try {
-      const response = await fetch(`${host}/api/products/admin/${id}`);
+      const response = await fetch(`${host}/api/products/admin/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token
+          }
+          // credentials: "include",
+        });
       if (!response.ok) {
         throw new Error('Failed to fetch products.');
       }

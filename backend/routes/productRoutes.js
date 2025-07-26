@@ -1,5 +1,6 @@
 import express from "express";
-// import Product from "../models/Products.js";
+import verifyToken from "../middleware/verifyToken.js";
+import authorizeRoles from "../middleware/authorizeRole.js";
 
 // Controllers
 import { getAllProducts, getProductById} from "../controllers/productController.js";
@@ -12,11 +13,11 @@ router.get("/", getAllProducts);
 
 // ROUTE 2: GET /api/products/admin
 // Desc: Showcase all the products to the admin
-router.get("/admin", getAllProducts);
+router.get("/admin", verifyToken, authorizeRoles("admin"), getAllProducts);
 
 // ROUTE 3: GET /api/products/admin/:id
 // Desc: Showcase a product to the admin by id
-router.get("/admin/:id", getProductById);
+router.get("/admin/:id", verifyToken, authorizeRoles("admin"), getProductById);
 
 router.get("/category/:id", getProductById);
 

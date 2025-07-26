@@ -1,6 +1,7 @@
 import express from 'express';
 import { body } from 'express-validator';
 import verifyToken from '../middleware/verifyToken.js';
+import authorizeRoles from '../middleware/authorizeRole.js';
 
 import { getAllCustomers, getUser, updateUser } from '../controllers/userController.js';
 
@@ -12,7 +13,7 @@ router.get('/admin/all-customers', getAllCustomers);
 
 // ROUTE 2: GET /api/profile
 // Desc: Get loggedIn user's details via the jwt token (Login required)
-router.get('/profile', verifyToken, getUser);
+router.get('/profile', verifyToken,  authorizeRoles("user") ,getUser);
 
 let checkers = [
   body('name', 'Enter a valid name').optional().isLength({ min: 3 }).notEmpty().trim(),
