@@ -2,23 +2,24 @@ import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 
-// Controllers
-import { getAllProducts, getProductById} from "../controllers/productController.js";
+// Separate controllers for admin and public
+import {
+  getAllProductsPublic,
+  getProductByIdPublic,
+  getProductsByCategoryId,
+  getAllProductsAdmin,
+  getProductByIdAdmin,
+} from "../controllers/productController.js";
 
 const router = express.Router();
 
-// ROUTE 1: GET /api/products
-// Desc: Showcase all the products to the user
-router.get("/", getAllProducts);
+// ---------- Public Routes ----------
+router.get("/", getAllProductsPublic);                // Public: All approved products
+router.get("/product/:id", getProductByIdPublic);     // Public: Product by ID
+router.get("/category/:id", getProductsByCategoryId); // Public: By category
 
-// ROUTE 2: GET /api/products/admin
-// Desc: Showcase all the products to the admin
-router.get("/admin", verifyToken, authorizeRoles("admin"), getAllProducts);
-
-// ROUTE 3: GET /api/products/admin/:id
-// Desc: Showcase a product to the admin by id
-router.get("/admin/:id", verifyToken, authorizeRoles("admin"), getProductById);
-
-router.get("/category/:id", getProductById);
+// ---------- Admin Routes ----------
+router.get("/admin", verifyToken, authorizeRoles("admin"), getAllProductsAdmin);
+router.get("/admin/:id", verifyToken, authorizeRoles("admin"), getProductByIdAdmin);
 
 export default router;

@@ -4,17 +4,18 @@ import ProductContext from "../../../../context/products/ProductContext";
 import { encryptData } from "../Utils/Encryption";
 
 export default function ProductSection({ title }) {
-  const { products, loading, getAllProducts } = useContext(ProductContext);
+  const { products, loading, getAllPublicProducts } = useContext(ProductContext);
   const navigateTo = useNavigate();
 
   useEffect(() => {
-    getAllProducts();
+    getAllPublicProducts();
   }, []);
 
   const handleProductClick = (productId) => {
     const secretKey = import.meta.env.VITE_SECRET_KEY;
     const encryptedProductId = encryptData(productId, secretKey);
-    navigateTo(`product/${encodeURIComponent(encryptedProductId)}`);
+    const encodedId = encodeURIComponent(encryptedProductId);
+    navigateTo(`/product/${encodedId}`);
   };
 
   return (

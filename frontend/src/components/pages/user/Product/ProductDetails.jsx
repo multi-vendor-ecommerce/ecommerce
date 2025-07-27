@@ -6,13 +6,13 @@ import { useNavigate } from "react-router-dom";
 import { FaStar } from 'react-icons/fa';
 
 const ProductDetails = () => {
-  const { getProductById } = useContext(ProductContext);
+  const { getProductByIdPublic} = useContext(ProductContext);
   const [decryptedProductId, setDecryptedProductId] = useState("");
   const [productDetails, setProductDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const navigate = useNavigate();
-
+  
   const secretKey = import.meta.env.VITE_SECRET_KEY;
 
   useEffect(() => {
@@ -23,6 +23,7 @@ const ProductDetails = () => {
     try {
       const decodedProductId = decodeURIComponent(decodeURIComponent(encodedProductId));
       const decryptedId = decryptData(decodedProductId, secretKey);
+      console.log("Decrypted ID:", decryptedId);
       setDecryptedProductId(decryptedId);
     } catch (error) {
       console.error("Error decoding or decrypting product ID:", error);
@@ -30,18 +31,19 @@ const ProductDetails = () => {
     }
   }, [secretKey]);
 
+  console.log(decryptedProductId);
   useEffect(() => {
     const fetchProduct = async () => {
       if (decryptedProductId) {
         setLoading(true);
-        const product = await getProductById(decryptedProductId);
+        const product = await getProductByIdPublic(decryptedProductId);
         setProductDetails(product);
         setLoading(false);
       }
     };
 
     fetchProduct();
-  }, [decryptedProductId, getProductById]);
+  }, [decryptedProductId, getProductByIdPublic]);
 
   if (loading) {
     return (
@@ -51,12 +53,9 @@ const ProductDetails = () => {
     );
   }
 
-  if (!productDetails) {
-    return (
-      <div className="p-4 text-center text-gray-500">
-        Product not found or failed to load.
-      </div>
-    );
+  if (!productDetails || Object.keys(productDetails).length === 0) {
+    // product might be undefined/null while loading or if fetch failed
+    return <p>Product not found or loading...</p>;
   }
 
   return (
