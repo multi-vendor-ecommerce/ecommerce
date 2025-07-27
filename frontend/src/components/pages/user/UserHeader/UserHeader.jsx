@@ -1,9 +1,9 @@
 import { FaHeart, FaRandom, FaShoppingCart, FaSearch } from "react-icons/fa";
 import { Link, NavLink } from "react-router-dom";
-import { useCart } from "../Cart/CartContext";
+// import { useCart } from "../Cart/CartContext";
 
 function UserHeader() {
-  const { cartItems } = useCart();
+  // const { cartItems } = useCart();
 
   return (
     <div className="w-full relative">
@@ -37,14 +37,14 @@ function UserHeader() {
               <FaHeart className="cursor-pointer hover:text-user-primary" />
             </Link>
             <FaRandom className="cursor-pointer hover:text-user-primary" />
-            <Link to="/cart" className="relative">
+            {/* <Link to="/cart" className="relative">
               <FaShoppingCart className="hover:text-user-primary" />
               {cartItems.length > 0 && (
                 <span className="absolute -top-2 -right-2 text-xs bg-user-primary text-white w-5 h-5 flex items-center justify-center rounded-full">
                   {cartItems.length}
                 </span>
               )}
-            </Link>
+            </Link> */}
           </div>
         </div>
 
