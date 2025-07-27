@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { FaStar } from 'react-icons/fa';
 
 const ProductDetails = () => {
-  const { getProductById } = useContext(ProductContext);
+  const { getPublicProductById } = useContext(ProductContext);
   const [decryptedProductId, setDecryptedProductId] = useState("");
   const [productDetails, setProductDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,14 +35,14 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
       if (decryptedProductId) {
         setLoading(true);
-        const product = await getProductById(decryptedProductId);
+        const product = await getPublicProductById(decryptedProductId);
         setProductDetails(product);
         setLoading(false);
       }
     };
 
     fetchProduct();
-  }, [decryptedProductId, getProductById]);
+  }, [decryptedProductId, getPublicProductById]);
 
   if (loading) {
     return (

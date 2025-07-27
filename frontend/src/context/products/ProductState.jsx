@@ -5,7 +5,8 @@ const ProductState = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
   const token = localStorage.getItem("authToken");
 
   // for admin
@@ -78,7 +79,6 @@ const ProductState = ({ children }) => {
             "Content-Type": "application/json",
             "auth-token": token
           }
-          // credentials: "include",
         });
       if (!response.ok) {
         throw new Error('Failed to fetch products.');
@@ -90,6 +90,26 @@ const ProductState = ({ children }) => {
       console.error('Error fetching products:', error);
     }
   }
+
+  const getPublicProductById = async (id) => {
+    try {
+      const response = await fetch(`${host}/api/products/product/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch product.');
+      }
+
+      const data = await response.json();
+      return data.product;
+    } catch (error) {
+      console.error('Error fetching public product:', error);
+    }
+  };
 
   const getProductsByCategoryId = async (categoryId) => {
     try {
@@ -105,9 +125,9 @@ const ProductState = ({ children }) => {
     }
   };
 
-  
+
   return (
-    <ProductContext.Provider value={{ products, loading, getAllProducts, getAllPublicProducts, getProductById, getProductsByCategoryId }}>
+    <ProductContext.Provider value={{ products, loading, getAllProducts, getAllPublicProducts, getProductById, getPublicProductById, getProductsByCategoryId }}>
       {children}
     </ProductContext.Provider>
   )

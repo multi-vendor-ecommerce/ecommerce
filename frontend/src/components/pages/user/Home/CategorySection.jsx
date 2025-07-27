@@ -9,13 +9,12 @@ import 'swiper/css';
 
 export default function CategorySection() {
   const { categories, loading, getAllCategories } = useContext(CategoryContext);
-  const [isLoaded, setIsLoaded] = useState(false);
+  // const [isLoaded, setIsLoaded] = useState(false);
   const navigateTo = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
       await getAllCategories();
-      setIsLoaded(true);
     };
     fetchCategories();
   }, []);
