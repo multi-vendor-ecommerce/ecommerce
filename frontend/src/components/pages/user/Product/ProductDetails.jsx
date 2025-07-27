@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { FaStar } from 'react-icons/fa';
 
 const ProductDetails = () => {
-  const { getProductByIdPublic} = useContext(ProductContext);
+  const { getProductById } = useContext(ProductContext);
   const [decryptedProductId, setDecryptedProductId] = useState("");
   const [productDetails, setProductDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,19 +31,18 @@ const ProductDetails = () => {
     }
   }, [secretKey]);
 
-  console.log(decryptedProductId);
   useEffect(() => {
     const fetchProduct = async () => {
       if (decryptedProductId) {
         setLoading(true);
-        const product = await getProductByIdPublic(decryptedProductId);
+        const product = await getProductById(decryptedProductId);
         setProductDetails(product);
         setLoading(false);
       }
     };
 
     fetchProduct();
-  }, [decryptedProductId, getProductByIdPublic]);
+  }, [decryptedProductId, getProductById]);
 
   if (loading) {
     return (
@@ -53,7 +52,7 @@ const ProductDetails = () => {
     );
   }
 
-  if (!productDetails || Object.keys(productDetails).length === 0) {
+  if (!productDetails) {
     // product might be undefined/null while loading or if fetch failed
     return <p>Product not found or loading...</p>;
   }

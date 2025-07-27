@@ -14,8 +14,7 @@ export default function ProductSection({ title }) {
   const handleProductClick = (productId) => {
     const secretKey = import.meta.env.VITE_SECRET_KEY;
     const encryptedProductId = encryptData(productId, secretKey);
-    const encodedId = encodeURIComponent(encryptedProductId);
-    navigateTo(`/product/${encodedId}`);
+    navigateTo(`product/${encodeURIComponent(encryptedProductId)}`);
   };
 
   return (

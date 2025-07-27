@@ -8,35 +8,39 @@ const ProductState = ({ children }) => {
   const host = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
   const token = localStorage.getItem("authToken");
 
-  // Admin: Fetch all products (with optional filters)
-  const getAllAdminProducts = async ({ search = "", status = "" } = {}) => {
+  // for admin
+  const getAllProducts = async ({ search = "", status = "" } = {}) => {
     try {
       setLoading(true);
 
       const params = new URLSearchParams();
-      if (search.trim()) params.append("search", search);
+      if (search?.trim()) params.append("search", search);
       if (status) params.append("status", status);
 
-      const res = await fetch(`${host}/api/products/admin?${params.toString()}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token": token,
-        },
-      });
+      const response = await fetch(
+        `${host}/api/products/admin?${params.toString()}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token
+          }
+          // credentials: "include",
+        });
+      if (!response.ok) {
+        throw new Error('Failed to fetch products.');
+      }
 
-      if (!res.ok) throw new Error("Failed to fetch admin products");
-
-      const data = await res.json();
+      const data = await response.json();
       setProducts(data.products);
-    } catch (err) {
-      console.error("Admin products error:", err.message);
+    } catch (error) {
+      console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  // Public: Fetch all approved products
+  // for public
   const getAllPublicProducts = async ({ search = "" } = {}) => {
     try {
       setLoading(true);
@@ -44,105 +48,69 @@ const ProductState = ({ children }) => {
       const params = new URLSearchParams();
       if (search.trim()) params.append("search", search);
 
-      const res = await fetch(`${host}/api/products?${params.toString()}`, {
+      const response = await fetch(`${host}/api/products?${params.toString()}`, {
         method: "GET",
         headers: {
-          "Content-Type": "application/json",
-        },
+          "Content-Type": "application/json"
+        }
       });
 
-      if (!res.ok) throw new Error("Failed to fetch public products");
+      if (!response.ok) {
+        throw new Error('Failed to fetch public products.');
+      }
 
-      const data = await res.json();
+      const data = await response.json();
       setProducts(data.products);
-    } catch (err) {
-      console.error("Public products error:", err.message);
+    } catch (error) {
+      console.error('Error fetching public products:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Public: Get product by ID
-  const getProductByIdPublic = async (productId) => {
-    try {
-      const res = await fetch(`${host}/api/products/product/${productId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
 
-      if (!res.ok) {
-        throw new Error(`Failed to fetch public product by ID: ${res.statusText}`);
+  const getProductById = async (id) => {
+    try {
+      const response = await fetch(`${host}/api/products/admin/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token
+          }
+          // credentials: "include",
+        });
+      if (!response.ok) {
+        throw new Error('Failed to fetch products.');
       }
 
-      const data = await res.json();
-      return data.product || null;
-    } catch (err) {
-      console.error("Get public product by ID error:", err.message);
-      return null;
+      const data = await response.json();
+      return data.product;
+    } catch (error) {
+      console.error('Error fetching products:', error);
     }
-  };
+  }
 
-  // Admin: Get product by ID
-  const getProductByIdAdmin = async (id) => {
-    try {
-      const endpoint = `/api/products/admin/${id}`;
-      const res = await fetch(`${host}${endpoint}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token": token,
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error(`Failed to fetch admin product by ID: ${res.statusText}`);
-      }
-
-      const data = await res.json();
-      return data.products || null;
-    } catch (err) {
-      console.error("Get admin product by ID error:", err.message);
-      return null;
-    }
-  };
-
-  // Public: Get products by category
   const getProductsByCategoryId = async (categoryId) => {
     try {
-      const res = await fetch(`${host}/api/products/category/${categoryId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(`${host}/api/products/category/${categoryId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch products by category.');
+      }
 
-      if (!res.ok) throw new Error("Failed to fetch products by category");
-
-      const data = await res.json();
+      const data = await response.json();
       return data.products;
-    } catch (err) {
-      console.error("Products by category error:", err.message);
-      return [];
+    } catch (error) {
+      console.error('Error fetching products by category:', error);
     }
   };
 
+  
   return (
-    <ProductContext.Provider
-      value={{
-        products,
-        loading,
-        getAllAdminProducts,
-        getAllPublicProducts,
-        getProductByIdPublic,
-        getProductByIdAdmin,
-        getProductsByCategoryId,
-      }}
-    >
+    <ProductContext.Provider value={{ products, loading, getAllProducts, getAllPublicProducts, getProductById, getProductsByCategoryId }}>
       {children}
     </ProductContext.Provider>
-  );
-};
+  )
+}
 
 export default ProductState;
