@@ -9,11 +9,11 @@ const router = express.Router();
 
 // ROUTE 1: GET /api/all-customers
 // Desc: Get customers' details
-router.get('/admin/all-customers', getAllCustomers);
+router.get('/admin/all-customers', verifyToken, authorizeRoles("admin"), getAllCustomers);
 
 // ROUTE 2: GET /api/profile
 // Desc: Get loggedIn user's details via the jwt token (Login required)
-router.get('/profile', verifyToken,  authorizeRoles("user") ,getUser);
+router.get('/profile', verifyToken, authorizeRoles("user") ,getUser);
 
 let checkers = [
   body('name', 'Enter a valid name').optional().isLength({ min: 3 }).notEmpty().trim(),

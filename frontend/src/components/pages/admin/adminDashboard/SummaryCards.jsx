@@ -1,6 +1,5 @@
-import { useState, useContext, useEffect } from "react";
-import { dateFilterFields, getCards } from "./data/summaryData";
-import CustomSelect from "../../.././common/layout/CustomSelect";
+import { useContext, useEffect } from "react";
+import { getCards } from "./data/summaryData";
 import ProductContext from "../../../../context/products/ProductContext";
 import UserContext from "../../../../context/user/UserContext";
 import { formatNumber } from "../../../../utils/formatNumber";
@@ -16,12 +15,6 @@ export default function SummaryCards() {
     getAllCustomers();
     getAllOrders();
   }, []);
-
-  const [dateValue, setDateValue] = useState("today");
-
-  const handleChange = (name, value) => {
-    if (name === "date") setDateValue(value);
-  };
 
   // Calculate values
   const totalRevenue = products?.reduce(
@@ -41,20 +34,6 @@ export default function SummaryCards() {
 
   return (
     <section>
-      {/* Header with range selector */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mt-3">Overview</h2>
-
-        <div>
-          <CustomSelect
-            options={dateFilterFields[0].options}
-            value={dateValue}
-            onChange={(newValue) => handleChange("date", newValue)}
-            menuPlacement="bottom"
-          />
-        </div>
-      </div>
-
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card) => {
