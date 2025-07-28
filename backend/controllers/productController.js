@@ -6,9 +6,14 @@ export const getAllProducts = async (req, res) => {
   try {
     const query = buildQuery(req.query, ["title"]);
 
-    const products = await Product.find(query)
-      .select("title description images price category tags freeDelivery rating totalReviews") // ✅ public fields only
-      .populate("category", "name");
+    let productQuery = Product.find(query).populate("category", "name");
+
+    if (req.person?.role === "admin") {
+      productQuery = productQuery.populate("vendorId", "name email shopName");
+    } else {
+      productQuery = productQuery.select("title description images price category tags freeDelivery rating totalReviews");
+    }
+    const products = await productQuery;
 
     res.status(200).send({ success: true, message: "Products fetched successfully.", products });
   } catch (err) {

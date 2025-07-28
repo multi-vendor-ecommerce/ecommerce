@@ -9,7 +9,7 @@ import OrderContext from "../../../../context/orders/OrderContext";
 export default function SummaryCards() {
   const { products, getAllProducts } = useContext(ProductContext);
   const { users, getAllCustomers } = useContext(UserContext);
-  const { orders, getAllOrders } = useContext(OrderContext);
+  const { adminOrders, getAllOrders } = useContext(OrderContext);
 
   useEffect(() => {
     getAllProducts();
@@ -28,7 +28,7 @@ export default function SummaryCards() {
     (sum, p) => sum + (p.revenue || p.price * p.unitsSold || 0),
     0
   );
-  const totalOrders = orders?.length || 0;
+  const totalOrders = adminOrders?.length || 0;
   const totalProducts = products?.length || 0;
   const totalCustomers = users?.filter(u => u.role === "customer").length || 0;
 

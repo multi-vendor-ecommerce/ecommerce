@@ -8,8 +8,8 @@ import { getAllCoupons, addCoupon, deleteCoupon } from "../controllers/couponCon
 const router = express.Router();
 
 // ROUTE 1: GET /api/coupons
-// Desc: Showcase all the coupons to the admin
-router.get("/", verifyToken, getAllCoupons);
+// Desc: Showcase all the coupons to the admin/user
+router.get("/", getAllCoupons);
 
 // ROUTE 2: POST /api/coupons
 // Desc: Add a coupon in the admin panel

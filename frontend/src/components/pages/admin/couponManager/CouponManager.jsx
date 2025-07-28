@@ -80,7 +80,7 @@ export default function CouponsManager() {
       
       {/* Loading or No Coupons */}
       {loading ? (
-        <p className="flex justify-center pt-10 mt-6"><Spinner /></p>
+        <div className="flex justify-center pt-10 mt-6"><Spinner /></div>
       ) : coupons.length === 0 ? (
         <p className="text-gray-500 mt-6">No coupons available.</p>
       ) : (

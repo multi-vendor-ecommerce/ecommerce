@@ -7,7 +7,8 @@ const OrderState = ({ children }) => {
   const [adminOrders, setAdminOrders] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
   const token = localStorage.getItem("authToken");
 
   // Fetch orders placed by the logged-in customer
@@ -15,10 +16,12 @@ const OrderState = ({ children }) => {
     try {
       setLoading(true);
       const res = await fetch(`${host}/api/order/myOrder`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token,
-        },
+          "auth-token": token
+        }
+        // credentials: "include",
       });
       const data = await res.json();
       if (data.success) setUserOrders(data.orders);
@@ -34,10 +37,12 @@ const OrderState = ({ children }) => {
     try {
       setLoading(true);
       const res = await fetch(`${host}/api/order/vendor`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token,
-        },
+          "auth-token": token
+        }
+        // credentials: "include",
       });
       const data = await res.json();
       if (data.success) setVendorOrders(data.orders);
@@ -58,10 +63,12 @@ const OrderState = ({ children }) => {
       if (status) params.append("status", status);
 
       const res = await fetch(`${host}/api/order/admin?${params.toString()}`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token,
-        },
+          "auth-token": token
+        }
+        // credentials: "include",
       });
       const data = await res.json();
       if (data.success) setAdminOrders(data.orders);
