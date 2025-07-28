@@ -14,7 +14,7 @@ export const registerPerson = async (req, res) => {
 
   let { name, email, password, phone, address, role, shopName } = req.body;
 
-  const validRoles = ["customer", "vendor"];
+  const validRoles = ["user", "vendor"];
   if (!validRoles.includes(role)) {
     return res.status(400).json({ success: false, error: "Invalid role specified" });
   }

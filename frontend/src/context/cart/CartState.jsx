@@ -6,7 +6,7 @@ const CartState = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const host = import.meta.env.VITE_BACKEND_URL;
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("authToken");
 
   // Fetching cart items
   const getCart = async () => {

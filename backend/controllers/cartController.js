@@ -13,6 +13,10 @@ export const addToCart = async (req, res) => {
     });
   }
 
+  if (!isValidObjectId(productId)) {
+    return res.status(400).json({ success: false, message: "Invalid Product ID" });
+  }
+
   try {
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ success: false, message: "Product not found" });

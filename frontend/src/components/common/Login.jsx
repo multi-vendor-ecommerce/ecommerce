@@ -1,11 +1,15 @@
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import AuthContext from "../../context/auth/AuthContext";
+
 
 const Login = () => {
   const { login, loading, requestOtp, verifyOtp } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const redirectPath = searchParams.get("redirect") || "/";
 
   const [form, setForm] = useState({ email: "", password: "", otp: "" });
   const [errorMsg, setErrorMsg] = useState("");
@@ -27,7 +31,7 @@ const Login = () => {
       const role = result.role;
       if (role === "admin") navigate("/admin");
       else if (role === "vendor") navigate("/vendor");
-      else navigate("/");
+      else navigate(redirectPath, { replace: true });
     } else {
       setErrorMsg(result.error || "Login failed");
     }

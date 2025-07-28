@@ -40,7 +40,7 @@ const registerValidator = [
   body("role", "Invalid role")
     .optional()
     .trim()
-    .isIn(["customer", "vendor"])
+    .isIn(["user", "vendor"])
 ];
 
 const loginValidator = [
