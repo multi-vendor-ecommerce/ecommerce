@@ -125,7 +125,6 @@ const ProductState = ({ children }) => {
     }
   };
 
-
   return (
     <ProductContext.Provider value={{ products, loading, getAllProducts, getAllPublicProducts, getProductById, getPublicProductById, getProductsByCategoryId }}>
       {children}

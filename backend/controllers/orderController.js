@@ -88,8 +88,27 @@ export const getAllOrders = async (req, res) => {
       .populate({ path: "products.product", select: "title price" })
       .populate({ path: "vendor", select: "name email shopName" })
       .populate({ path: "user", select: "name email" });
+
     res.status(200).json({ success: true, message: "Orders fetched successfully.", orders });
   } catch (err) {
     res.status(500).json({ success: false, message: "Server Error", error: err.message });
+  }
+};
+
+// Public: Get a product
+export const getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate({ path: "products.product", select: "title price" })
+      .populate({ path: "vendor", select: "name email address phone shopName" })
+      .populate({ path: "user", select: "name email address phone" });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    res.status(200).send({ success: true, message: "Order fetched successfully.", order });
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Server error.", error: err.message });
   }
 };

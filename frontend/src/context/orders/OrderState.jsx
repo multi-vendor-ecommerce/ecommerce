@@ -80,6 +80,28 @@ const OrderState = ({ children }) => {
     }
   };
 
+  const getOrderById = async (id) => {
+    try {
+      const response = await fetch(`${host}/api/order/admin/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": token
+          }
+        });
+      if (!response.ok) {
+        throw new Error('Failed to fetch products.');
+      }
+
+      const data = await response.json();
+      if (data.success) return data.order;
+      else return null;
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  }
+
   // Place a new order (for users)
   const placeOrder = async (orderData) => {
     try {
@@ -119,6 +141,7 @@ const OrderState = ({ children }) => {
         getMyOrders,
         getVendorOrders,
         getAllOrders,
+        getOrderById,
       }}
     >
       {children}

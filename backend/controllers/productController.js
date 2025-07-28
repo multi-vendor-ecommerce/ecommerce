@@ -39,7 +39,6 @@ export const getProductById = async (req, res) => {
   }
 };
 
-
 export const getProductsByCategoryId = async (req, res) => {
   try {
     const categoryId = req.params.id;

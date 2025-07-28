@@ -51,7 +51,7 @@ const ProductDetails = () => {
         </NavLink>
       </div>
 
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">{product.title} - Overview</h2>
+      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{product.title} - Overview</h2>
 
       <div className="w-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 mb-8 overflow-hidden">
         <div className="flex items-center flex-nowrap overflow-x-auto overflow-y-hidden rounded-xl gap-4 md:gap-x-8 px-6 md:px-15 py-6">

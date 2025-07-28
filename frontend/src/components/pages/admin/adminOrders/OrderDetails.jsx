@@ -1,38 +1,35 @@
 import { useParams } from "react-router-dom";
-import { ordersDummy } from "./data/ordersData";
-import { FaCheckCircle, FaTimesCircle, FaHourglassHalf } from "react-icons/fa";
+import { useContext, useEffect, useState } from "react";
 import { MdEmail, MdPhone } from "react-icons/md";
-
-const getStatusBadge = (status) => {
-  const base = "text-sm px-2 py-1 rounded-full font-semibold inline-flex items-center gap-1";
-  switch (status.toLowerCase()) {
-    case "delivered":
-      return `${base} text-green-700 bg-green-100`;
-    case "pending":
-      return `${base} text-yellow-700 bg-yellow-100`;
-    case "cancelled":
-      return `${base} text-red-700 bg-red-100`;
-    default:
-      return `${base} text-gray-700 bg-gray-100`;
-  }
-};
-
-const getStatusIcon = (status) => {
-  switch (status.toLowerCase()) {
-    case "delivered":
-      return <FaCheckCircle />;
-    case "pending":
-      return <FaHourglassHalf />;
-    case "cancelled":
-      return <FaTimesCircle />;
-    default:
-      return null;
-  }
-};
+import OrderContext from "../../../../context/orders/OrderContext";
+import Spinner from "../../../common/Spinner";
+import BackButton from "../../../common/layout/BackButton";
+import { getFormatDate } from "../../../../utils/formatDate";
 
 const OrderDetails = () => {
   const { orderId } = useParams();
-  const order = ordersDummy.find((o) => o.orderNo === orderId);
+  const { getOrderById } = useContext(OrderContext);
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+      setLoading(true);
+      const data = await getOrderById(orderId);
+      setOrder(data);
+      setLoading(false);
+    };
+
+    fetchOrder();
+  }, [orderId, getOrderById]);
+
+  if (loading) {
+    return (
+      <section className="bg-gray-100 min-h-screen flex items-center justify-center">
+        <Spinner />
+      </section>
+    );
+  }
 
   if (!order) {
     return (
@@ -43,90 +40,87 @@ const OrderDetails = () => {
   }
 
   return (
-    <section className="p-6 md:p-10 min-h-screen bg-gray-100">
-      <h1 className="text-xl md:text-2xl font-bold mb-8 text-gray-800">Order Details</h1>
+    <section className="p-6 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <div className="flex justify-between items-center gap-5 mb-6">
+        <BackButton />
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 truncate">Order #{order._id}</h2>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Product Info */}
-        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-200 space-y-4">
-          <h2 className="text-lg md:text-xl font-semibold text-gray-700 pb-2">Product Info</h2>
-          <div className="text-gray-800">
-            <div className="flex justify-between items-center mb-2">
-              <div className="mb-2">
-                <span className="font-semibold text-gray-600">Order No:</span> {order.orderNo}
-              </div>
-              <div className="mb-2">
-                <span className="font-semibold text-gray-600">Date:</span> {order.date}
-              </div>
-            </div>
-            {order.products.map((prod, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between bg-gray-50 rounded-lg p-4 cursor-pointer"
-              >
-                <div className="flex items-center gap-4">
-                  {/* Placeholder image */}
-                  <div className="w-12 h-12 bg-gray-200 rounded" />
-                  <div>
-                    <p className="font-semibold text-gray-800">{prod.name}</p>
-                    <p className="text-xs text-gray-500">ID: {order.orderNo}-{idx + 1}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  {/* price & qty placeholders */}
-                  <p className="font-semibold text-gray-800">₹{prod.price}</p>
-                  <p className="text-xs text-gray-500">Qty: {prod.qty}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Customer & Vendor Info */}
-        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-200 space-y-4">
-          <h2 className="text-lg md:text-xl font-semibold text-gray-700 pb-2">Customer & Vendor</h2>
-          <div className="text-gray-800 flex flex-col items-stretch justify-between gap-5">
+      <div className="w-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 mb-8 p-6 space-y-4">
+        <h3 className="text-xl font-semibold text-gray-700 mb-4">Products</h3>
+        {order.products.map((item, idx) => (
+          <div
+            key={item._id}
+            className="flex justify-between items-center bg-gray-50 rounded-lg p-4 border border-gray-200"
+          >
             <div>
-              <div>
-                <span className="text-[16px] md:text-lg font-semibold text-gray-600">Customer: </span>
-                <span className="text-[16px] md:text-lg cursor-pointer hover:font-medium hover:text-black transition duration-200">{order.customer.name}</span>
-              </div>
-              <div className="text-sm md:text-[16px] text-blue-500 mt-1 hover:underline flex gap-3 items-center">
-                <span><MdEmail /></span>
-                <span>{order.customer.email}</span>
-              </div>
-              <div className="text-sm md:text-[16px] text-gray-500 mt-2 flex gap-3 items-center">
-                <span><MdPhone /></span>
-                <span>{order.customer.phone}</span>
-              </div>
+              <p className="font-semibold text-gray-800">{item.product.title}</p>
+              <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
             </div>
-
-            <div className="mb-2">
-              <div className="mb-1">
-                <span className="text-[16px] md:text-lg font-semibold text-gray-600">Vendor: </span>
-                <span className="text-[16px] md:text-lg cursor-pointer hover:font-medium hover:text-black transition duration-200">{order.vendor.name}</span>
-              </div>
-              <div className="text-sm md:text-[16px] text-blue-500 hover:underline flex gap-3 items-center">
-                <span><MdEmail /></span>
-                <span>{order.vendor.email}</span>
-              </div>
+            <div className="text-right">
+              <p className="text-gray-700 font-medium">
+                ₹{item.priceAtPurchase} x {item.quantity}
+              </p>
+              <p className="text-xs text-gray-500">
+                Total: ₹{item.priceAtPurchase * item.quantity}
+              </p>
             </div>
-
           </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Customer Info */}
+        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">Customer Info</h3>
+          <p><span className="font-semibold">Name:</span> {order.user.name}</p>
+          <p><span className="font-semibold">Location:</span> {order.user.address}</p>
+          <p className="flex items-center gap-2 text-blue-600"><MdEmail /> {order.user.email}</p>
+          {order.user.phone && (
+            <p className="flex items-center gap-2 text-gray-600"><MdPhone /> {order.user.phone}</p>
+          )}
         </div>
 
-        {/* Payment & Status */}
-        <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md hover:shadow-blue-500 transition duration-200 space-y-4 md:col-span-2">
-          <h2 className="text-lg font-semibold text-gray-700 pb-2">Payment & Status</h2>
-          <div className="flex flex-col md:flex-row justify-between gap-4">
-            <div className="text-gray-800">
-              <span className="font-semibold text-gray-600">Payment:</span> {order.payment}
-            </div>
-            <div className={getStatusBadge(order.status)}>
-              {getStatusIcon(order.status)}
+        {/* Vendor Info */}
+        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">Vendor Info</h3>
+          <p><span className="font-semibold">Shop:</span> {order.vendor.shopName}</p>
+          <p><span className="font-semibold">Vendor:</span> {order.vendor.name}</p>
+          <p className="flex items-center gap-2 text-blue-600"><MdEmail /> {order.vendor.email}</p>
+          {order.vendor.phone && (
+            <p className="flex items-center gap-2 text-gray-600"><MdPhone /> {order.vendor.phone}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Payment & Status */}
+      <div className="bg-white p-6 mt-8 rounded-2xl shadow-md border border-gray-200 hover:shadow-blue-500 transition duration-300">
+        <h3 className="text-2xl font-bold text-gray-800 mb-4 border-b pb-2 border-blue-100">Order Summary</h3>
+
+        <div className="space-y-3 text-gray-700 text-base leading-relaxed">
+          <p>
+            <span className="font-semibold text-gray-900">Total Amount:</span>
+            <span className="ml-2 text-blue-600 font-semibold">₹{order.totalAmount}</span>
+          </p>
+          <p>
+            <span className="font-semibold text-gray-900">Payment Method:</span>
+            <span className="ml-2 capitalize">{order.paymentMethod}</span>
+          </p>
+          <p>
+            <span className="font-semibold text-gray-900">Status:</span>
+            <span className={`ml-2 font-semibold ${order.status === "shipped" ? "text-green-600" : "text-yellow-500"}`}>
               {order.status}
-            </div>
-          </div>
+            </span>
+          </p>
+          <p>
+            <span className="font-semibold text-gray-900">Shipping Address:</span>
+            <span className="ml-2">{order.shippingAddress}</span>
+          </p>
+          <p>
+            <span className="font-semibold text-gray-900">Ordered At:</span>
+            <span className="ml-2">{getFormatDate(order.createdAt)}</span>
+          </p>
         </div>
       </div>
     </section>
