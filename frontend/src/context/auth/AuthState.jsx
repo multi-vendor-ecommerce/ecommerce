@@ -2,8 +2,18 @@ import { useState } from "react";
 import AuthContext from "./AuthContext";
 
 const AuthState = ({ children }) => {
-  const [authToken, setAuthToken] = useState(localStorage.getItem("authToken") || null);
-  const [user, setUser] = useState(null);
+  const [authTokens, setAuthTokens] = useState({
+    admin: null,
+    vendor: null,
+    customer: null,
+  });
+
+  const [people, setPeople] = useState({
+    admin: null,
+    vendor: null,
+    customer: null,
+  });
+
   const [loading, setLoading] = useState(false);
 
   // const host = import.meta.env.VITE_BACKEND_URL;
@@ -21,13 +31,20 @@ const AuthState = ({ children }) => {
 
       const data = await res.json();
 
-      if (data.success && data.authToken) {
-        localStorage.setItem("authToken", data.authToken);
-        setAuthToken(data.authToken);
-        setUser({ role: data.role }); // TEMP role assignment
+      if (data.success && data.data.authToken) {
+        const role = data.data.role;
 
-        return { success: true, role: data.role };
-      } else {
+        const updatedTokens = { ...authTokens, [role]: data.data.authToken };
+        const updatedPeople = { ...people, [role]: { role } };
+
+        setAuthTokens(updatedTokens);
+        setPeople(updatedPeople);
+
+        localStorage.setItem(`${role}Token`, data.data.authToken);
+
+        return { success: true, role };
+      }
+      else {
         return { success: false, error: data.error || "Login failed" };
       }
     } catch (err) {
@@ -70,13 +87,20 @@ const AuthState = ({ children }) => {
 
       const data = await res.json();
 
-      if (data.success && data.authToken) {
-        localStorage.setItem("authToken", data.authToken);
-        setAuthToken(data.authToken);
-        setUser({ role: data.role });
+      if (data.success && data.data.authToken) {
+        const role = data.data.role;
 
-        return { success: true, role: data.role };
-      } else {
+        const updatedTokens = { ...authTokens, [role]: data.data.authToken };
+        const updatedPeople = { ...people, [role]: { role } };
+
+        setAuthTokens(updatedTokens);
+        setPeople(updatedPeople);
+
+        localStorage.setItem(`${role}Token`, data.data.authToken);
+
+        return { success: true, role };
+      }
+      else {
         return { success: false, error: data.error || "OTP verification failed" };
       }
     } catch (err) {
@@ -86,15 +110,17 @@ const AuthState = ({ children }) => {
     }
   };
 
-  // Logout Function
-  const logout = () => {
-    localStorage.removeItem("authToken");
-    setAuthToken(null);
-    setUser(null);
+  const logout = (role) => {
+    if (!role) return;
+
+    localStorage.removeItem(`${role}Token`);
+
+    setAuthTokens((prev) => ({ ...prev, [role]: null }));
+    setPeople((prev) => ({ ...prev, [role]: null }));
   };
 
   return (
-    <AuthContext.Provider value={{ authToken, user, loading, login, logout, requestOtp, verifyOtp }}>
+    <AuthContext.Provider value={{ authTokens, people, loading, login, logout, requestOtp, verifyOtp }}>
       {children}
     </AuthContext.Provider>
   );

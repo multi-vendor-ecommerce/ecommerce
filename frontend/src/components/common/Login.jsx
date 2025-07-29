@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import AuthContext from "../../context/auth/AuthContext";
 
-
 const Login = () => {
   const { login, loading, requestOtp, verifyOtp } = useContext(AuthContext);
   const navigate = useNavigate();

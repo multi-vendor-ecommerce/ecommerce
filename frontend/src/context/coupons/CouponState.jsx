@@ -7,6 +7,7 @@ const CouponState = (props) => {
 
   // const host = import.meta.env.VITE_BACKEND_URL;
   const host = "http://localhost:5000";
+  const token = localStorage.getItem("adminToken");
 
   const getAllCoupons = async () => {
     try {
@@ -41,7 +42,7 @@ const CouponState = (props) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // "Authorization": `Bearer ${token}`,
+          "auth-token": token,
         },
         body: JSON.stringify(form),
       });
@@ -73,6 +74,7 @@ const CouponState = (props) => {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        "auth-token": token
       }
     });
 

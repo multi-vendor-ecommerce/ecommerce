@@ -7,7 +7,7 @@ const VendorState = (props) => {
 
   // const host = import.meta.env.VITE_BACKEND_URL;
   const host = "http://localhost:5000";
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("adminToken");
 
   const getAllVendors = async ({ search = "", status = "" } = {}) => {
     try {
