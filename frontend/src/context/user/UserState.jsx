@@ -5,8 +5,8 @@ const UserState = (props) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // const host = import.meta.env.VITE_BACKEND_URL;
-  const host = "http://localhost:5000";
+  const host = import.meta.env.VITE_BACKEND_URL;
+  // const host = "http://localhost:5000";
   const token = localStorage.getItem("adminToken");
 
   const getAllCustomers = async ({ search = "", date = "" } = {}) => {

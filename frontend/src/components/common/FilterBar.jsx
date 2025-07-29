@@ -46,7 +46,7 @@ const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, onKey
       <div className="flex gap-2 w-full md:w-auto justify-center md:justify-start">
         <button
           onClick={onApply}
-          className="w-1/2 md:w-auto px-4 py-2 bg-blue-600 text-white cursor-pointer rounded-md hover:bg-blue-700 shadow-md flex items-center justify-center gap-2"
+          className="w-1/2 md:w-auto px-4 py-2 bg-blue-600 text-white cursor-pointer rounded-lg hover:bg-blue-700 shadow-md flex items-center justify-center gap-2"
         >
           <FiFilter size={20} className="min-w-[1.2rem]" />
           <span className="hidden md:inline">Apply Filters</span>
@@ -54,7 +54,7 @@ const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, onKey
 
         <button
           onClick={onClear}
-          className="w-1/2 md:w-auto px-3 py-2 bg-gray-300 text-gray-800 cursor-pointer rounded-md hover:bg-gray-400 shadow-sm flex items-center justify-center gap-2"
+          className="w-1/2 md:w-auto px-3 py-2 bg-gray-300 text-gray-800 cursor-pointer rounded-lg hover:bg-gray-400 shadow-sm flex items-center justify-center gap-2"
         >
           <BsXCircle size={20} className="min-w-[1.2rem]" />
           <span className="hidden md:inline">Clear</span>
