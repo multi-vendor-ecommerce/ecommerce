@@ -29,37 +29,37 @@ export const sendOtp = async (req, res) => {
   try {
     await sendOtpMail({ to: email, otp });
     return res.status(200).json({ success: true, message: "OTP sent to your email." });
-  } catch (error) {
+  } catch (err) {
     console.error("Email send failed:", error);
-    return res.status(500).json({ success: false, error: "Failed to send OTP email." });
+    return res.status(500).json({ success: false, message: "Failed to send OTP email.", error: err.message });
   }
 };
 
 // 2. Verify OTP
 export const verifyOtp = async (req, res) => {
-  const { email, otp } = req.body;
+  try {
+    const { email, otp } = req.body;
 
-  if (!email || !otp) return res.status(400).json({ success: false, error: "Email and OTP are required." });
+    if (!email || !otp) return res.status(400).json({ success: false, error: "Email and OTP are required." });
 
-  const otpRecord = await Otp.findOne({ email });
+    const otpRecord = await Otp.findOne({ email });
 
-  if (!otpRecord || otpRecord.otp !== otp || otpRecord.expiresAt < new Date()) {
-    return res.status(400).json({ success: false, error: "Invalid or expired OTP." });
+    if (!otpRecord || otpRecord.otp !== otp || otpRecord.expiresAt < new Date()) {
+      return res.status(400).json({ success: false, error: "Invalid or expired OTP." });
+    }
+
+    const person = await Person.findOne({ email });
+    if (!person) return res.status(404).json({ success: false, error: "User not found." });
+
+    // Generate JWT
+    const payload = { person: { id: person._id, role: person.role } };
+    const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+    await Otp.deleteMany({ email }); // clean up
+
+    return res.status(200).json({ success: true, message: "OTP verified. Login successful.", data: { authToken, role: person.role } });
+  } catch (error) {
+    console.error("Email send failed:", error);
+    return res.status(500).json({ success: false, message: "Failed to send OTP email.", error: err.message });
   }
-
-  const person = await Person.findOne({ email });
-  if (!person) return res.status(404).json({ success: false, error: "User not found." });
-
-  // Generate JWT
-  const payload = { person: { id: person._id, role: person.role } };
-  const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-  await Otp.deleteMany({ email }); // clean up
-
-  return res.status(200).json({
-    success: true,
-    message: "OTP verified. Login successful.",
-    authToken,
-    role: person.role,
-  });
 };
