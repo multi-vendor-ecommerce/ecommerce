@@ -56,7 +56,7 @@ const ProductDetails = () => {
 
     //  Check login & handle Add to Cart
     const handleAddToCart = async () => {
-        const authToken = localStorage.getItem("authToken");
+        const authToken = localStorage.getItem("customerToken");
 
         if (!authToken) {
             const currentPath = window.location.pathname;
@@ -73,6 +73,7 @@ const ProductDetails = () => {
             console.log("Adding product to cart:", productDetails._id);
             setIsLoading(true);
             const data = await addToCart(productDetails._id, 1); 
+            console.log("Add to cart response:", data);
             if (data.success) {
                 alert("Product added to cart successfully!");
             }

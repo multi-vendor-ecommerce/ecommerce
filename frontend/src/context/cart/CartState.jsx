@@ -43,8 +43,10 @@ const CartState = ({ children }) => {
       if (data.success) {
         setCart(data.cart);
       }
+      return data;
     } catch (error) {
       console.error("Error adding to cart:", error);
+      return { success: false, message: "Something went wrong" };
     } finally {
       setLoading(false);
     }
