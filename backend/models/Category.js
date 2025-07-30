@@ -6,21 +6,31 @@ const categorySchema = new Schema(
   {
     name: {
       type: String,
-      maxlength: 100,
       required: [true, "Category name is required"],
-      unique: true,
       trim: true,
+      maxlength: 100,
+      unique: true,
     },
     description: {
       type: String,
       trim: true,
-      default: "",
       maxlength: 500,
+      default: "",
     },
     image: {
       type: String,
+      trim: true,
       default: "https://cdn1.smartprix.com/rx-igT1rzgGY-w1200-h1200/gT1rzgGY.jpg",
-    }
+    },
+    parent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      default: null,
+    },
+    level: {
+      type: Number,
+      default: 1,
+    },
   },
   { timestamps: true }
 );

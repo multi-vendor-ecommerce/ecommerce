@@ -1,9 +1,9 @@
+
 import Category from "../models/Category.js";
 
-// Create a new category
 export const createCategory = async (req, res) => {
   try {
-    const { name, description = "", image = "" } = req.body;
+    const { name, description = "", image = "", parent = null } = req.body;
 
     if (!name || !name.trim()) {
       return res.status(400).send({
@@ -13,25 +13,39 @@ export const createCategory = async (req, res) => {
     }
 
     const trimmedName = name.trim();
-    const trimmedDescription = description.trim();
-    const trimmedImage = image.trim();
 
-    // Check if category already exists (case-insensitive)
+    // Check for duplicate category with same name under same parent
     const existingCategory = await Category.findOne({
       name: { $regex: new RegExp(`^${trimmedName}$`, "i") },
+      parent: parent || null,
     });
 
     if (existingCategory) {
       return res.status(409).send({
         success: false,
-        message: "Category already exists",
+        message: "Category with this name already exists under the same parent",
       });
     }
 
-    // Create category with name and description
+    let level = 1;
+
+    if (parent) {
+      const parentCategory = await Category.findById(parent);
+      if (!parentCategory) {
+        return res.status(400).send({
+          success: false,
+          message: "Invalid parent category ID",
+        });
+      }
+      level = parentCategory.level + 1;
+    }
+
     const category = await Category.create({
       name: trimmedName,
-      description: trimmedDescription,
+      description: description.trim(),
+      image: image.trim(),
+      parent: parent || null,
+      level,
     });
 
     res.status(201).send({ success: true, category });
@@ -44,16 +58,55 @@ export const createCategory = async (req, res) => {
   }
 };
 
-// Get all categories
 export const getCategories = async (req, res) => {
+  // try {
+  //   const buildTree = async (parent = null) => {
+  //     const categories = await Category.find({ parent });
+  //     const result = [];
+
+  //     for (const cat of categories) {
+  //       const children = await buildTree(cat._id);
+  //       result.push({ ...cat.toObject(), children });
+  //     }
+
+  //     return result;
+  //   };
+
+  //   const tree = await buildTree();
+  //   res.status(200).send({ success: true, categories: tree });
+  // } catch (err) {
+  //   res.status(500).send({
+  //     success: false,
+  //     message: "Failed to fetch category tree",
+  //     error: err.message,
+  //   });
+  // }
+
   try {
-    const categories = await Category.find().sort({ name: 1 });
-    res.send({ success: true, categories });
-  } catch (err) {
-    res.status(500).send({
+    // Fetch all categories
+    const allCategories = await Category.find().lean();
+
+    // Convert flat array into nested structure
+    const buildTree = (categories, parentId = null) => {
+      return categories
+        .filter(cat => String(cat.parent) === String(parentId))
+        .map(cat => ({
+          ...cat,
+          subcategories: buildTree(categories, cat._id)
+        }));
+    };
+
+    const nestedCategories = buildTree(allCategories);
+
+    res.status(200).json({
+      success: true,
+      categories: nestedCategories
+    });
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: "Error fetching categories",
-      error: err.message,
+      message: "Failed to fetch nested categories",
+      error: error.message
     });
   }
 };

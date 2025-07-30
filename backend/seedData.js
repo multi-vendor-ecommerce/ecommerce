@@ -23,11 +23,28 @@ export const seedDatabase = async () => {
     // Seed Categories
     const categoryCount = await Category.countDocuments();
     if (categoryCount === 0) {
-      await Category.insertMany(categoriesData);
-      console.log(`✅ Inserted ${categoriesData.length} categories.`);
+      const insertCategoriesRecursively = async (categories, parent = null, level = 1) => {
+        for (const cat of categories) {
+          const newCat = await Category.create({
+            name: cat.name,
+            description: cat.description || "",
+            image: cat.image || "",
+            parent: parent,
+            level: level,
+          });
+
+          if (cat.subcategories && cat.subcategories.length > 0) {
+            await insertCategoriesRecursively(cat.subcategories, newCat._id, level + 1);
+          }
+        }
+      };
+
+      await insertCategoriesRecursively(categoriesData);
+      console.log("✅ Inserted hierarchical categories.");
     } else {
       console.log(`⏭️ Skipped category insertion — ${categoryCount} categories already exist.`);
     }
+
 
     // Seed Admin (only one)
     const adminEmail = process.env.ADMIN_EMAIL || "";
