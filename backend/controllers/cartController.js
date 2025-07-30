@@ -1,38 +1,87 @@
 import User from "../models/User.js";
 import Product from "../models/Products.js";
 
-// Add to Cart
+// Get Cart
+export const getCart = async (req, res) => {
+  try {
+    const user = await User.findById(req.person.id).populate({
+      path: "cart.product",
+      select: "_id title images price stock freeDelivery",
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const filteredCart = user.cart.map(({ product, quantity, _id }) => ({
+      _id, 
+      quantity,
+      product: {
+        _id: product._id,
+        title: product.title,
+        images: product.images,
+        price: product.price,
+        stock: product.stock,
+        freeDelivery: product.freeDelivery,
+      },
+    }));
+
+    res.status(200).json({ success: true, cart: filteredCart });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
+  }
+};
+
+// Add to Cart (also used for increase/decrease quantity)
 export const addToCart = async (req, res) => {
   const userId = req.person.id;
   const { productId, quantity } = req.body;
 
-  if (!productId || quantity <= 0) {
+  if (!productId || typeof quantity !== 'number') {
     return res.status(400).json({
       success: false,
-      message: "Product ID and positive quantity are required.",
+      message: "Product ID and valid quantity are required.",
     });
-  }
-
-  if (!isValidObjectId(productId)) {
-    return res.status(400).json({ success: false, message: "Invalid Product ID" });
   }
 
   try {
     const product = await Product.findById(productId);
-    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
 
     const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
     const index = user.cart.findIndex(item => item.product.toString() === productId);
 
     if (index !== -1) {
+      //  Product already in cart — adjust quantity
       user.cart[index].quantity += quantity;
+
+      if (user.cart[index].quantity <= 0) {
+        //  Remove item if quantity drops to 0 or below
+        user.cart.splice(index, 1);
+      }
     } else {
-      user.cart.push({ product: productId, quantity });
+      //  Add new product only if quantity is positive
+      if (quantity > 0) {
+        user.cart.push({ product: productId, quantity });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Cannot add item with zero or negative quantity.",
+        });
+      }
     }
 
     await user.save();
-    res.status(200).json({ success: true, message: "Added to cart", cart: user.cart });
+    res.status(200).json({ success: true, message: "Cart updated", cart: user.cart });
+
   } catch (error) {
+    console.error("Add to cart error:", error.message);
     res.status(500).json({ success: false, message: "Server Error", error: error.message });
   }
 };
@@ -54,46 +103,6 @@ export const removeFromCart = async (req, res) => {
 
     await user.save();
     res.status(200).json({ success: true, message: "Removed from cart", cart: user.cart });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Server Error", error: error.message });
-  }
-};
-
-// Get Cart
-export const getCart = async (req, res) => {
-  try {
-    const user = await User.findById(req.person.id).populate("cart.product");
-    res.status(200).json({ success: true, cart: user.cart });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Server Error", error: error.message });
-  }
-};
-
-// Update Quantity
-export const updateCartItemQuantity = async (req, res) => {
-  const userId = req.person.id;
-  const { productId, quantity } = req.body;
-
-  if (!productId || quantity == null || quantity < 0) {
-    return res.status(400).json({ success: false, message: "Valid product ID and quantity are required." });
-  }
-
-  try {
-    const user = await User.findById(userId);
-    const index = user.cart.findIndex(item => item.product.toString() === productId);
-
-    if (index === -1) {
-      return res.status(404).json({ success: false, message: "Product not found in cart" });
-    }
-
-    if (quantity === 0) {
-      user.cart.splice(index, 1);
-    } else {
-      user.cart[index].quantity = quantity;
-    }
-
-    await user.save();
-    res.status(200).json({ success: true, message: "Cart updated", cart: user.cart });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error", error: error.message });
   }
