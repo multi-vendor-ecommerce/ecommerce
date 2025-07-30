@@ -39,6 +39,7 @@ export const getProductById = async (req, res) => {
   }
 };
 
+// Public: Get products by category ID
 export const getProductsByCategoryId = async (req, res) => {
   try {
     const categoryId = req.params.id;
@@ -50,5 +51,22 @@ export const getProductsByCategoryId = async (req, res) => {
     res.status(200).send({ success: true, message: "Products fetched successfully.", products });
   } catch (err) {
     res.status(500).json({ success: false, error: "Server error.", error: err.message });
+  }
+};
+
+// Admin/Vendor: Add a new product
+export const addProduct = async (req, res) => {
+  try {
+    const imageUrls = req.files.map(file => file.path); // Cloudinary returns `path` as the image URL
+
+    const product = await Product.create({
+      // ...req.body,
+      vendorId: req.vendor.id,
+      images: imageUrls,
+    });
+
+    res.status(201).json({ success: true, product });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
