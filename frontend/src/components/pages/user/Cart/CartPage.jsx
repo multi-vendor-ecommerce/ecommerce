@@ -1,14 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import CartContext from "../../../../context/cart/CartContext";
 import { useNavigate } from "react-router-dom";
+import Spinner from "../../../common/Spinner";
 
 const CartPage = () => {
-  const { cart, loading, getCart, removeFromCart, addToCart } = useContext(CartContext);
+  const { cart, loading, token, getCart, removeFromCart, addToCart } = useContext(CartContext);
   const navigate = useNavigate();
 
   const [updatingProductId, setUpdatingProductId] = useState(null);
   const [removingId, setRemovingId] = useState(null);
-  const token = localStorage.getItem("customerToken");
+  // const token = localStorage.getItem("customerToken");
 
   // Load cart on mount
   useEffect(() => {
@@ -17,7 +18,7 @@ const CartPage = () => {
     } else {
       getCart();
     }
-  }, [token]);
+  }, []);
 
   // Calculate total from backend cart quantities directly
   const calculateTotal = () => {
@@ -33,10 +34,9 @@ const CartPage = () => {
     setRemovingId(null);
   };
 
-  // Handle quantity update - calls addToCart with difference in quantity (delta)
+  // Handle quantity update - calls addToCart with difference in quantity
   const handleQuantityChange = async (productId, newQuantity, stock) => {
     if (newQuantity < 1 || newQuantity > stock) {
-      alert(`Invalid quantity. Please select between 1 and ${stock}.`);
       return;
     }
 
@@ -44,7 +44,7 @@ const CartPage = () => {
     if (!currentItem) return;
 
     const delta = newQuantity - currentItem.quantity;
-    if (delta === 0) return; // no change
+    if (delta === 0) return;
 
     setUpdatingProductId(productId);
     try {
@@ -61,15 +61,42 @@ const CartPage = () => {
     setUpdatingProductId(null);
   };
 
-  // if (loading) return <div className="text-center p-6">Loading your cart...</div>;
-  if (!cart.length) return <div className="text-center p-6 text-lg">Your cart is empty.</div>;
+  // if (loading) {
+  //   return (
+  //     <section className="bg-gray-100 min-h-screen flex items-center justify-center">
+  //       <Spinner />
+  //     </section>
+  //   );
+  // }
+
+  if (!cart.length)
+    return (
+      <div className="text-center p-6 text-lg">
+        Your cart is empty.
+        <br />
+        <button
+          onClick={() => navigate("/")}
+          className="inline-block text-sm text-gray-500 hover:text-[#7F55B1] transition hover:underline mt-2"
+        >
+          ← Back to Products
+        </button>
+      </div>
+    );
 
   return (
+
     <div className="bg-[#F3F0FA] min-h-screen">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl">
+        <button
+          onClick={() => navigate("/")}
+          className="inline-block text-lg text-gray-500 hover:text-[#7F55B1] transition hover:underline my-3"
+        >
+          ← Back to Products
+        </button>
         <h2 className="text-xl sm:text-2xl font-semibold text-[#7F55B1] mb-4 sm:mb-6">
           Your Shopping Cart
         </h2>
+
 
         <div className="space-y-6">
           {cart.filter(item => item.product).map(({ product, quantity }, index) => (

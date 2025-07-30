@@ -79,9 +79,9 @@ const ProductDetails = () => {
             console.log("Add to cart response:", data);
 
             if (data.success) {
-                alert("✅ Product added to cart!");
+                alert(" Product added to cart!");
             } else {
-                alert(`❌ Failed to add to cart: ${data.message}`);
+                alert(` Failed to add to cart: ${data.message}`);
             }
         } catch (error) {
             console.error("Failed to add to cart", error);

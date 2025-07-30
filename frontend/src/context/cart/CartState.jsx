@@ -86,7 +86,6 @@ const CartState = ({ children }) => {
     }
   }
 
-
   // clear all cart items (this function is not defined in the backend yet, but can be added if needed)
   const clearCart = async () => {
     try {
@@ -103,10 +102,8 @@ const CartState = ({ children }) => {
     }
   }
 
-
-
   return (
-    <CartContext.Provider value={{ cart, loading, getCart, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ cart,token, loading, getCart, addToCart, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );
