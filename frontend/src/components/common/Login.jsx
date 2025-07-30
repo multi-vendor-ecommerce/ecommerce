@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { NavLink } from "react-router-dom";
+import { useNavigate, useSearchParams, NavLink } from "react-router-dom";
 import AuthContext from "../../context/auth/AuthContext";
+import AuthSiderImg from "../../assets/auth-side-bg.png";
 
 const Login = () => {
   const { login, loading, requestOtp, verifyOtp } = useContext(AuthContext);
@@ -46,7 +46,7 @@ const Login = () => {
     const result = await requestOtp(form.email);
     if (result.success) {
       setOtpRequested(true);
-      setErrorMsg("OTP sent! Please check your email.");
+      setErrorMsg("OTP sent! Check your email (expires in 5 minutes).");
     } else {
       setErrorMsg(result.error || "Failed to send OTP");
     }
@@ -74,118 +74,138 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-100 px-4">
-      <form
-        onSubmit={isOtpLogin ? handleVerifyOtp : handleLoginSubmit}
-        className="w-full max-w-sm bg-white rounded-xl shadow p-6 space-y-4"
-      >
-        <h2 className="text-2xl font-semibold text-center">Login</h2>
-
-        {errorMsg && (
-          <p className="text-red-600 text-sm text-center">{errorMsg}</p>
-        )}
-
-        <div>
-          <label htmlFor="email" className="block mb-1 font-medium">
-            Email
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            required
-            disabled={otpRequested} // disable email change after requesting OTP
-          />
+    <section className="w-full bg-gray-200 min-h-screen lg:min-h-[80vh] flex items-center justify-between gap-10">
+      <div className="w-full h-full lg:w-[45%] px-4 flex flex-col lg:justify-center items-center gap-2 lg:gap-4">
+        <div className="w-full max-w-lg p-6">
+          <h2 className="text-3xl lg:text-5xl font-bold">Welcome back!</h2>
+          <p className="text-medium lg:text-lg font-semibold mt-2">Please enter your credentials to login.</p>
         </div>
 
-        {!isOtpLogin && (
-          <div>
-            <label htmlFor="password" className="block mb-1 font-medium">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              required
-            />
-          </div>
-        )}
-
-        {isOtpLogin && otpRequested && (
-          <div>
-            <label htmlFor="otp" className="block mb-1 font-medium">
-              Enter OTP
-            </label>
-            <input
-              type="text"
-              name="otp"
-              value={form.otp}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              required
-            />
-          </div>
-        )}
-
-        {!isOtpLogin && (
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        <div className="w-full max-w-lg">
+          <form
+            onSubmit={isOtpLogin ? handleVerifyOtp : handleLoginSubmit}
+            className="w-full p-6 space-y-4"
           >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        )}
+            {errorMsg && (
+              <p className="text-red-600 text-sm text-center">{errorMsg}</p>
+            )}
 
-        {isOtpLogin && !otpRequested && (
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleRequestOtp}
-            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
-          >
-            {loading ? "Sending OTP..." : "Send OTP"}
-          </button>
-        )}
+            <div>
+              <label htmlFor="email" className="block mb-2 font-medium">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+                required
+                disabled={otpRequested} // disable email change after requesting OTP
+              />
+            </div>
 
-        {isOtpLogin && otpRequested && (
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-          >
-            {loading ? "Verifying OTP..." : "Verify OTP & Login"}
-          </button>
-        )}
+            {!isOtpLogin && (
+              <div>
+                <label htmlFor="password" className="block mb-2 font-medium">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+                  required
+                />
+              </div>
+            )}
 
-        <div className="text-center text-sm text-gray-600 mt-4">
-          <p>OR</p>
-          <div className="flex justify-center space-x-4 mt-2">
-            <button
-              type="button"
-              onClick={() => {
-                setIsOtpLogin(!isOtpLogin);
-                setErrorMsg("");
-                setOtpRequested(false);
-                setForm({ email: "", password: "", otp: "" });
-              }}
-              className="text-blue-600 hover:underline"
-            >
-              {isOtpLogin ? "Login with Password" : "Login by OTP"}
-            </button>
+            {isOtpLogin && otpRequested && (
+              <div>
+                <label htmlFor="otp" className="block mb-1 font-medium">
+                  Enter OTP
+                </label>
+                <input
+                  type="text"
+                  name="otp"
+                  value={form.otp}
+                  onChange={handleChange}
+                  className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+                  required
+                />
+              </div>
+            )}
 
-            <NavLink to="/register" className="text-blue-600 hover:underline">
-              Don't have an Account?
-            </NavLink>
-          </div>
+            {!isOtpLogin && (
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-3.5 rounded-xl mt-5 hover:bg-blue-700 transition cursor-pointer"
+              >
+                {loading ? <div className="font-semibold">Logging in...</div> : <div className="font-semibold">Login</div>}
+              </button>
+            )}
+
+            {isOtpLogin && !otpRequested && (
+              <button
+                type="button"
+                disabled={loading}
+                onClick={handleRequestOtp}
+                className="w-full bg-green-600 text-white py-3.5 rounded-xl mt-5 hover:bg-green-700 transition cursor-pointer"
+              >
+                {loading ? <div className="font-semibold">Sending OTP...</div> : <div className="font-semibold">Send OTP</div>}
+              </button>
+            )}
+
+            {isOtpLogin && otpRequested && (
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 text-white py-3.5 rounded-xl mt-5 hover:bg-blue-700 transition cursor-pointer"
+              >
+                {loading ? <div className="font-semibold">Verifying OTP...</div> : <div className="font-semibold">Verify OTP & Login</div>}
+              </button>
+            )}
+
+            <div className="text-center mt-4">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="border-t border-gray-200 dark:border-gray-800 flex-1 mt-0.5"></div>
+                <p className="text-gray-900 font-medium">or continue with</p>
+                <div className="border-t border-gray-200 dark:border-gray-800 flex-1 mt-0.5"></div>
+              </div>
+
+              <div className="flex flex-col md:flex-row gap-3 md::gap-0 justify-center md:justify-around space-x-4 mt-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsOtpLogin(!isOtpLogin);
+                    setErrorMsg("");
+                    setOtpRequested(false);
+                    setForm({ email: "", password: "", otp: "" });
+                  }}
+                  className="text-blue-600 hover:underline cursor-pointer"
+                >
+                  {isOtpLogin ? <div>Login with Password</div> : <div>Login by OTP</div>}
+                </button>
+
+                <NavLink to="/register" className="text-blue-600 hover:underline">
+                  Don't have an Account?
+                </NavLink>
+              </div>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
+      </div>
+
+      <div className="w-[55%] h-full hidden lg:flex justify-center items-center p-10">
+        <img
+          src={AuthSiderImg}
+          alt="Login Illustration"
+          className="w-[840px] h-[740px] rounded-3xl"
+        />
+      </div>
+    </section>
   );
 };
 

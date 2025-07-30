@@ -8,6 +8,8 @@ import Spinner from "../../../common/Spinner";
 import FilterBar from "../../../common/FilterBar";
 import { productFilterFields } from "./data/productFilterFields";
 import BackButton from "../../../common/layout/BackButton";
+import { NavLink } from "react-router-dom";
+import { FiEdit } from "react-icons/fi";
 
 export default function Products({ heading }) {
   const context = useContext(ProductContext);
@@ -58,7 +60,17 @@ export default function Products({ heading }) {
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
-      <BackButton />
+      <div className="flex justify-between items-center mb-3">
+        <BackButton />
+
+        <NavLink
+          to={`/admin/theme/add-product`}
+          className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
+        >
+          <FiEdit className="text-lg md:text-2xl" />
+          <span className="hidden md:inline-block">Add Product</span>
+        </NavLink>
+      </div>
 
       <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 lg:gap-0 mt-4 mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800">{heading}</h2>

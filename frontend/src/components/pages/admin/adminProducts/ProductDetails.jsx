@@ -43,7 +43,7 @@ const ProductDetails = () => {
         <BackButton />
 
         <NavLink
-          to={`/admin/vendor/edit-delete/${product._id}`}
+          to={`/admin/product/edit-delete/${product._id}`}
           className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
         >
           <FiEdit className="text-lg md:text-2xl" />
