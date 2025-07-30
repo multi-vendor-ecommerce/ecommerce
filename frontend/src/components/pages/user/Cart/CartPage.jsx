@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const CartPage = () => {
   const { cart, loading, getCart, removeFromCart, addToCart } = useContext(CartContext);
   const navigate = useNavigate();
-  
+
   const [updatingProductId, setUpdatingProductId] = useState(null);
   const [removingId, setRemovingId] = useState(null);
   const token = localStorage.getItem("customerToken");
@@ -39,20 +39,20 @@ const CartPage = () => {
       alert(`Invalid quantity. Please select between 1 and ${stock}.`);
       return;
     }
-    
+
     const currentItem = cart.find(item => item.product?._id === productId);
     if (!currentItem) return;
 
     const delta = newQuantity - currentItem.quantity;
     if (delta === 0) return; // no change
-    
+
     setUpdatingProductId(productId);
     try {
       const data = await addToCart(productId, delta);
       if (!data.success) {
         alert(`Failed to update quantity: ${data.message}`);
       } else {
-        await getCart(); 
+        await getCart();
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
@@ -61,7 +61,7 @@ const CartPage = () => {
     setUpdatingProductId(null);
   };
 
-  if (loading) return <div className="text-center p-6">Loading your cart...</div>;
+  // if (loading) return <div className="text-center p-6">Loading your cart...</div>;
   if (!cart.length) return <div className="text-center p-6 text-lg">Your cart is empty.</div>;
 
   return (
@@ -72,9 +72,9 @@ const CartPage = () => {
         </h2>
 
         <div className="space-y-6">
-          {cart.filter(item => item.product).map(({ product, quantity }) => (
+          {cart.filter(item => item.product).map(({ product, quantity }, index) => (
             <div
-              key={product._id || item._id || index}
+              key={product._id || index}
               className="flex flex-col md:flex-row md:items-center bg-[#F8F5FD] border border-[#E0D6F2] p-4 rounded-xl shadow-sm gap-4"
             >
               <img
