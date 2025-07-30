@@ -5,8 +5,9 @@ const CartState = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
-  const token = localStorage.getItem("authToken");
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
+  const token = localStorage.getItem("customerToken");
 
   // Fetching cart items
   const getCart = async () => {
@@ -27,22 +28,33 @@ const CartState = ({ children }) => {
     }
   }
 
-  // Adding item to cart
+  // + , - , Add item to cart
   const addToCart = async (productId, quantity) => {
+    const token = localStorage.getItem("customerToken");
+    if (!productId || typeof quantity !== "number") {
+      console.error("Invalid productId or quantity");
+      return { success: false, message: "Invalid input" };
+    }
+
     try {
       setLoading(true);
       const res = await fetch(`${host}/api/cart`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token
+          "auth-token": token,
         },
-        body: JSON.stringify({ productId, quantity })
+        body: JSON.stringify({ productId, quantity }),
       });
+
       const data = await res.json();
+
       if (data.success) {
-        setCart(data.cart);
+        setCart(data.cart); 
+      } else {
+        console.warn("Add to cart failed:", data.message);
       }
+
       return data;
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -50,7 +62,7 @@ const CartState = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   // Removing item from cart
   const removeFromCart = async (productId) => {
@@ -66,6 +78,7 @@ const CartState = ({ children }) => {
       if (data.success) {
         setCart(data.cart);
       }
+
     } catch (error) {
       console.error("Error removing from cart:", error);
     } finally {
@@ -73,10 +86,11 @@ const CartState = ({ children }) => {
     }
   }
 
+
   // clear all cart items (this function is not defined in the backend yet, but can be added if needed)
   const clearCart = async () => {
     try {
-      await fetch(`${host}/api/cart/clear`, {
+      await fetch(`${host}/api/cart/`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -88,6 +102,8 @@ const CartState = ({ children }) => {
       console.error("Error clearing cart:", error);
     }
   }
+
+
 
   return (
     <CartContext.Provider value={{ cart, loading, getCart, addToCart, removeFromCart, clearCart }}>

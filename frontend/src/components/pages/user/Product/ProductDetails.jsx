@@ -57,33 +57,39 @@ const ProductDetails = () => {
     //  Check login & handle Add to Cart
     const handleAddToCart = async () => {
         const authToken = localStorage.getItem("customerToken");
-
+        console.log("authToken before navigate: ",authToken);
         if (!authToken) {
             const currentPath = window.location.pathname;
             navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
             return;
         }
+        console.log("authToken after navigate: ",authToken);
 
         if (!productDetails || !productDetails._id) {
             console.error("Product details or product ID missing");
+            alert("Something went wrong. Please try again.");
             return;
         }
 
         try {
-            console.log("Adding product to cart:", productDetails._id);
             setIsLoading(true);
+            console.log("Adding product to cart:", productDetails._id);
+
             const data = await addToCart(productDetails._id, 1); 
             console.log("Add to cart response:", data);
+
             if (data.success) {
-                alert("Product added to cart successfully!");
+                alert("✅ Product added to cart!");
+            } else {
+                alert(`❌ Failed to add to cart: ${data.message}`);
             }
         } catch (error) {
             console.error("Failed to add to cart", error);
+            alert("Something went wrong while adding to cart.");
         } finally {
             setIsLoading(false);
         }
     };
-
 
     if (loading) {
         return (
@@ -223,7 +229,7 @@ const ProductDetails = () => {
                             className="bg-white border border-[#7F55B1] text-[#7F55B1] px-6 py-2 rounded-lg shadow-md hover:bg-[#f4ecff] transition"
                             onClick={() => handleAddToCart()}
                         >
-                           {isLoading ? "Adding..." : "Add to Cart" }
+                            {isLoading ? "Adding..." : "Add to Cart"}
                         </button>
                     </div>
 
