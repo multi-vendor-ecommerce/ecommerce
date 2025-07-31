@@ -13,10 +13,14 @@ import Admin from "./components/pages/admin/Admin";
 import User from "./components/pages/user/User";
 import Vendor from "./components/pages/vendor/Vendor";
 
-// Auth components
-import UserRegister from "./components/common/register/UserRegister";
+// Login components
 import AdminLogin from "./components/common/login/AdminLogin";
 import UserLogin from "./components/common/login/UserLogin";
+import VendorLogin from "./components/common/login/VendorLogin";
+
+// Register components
+import UserRegister from "./components/common/register/UserRegister";
+import VendorRegister from "./components/common/register/VendorRegister";
 
 function App() {
   return (
@@ -51,10 +55,13 @@ function AppRoutes() {
       <Route path="/login/">
         <Route path="user" element={<UserLogin />} />
         <Route path="admin" element={<AdminLogin />} />
-        <Route path="vendor" element={<AdminLogin />} />
+        <Route path="vendor" element={<VendorLogin />} />
       </Route>
 
-      <Route path="/register/user" element={<UserRegister />} />
+      <Route path="/register/">
+        <Route path="user" element={<UserRegister />} />
+        <Route path="vendor" element={<VendorRegister />} />
+      </Route>
 
       {/* Role-Based Dashboards */}
       <Route path="/vendor/*" element={<Vendor />} />

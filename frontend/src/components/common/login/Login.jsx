@@ -189,7 +189,7 @@ const Login = ({ loginRole }) => {
                 <div className="border-t border-gray-200 dark:border-gray-400 flex-1 mt-0.5"></div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-3 md::gap-0 justify-center space-x-4 mt-5">
+              <div className="flex flex-col md:flex-row gap-3 md::gap-0 justify-center items-center space-x-4 mt-5">
                 <button
                   type="button"
                   onClick={() => {
@@ -204,14 +204,16 @@ const Login = ({ loginRole }) => {
                 </button>
 
                 {loginRole !== "admin" && (
-                  <div className="flex items-center gap-1">
-                    <span className="text-gray-700">Don't have an Account?</span>
-                    <NavLink
-                      to={loginRole === "vendor" ? "/register/vendor" : "/register/user"}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Register
-                    </NavLink>
+                  <div className="flex items-center">
+                    <span className="text-gray-700">
+                      Don't have an Account?{" "}
+                      <NavLink
+                        to={loginRole === "vendor" ? "/register/vendor" : "/register/user"}
+                        className="text-blue-600 hover:underline"
+                      >
+                        Register
+                      </NavLink>
+                    </span>
                   </div>
                 )}
               </div>

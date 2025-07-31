@@ -14,7 +14,7 @@ export const registerPerson = async (req, res) => {
   if (!errors.isEmpty())
     return res.status(400).json({ success: false, errors: errors.array() });
 
-  let { name, email, password, confirmPassword, phone, address, role, shopName } = req.body;
+  let { name, email, password, confirmPassword, phone, address, role, shopName, gstNumber } = req.body;
 
   try {
     // Normalize & format input
@@ -25,6 +25,7 @@ export const registerPerson = async (req, res) => {
     name = toTitleCase(name?.trim());
     address = address ? toTitleCase(address?.trim()) : "";
     shopName = shopName ? toTitleCase(shopName?.trim()) : "";
+    gstNumber = gstNumber?.trim().toUpperCase();
 
     // Restrict admin registration
     if (role === "admin") {
@@ -57,7 +58,7 @@ export const registerPerson = async (req, res) => {
     let person;
 
     if (role === "vendor") {
-      person = await Vendor.create({ name, email, password: hashedPassword, phone, address, shopName });
+      person = await Vendor.create({ name, email, password: hashedPassword, phone, address, shopName, gstNumber });
     } else {
       person = await User.create({ name, email, password: hashedPassword, phone, address });
     }

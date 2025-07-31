@@ -19,6 +19,39 @@ const AuthState = ({ children }) => {
   // const host = import.meta.env.VITE_BACKEND_URL;
   const host = "http://localhost:5000";
 
+  const register = async (formData) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${host}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (data.success && data.data.authToken) {
+        const role = data.data.role;
+
+        const updatedTokens = { ...authTokens, [role]: data.data.authToken };
+        const updatedPeople = { ...people, [role]: { role } };
+
+        setAuthTokens(updatedTokens);
+        setPeople(updatedPeople);
+
+        localStorage.setItem(`${role}Token`, data.data.authToken);
+
+        return { success: true, role };
+      } else {
+        return { success: false, error: data.message || "Registration failed" };
+      }
+    } catch (err) {
+      return { success: false, error: "Something went wrong" };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Login Function
   const login = async (email, password) => {
     setLoading(true);
@@ -121,7 +154,7 @@ const AuthState = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ authTokens, people, loading, login, logout, requestOtp, verifyOtp }}>
+    <AuthContext.Provider value={{ authTokens, people, loading, login, register, logout, requestOtp, verifyOtp }}>
       {children}
     </AuthContext.Provider>
   );

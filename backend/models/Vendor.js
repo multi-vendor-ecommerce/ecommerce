@@ -9,6 +9,13 @@ const Vendor = Person.discriminator("vendor", new mongoose.Schema({
     unique: true,
     trim: true
   },
+  gstNumber: {
+    type: String,
+    required: true,
+    trim: true,
+    unique: true,
+    match: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
+  },
   status: {
     type: String,
     enum: ["active", "suspended", "pending", "inactive"],

@@ -37,6 +37,11 @@ const registerValidator = [
     .escape()
     .isLength({ min: 3 }),
 
+  body("gstNumber", "GST number must be 15 characters")
+  .optional()
+  .trim()
+  .isLength({ min: 15, max: 15 }),
+
   body("role", "Invalid role")
     .optional()
     .trim()
