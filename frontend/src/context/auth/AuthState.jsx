@@ -46,7 +46,7 @@ const AuthState = ({ children }) => {
         return { success: true, role };
       }
       else {
-        return { success: false, error: data.error || "Login failed" };
+        return { success: false, error: data.message || "Login failed" };
       }
     } catch (err) {
       console.error("Login error:", err);

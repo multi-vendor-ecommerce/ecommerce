@@ -4,7 +4,7 @@ import AuthContext from "../../../context/auth/AuthContext";
 import AuthSiderImg from "../../../assets/auth-side-bg.png";
 
 const Login = ({ loginRole }) => {
-  const { people, login, loading, requestOtp, verifyOtp } = useContext(AuthContext);
+  const { login, loading, requestOtp, verifyOtp } = useContext(AuthContext);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -14,6 +14,20 @@ const Login = ({ loginRole }) => {
   const [errorMsg, setErrorMsg] = useState("");
   const [isOtpLogin, setIsOtpLogin] = useState(false);
   const [otpRequested, setOtpRequested] = useState(false);
+
+  const handleRoleAndNavigate = (role) => {
+    if (loginRole !== role) {
+      setErrorMsg("Invalid role. Please login through the correct portal.");
+      return false;
+    }
+
+    // Navigate based on role
+    if (role === "admin") navigate("/admin");
+    else if (role === "vendor") navigate("/vendor");
+    else navigate(redirectPath, { replace: true });
+
+    return true;
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -25,12 +39,8 @@ const Login = ({ loginRole }) => {
     setErrorMsg("");
 
     const result = await login(form.email, form.password);
-
     if (result.success) {
-      const role = result.role;
-      if (role === "admin") navigate("/admin");
-      else if (role === "vendor") navigate("/vendor");
-      else navigate(redirectPath, { replace: true });
+      handleRoleAndNavigate(result.role);
     } else {
       setErrorMsg(result.error || "Login failed");
     }
@@ -45,6 +55,7 @@ const Login = ({ loginRole }) => {
     }
     const result = await requestOtp(form.email);
     if (result.success) {
+      if (!handleRoleAndNavigate(result.role)) return;
       setOtpRequested(true);
       setErrorMsg("OTP sent! Check your email (expires in 5 minutes).");
     } else {
@@ -62,12 +73,8 @@ const Login = ({ loginRole }) => {
     }
 
     const result = await verifyOtp(form.email, form.otp);
-
     if (result.success) {
-      const role = result.role;
-      if (role === "admin") navigate("/admin");
-      else if (role === "vendor") navigate("/vendor");
-      else navigate("/");
+      handleRoleAndNavigate(result.role);
     } else {
       setErrorMsg(result.error || "OTP verification failed");
     }
@@ -177,9 +184,9 @@ const Login = ({ loginRole }) => {
 
             <div className="text-center mt-4">
               <div className="flex items-center justify-center space-x-2">
-                <div className="border-t border-gray-200 dark:border-gray-800 flex-1 mt-0.5"></div>
-                <p className="text-gray-900 font-medium">or continue with</p>
-                <div className="border-t border-gray-200 dark:border-gray-800 flex-1 mt-0.5"></div>
+                <div className="border-t border-gray-200 dark:border-gray-400 flex-1 mt-0.5"></div>
+                <p className="text-gray-900 font-medium">OR</p>
+                <div className="border-t border-gray-200 dark:border-gray-400 flex-1 mt-0.5"></div>
               </div>
 
               <div className="flex flex-col md:flex-row gap-3 md::gap-0 justify-center space-x-4 mt-5">

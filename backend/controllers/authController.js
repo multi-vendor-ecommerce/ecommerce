@@ -97,13 +97,10 @@ export const loginPerson = async (req, res) => {
     password = password?.trim();
 
     const person = await Person.findOne({ email });
-    if (!person) {
-      return res.status(400).json({ success: false, message: "Invalid credentials" });
-    }
-
     const isMatch = await bcrypt.compare(password, person.password);
-    if (!isMatch) {
-      return res.status(400).json({ success: false, error: "Invalid credentials" })}
+    if (!person || !isMatch) {
+      return res.status(400).json({ success: false, message: "Incorrect email or password. Please try again." });
+    }
 
     // Optional: restrict admin login here if needed
     // if (person.role === "admin") {
