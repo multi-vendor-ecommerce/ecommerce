@@ -1,10 +1,10 @@
 import { useContext, useState } from "react";
 import { useNavigate, useSearchParams, NavLink } from "react-router-dom";
-import AuthContext from "../../context/auth/AuthContext";
-import AuthSiderImg from "../../assets/auth-side-bg.png";
+import AuthContext from "../../../context/auth/AuthContext";
+import AuthSiderImg from "../../../assets/auth-side-bg.png";
 
-const Login = () => {
-  const { login, loading, requestOtp, verifyOtp } = useContext(AuthContext);
+const Login = ({ loginRole }) => {
+  const { people, login, loading, requestOtp, verifyOtp } = useContext(AuthContext);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -73,6 +73,10 @@ const Login = () => {
     }
   };
 
+  const formValid = isOtpLogin
+    ? form.email.trim() !== "" && form.otp.trim() !== ""
+    : form.email.trim() !== "" && form.password.trim() !== "";
+
   return (
     <section className="w-full bg-gray-200 min-h-screen lg:min-h-[80vh] flex items-center justify-between gap-10">
       <div className="w-full h-full lg:w-[45%] px-4 flex flex-col lg:justify-center items-center gap-2 lg:gap-4">
@@ -140,32 +144,35 @@ const Login = () => {
             {!isOtpLogin && (
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-3.5 rounded-xl mt-5 hover:bg-blue-700 transition cursor-pointer"
+                disabled={loading || !formValid}
+                className={`w-full bg-blue-600 text-white py-3.5 text-[16px] md:text-lg rounded-xl mt-5 transition ${(!formValid || loading) ? "opacity-60 cursor-not-allowed" : "hover:bg-blue-700 cursor-pointer"}`}
               >
                 {loading ? <div className="font-semibold">Logging in...</div> : <div className="font-semibold">Login</div>}
               </button>
+
             )}
 
             {isOtpLogin && !otpRequested && (
               <button
                 type="button"
-                disabled={loading}
+                disabled={loading || !form.email.trim()}
                 onClick={handleRequestOtp}
-                className="w-full bg-green-600 text-white py-3.5 rounded-xl mt-5 hover:bg-green-700 transition cursor-pointer"
+                className={`w-full bg-green-600 text-white py-3.5 rounded-xl mt-5 transition ${(!form.email.trim() || loading) ? "opacity-60 cursor-not-allowed" : "hover:bg-green-700 cursor-pointer"}`}
               >
                 {loading ? <div className="font-semibold">Sending OTP...</div> : <div className="font-semibold">Send OTP</div>}
               </button>
+
             )}
 
             {isOtpLogin && otpRequested && (
               <button
                 type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-3.5 rounded-xl mt-5 hover:bg-blue-700 transition cursor-pointer"
+                disabled={loading || !formValid}
+                className={`w-full bg-blue-600 text-white py-3.5 rounded-xl mt-5 transition ${(!formValid || loading) ? "opacity-60 cursor-not-allowed" : "hover:bg-blue-700 cursor-pointer"}`}
               >
                 {loading ? <div className="font-semibold">Verifying OTP...</div> : <div className="font-semibold">Verify OTP & Login</div>}
               </button>
+
             )}
 
             <div className="text-center mt-4">
@@ -175,7 +182,7 @@ const Login = () => {
                 <div className="border-t border-gray-200 dark:border-gray-800 flex-1 mt-0.5"></div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-3 md::gap-0 justify-center md:justify-around space-x-4 mt-5">
+              <div className="flex flex-col md:flex-row gap-3 md::gap-0 justify-center space-x-4 mt-5">
                 <button
                   type="button"
                   onClick={() => {
@@ -189,15 +196,22 @@ const Login = () => {
                   {isOtpLogin ? <div>Login with Password</div> : <div>Login by OTP</div>}
                 </button>
 
-                <NavLink to="/register" className="text-blue-600 hover:underline">
-                  Don't have an Account?
-                </NavLink>
+                {loginRole !== "admin" && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-gray-700">Don't have an Account?</span>
+                    <NavLink
+                      to={loginRole === "vendor" ? "/register/vendor" : "/register/user"}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Register
+                    </NavLink>
+                  </div>
+                )}
               </div>
             </div>
           </form>
         </div>
       </div>
-
       <div className="w-[55%] h-full hidden lg:flex justify-center items-center p-10">
         <img
           src={AuthSiderImg}

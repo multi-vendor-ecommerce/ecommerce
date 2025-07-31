@@ -30,7 +30,7 @@ function UserHeader() {
           {/* Icons */}
           <div className="flex items-center gap-4 text-user-dark text-lg whitespace-nowrap">
             <NavLink to="/admin" className="font-bold ">Admin</NavLink>
-            <Link to="/login" className="hover:text-user-primary hidden sm:block text-md">
+            <Link to="/login/user" className="hover:text-user-primary hidden sm:block text-md">
               Login/Register
             </Link>
   

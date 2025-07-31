@@ -14,7 +14,9 @@ import User from "./components/pages/user/User";
 import Vendor from "./components/pages/vendor/Vendor";
 
 // Auth components
-import Login from "./components/common/Login";
+import UserRegister from "./components/common/register/UserRegister";
+import AdminLogin from "./components/common/login/AdminLogin";
+import UserLogin from "./components/common/login/UserLogin";
 
 function App() {
   return (
@@ -45,9 +47,14 @@ function App() {
 function AppRoutes() {
   return (
     <Routes>
-       {/* Public Auth Routes */}
-      <Route path="/login" element={<Login />} />
-      {/* <Route path="/signup" element={<Signup />} /> */}
+      {/* Public Auth Routes */}
+      <Route path="/login/">
+        <Route path="user" element={<UserLogin />} />
+        <Route path="admin" element={<AdminLogin />} />
+        <Route path="vendor" element={<AdminLogin />} />
+      </Route>
+
+      <Route path="/register/user" element={<UserRegister />} />
 
       {/* Role-Based Dashboards */}
       <Route path="/vendor/*" element={<Vendor />} />
