@@ -11,17 +11,15 @@ const Register = ({ registerRole }) => {
   const redirectPath = searchParams.get("redirect") || "/";
   const [step, setStep] = useState(1);
 
-  const [form, setForm] = useState({
-    role: registerRole,
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    phone: "",
-    address: "",
-    shopName: "",
-    gstNumber: "",
-  });
+  const baseForm = { role: registerRole, name: "", email: "", password: "", confirmPassword: "", phone: "", address: "" };
+
+  const vendorFields = { shopName: "", gstNumber: "" };
+
+  const initialFormState = registerRole === "vendor"
+    ? { ...baseForm, ...vendorFields }
+    : baseForm;
+
+  const [form, setForm] = useState(initialFormState);
 
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -31,21 +29,19 @@ const Register = ({ registerRole }) => {
 
   const nextStep = () => {
     setErrorMsg("");
-    if (step === 1 && (!form.name || !form.email)) {
+
+    if (step === 1 && (!form.name.trim() || !form.email.trim())) {
       setErrorMsg("Name and Email are required.");
       return;
     }
-    if (step === 2 && (!form.password || !form.confirmPassword)) {
-      setErrorMsg("Please enter and confirm your password.");
-      return;
-    }
-    if (step === 2 && form.password !== form.confirmPassword) {
-      setErrorMsg("Passwords do not match.");
-      return;
-    }
-    if (step === 3 || form.role === "vendor") {
-      if (!form.shopName.trim() || !form.gstNumber.trim()) {
-        setErrorMsg("Shop Name and GST Number are required for vendors.");
+
+    if (step === 2) {
+      if (!form.password.trim() || !form.confirmPassword.trim()) {
+        setErrorMsg("Please enter and confirm your password.");
+        return;
+      }
+      if (form.password !== form.confirmPassword) {
+        setErrorMsg("Passwords do not match.");
         return;
       }
     }
@@ -57,9 +53,22 @@ const Register = ({ registerRole }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
-    // Only allow submit on final step
-    if (step < 3) return;
 
+    // Common validation for final step
+    if (!form.phone.trim() || !form.address.trim()) {
+      setErrorMsg("Phone and Address are required.");
+      return;
+    }
+
+    // Additional validation for vendors
+    if (form.role === "vendor") {
+      if (!form.shopName.trim() || !form.gstNumber.trim()) {
+        setErrorMsg("Shop Name and GST Number are required for vendors.");
+        return;
+      }
+    }
+
+    // Submit if all good
     const result = await register(form);
 
     if (result.success) {
@@ -216,12 +225,12 @@ const Register = ({ registerRole }) => {
               <button
                 type="button"
                 onClick={prevStep}
-                className="w-1/2 bg-gray-400 text-white py-3.5 rounded-xl hover:bg-gray-500 transition"
+                className="w-full bg-gray-400 text-white py-3.5 rounded-xl hover:bg-gray-500 transition"
               >
                 Back
               </button>
             )}
-            {step < 3 ? (
+            {step < 3 && (
               <button
                 type="button"
                 onClick={nextStep}
@@ -229,15 +238,20 @@ const Register = ({ registerRole }) => {
               >
                 Next
               </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition"
-              >
-                {loading ? "Registering..." : "Register"}
-              </button>
             )}
+            {step === 3 &&
+              form.address.trim() &&
+              form.phone.trim() &&
+              (registerRole !== "vendor" ||
+                (form.shopName.trim() && form.gstNumber.trim())) && (
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition"
+                >
+                  {loading ? "Registering..." : "Register"}
+                </button>
+              )}
           </div>
 
           <div className="text-center mt-4">
