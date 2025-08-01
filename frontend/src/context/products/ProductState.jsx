@@ -32,7 +32,7 @@ const ProductState = ({ children }) => {
       }
 
       const data = await response.json();
-      setProducts(data.products);
+      if (data.success) setProducts(data.products);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {

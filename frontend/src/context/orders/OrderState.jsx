@@ -69,6 +69,11 @@ const OrderState = ({ children }) => {
         }
         // credentials: "include",
       });
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch orders.');
+      }
+
       const data = await res.json();
       if (data.success) setAdminOrders(data.orders);
       else console.error("Server error:", data.message || "Unknown error");

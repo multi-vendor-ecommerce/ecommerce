@@ -12,8 +12,7 @@ import { NavLink } from "react-router-dom";
 import { FiEdit } from "react-icons/fi";
 
 export default function Products({ heading }) {
-  const context = useContext(ProductContext);
-  const { products, getAllProducts, loading } = context;
+  const { products, getAllProducts, loading } =  useContext(ProductContext);
   const [filters, setFilters] = useState({ search: "", status: "" });
 
   useEffect(() => {
