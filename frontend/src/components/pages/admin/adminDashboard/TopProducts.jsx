@@ -7,12 +7,8 @@ import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Spinner from "../../../common/Spinner";
 
 const TopProducts = () => {
-  const { products, getAllProducts, loading } = useContext(ProductContext);
+  const { products, loading } = useContext(ProductContext);
   const [showAll, setShowAll] = useState(false);
-
-  useEffect(() => {
-    getAllProducts();
-  }, []);
 
   const approvedProducts = products?.filter(p => p.status) || [];
 

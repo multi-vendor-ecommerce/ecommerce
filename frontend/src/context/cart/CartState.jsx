@@ -16,7 +16,7 @@ const CartState = ({ children }) => {
       const res = await fetch(`${host}/api/cart`, {
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token
+          "auth-token": localStorage.getItem("customerToken"),
         }
       });
       const data = await res.json();
@@ -42,7 +42,7 @@ const CartState = ({ children }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token,
+          "auth-token": localStorage.getItem("customerToken"),
         },
         body: JSON.stringify({ productId, quantity }),
       });
@@ -71,7 +71,7 @@ const CartState = ({ children }) => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token
+          "auth-token": localStorage.getItem("customerToken"),
         }
       });
       const data = await res.json();
@@ -93,7 +93,7 @@ const CartState = ({ children }) => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token
+          "auth-token": localStorage.getItem("customerToken"),
         }
       });
       setCart([]);

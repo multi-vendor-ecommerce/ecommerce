@@ -7,7 +7,6 @@ const ProductState = ({ children }) => {
 
   const host = import.meta.env.VITE_BACKEND_URL;
   // const host = "http://localhost:5000";
-  const token = localStorage.getItem("adminToken");
 
   // for admin
   const getAllProducts = async ({ search = "", status = "" } = {}) => {
@@ -24,7 +23,7 @@ const ProductState = ({ children }) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "auth-token": token
+            "auth-token": localStorage.getItem("adminToken")
           }
           // credentials: "include",
         });
@@ -77,7 +76,7 @@ const ProductState = ({ children }) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "auth-token": token
+            "auth-token": localStorage.getItem("adminToken")
           }
         });
       if (!response.ok) {

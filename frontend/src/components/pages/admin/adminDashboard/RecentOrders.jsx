@@ -8,13 +8,9 @@ import Spinner from "../../../common/Spinner";
 import StatusChip from "../../../common/helperComponents/StatusChip";
 
 const RecentOrders = () => {
-  const { adminOrders, loading, getAllOrders } = useContext(OrderContext);
+  const { adminOrders, loading } = useContext(OrderContext);
   const [showAll, setShowAll] = useState(false);
 
-  useEffect(() => {
-    getAllOrders();
-  }, []);
-  
   const sortedOrders = [...adminOrders].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
   );

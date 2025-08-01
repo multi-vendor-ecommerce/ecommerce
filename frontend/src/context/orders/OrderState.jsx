@@ -9,7 +9,6 @@ const OrderState = ({ children }) => {
 
   const host = import.meta.env.VITE_BACKEND_URL;
   // const host = "http://localhost:5000";
-  const token = localStorage.getItem("adminToken");
 
   // Fetch orders placed by the logged-in customer
   const getMyOrders = async () => {
@@ -19,7 +18,7 @@ const OrderState = ({ children }) => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token
+          "auth-token": localStorage.getItem("adminToken")
         }
         // credentials: "include",
       });
@@ -40,7 +39,7 @@ const OrderState = ({ children }) => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token
+          "auth-token": localStorage.getItem("adminToken")
         }
         // credentials: "include",
       });
@@ -66,7 +65,7 @@ const OrderState = ({ children }) => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token
+          "auth-token": localStorage.getItem("adminToken")
         }
         // credentials: "include",
       });
@@ -87,7 +86,7 @@ const OrderState = ({ children }) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "auth-token": token
+            "auth-token": localStorage.getItem("adminToken")
           }
         });
       if (!response.ok) {
@@ -110,7 +109,7 @@ const OrderState = ({ children }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token,
+          "auth-token": localStorage.getItem("adminToken"),
         },
         body: JSON.stringify(orderData),
       });

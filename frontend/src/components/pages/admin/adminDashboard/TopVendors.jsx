@@ -7,12 +7,8 @@ import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Spinner from "../../../common/Spinner";
 
 const TopVendors = () => {
-  const { vendors, getAllVendors, loading } = useContext(VendorContext);
+  const { vendors, loading } = useContext(VendorContext);
   const [showAll, setShowAll] = useState(false);
-
-  useEffect(() => {
-    getAllVendors();
-  }, []);
 
   const sortedVendors = [...vendors].sort((a, b) => b.totalSales - a.totalSales);
   const vendorsToShow = showAll ? sortedVendors : sortedVendors.slice(0, 5);

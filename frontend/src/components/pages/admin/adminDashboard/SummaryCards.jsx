@@ -6,15 +6,9 @@ import { formatNumber } from "../../../../utils/formatNumber";
 import OrderContext from "../../../../context/orders/OrderContext";
 
 export default function SummaryCards() {
-  const { products, getAllProducts } = useContext(ProductContext);
-  const { users, getAllCustomers } = useContext(UserContext);
-  const { adminOrders, getAllOrders } = useContext(OrderContext);
-
-  useEffect(() => {
-    getAllProducts();
-    getAllCustomers();
-    getAllOrders();
-  }, []);
+  const { products } = useContext(ProductContext);
+  const { users } = useContext(UserContext);
+  const { adminOrders} = useContext(OrderContext);
 
   // Calculate values
   const totalRevenue = products?.reduce(

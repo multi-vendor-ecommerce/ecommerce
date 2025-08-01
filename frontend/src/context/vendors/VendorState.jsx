@@ -7,7 +7,6 @@ const VendorState = (props) => {
 
   const host = import.meta.env.VITE_BACKEND_URL;
   // const host = "http://localhost:5000";
-  const token = localStorage.getItem("adminToken");
 
   const getAllVendors = async ({ search = "", status = "" } = {}) => {
     try {
@@ -23,7 +22,7 @@ const VendorState = (props) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "auth-token": token
+            "auth-token": localStorage.getItem("adminToken")
           }
           // credentials: "include",
         });
@@ -47,7 +46,7 @@ const VendorState = (props) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            "auth-token": token
+            "auth-token": localStorage.getItem("adminToken")
           }
           // credentials: "include",
         });

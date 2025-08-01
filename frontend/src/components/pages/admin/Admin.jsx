@@ -1,7 +1,5 @@
-import { useState, useEffect, useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import AuthContext from "../../../context/auth/AuthContext";
-
 import Sidebar from "./adminCommon/adminSidebar/Sidebar";
 import Header from "./adminCommon/adminHeader/Header";
 import Dashboard from "./adminDashboard/Dashboard";
@@ -16,22 +14,23 @@ import VendorManagement from "./adminVendor/VendorManagement";
 import CommissionOverview from "./adminCommissions/CommissionOverview";
 import VendorProfile from "./adminVendor/VendorProfile";
 import ProductDetails from "./adminProducts/ProductDetails";
+import AuthContext from "../../../context/auth/AuthContext";
 
 const Admin = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { authTokens } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    const token = authTokens?.admin || localStorage.getItem("adminToken");
+ useEffect(() => {
+    const checkToken = async () => {
+      const token = localStorage.getItem("adminToken") || authTokens?.admin;
 
-    // Token is still loading
-    if (!token && authTokens === null) return;
+      if (!token) {
+        navigate("/login/admin");
+      }
+    };
 
-    // No token found, redirect to login
-    if (!token) {
-      navigate("/login/admin", { replace: true });
-    }
+    checkToken();
   }, [authTokens, navigate]);
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -72,6 +71,7 @@ const Admin = () => {
             <Route path="vendors/commission-overview" element={<CommissionOverview />} />
             <Route path="vendor/profile/:vendorId" element={<VendorProfile />} />
 
+            {/* Fallback route for unmatched paths */}
             <Route path="*" element={<NotFoundPage destination="/admin" />} />
           </Routes>
         </main>
