@@ -63,7 +63,6 @@ const AuthState = ({ children }) => {
       });
 
       const data = await res.json();
-      console.log(data)
 
       if (data.success && data.data.authToken) {
         const role = data.data.role;

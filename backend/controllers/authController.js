@@ -70,7 +70,8 @@ export const registerPerson = async (req, res) => {
       },
     };
 
-    const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const expiresIn = person.role === "customer" ? "7d" : "6h";
+    const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
     res.status(201).json({
       success: true,
@@ -115,7 +116,8 @@ export const loginPerson = async (req, res) => {
       },
     };
 
-    const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const expiresIn = person.role === "customer" ? "7d" : "6h";
+    const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
     res.json({ success: true, message: `${toTitleCase(person.role)} login successful`, data: { authToken, role: person.role } });
   } catch (err) {

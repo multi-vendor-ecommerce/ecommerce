@@ -53,7 +53,9 @@ export const verifyOtp = async (req, res) => {
 
     // Generate JWT
     const payload = { person: { id: person._id, role: person.role } };
-    const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+    const expiresIn = person.role === "customer" ? "7d" : "6h";
+    const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
     await Otp.deleteMany({ email }); // clean up
 

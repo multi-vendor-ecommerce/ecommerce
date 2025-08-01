@@ -1,7 +1,15 @@
 import { HiOutlineUser, HiOutlineLogout } from 'react-icons/hi';
 import { FiSettings } from 'react-icons/fi';
+import { useContext } from 'react';
+import AuthContext from '../../../../../context/auth/AuthContext';
 
 const ProfileMenu = () => {
+  const { logout } = useContext(AuthContext);
+
+  const handleLogOut = () => {
+    logout("admin");
+  }
+
   return (
     <div className="absolute right-0 mt-2 w-64 bg-white border rounded-xl shadow-xl shadow-gray-200 z-50">
       <div className="p-4 border-b">
@@ -27,9 +35,11 @@ const ProfileMenu = () => {
           <span>Account Setting</span>
         </li>
         <hr className="my-1" />
-        <li className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer text-red-600">
-          <HiOutlineLogout className="text-xl font-semibold" />
-          <span>Log Out</span>
+        <li className="px-4 py-2 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer text-red-600">
+          <button onClick={handleLogOut} className="flex items-center gap-2">
+            <HiOutlineLogout className="text-xl font-semibold" />
+            <span>Log Out</span>
+          </button>
         </li>
       </ul>
     </div>

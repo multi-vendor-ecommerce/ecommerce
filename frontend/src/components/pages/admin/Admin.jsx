@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import AuthContext from "../../../context/auth/AuthContext";
+
 import Sidebar from "./adminCommon/adminSidebar/Sidebar";
 import Header from "./adminCommon/adminHeader/Header";
 import Dashboard from "./adminDashboard/Dashboard";
@@ -17,6 +19,20 @@ import ProductDetails from "./adminProducts/ProductDetails";
 
 const Admin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { authTokens } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = authTokens?.admin || localStorage.getItem("adminToken");
+
+    // Token is still loading
+    if (!token && authTokens === null) return;
+
+    // No token found, redirect to login
+    if (!token) {
+      navigate("/login/admin", { replace: true });
+    }
+  }, [authTokens, navigate]);
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const closeSidebar = () => setIsSidebarOpen(false);
@@ -50,13 +66,12 @@ const Admin = () => {
             <Route path="product-details/:productId" element={<ProductDetails />} />
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" />} />
             <Route path="product/edit-delete/:productId" element={<OrderDetails />} />
-            
+
             <Route path="all-vendors" element={<VendorManagement heading="All Vendors" />} />
             <Route path="top-vendors" element={<VendorManagement heading="Top Vendors" />} />
             <Route path="vendors/commission-overview" element={<CommissionOverview />} />
             <Route path="vendor/profile/:vendorId" element={<VendorProfile />} />
 
-            {/* Fallback route for unmatched paths */}
             <Route path="*" element={<NotFoundPage destination="/admin" />} />
           </Routes>
         </main>
