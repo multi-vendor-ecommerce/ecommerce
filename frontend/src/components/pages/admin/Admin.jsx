@@ -15,6 +15,7 @@ import CommissionOverview from "./adminCommissions/CommissionOverview";
 import VendorProfile from "./adminVendor/VendorProfile";
 import ProductDetails from "./adminProducts/ProductDetails";
 import AuthContext from "../../../context/auth/AuthContext";
+import AddProduct from "./adminProducts/AddProduct";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);
@@ -65,6 +66,7 @@ const Admin = () => {
             <Route path="product-details/:productId" element={<ProductDetails />} />
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" />} />
             <Route path="product/edit-delete/:productId" element={<OrderDetails />} />
+            <Route path="theme/add-product" element={<AddProduct />} />
 
             <Route path="all-vendors" element={<VendorManagement heading="All Vendors" />} />
             <Route path="top-vendors" element={<VendorManagement heading="Top Vendors" />} />

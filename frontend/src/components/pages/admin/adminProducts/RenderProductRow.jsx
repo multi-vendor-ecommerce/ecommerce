@@ -19,7 +19,7 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
           <img
             src={p.images?.[0] || "https://m.media-amazon.com/images/I/71Ls4akTeeL._AC_SL1500_.jpg"}
             alt={p.title || "Product Image"}
-            className="w-12 h-12 rounded-lg object-cover shadow-md shadow-purple-400"
+            className="w-[120px] h-12 rounded-lg object-cover shadow-md shadow-purple-400"
           />
           <span className="w-[152px] font-semibold text-gray-800 max-w-[160px] truncate">
             {p.title || "Untitled"}
@@ -103,8 +103,7 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
               "bg-red-400": !isHighSales,
             })}
             style={{
-              width: `${maxUnitsSold ? Math.min((p.unitsSold / maxUnitsSold) * 100, 100) : 0
-                }%`,
+              width: `${maxUnitsSold ? Math.min((p.unitsSold / maxUnitsSold) * 100, 100) : 0}%`,
             }}
           ></div>
         </div>

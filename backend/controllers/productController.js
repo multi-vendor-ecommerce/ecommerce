@@ -1,33 +1,37 @@
 import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
+import { toTitleCase } from "../utils/titleCase.js";
 
 // Public: Get all products
 export const getAllProducts = async (req, res) => {
   try {
     const query = buildQuery(req.query, ["title"]);
 
-    let productQuery = Product.find(query).populate("category", "name");
+    // Build base query and populate category and creator details
+    let productQuery = Product.find(query)
+      .populate("category", "name")
+      .populate("createdBy", "name email shopName role");
 
-    if (req.person?.role === "admin") {
-      productQuery = productQuery.populate("vendorId", "name email shopName");
-    } else {
+    // If the user is not an admin, limit the fields returned
+    if (req.person?.role !== "admin") {
       productQuery = productQuery.select("title description images price category tags freeDelivery rating totalReviews");
     }
+
     const products = await productQuery;
 
     res.status(200).send({ success: true, message: "Products fetched successfully.", products });
   } catch (err) {
-    res.status(500).json({ success: false, error: "Server error.", error: err.message });
+    res.status(500).json({ success: false, error: "Server error.", details: err.message });
   }
 };
+
 
 // Public: Get a product
 export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
       .populate("category", "name")
-      .populate("vendorId", "name email shopName")
-    ;
+      .populate("createdBy", "name email shopName role");
 
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found." });
@@ -46,7 +50,7 @@ export const getProductsByCategoryId = async (req, res) => {
 
     const products = await Product.find({ category: categoryId })
       .populate("category", "name")
-      .populate("vendorId", "name email shopName");
+      .populate("createdBy", "name email shopName role");
 
     res.status(200).send({ success: true, message: "Products fetched successfully.", products });
   } catch (err) {
@@ -57,16 +61,79 @@ export const getProductsByCategoryId = async (req, res) => {
 // Admin/Vendor: Add a new product
 export const addProduct = async (req, res) => {
   try {
-    const imageUrls = req.files.map(file => file.path); // Cloudinary returns `path` as the image URL
+    let { title, brand, description, category, specifications, price, discountPrice, stock, sku, hsnCode, gstRate, isTaxable, freeDelivery, tags, video } = req.body;
 
-    const product = await Product.create({
-      // ...req.body,
-      vendorId: req.vendor.id,
+    // === Validation ===
+    if (!title || !brand || !price || !category || !sku || !hsnCode || !gstRate) {
+      return res.status(400).json({
+        success: false,
+        message: "Required fields missing: title, brand, price, category, sku, hsnCode, gstRate",
+      });
+    }
+
+    const allowedGstRates = [0, 5, 12, 18, 28];
+    if (!allowedGstRates.includes(Number(gstRate))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid GST rate. Allowed values: 0, 5, 12, 18, 28",
+      });
+    }
+
+    if (isNaN(price) || price < 0 || (discountPrice && discountPrice < 0)) {
+      return res.status(400).json({ success: false, message: "Invalid price or discount price" });
+    }
+
+    if (stock && (isNaN(stock) || stock < 0)) {
+      return res.status(400).json({ success: false, message: "Invalid stock value" });
+    }
+
+    // === Formatting ===
+    title = toTitleCase(title.trim());
+    brand = toTitleCase(brand.trim());
+    sku = sku.trim().toUpperCase();
+    hsnCode = hsnCode.trim();
+    description = description?.trim() || "";
+
+    if (typeof specifications === "string") {
+      try {
+        specifications = JSON.parse(specifications);
+      } catch {
+        specifications = {};
+      }
+    }
+
+    // Clean tags: trim + lowercase + deduplicate
+    if (tags && Array.isArray(tags)) {
+      tags = [...new Set(tags.map((tag) => tag.trim().toLowerCase()))];
+    }
+
+    // Get Cloudinary image URLs
+    const imageUrls = req.files?.map((file) => file.path) || [];
+
+    const newProduct = await Product.create({
+      createdBy: req.person.id,
+      createdByRole: req.person.role,
+      title,
+      brand,
+      description,
       images: imageUrls,
+      video: video || null,
+      category,
+      specifications: specifications || {},
+      price: Number(price),
+      discountPrice: discountPrice ? Number(discountPrice) : null,
+      stock: stock ? Number(stock) : 0,
+      sku,
+      hsnCode,
+      gstRate: Number(gstRate),
+      isTaxable: isTaxable !== undefined ? isTaxable : true,
+      freeDelivery: freeDelivery || false,
+      tags: tags || [],
     });
 
-    res.status(201).json({ success: true, product });
+    res.status(201).json({ success: true, message: "Product added successfully.", product: newProduct });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    console.error("Add Product Error:", err);
+    res.status(500).json({ success: false, message: "Server error while adding product.", error: err.message });
   }
 };

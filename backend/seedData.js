@@ -5,21 +5,11 @@ import Order from "./models/Order.js";
 import bcrypt from "bcryptjs";
 import "./models/Admin.js";
 
-import { productsData } from "./data/seedProducts.js";
 import { categoriesData } from "./data/seedCategories.js";
 import { orderSeedData } from "./data/seedOrder.js";
 
 export const seedDatabase = async () => {
   try {
-    // Seed Products
-    const productCount = await Product.countDocuments();
-    if (productCount === 0) {
-      await Product.insertMany(productsData);
-      console.log(`✅ Inserted ${productsData.length} dummy products.`);
-    } else {
-      console.log(`⏭️ Skipped product insertion — ${productCount} products already exist.`);
-    }
-
     // Seed Categories
     const categoryCount = await Category.countDocuments();
     if (categoryCount === 0) {

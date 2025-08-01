@@ -67,10 +67,21 @@ const ProductDetails = () => {
         </div>
       </div>
 
-
       {/* Stat Cards */}
       <div className="w-full h-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 px-4 py-6">
         <StatGrid cards={getProfileCardData(product)} />
+      </div>
+
+      {/* Extra Info */}
+      <div className="bg-white p-5 mt-8 rounded-xl shadow-md border border-gray-200">
+        <h3 className="text-lg font-semibold mb-2 text-gray-700">Details</h3>
+        <ul className="text-gray-600 space-y-1">
+          <li><strong>Category:</strong> {product.category?.name || "N/A"}</li>
+          <li>
+            <strong>Created By:</strong> {product.createdBy?.name || "Unknown"}
+            {product.createdBy?.role ? ` (${product.createdBy.role})` : ""}
+          </li>
+        </ul>
       </div>
 
       {/* Description */}

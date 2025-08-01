@@ -4,12 +4,22 @@ const { Schema } = mongoose;
 
 const productSchema = new Schema(
   {
-    vendorId: {
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Person",
       required: true,
     },
+    createdByRole: {
+      type: String,
+      enum: ["vendor", "admin"],
+      required: true,
+    },
     title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    brand: {
       type: String,
       required: true,
       trim: true,
@@ -20,41 +30,72 @@ const productSchema = new Schema(
     },
     images: {
       type: [String], // URLs or Cloudinary paths
-      default: [],
+      required: true,
+      validate: [(val) => val.length > 0, "At least one image is required"],
+    },
+    video: {
+      type: String,
+      default: null,
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
+    specifications: {
+      type: Map,
+      of: String,
+      default: {},
     },
     price: {
       type: Number,
       required: true,
     },
+    discountPrice: {
+      type: Number,
+      default: null,
+    },
     stock: {
       type: Number,
       default: 0,
     },
-    category: {
-      type: mongoose.Schema.Types.ObjectId,
+    sku: {
+      type: String,
+      unique: true,
       required: true,
-      ref: "Category",
+      trim: true,
     },
-    tags: {
-      type: [String],
-      default: [],
+    hsnCode: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    gstRate: {
+      type: Number,
+      enum: [0, 5, 12, 18, 28],
+      required: true,
+    },
+    isTaxable: {
+      type: Boolean,
+      default: true,
+    },
+    freeDelivery: {
+      type: Boolean,
+      default: false,
     },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
-    unitsSold: {
-      type: Number,
-      default: 0,
+    visibility: {
+      type: String,
+      enum: ["public", "private"],
+      default: "public",
     },
-    totalRevenue: {
-      type: Number,
-      default: 0,
-    },
-    freeDelivery: {
-      type: Boolean,
-      default: false,
+    tags: {
+      type: [String],
+      default: [],
     },
     rating: {
       type: Number,
@@ -66,8 +107,16 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
     },
+    unitsSold: {
+      type: Number,
+      default: 0,
+    },
+    totalRevenue: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
 
-export default mongoose.model("Product", productSchema);
+export default mongoose.model("Product", productSchema); 
