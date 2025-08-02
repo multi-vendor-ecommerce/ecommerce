@@ -7,24 +7,35 @@ export const getAllProducts = async (req, res) => {
   try {
     const query = buildQuery(req.query, ["title"]);
 
-    // Build base query and populate category and creator details
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     let productQuery = Product.find(query)
+      .skip(skip)
+      .limit(limit)
       .populate("category", "name")
       .populate("createdBy", "name email shopName role");
 
-    // If the user is not an admin, limit the fields returned
     if (req.person?.role !== "admin") {
       productQuery = productQuery.select("title description images price category tags freeDelivery rating totalReviews");
     }
 
     const products = await productQuery;
+    const total = await Product.countDocuments(query);
 
-    res.status(200).send({ success: true, message: "Products fetched successfully.", products });
+    res.status(200).json({
+      success: true,
+      message: "Products fetched successfully.",
+      products,
+      total,
+      page,
+      limit,
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: "Server error.", details: err.message });
   }
 };
-
 
 // Public: Get a product
 export const getProductById = async (req, res) => {
