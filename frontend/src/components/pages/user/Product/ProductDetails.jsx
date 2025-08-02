@@ -57,10 +57,9 @@ const ProductDetails = () => {
     //  Check login & handle Add to Cart
     const handleAddToCart = async () => {
         const authToken = localStorage.getItem("customerToken");
-        console.log("authToken before navigate: ",authToken);
         if (!authToken) {
             const currentPath = window.location.pathname;
-            navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
+            navigate(`/login/user?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
             return;
         }
         console.log("authToken after navigate: ",authToken);

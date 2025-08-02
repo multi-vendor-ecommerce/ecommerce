@@ -1,9 +1,7 @@
 import { FaHeart, FaRandom, FaShoppingCart, FaSearch } from "react-icons/fa";
 import { Link, NavLink } from "react-router-dom";
-// import { useCart } from "../Cart/CartContext";
 
 function UserHeader() {
-  // const { cartItems } = useCart();
 
   return (
     <div className="w-full relative">
@@ -14,6 +12,10 @@ function UserHeader() {
           <Link to="/" className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap">
             <span className="text-user-dark">NOAH</span>PLANET
           </Link>
+
+        {/* <button onClick={() => logout('customer')} className="hidden sm:block text-md hover:text-user-primary">
+            Logout
+        </button> */}
 
           {/* Desktop Search */}
           <div className="hidden lg:flex flex-1 max-w-xl">

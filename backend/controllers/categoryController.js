@@ -58,55 +58,74 @@ export const createCategory = async (req, res) => {
   }
 };
 
-export const getCategories = async (req, res) => {
-  // try {
-  //   const buildTree = async (parent = null) => {
-  //     const categories = await Category.find({ parent });
-  //     const result = [];
+// export const getCategories = async (req, res) => {
+//   try {
+//     // Fetch all categories
+//     const allCategories = await Category.find().lean();
 
-  //     for (const cat of categories) {
-  //       const children = await buildTree(cat._id);
-  //       result.push({ ...cat.toObject(), children });
-  //     }
+//     // Convert flat array into nested structure
+//     const buildTree = (categories, parentId = null) => {
+//       return categories
+//         .filter(cat => String(cat.parent) === String(parentId))
+//         .map(cat => ({
+//           ...cat,
+//           subcategories: buildTree(categories, cat._id)
+//         }));
+//     };
 
-  //     return result;
-  //   };
+//     const nestedCategories = buildTree(allCategories);
 
-  //   const tree = await buildTree();
-  //   res.status(200).send({ success: true, categories: tree });
-  // } catch (err) {
-  //   res.status(500).send({
-  //     success: false,
-  //     message: "Failed to fetch category tree",
-  //     error: err.message,
-  //   });
-  // }
+//     res.status(200).json({
+//       success: true,
+//       categories: nestedCategories
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to fetch nested categories",
+//       error: error.message
+//     });
+//   }
+// };
 
+// @route   GET /api/categories
+// @query   level=1&parentId=null
+export const getCategoriesByLevel = async (req, res) => {
   try {
-    // Fetch all categories
+    const { level = 1, parentId = null } = req.query;
+
+    const levelNum = parseInt(level);
+
     const allCategories = await Category.find().lean();
 
-    // Convert flat array into nested structure
-    const buildTree = (categories, parentId = null) => {
+    const buildTree = (categories, currentParent = null, currentLevel = 1, targetLevel = levelNum) => {
+      if (currentLevel > targetLevel) return [];
+
       return categories
-        .filter(cat => String(cat.parent) === String(parentId))
-        .map(cat => ({
-          ...cat,
-          subcategories: buildTree(categories, cat._id)
-        }));
+        .filter(cat => String(cat.parent) === String(currentParent))
+        .map(cat => {
+          const node = { ...cat };
+          if (currentLevel < targetLevel) {
+            node.subcategories = buildTree(categories, cat._id, currentLevel + 1, targetLevel);
+          }
+          return node;
+        });
     };
 
-    const nestedCategories = buildTree(allCategories);
+    const queryParent = parentId && parentId !== "null" ? parentId : null;
+    const categories = buildTree(allCategories, queryParent); 
 
     res.status(200).json({
       success: true,
-      categories: nestedCategories
+      level: levelNum,
+      parentId: queryParent,
+      categories,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch nested categories",
-      error: error.message
+      message: "Failed to fetch categories by level",
+      error: error.message,
     });
   }
 };
