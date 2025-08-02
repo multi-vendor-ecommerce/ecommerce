@@ -9,8 +9,12 @@ import { getAllProducts, getProductById, getProductsByCategoryId, addProduct } f
 const router = express.Router();
 
 // ROUTE 1: GET /api/products
-// Desc: Showcase all the products to the user
+// Desc: Showcase all the products to the admin and user
 router.get("/", getAllProducts);
+
+// ROUTE 2: GET /api/top-products
+// Desc: Showcase all the top products to the user
+router.get("/top-products", getAllProducts);
 
 // ROUTE 2: GET /api/products/admin
 // Desc: Showcase all the products to the admin

@@ -1,15 +1,37 @@
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 
-// Public: Get all vendors
+// Public: Get all vendors (paginated)
 export const getAllVendors = async (req, res) => {
   try {
-    const query = buildQuery(req.query, ["name", "email", "shopName"]);
-    
-    const vendors = await Vendor.find(query);
-    res.status(200).send({ success: true, message: "Vendors fetched successfully.", vendors });
+    const query = buildQuery(req.query, ["name", "email", "shopName", "status"]);
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [vendors, total] = await Promise.all([
+      Vendor.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Vendor.countDocuments(query),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Vendors fetched successfully.",
+      vendors,
+      total,
+      page,
+      limit,
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: "Server error.", error: err.message, });
+    res.status(500).json({
+      success: false,
+      message: "Server error.",
+      error: err.message,
+    });
   }
 };
 

@@ -11,7 +11,7 @@ import { NavLink } from "react-router-dom";
 import { FiEdit } from "react-icons/fi";
 
 export default function Products({ heading }) {
-  const { getAllProducts, loading } = useContext(ProductContext);
+  const { getAllProducts, getTopSellingProducts, loading } = useContext(ProductContext);
 
   const [products, setProducts] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -19,17 +19,29 @@ export default function Products({ heading }) {
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  const isTopSellingPage = heading?.toLowerCase().includes("top");
+
   useEffect(() => {
-    fetchPaginatedProducts(1, itemsPerPage);
+    if (isTopSellingPage) {
+      fetchTopSelling();
+    } else {
+      fetchPaginatedProducts(1, itemsPerPage);
+    }
   }, []);
 
   const fetchPaginatedProducts = async (pg = 1, limit = itemsPerPage) => {
     const result = await getAllProducts({ ...filters, page: pg, limit });
     if (result?.products) {
-      setProducts(result.products); // replace instead of append
+      setProducts(result.products);
       setTotalCount(result.total);
       setPage(pg);
     }
+  };
+
+  const fetchTopSelling = async () => {
+    const topProducts = await getTopSellingProducts(100);
+    setProducts(topProducts);
+    setTotalCount(topProducts.length);
   };
 
   const handleChange = (name, value) => {
@@ -37,12 +49,21 @@ export default function Products({ heading }) {
   };
 
   const handleApply = () => {
-    fetchPaginatedProducts(1, itemsPerPage);
+    if (isTopSellingPage) {
+      fetchTopSelling();
+    } else {
+      fetchPaginatedProducts(1, itemsPerPage);
+    }
   };
 
   const handleClear = () => {
-    setFilters({ search: "", status: "" });
-    fetchPaginatedProducts(1, itemsPerPage);
+    const reset = { search: "", status: "" };
+    setFilters(reset);
+    if (isTopSellingPage) {
+      fetchTopSelling();
+    } else {
+      fetchPaginatedProducts(1, itemsPerPage);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -50,12 +71,12 @@ export default function Products({ heading }) {
   };
 
   const handlePageChange = (pg) => {
-    fetchPaginatedProducts(pg, itemsPerPage);
+    if (!isTopSellingPage) fetchPaginatedProducts(pg, itemsPerPage);
   };
 
   const handleItemsPerPageChange = (limit) => {
     setItemsPerPage(limit);
-    fetchPaginatedProducts(1, limit); // reset to page 1
+    if (!isTopSellingPage) fetchPaginatedProducts(1, limit);
   };
 
   const headers = [
@@ -104,6 +125,7 @@ export default function Products({ heading }) {
         itemsPerPage={itemsPerPage}
         onPageChange={handlePageChange}
         onItemsPerPageChange={handleItemsPerPageChange}
+        disablePagination={isTopSellingPage} // <--- disables pagination UI if top-selling
       >
         {() => (
           <div className="rounded-xl border border-gray-200 shadow-md shadow-blue-500 bg-white overflow-hidden">

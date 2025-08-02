@@ -10,13 +10,14 @@ export const getAllCustomers = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const users = await User.find(query)
-      .select("-password")
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 }); // optional
-
-    const total = await User.countDocuments(query);
+    const [users, total] = await Promise.all([
+      User.find(query)
+        .select("-password")
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 }), // optional sort
+      User.countDocuments(query),
+    ]);
 
     res.status(200).json({
       success: true,
@@ -28,7 +29,7 @@ export const getAllCustomers = async (req, res) => {
     });
   } catch (err) {
     console.error("getAllCustomers error:", err.message);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Internal Server Error.",
       error: err.message,

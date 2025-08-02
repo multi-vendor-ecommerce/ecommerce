@@ -67,6 +67,28 @@ const ProductState = ({ children }) => {
     }
   };
 
+  const getTopSellingProducts = async (limit = 100) => {
+    try {
+      const res = await fetch(`${host}/api/products/top-products?limit=${limit}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("adminToken"), // if required
+        },
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        return data.products;
+      } else {
+        throw new Error(data.message || "Unknown error");
+      }
+    } catch (err) {
+      console.error("Failed to fetch top-selling products:", err.message);
+      return [];
+    }
+  };
+
   const getProductById = async (id) => {
     try {
       const response = await fetch(`${host}/api/products/admin/${id}`,
@@ -147,7 +169,7 @@ const ProductState = ({ children }) => {
   };
 
   return (
-    <ProductContext.Provider value={{ products, loading, totalCount, getAllProducts, getAllPublicProducts, getProductById, getPublicProductById, getProductsByCategoryId, addProduct }}>
+    <ProductContext.Provider value={{ products, loading, totalCount, getAllProducts, getAllPublicProducts, getProductById, getPublicProductById, getProductsByCategoryId, addProduct, getTopSellingProducts }}>
       {children}
     </ProductContext.Provider>
   )

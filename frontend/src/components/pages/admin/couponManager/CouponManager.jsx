@@ -8,14 +8,32 @@ import Spinner from "../../../common/Spinner";
 import BackButton from "../../../common/layout/BackButton";
 
 export default function CouponsManager() {
-  const { coupons, getAllCoupons, addCoupon, deleteCoupon, loading } = useContext(CouponContext);
+  const {
+    coupons,
+    getAllCoupons,
+    addCoupon,
+    deleteCoupon,
+    loading,
+    totalCount,
+  } = useContext(CouponContext);
+
+  const [page, setPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [errors, setErrors] = useState({});
-  const [form, setForm] = useState({ code: "", discount: "", minPurchase: "", maxDiscount: "", expiryDate: "", usageLimit: "", isActive: true });
+  const [form, setForm] = useState({
+    code: "",
+    discount: "",
+    minPurchase: "",
+    maxDiscount: "",
+    expiryDate: "",
+    usageLimit: "",
+    isActive: true,
+  });
 
   useEffect(() => {
-    getAllCoupons();
-  }, []);
+    getAllCoupons(page, itemsPerPage);
+  }, [page, itemsPerPage]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -48,16 +66,28 @@ export default function CouponsManager() {
     const result = await addCoupon(payload);
 
     if (result.success) {
-      setForm({ code: "", discount: "", minPurchase: "", maxDiscount: "", expiryDate: "", usageLimit: "", isActive: true });
+      setForm({
+        code: "",
+        discount: "",
+        minPurchase: "",
+        maxDiscount: "",
+        expiryDate: "",
+        usageLimit: "",
+        isActive: true,
+      });
       setErrors({});
+      getAllCoupons(page, itemsPerPage); // Refresh list after add
     } else {
       alert(result.message);
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const confirmation = confirm("Are you sure?");
-    if (confirmation) deleteCoupon(id);
+    if (confirmation) {
+      await deleteCoupon(id);
+      getAllCoupons(page, itemsPerPage); // Refresh list after delete
+    }
   };
 
   return (
@@ -76,8 +106,6 @@ export default function CouponsManager() {
         handleAddCoupon={handleAddCoupon}
       />
 
-      {/* List */}
-      
       {/* Loading or No Coupons */}
       {loading ? (
         <div className="flex justify-center pt-10 mt-6"><Spinner /></div>
@@ -86,10 +114,20 @@ export default function CouponsManager() {
       ) : (
         <div className="bg-white hover:shadow-blue-500 shadow-md transition duration-200 rounded-xl border border-gray-200 p-6 mt-6">
           <h3 className="text-lg md:text-xl font-semibold mb-4">All Coupons</h3>
-          <PaginatedLayout data={coupons} initialPerPage={5}>
-            {(currentItems) => (
+
+          <PaginatedLayout
+            totalItems={totalCount}
+            currentPage={page}
+            itemsPerPage={itemsPerPage}
+            onPageChange={(pg) => setPage(pg)}
+            onItemsPerPageChange={(limit) => {
+              setItemsPerPage(limit);
+              setPage(1); // reset to first page
+            }}
+          >
+            {() => (
               <ul className="space-y-3">
-                {currentItems.map((c) => (
+                {coupons.map((c) => (
                   <li
                     key={c._id}
                     className="flex justify-between items-center border-b border-gray-300 mx-2 px-1.5 py-3"
@@ -97,7 +135,7 @@ export default function CouponsManager() {
                     <div>
                       <p className="text-[16px] md:text-lg font-semibold text-gray-800">{c.code}</p>
                       <p className="text-sm md:text-[16px] text-gray-600 mt-1">
-                        ₹{c.discount} off | Min ₹{c.minPurchase} | Expires:&nbsp;
+                        ₹{c.discount} off | Min ₹{c.minPurchase} | Expires:{" "}
                         <span className="font-medium">{getFormatDate(c.expiryDate)}</span> | Limit:&nbsp;
                         {c.usageLimit}
                         <span

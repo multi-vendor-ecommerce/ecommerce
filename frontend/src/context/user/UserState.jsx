@@ -34,7 +34,7 @@ const UserState = (props) => {
 
       const data = await response.json();
       setUsers(data.users);
-      setTotalCount(data.total); // ✅
+      setTotalCount(data.total);
     } catch (error) {
       console.error("Error fetching customers:", error);
     } finally {

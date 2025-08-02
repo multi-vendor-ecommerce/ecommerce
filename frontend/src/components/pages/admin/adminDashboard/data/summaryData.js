@@ -1,5 +1,4 @@
-import { FaRupeeSign, FaUser, FaBoxOpen } from "react-icons/fa";
-import { BiCart } from "react-icons/bi";
+import { FaRupeeSign, FaUser, FaBoxOpen, FaShoppingCart } from "react-icons/fa";
 
 export const dateFilterFields = [
   {
@@ -21,7 +20,7 @@ export const dateFilterFields = [
 export const getCards = ({ totalRevenue, totalOrders, totalCustomers, totalProducts }) => [
   {
     label: "Revenue",
-    value: `₹${totalRevenue}`,
+    value: `${totalRevenue}`,
     bgColor: "bg-green-100",
     shadowColor: "hover:shadow-green-500",
     icon: FaRupeeSign,
@@ -31,7 +30,7 @@ export const getCards = ({ totalRevenue, totalOrders, totalCustomers, totalProdu
     value: totalOrders,
     bgColor: "bg-pink-200",
     shadowColor: "hover:shadow-pink-500",
-    icon: BiCart,
+    icon: FaShoppingCart,
   },
   {
     label: "Customers",

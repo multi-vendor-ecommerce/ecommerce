@@ -6,12 +6,11 @@ import { toTitleCase } from "../utils/titleCase.js";
 export const getAllProducts = async (req, res) => {
   try {
     const query = buildQuery(req.query, ["title"]);
-
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    let productQuery = Product.find(query)
+    let baseQuery = Product.find(query)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
@@ -19,11 +18,13 @@ export const getAllProducts = async (req, res) => {
       .populate("createdBy", "name email shopName role");
 
     if (req.person?.role !== "admin") {
-      productQuery = productQuery.select("title description images price category tags freeDelivery rating totalReviews");
+      baseQuery = baseQuery.select("title description images price category tags freeDelivery rating totalReviews");
     }
 
-    const products = await productQuery;
-    const total = await Product.countDocuments(query);
+    const [products, total] = await Promise.all([
+      baseQuery,
+      Product.countDocuments(query),
+    ]);
 
     res.status(200).json({
       success: true,
@@ -34,7 +35,41 @@ export const getAllProducts = async (req, res) => {
       limit,
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: "Server error.", details: err.message });
+    res.status(500).json({
+      success: false,
+      error: "Server error.",
+      details: err.message,
+    });
+  }
+};
+
+// Public: Get all 100 top products
+export const getTopSellingProducts = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+
+    const [products, total] = await Promise.all([
+      Product.find({ status: "approved" })
+        .sort({ unitsSold: -1 }) // highest selling first
+        .limit(limit)
+        .populate("category", "name")
+        .select("title price unitsSold category images status rating totalReviews"),
+      Product.countDocuments({ status: "approved" }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Top selling products fetched successfully.",
+      products,
+      total,
+      limit,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch top selling products.",
+      error: err.message,
+    });
   }
 };
 
