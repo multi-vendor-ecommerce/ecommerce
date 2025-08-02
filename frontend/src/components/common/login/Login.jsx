@@ -55,7 +55,6 @@ const Login = ({ loginRole }) => {
     }
     const result = await requestOtp(form.email);
     if (result.success) {
-      if (!handleRoleAndNavigate(result.role)) return;
       setOtpRequested(true);
       setErrorMsg("OTP sent! Check your email (expires in 5 minutes).");
     } else {
@@ -108,6 +107,8 @@ const Login = ({ loginRole }) => {
               <input
                 type="email"
                 name="email"
+                placeholder="abc@example.com"
+                title="Enter your mail"
                 value={form.email}
                 onChange={handleChange}
                 className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
@@ -124,6 +125,8 @@ const Login = ({ loginRole }) => {
                 <input
                   type="password"
                   name="password"
+                  placeholder="******"
+                  title="Enter a strong password"
                   value={form.password}
                   onChange={handleChange}
                   className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
@@ -140,6 +143,8 @@ const Login = ({ loginRole }) => {
                 <input
                   type="text"
                   name="otp"
+                  placeholder="******"
+                  title="Enter the OTP"
                   value={form.otp}
                   onChange={handleChange}
                   className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"

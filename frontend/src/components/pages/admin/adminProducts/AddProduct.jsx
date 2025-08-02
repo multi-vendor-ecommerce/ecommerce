@@ -4,13 +4,9 @@ import CategoryContext from "../../../../context/categories/CategoryContext";
 
 const AddProduct = () => {
   const { addProduct } = useContext(ProductContext);
-  const { categories, getAllCategories, loading } = useContext(CategoryContext);
+  const { getCategoriesByLevel } = useContext(CategoryContext);
 
-  useEffect(() => {
-    getAllCategories();
-  }, []);
-
-  const initialForm = {
+  const [formData, setFormData] = useState({
     title: "",
     description: "",
     price: "",
@@ -26,27 +22,44 @@ const AddProduct = () => {
     gstRate: "",
     isTaxable: true,
     freeDelivery: false,
-    status: "pending", // as per schema
-    visibility: "public", // default
+    status: "pending",
+    visibility: "public",
+  });
+
+  const [images, setImages] = useState([]);
+  const [categoryLevels, setCategoryLevels] = useState([[]]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+
+  useEffect(() => {
+  loadCategories(1, null, 0); // ✅ Properly specify level 1 and no parent
+}, []);
+
+  const loadCategories = async (level = 1, parentId = null, index = 0) => {
+    const newCategories = await getCategoriesByLevel(level, parentId);
+    if (!newCategories || newCategories.length === 0) {
+      setCategoryLevels((prev) => prev.slice(0, index + 1));
+      setSelectedCategories((prev) => prev.slice(0, index + 1));
+      return;
+    }
+    const updatedLevels = [...categoryLevels.slice(0, index + 1), newCategories];
+    setCategoryLevels(updatedLevels);
+    setSelectedCategories((prev) => prev.slice(0, index + 1));
   };
 
-  const [formData, setFormData] = useState(initialForm);
-  const [images, setImages] = useState([]);
+  const handleCategoryChange = (e, levelIndex) => {
+    const selectedId = e.target.value;
+    const updatedSelections = [...selectedCategories];
+    updatedSelections[levelIndex] = selectedId;
+    setSelectedCategories(updatedSelections);
+    setFormData((prev) => ({ ...prev, category: selectedId }));
+
+    loadCategories(levelIndex + 1, selectedId, levelIndex);
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    let val = value;
-
-    if (type === "checkbox") val = checked;
-
-    if (["title", "brand", "category"].includes(name)) {
-      val = val.trimStart().replace(/\s+/g, " ");
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: val,
-    }));
+    const val = type === "checkbox" ? checked : value;
+    setFormData((prev) => ({ ...prev, [name]: val }));
   };
 
   const handleImageChange = (e) => {
@@ -55,7 +68,6 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const submitData = new FormData();
     Object.entries(formData).forEach(([key, value]) =>
       submitData.append(key, value)
@@ -63,10 +75,17 @@ const AddProduct = () => {
     images.forEach((img) => submitData.append("images", img));
 
     const success = await addProduct(submitData);
+
     if (success) {
       alert("Product added successfully!");
-      setFormData(initialForm);
+      setFormData({
+        title: "", description: "", price: "", discount: "", stock: "", brand: "",
+        category: "", color: "", size: "", tags: "", sku: "", hsnCode: "",
+        gstRate: "", isTaxable: true, freeDelivery: false, status: "pending", visibility: "public"
+      });
       setImages([]);
+      setSelectedCategories([]);
+      setCategoryLevels([categoryLevels[0]]);
     } else {
       alert("Failed to add product.");
     }
@@ -77,46 +96,35 @@ const AddProduct = () => {
       <h2 className="text-xl font-semibold mb-4">Add New Product</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
 
-        {/* Basic text inputs */}
-        {[
-          { name: "title", placeholder: "Product Title" },
-          { name: "brand", placeholder: "Brand" },
-          { name: "tags", placeholder: "Tags (comma-separated)" },
-          { name: "color", placeholder: "Color" },
-          { name: "size", placeholder: "Size" },
-          { name: "sku", placeholder: "SKU" },
-          { name: "hsnCode", placeholder: "HSN Code" },
-        ].map(({ name, placeholder }) => (
-          <input
-            key={name}
-            name={name}
-            type="text"
-            placeholder={placeholder}
-            className="w-full border p-2 rounded"
-            value={formData[name]}
-            onChange={handleInputChange}
-            required={["title", "category", "sku", "hsnCode"].includes(name)}
-          />
-        ))}
-
-        <label className="block">
-          <span className="text-sm text-gray-600">Category</span>
+        {/* Category Selects by Levels */}
+        {categoryLevels.map((level, idx) => (
           <select
-            name="category"
-            value={formData.category}
-            onChange={handleInputChange}
-            required
+            key={idx}
             className="w-full border p-2 rounded"
+            value={selectedCategories[idx] || ""}
+            onChange={(e) => handleCategoryChange(e, idx)}
+            required={idx === categoryLevels.length - 1}
           >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
+            <option value="">Select Category Level {idx + 1}</option>
+            {level.map((cat) => (
+              <option key={cat._id} value={cat._id}>{cat.name}</option>
             ))}
           </select>
-        </label>
+        ))}
 
+        {/* Basic text inputs */}
+        {["title", "brand", "tags", "color", "size", "sku", "hsnCode"].map((field) => (
+          <input
+            key={field}
+            name={field}
+            type="text"
+            placeholder={field.replace(/([A-Z])/g, ' $1')}
+            className="w-full border p-2 rounded"
+            value={formData[field]}
+            onChange={handleInputChange}
+            required={["title", "sku", "hsnCode"].includes(field)}
+          />
+        ))}
 
         {/* Description */}
         <textarea
@@ -129,48 +137,34 @@ const AddProduct = () => {
         />
 
         {/* Number inputs */}
-        {[
-          { name: "price", placeholder: "Price" },
-          { name: "discount", placeholder: "Discount %" },
-          { name: "stock", placeholder: "Stock" },
-          { name: "gstRate", placeholder: "GST Rate (e.g., 0, 5, 12)" },
-        ].map(({ name, placeholder }) => (
+        {["price", "discount", "stock", "gstRate"].map((field) => (
           <input
-            key={name}
-            name={name}
+            key={field}
+            name={field}
             type="number"
-            placeholder={placeholder}
+            placeholder={field.replace(/([A-Z])/g, ' $1')}
             className="w-full border p-2 rounded"
-            value={formData[name]}
+            value={formData[field]}
             onChange={handleInputChange}
-            required={["price", "stock", "gstRate"].includes(name)}
+            required={["price", "stock", "gstRate"].includes(field)}
           />
         ))}
 
         {/* Checkboxes */}
-        <label className="block">
-          <input
-            type="checkbox"
-            name="isTaxable"
-            checked={formData.isTaxable}
-            onChange={handleInputChange}
-            className="mr-2"
-          />
-          Is Taxable
-        </label>
+        {["isTaxable", "freeDelivery"].map((field) => (
+          <label key={field} className="block">
+            <input
+              type="checkbox"
+              name={field}
+              checked={formData[field]}
+              onChange={handleInputChange}
+              className="mr-2"
+            />
+            {field.replace(/([A-Z])/g, ' $1')}
+          </label>
+        ))}
 
-        <label className="block">
-          <input
-            type="checkbox"
-            name="freeDelivery"
-            checked={formData.freeDelivery}
-            onChange={handleInputChange}
-            className="mr-2"
-          />
-          Free Delivery
-        </label>
-
-        {/* Select Status and Visibility */}
+        {/* Status & Visibility */}
         <select
           name="status"
           className="w-full border p-2 rounded"
