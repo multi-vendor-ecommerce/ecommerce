@@ -4,6 +4,7 @@ import CategoryContext from "./CategoryContext";
 const CategoryState = (props) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [categoriesByLevel, setCategoriesByLevel] = useState({});
 
   // const host = import.meta.env.VITE_BACKEND_URL;
   const host = "http://localhost:5000";
@@ -32,19 +33,35 @@ const CategoryState = (props) => {
     }
   };
 
-  const getCategoriesByLevel = async (level = 1, parentId = null) => {
+  const getCategoriesByParent = async (parentId = null) => {
+    const cacheKey = `parent-${parentId || "root"}`;
+
+    // Return from cache if already fetched
+    if (categoriesByLevel[cacheKey]) {
+      return categoriesByLevel[cacheKey];
+    }
+
     try {
-      const res = await fetch(`${host}/api/categories?level=${level}&parentId=${parentId || ""}`);
+      const res = await fetch(`${host}/api/categories?parentId=${parentId || ""}`);
       const data = await res.json();
-      return data.categories;
+
+      if (data.success) {
+        setCategoriesByLevel((prev) => ({
+          ...prev,
+          [cacheKey]: data.categories,
+        }));
+        return data.categories;
+      } else {
+        return [];
+      }
     } catch (error) {
-      console.error("Error fetching categories by level", error);
+      console.error("Error fetching categories by parent", error);
       return [];
     }
   };
 
   return (
-    <CategoryContext.Provider value={{ categories, loading, getAllCategories, getCategoriesByLevel, }}>
+    <CategoryContext.Provider value={{ categories, loading, getAllCategories, getCategoriesByParent, }}>
       {props.children}
     </CategoryContext.Provider>
   )

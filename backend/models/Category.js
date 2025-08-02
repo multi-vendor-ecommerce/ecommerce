@@ -24,13 +24,11 @@ const categorySchema = new Schema(
     },
     parent: {
       type: mongoose.Schema.Types.ObjectId,
+      required: false,
       ref: "Category",
       default: null,
     },
-    level: {
-      type: Number,
-      default: 1,
-    },
+
   },
   { timestamps: true }
 );

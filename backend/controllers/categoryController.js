@@ -90,42 +90,53 @@ export const createCategory = async (req, res) => {
 
 // @route   GET /api/categories
 // @query   level=1&parentId=null
-export const getCategoriesByLevel = async (req, res) => {
+
+export const getCategories = async (req, res) => {
   try {
-    const { level = 1, parentId = null } = req.query;
+    const categories = await Category.find({ parent: req.query.parentId || null })
 
-    const levelNum = parseInt(level);
+    if (!categories || categories.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No categories found",
+        data: []
+      });
+    }
 
-    const allCategories = await Category.find().lean();
-
-    const buildTree = (categories, currentParent = null, currentLevel = 1, targetLevel = levelNum) => {
-      if (currentLevel > targetLevel) return [];
-
-      return categories
-        .filter(cat => String(cat.parent) === String(currentParent))
-        .map(cat => {
-          const node = { ...cat };
-          if (currentLevel < targetLevel) {
-            node.subcategories = buildTree(categories, cat._id, currentLevel + 1, targetLevel);
-          }
-          return node;
-        });
-    };
-
-    const queryParent = parentId && parentId !== "null" ? parentId : null;
-    const categories = buildTree(allCategories, queryParent); 
-
+    const nestedCats = nestedCategories(categories);
     res.status(200).json({
       success: true,
-      level: levelNum,
-      parentId: queryParent,
-      categories,
+      message: "Categories  fetch Successfully!",
+      data: nestedCats
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch categories by level",
-      error: error.message,
+      message: "Failed to fetch categories",
+      error: error.message
     });
   }
-};
+}
+
+const nestedCategories = (categories, parentId = null) => {
+  const CategoryList = [];
+
+  let category;
+  if (parentId === null) {
+    category = categories.filter(cat => cat.parent === null);
+  } else {
+    category = categories.filter(cat => String(cat.parent) === String(parentId));
+  }
+
+  for (let cate of category) {
+    const subCategories = nestedCategories(categories, cate._id);
+    CategoryList.push({
+      ...cate.toObject(),
+      subcategories: subCategories,
+      children: nestedCategories(categories, cate._id)
+    });
+  }
+
+  return CategoryList;
+}

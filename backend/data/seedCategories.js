@@ -32,6 +32,7 @@ export const categoriesData = [
       },
       {
         name: "Audio",
+        image: "https://example.com/audio.jpg",
         subcategories: [
           {
             name: "Headphones",
@@ -47,6 +48,96 @@ export const categoriesData = [
         subcategories: [
           { name: "Studio Lights" },
           { name: "Ring Lights" }
+        ]
+      }
+    ]
+  },
+  {
+    name: "Fashion",
+    image: "https://example.com/fashion.jpg",
+    subcategories: [
+      {
+        name: "Men",
+        image: "https://example.com/men.jpg",
+        subcategories: [
+          {
+            name: "Shirts",
+            subcategories: [
+              { name: "Formal Shirts" },
+              { name: "Casual Shirts" }
+            ]
+          },
+          {
+            name: "Trousers",
+            subcategories: [
+              { name: "Chinos" },
+              { name: "Jeans" }
+            ]
+          }
+        ]
+      },
+      {
+        name: "Women",
+        image: "https://example.com/women.jpg",
+        subcategories: [
+          {
+            name: "Dresses",
+            subcategories: [
+              { name: "Evening Gowns" },
+              { name: "Summer Dresses" }
+            ]
+          },
+          {
+            name: "Sarees",
+            subcategories: [
+              { name: "Silk Sarees" },
+              { name: "Cotton Sarees" }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "Home & Kitchen",
+    image: "https://example.com/home.jpg",
+    subcategories: [
+      {
+        name: "Furniture",
+        subcategories: [
+          { name: "Sofas" },
+          { name: "Beds" },
+          { name: "Dining Tables" }
+        ]
+      },
+      {
+        name: "Kitchen Appliances",
+        subcategories: [
+          { name: "Microwave Ovens" },
+          { name: "Mixers" },
+          { name: "Refrigerators" }
+        ]
+      }
+    ]
+  },
+  {
+    name: "Sports & Outdoors",
+    image: "https://example.com/sports.jpg",
+    subcategories: [
+      {
+        name: "Fitness",
+        subcategories: [
+          { name: "Treadmills" },
+          { name: "Dumbbells" },
+          { name: "Yoga Mats" }
+        ]
+      },
+      {
+        name: "Outdoor Sports",
+        subcategories: [
+          { name: "Cricket" },
+          { name: "Football" },
+          { name: "Badminton" }
         ]
       }
     ]
