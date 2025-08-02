@@ -54,8 +54,8 @@ function AppRoutes() {
       {/* Public Auth Routes */}
       <Route path="/login/">
         <Route path="user" element={<UserLogin />} />
-        <Route path="admin" element={<AdminLogin />} />
         <Route path="vendor" element={<VendorLogin />} />
+        <Route path="admin" element={<AdminLogin />} />
       </Route>
 
       <Route path="/register/">
@@ -64,9 +64,9 @@ function AppRoutes() {
       </Route>
 
       {/* Role-Based Dashboards */}
+      <Route path="/*" element={<User />} />
       <Route path="/vendor/*" element={<Vendor />} />
       <Route path="/admin/*" element={<Admin />} />
-      <Route path="/*" element={<User />} />
     </Routes>
   );
 }

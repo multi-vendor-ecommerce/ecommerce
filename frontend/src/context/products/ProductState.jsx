@@ -3,6 +3,7 @@ import ProductContext from "./ProductContext";
 
 const ProductState = ({ children }) => {
   const [products, setProducts] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
   // const host = import.meta.env.VITE_BACKEND_URL;
@@ -21,34 +22,71 @@ const ProductState = ({ children }) => {
       if (!response.ok) throw new Error("Failed to fetch products.");
 
       const data = await response.json();
-      return data;
+      return {
+        products: data.products || [],
+        total: data.total || 0,
+        success: data.success,
+      };
     } catch (error) {
       console.error("Product fetch error:", error);
-      return null;
+      return { products: [], total: 0, success: false };
     } finally {
       setLoading(false);
     }
   };
 
   // Admin - Get all products
-  const getAllProducts = async ({ search = "", status = "" } = {}) => {
+  const getAllProducts = async ({ search = "", status = "", page = 1, limit = 10 } = {}) => {
     const params = new URLSearchParams();
     if (search?.trim()) params.append("search", search);
     if (status) params.append("status", status);
+    params.append("page", page);
+    params.append("limit", limit);
 
     const url = `${host}/api/products/admin?${params.toString()}`;
     const data = await fetchProducts(url, true);
-    if (data?.success) setProducts(data.products);
+    if (data.success) {
+      setProducts(data.products);
+      setTotalCount(data.total);
+    }
+    return data; // ✅ important: return for the component to use
   };
 
-  // Public - Get all products
-  const getAllPublicProducts = async ({ search = "" } = {}) => {
+  const getAllPublicProducts = async ({ search = "", page = 1, limit = 10 } = {}) => {
     const params = new URLSearchParams();
     if (search?.trim()) params.append("search", search);
+    params.append("page", page);
+    params.append("limit", limit);
 
     const url = `${host}/api/products?${params.toString()}`;
     const data = await fetchProducts(url);
-    if (data?.products) setProducts(data.products);
+
+    if (data?.products) {
+      setProducts(data.products);
+      setTotalCount(data.total); // for pagination on public pages
+    }
+  };
+
+  const getTopSellingProducts = async (limit = 100) => {
+    try {
+      const res = await fetch(`${host}/api/products/top-products?limit=${limit}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("adminToken"), // if required
+        },
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        return data.products;
+      } else {
+        throw new Error(data.message || "Unknown error");
+      }
+    } catch (err) {
+      console.error("Failed to fetch top-selling products:", err.message);
+      return [];
+    }
   };
 
   const getProductById = async (id) => {
@@ -131,7 +169,7 @@ const ProductState = ({ children }) => {
   };
 
   return (
-    <ProductContext.Provider value={{ products, loading, getAllProducts, getAllPublicProducts, getProductById, getPublicProductById, getProductsByCategoryId, addProduct }}>
+    <ProductContext.Provider value={{ products, loading, totalCount, getAllProducts, getAllPublicProducts, getProductById, getPublicProductById, getProductsByCategoryId, addProduct, getTopSellingProducts }}>
       {children}
     </ProductContext.Provider>
   )

@@ -76,22 +76,42 @@ export const getVendorOrders = async (req, res) => {
 };
 
 export const getAllOrders = async (req, res) => {
-  if (req.person.role !== "admin") {
-    return res.status(403).json({ success: false, message: "Access denied" });
-  }
-
   try {
-    // Build search query (example: search on 'status')
-    const query = buildQuery(req.query);
+    if (req.person.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
 
-    const orders = await Order.find(query)
-      .populate({ path: "products.product", select: "title price" })
-      .populate({ path: "vendor", select: "name email shopName" })
-      .populate({ path: "user", select: "name email" });
+    const query = buildQuery(req.query, ["status", "paymentStatus", "orderId"]);
 
-    res.status(200).json({ success: true, message: "Orders fetched successfully.", orders });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [orders, total] = await Promise.all([
+      Order.find(query)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .populate({ path: "products.product", select: "title price" })
+        .populate({ path: "vendor", select: "name email shopName" })
+        .populate({ path: "user", select: "name email" }),
+      Order.countDocuments(query),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Orders fetched successfully.",
+      orders,
+      total,
+      page,
+      limit,
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server Error", error: err.message });
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: err.message,
+    });
   }
 };
 

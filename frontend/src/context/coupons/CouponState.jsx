@@ -4,31 +4,34 @@ import CouponContext from "./CouponContext";
 const CouponState = (props) => {
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
 
   const host = import.meta.env.VITE_BACKEND_URL;
-  // const host = "http://localhost:5000";
+  // const host = http://localhost:5000
 
-  const getAllCoupons = async () => {
+  // Get paginated coupons
+  const getAllCoupons = async (page = 1, limit = 10) => {
     try {
       setLoading(true);
+      
+      const params = new URLSearchParams();
+      params.append("page", page);
+      params.append("limit", limit);
 
-      const response = await fetch(
-        `${host}/api/coupons`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          // credentials: "include",
-        }
-      );
+      const res = await fetch(`${host}/api/coupons?${params.toString()}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
 
-      if (!response.ok) throw new Error("Failed to fetch coupons.");
+      if (!res.ok) throw new Error("Failed to fetch coupons.");
+      const data = await res.json();
 
-      const data = await response.json();
-      setCoupons(data.coupons);
+      if (data.success) {
+        setCoupons(data.coupons);
+        setTotalCount(data.total);
+      }
     } catch (error) {
-      console.error("Error fetching customers:", error);
+      console.error("Error fetching coupons:", error.message);
     } finally {
       setLoading(false);
     }
@@ -73,7 +76,7 @@ const CouponState = (props) => {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        "auth-token": token
+        "auth-token": localStorage.getItem("adminToken"),
       }
     });
 
@@ -85,7 +88,7 @@ const CouponState = (props) => {
   }
 
   return (
-    <CouponContext.Provider value={{ coupons, getAllCoupons, addCoupon, deleteCoupon, loading }}>
+    <CouponContext.Provider value={{ coupons, totalCount, getAllCoupons, addCoupon, deleteCoupon, loading }}>
       {props.children}
     </CouponContext.Provider>
   )

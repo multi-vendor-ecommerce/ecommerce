@@ -1,42 +1,59 @@
 import { useEffect, useContext, useState } from "react";
 import VendorContext from "../../../../context/vendors/VendorContext";
 import { RenderVendorRow } from "./RenderVendorRow";
-import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
 import Spinner from "../../../common/Spinner";
 import { vendorFilterFields } from "./data/vendorFilterFields";
 import FilterBar from "../../../common/FilterBar";
 import BackButton from "../../../common/layout/BackButton";
+import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 
 const VendorManagement = ({ heading }) => {
-  const { vendors, getAllVendors, loading } = useContext(VendorContext);
+  const { vendors, getAllVendors, totalCount, loading } = useContext(VendorContext);
+
   const [filters, setFilters] = useState({ search: "", status: "" });
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   useEffect(() => {
-    getAllVendors();
+    fetchPaginatedVendors(1, limit); // initial fetch
   }, []);
+
+  const fetchPaginatedVendors = (pg = 1, lim = limit) => {
+    getAllVendors({ ...filters, page: pg, limit: lim });
+    setPage(pg);
+  };
 
   const handleChange = (name, value) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleApply = () => {
-    // Example filter logic – adapt it to real backend/API usage
-    getAllVendors(filters);
+    fetchPaginatedVendors(1, limit);
   };
 
   const handleClear = () => {
-    setFilters({ search: "", status: "" });
-    getAllVendors(); // no filters
+    const reset = { search: "", status: "" };
+    setFilters(reset);
+    fetchPaginatedVendors(1, limit);
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleApply();
-    }
+    if (e.key === "Enter") handleApply();
   };
 
-  if (loading) {
+  const handlePageChange = (pg) => {
+    fetchPaginatedVendors(pg, limit);
+  };
+
+  const handleItemsPerPageChange = (lim) => {
+    setLimit(lim);
+    fetchPaginatedVendors(1, lim);
+  };
+
+  const headers = ["Vendor", "Email", "Shop", "Products Qty", "Total Sales", "Commission", "Registered On", "Status", "Actions"];
+
+  if (loading && vendors.length === 0) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
         <Spinner />
@@ -44,34 +61,36 @@ const VendorManagement = ({ heading }) => {
     );
   }
 
-  const headers = ["Vendor", "Email", "Shop", "Products Qty", "Total Sales", "Commission", "Registered On", "Status", "Actions"];
-
   return (
     <section className="bg-gray-100 w-full min-h-screen p-6 shadow-md">
       <BackButton />
 
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 lg:gap-0 mt-4 mb-6">
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mt-4 mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800">{heading}</h2>
 
-        <div>
-          <FilterBar
-            fields={vendorFilterFields}
-            values={filters}
-            onChange={handleChange}
-            onApply={handleApply}
-            onClear={handleClear}
-            onKeyDown={handleKeyDown}
-          />
-        </div>
+        <FilterBar
+          fields={vendorFilterFields}
+          values={filters}
+          onChange={handleChange}
+          onApply={handleApply}
+          onClear={handleClear}
+          onKeyDown={handleKeyDown}
+        />
       </div>
 
-      <PaginatedLayout data={vendors} initialPerPage={10}>
-        {(currentItems) => (
+      <PaginatedLayout
+        totalItems={totalCount}
+        currentPage={page}
+        itemsPerPage={limit}
+        onPageChange={handlePageChange}
+        onItemsPerPageChange={handleItemsPerPageChange}
+      >
+        {() => (
           <div className="overflow-hidden bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
             <TabularData
               headers={headers}
-              data={currentItems}
-              renderRow={(v, i) => RenderVendorRow(v, i)}
+              data={vendors}
+              renderRow={RenderVendorRow}
               emptyMessage="No vendors found."
             />
           </div>
@@ -82,4 +101,3 @@ const VendorManagement = ({ heading }) => {
 };
 
 export default VendorManagement;
-

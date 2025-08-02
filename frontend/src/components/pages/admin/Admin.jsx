@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./adminCommon/adminSidebar/Sidebar";
 import Header from "./adminCommon/adminHeader/Header";
 import Dashboard from "./adminDashboard/Dashboard";
@@ -19,20 +19,12 @@ import AddProduct from "./adminProducts/AddProduct";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);
-  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
- useEffect(() => {
-    const checkToken = async () => {
-      const token = localStorage.getItem("adminToken") || authTokens?.admin;
-
-      if (!token) {
-        navigate("/login/admin");
-      }
-    };
-
-    checkToken();
-  }, [authTokens, navigate]);
+  const token = localStorage.getItem("adminToken") || authTokens?.admin;
+  if (!token) {
+    return <Navigate to="/login/admin" replace />;
+  };
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const closeSidebar = () => setIsSidebarOpen(false);

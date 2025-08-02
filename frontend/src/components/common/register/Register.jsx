@@ -118,6 +118,8 @@ const Register = ({ registerRole }) => {
                 <input
                   type="text"
                   name="name"
+                  placeholder="John Doe"
+                  title="Enter your name"
                   value={form.name}
                   onChange={handleChange}
                   className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -130,6 +132,8 @@ const Register = ({ registerRole }) => {
                 <input
                   type="email"
                   name="email"
+                  placeholder="abc@example.com"
+                  title="Enter your mail"
                   value={form.email}
                   onChange={handleChange}
                   className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -146,6 +150,8 @@ const Register = ({ registerRole }) => {
                 <input
                   type="password"
                   name="password"
+                  placeholder="******"
+                  title="Enter a strong password"
                   value={form.password}
                   onChange={handleChange}
                   className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -158,6 +164,8 @@ const Register = ({ registerRole }) => {
                 <input
                   type="password"
                   name="confirmPassword"
+                  placeholder="******"
+                  title="Enter the confirm password"
                   value={form.confirmPassword}
                   onChange={handleChange}
                   className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -174,6 +182,8 @@ const Register = ({ registerRole }) => {
                 <input
                   type="text"
                   name="phone"
+                  placeholder="e.g., 9876543210"
+                  title="Enter your phone number"
                   value={form.phone}
                   onChange={handleChange}
                   className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -185,6 +195,8 @@ const Register = ({ registerRole }) => {
                 <textarea
                   name="address"
                   value={form.address}
+                  placeholder="e.g., 221B Baker Street, India"
+                  title="Enter your full address"
                   onChange={handleChange}
                   rows={3}
                   className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -198,6 +210,8 @@ const Register = ({ registerRole }) => {
                     <input
                       type="text"
                       name="shopName"
+                      placeholder="e.g., TechMart"
+                      title="Enter your shop name"
                       value={form.shopName}
                       onChange={handleChange}
                       className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -209,6 +223,8 @@ const Register = ({ registerRole }) => {
                     <input
                       type="text"
                       name="gstNumber"
+                      placeholder="e.g., 22AAAAA0000A1Z5"
+                      title="Enter your 15-digit GST number"
                       value={form.gstNumber}
                       onChange={handleChange}
                       className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
