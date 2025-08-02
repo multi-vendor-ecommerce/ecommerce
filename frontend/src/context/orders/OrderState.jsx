@@ -2,10 +2,15 @@ import { useState, useEffect } from "react";
 import OrderContext from "./OrderContext";
 
 const OrderState = ({ children }) => {
-  const [userOrders, setUserOrders] = useState([]);
-  const [vendorOrders, setVendorOrders] = useState([]);
-  const [adminOrders, setAdminOrders] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [adminOrders, setAdminOrders] = useState([]);
+  const [adminTotalCount, setAdminTotalCount] = useState(0);
+
+  const [vendorOrders, setVendorOrders] = useState([]);
+  const [vendorTotalCount, setVendorTotalCount] = useState(0);
+
+  const [userOrders, setUserOrders] = useState([]);
+  const [userTotalCount, setUserTotalCount] = useState(0);
 
   const host = import.meta.env.VITE_BACKEND_URL;
   // const host = "http://localhost:5000";
@@ -52,14 +57,16 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // Fetch all orders for admin (with optional search and filter)
-  const getAllOrders = async ({ search = "", status = "" } = {}) => {
+  // Fetch all orders for admin (with optional search, status, pagination)
+  const getAllOrders = async ({ search = "", status = "", page = 1, limit = 10 } = {}) => {
     try {
       setLoading(true);
 
       const params = new URLSearchParams();
       if (search?.trim()) params.append("search", search);
       if (status) params.append("status", status);
+      params.append("page", page);
+      params.append("limit", limit);
 
       const res = await fetch(`${host}/api/order/admin?${params.toString()}`, {
         method: "GET",
@@ -67,16 +74,21 @@ const OrderState = ({ children }) => {
           "Content-Type": "application/json",
           "auth-token": localStorage.getItem("adminToken")
         }
-        // credentials: "include",
       });
 
       if (!res.ok) {
-        throw new Error('Failed to fetch orders.');
+        throw new Error("Failed to fetch orders.");
       }
 
       const data = await res.json();
-      if (data.success) setAdminOrders(data.orders);
-      else console.error("Server error:", data.message || "Unknown error");
+      if (data.success) {
+        setAdminOrders(data.orders);        // Set paginated orders
+        setAdminTotalCount(data.total);     // Set total for pagination
+        
+        return { success: true, total: data.total, orders: data.orders }; // optional return
+      } else {
+        console.error("Server error:", data.message || "Unknown error");
+      }
     } catch (error) {
       console.error("Error fetching admin orders:", error);
     } finally {
@@ -138,6 +150,7 @@ const OrderState = ({ children }) => {
     <OrderContext.Provider
       value={{
         loading,
+        adminTotalCount,
         userOrders,
         vendorOrders,
         adminOrders,

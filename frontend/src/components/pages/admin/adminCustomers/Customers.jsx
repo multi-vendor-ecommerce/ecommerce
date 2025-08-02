@@ -1,4 +1,3 @@
-// components/admin/customers/Customers.jsx
 import { useContext, useEffect, useState } from "react";
 import UserContext from "../../../../context/user/UserContext";
 import { RenderCustomerRow } from "./RenderCustomerRow";
@@ -9,31 +8,45 @@ import FilterBar from "../../../common/FilterBar";
 import BackButton from "../../../common/layout/BackButton";
 
 const Customers = () => {
-  const { users, getAllCustomers, loading } = useContext(UserContext);
+  const { users, getAllCustomers, totalCount, loading } = useContext(UserContext);
   const [filters, setFilters] = useState({ search: "", date: "" });
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   useEffect(() => {
-    getAllCustomers();
+    fetchPaginatedCustomers(1, limit); // initial fetch
   }, []);
+
+  const fetchPaginatedCustomers = (pg = 1, lim = limit) => {
+    getAllCustomers({ ...filters, page: pg, limit: lim });
+    setPage(pg);
+  };
 
   const handleChange = (name, value) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleApply = () => {
-    getAllCustomers(filters);
+    fetchPaginatedCustomers(1, limit);
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleApply();
-    }
+    if (e.key === "Enter") handleApply();
   };
 
   const handleClear = () => {
     const reset = { search: "", date: "" };
     setFilters(reset);
-    getAllCustomers(reset);
+    fetchPaginatedCustomers(1, limit);
+  };
+
+  const handlePageChange = (pg) => {
+    fetchPaginatedCustomers(pg, limit);
+  };
+
+  const handleItemsPerPageChange = (lim) => {
+    setLimit(lim);
+    fetchPaginatedCustomers(1, lim); // reset to page 1
   };
 
   const customerFilterFields = [
@@ -41,7 +54,9 @@ const Customers = () => {
     { name: "date", label: "Date", type: "date" }
   ];
 
-  if (loading) {
+  const headers = ["Customer", "Email", "Location", "Total Orders", "Total Value", "Registered On"];
+
+  if (loading && users.length === 0) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
         <Spinner />
@@ -49,33 +64,35 @@ const Customers = () => {
     );
   }
 
-  const headers = ["Customer", "Email", "Location", "Total Orders", "Total Value", "Registered On"];
-
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
       <BackButton />
-      
-      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 lg:gap-0 mt-4 mb-6">
+
+      <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mt-4 mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800">Customers</h2>
 
-        <div>
-          <FilterBar
-            fields={customerFilterFields}
-            values={filters}
-            onChange={handleChange}
-            onApply={handleApply}
-            onClear={handleClear}
-            onKeyDown={handleKeyDown}
-          />
-        </div>
+        <FilterBar
+          fields={customerFilterFields}
+          values={filters}
+          onChange={handleChange}
+          onApply={handleApply}
+          onClear={handleClear}
+          onKeyDown={handleKeyDown}
+        />
       </div>
 
-      <PaginatedLayout data={users} initialPerPage={10}>
-        {(currentItems) => (
+      <PaginatedLayout
+        totalItems={totalCount}
+        currentPage={page}
+        itemsPerPage={limit}
+        onPageChange={handlePageChange}
+        onItemsPerPageChange={handleItemsPerPageChange}
+      >
+        {() => (
           <div className="overflow-hidden bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
             <TabularData
               headers={headers}
-              data={currentItems}
+              data={users}
               renderRow={RenderCustomerRow}
               emptyMessage="No customers found."
             />

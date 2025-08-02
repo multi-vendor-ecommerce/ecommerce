@@ -1,4 +1,3 @@
-// components/admin/orders/Orders.jsx
 import { useState, useContext, useEffect } from "react";
 import StatusChip from "../../../common/helperComponents/StatusChip";
 import { orderFilterFields } from "./data/ordersData";
@@ -8,28 +7,38 @@ import TabularData from "../../../common/layout/TabularData";
 import BackButton from "../../../common/layout/BackButton";
 import OrderContext from "../../../../context/orders/OrderContext";
 import Spinner from "../../../common/Spinner";
-import { getFormatDate } from "../../../../utils/formatDate";
 import FilterBar from "../../../common/FilterBar";
 
 export default function Orders() {
-  const { adminOrders, getAllOrders, loading } = useContext(OrderContext);
+  const {
+    adminOrders,
+    getAllOrders,
+    loading,
+    totalCount,
+  } = useContext(OrderContext);
+
   const [filters, setFilters] = useState({ search: "", status: "" });
+  const [page, setPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
-    getAllOrders();
-  }, []);
+    getAllOrders({ ...filters, page, limit: itemsPerPage });
+  }, [page, itemsPerPage]);
 
   const handleChange = (name, value) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleApply = () => {
-    getAllOrders(filters);
+    setPage(1);
+    getAllOrders({ ...filters, page: 1, limit: itemsPerPage });
   };
 
   const handleClear = () => {
-    setFilters({ search: "", status: "" });
-    getAllOrders();
+    const cleared = { search: "", status: "" };
+    setFilters(cleared);
+    setPage(1);
+    getAllOrders({ ...cleared, page: 1, limit: itemsPerPage });
   };
 
   const handleKeyDown = (e) => {
@@ -38,21 +47,14 @@ export default function Orders() {
     }
   };
 
-  if (loading) {
-    return (
-      <section className="bg-gray-100 min-h-screen flex items-center justify-center">
-        <Spinner />
-      </section>
-    );
-  }
+  const handlePageChange = (pg) => {
+    setPage(pg);
+  };
 
-  const filteredOrders = adminOrders.filter((order) => {
-    const statusOK = filters.status ? order.status === filters.status : true;
-    const dateOK = filters.date
-      ? getFormatDate(order.createdAt) === filters.date
-      : true;
-    return statusOK && dateOK;
-  });
+  const handleItemsPerPageChange = (limit) => {
+    setItemsPerPage(limit);
+    setPage(1);
+  };
 
   const headers = ["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Status", "Actions"];
 
@@ -77,18 +79,30 @@ export default function Orders() {
       </div>
 
       {/* Table + Pagination */}
-      <PaginatedLayout data={filteredOrders} initialPerPage={10}>
-        {(currentItems) => (
-          <div className="overflow-hidden bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
-            <TabularData
-              headers={headers}
-              data={currentItems}
-              renderRow={(o, i) => RenderOrderRow(o, i, StatusChip)}
-              emptyMessage="No orders found."
-            />
-          </div>
-        )}
-      </PaginatedLayout>
+      {loading ? (
+        <div className="flex justify-center items-center min-h-[300px]">
+          <Spinner />
+        </div>
+      ) : (
+        <PaginatedLayout
+          totalItems={totalCount}
+          currentPage={page}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        >
+          {() => (
+            <div className="overflow-hidden bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
+              <TabularData
+                headers={headers}
+                data={adminOrders}
+                renderRow={(o, i) => RenderOrderRow(o, i, StatusChip)}
+                emptyMessage="No orders found."
+              />
+            </div>
+          )}
+        </PaginatedLayout>
+      )}
     </section>
   );
 }

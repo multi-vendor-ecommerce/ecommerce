@@ -14,6 +14,7 @@ export const getAllProducts = async (req, res) => {
     let productQuery = Product.find(query)
       .skip(skip)
       .limit(limit)
+      .sort({ createdAt: -1 })
       .populate("category", "name")
       .populate("createdBy", "name email shopName role");
 

@@ -2,16 +2,37 @@ import User from "../models/User.js";
 import { validationResult } from 'express-validator';
 import buildQuery from "../utils/queryBuilder.js";
 
-// Public: Get all customers
 export const getAllCustomers = async (req, res) => {
   try {
     const query = buildQuery(req.query, ["name", "email", "address"]);
 
-    const users = await User.find(query).select("-password");
-    res.status(200).json({ success: true, message: "Customers fetched successfully.", users });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const users = await User.find(query)
+      .select("-password")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // optional
+
+    const total = await User.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      message: "Customers fetched successfully.",
+      users,
+      total,
+      page,
+      limit,
+    });
   } catch (err) {
     console.error("getAllCustomers error:", err.message);
-    return res.status(500).json({ success: false, message: "Internal Server Error.", error: err.message });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+      error: err.message,
+    });
   }
 };
 
