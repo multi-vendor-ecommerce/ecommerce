@@ -6,7 +6,7 @@ import StepperControls from "../../../common/StepperControls";
 
 const AddProduct = () => {
   const { addProduct } = useContext(ProductContext);
-  const { getCategoriesByParent } = useContext(CategoryContext);
+  const { categoriesByParentId } = useContext(CategoryContext);
 
   const [step, setStep] = useState(1);
   const [images, setImages] = useState([]);
@@ -25,7 +25,7 @@ const AddProduct = () => {
   }, []);
 
   const loadCategories = async (parentId = null, index = 0) => {
-    const newCategories = await getCategoriesByParent(parentId);
+    const newCategories = await categoriesByParentId(parentId);
     if (!newCategories || newCategories.length === 0) {
       setCategoryLevels((prev) => prev.slice(0, index + 1));
       setSelectedCategories((prev) => prev.slice(0, index + 1));
