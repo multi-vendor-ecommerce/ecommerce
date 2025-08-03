@@ -53,7 +53,6 @@ const CategoryState = (props) => {
   const categoriesByParentId = async (parentId = null) => {
     const cacheKey = `parent-${parentId || "root"}`;
 
-    // Return from cache if available
     if (categoriesByLevel[cacheKey]) {
       return categoriesByLevel[cacheKey];
     }
@@ -61,22 +60,25 @@ const CategoryState = (props) => {
     try {
       setLoading(true);
 
-      const response = await fetch(`${host}/api/categories${parentId ? `?parentId=${parentId}` : ""}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${host}/api/categories${parentId ? `?parentId=${parentId}` : ""}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const json = await response.json();
+      const data = await response.json();
       setLoading(false);
 
-      if (response.ok && json.success) {
+      if (response.ok && data.success) {
         setCategoriesByLevel((prev) => ({
           ...prev,
-          [cacheKey]: json.data,
+          [cacheKey]: data.categories, 
         }));
-        return json.data;
+        return data.categories; 
       } else {
         console.error("Error fetching categories:", json.message);
         return [];
