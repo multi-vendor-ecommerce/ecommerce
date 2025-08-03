@@ -2,69 +2,102 @@ import { useState } from "react";
 import CategoryContext from "./CategoryContext";
 
 const CategoryState = (props) => {
-  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [categoriesByLevel, setCategoriesByLevel] = useState({});
 
-  // const host = import.meta.env.VITE_BACKEND_URL;
   const host = "http://localhost:5000";
 
-  const getAllCategories = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${host}/api/categories/allCategory`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch categories.');
-      }
+  //  CREATE CATEGORY - Admin Only
+  // const createCategory = async ({ name, description = "", image = "", parent = null }) => {
+  //   try {
+  //     setLoading(true);
+  //     const adminToken = localStorage.getItem("adminToken");
 
-      const data = await response.json();
+  //     const res = await fetch(`${host}/api/categories`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "auth-token": adminToken, 
+  //       },
+  //       body: JSON.stringify({
+  //         name,
+  //         description,
+  //         image,
+  //         parent,
+  //       }),
+  //     });
 
-      if (data && data.categories) {
-        setCategories(data.categories);
-      } else {
-        setCategories([]);
-      }
+  //     const data = await res.json();
 
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-      setCategories([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     if (res.ok && data.success) {
+  //       // Invalidate cache
+  //       const cacheKey = `parent-${parent || "root"}`;
+  //       setCategoriesByLevel((prev) => {
+  //         const updated = { ...prev };
+  //         delete updated[cacheKey];
+  //         return updated;
+  //       });
 
-  const getCategoriesByParent = async (parentId = null) => {
+  //       return { success: true, category: data.category };
+  //     } else {
+  //       return { success: false, message: data.message || "Failed to create category" };
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating category:", error);
+  //     return { success: false, message: "Something went wrong" };
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const categoriesByParentId = async (parentId = null) => {
     const cacheKey = `parent-${parentId || "root"}`;
 
-    // Return from cache if already fetched
+    // Return from cache if available
     if (categoriesByLevel[cacheKey]) {
       return categoriesByLevel[cacheKey];
     }
 
     try {
-      const res = await fetch(`${host}/api/categories?parentId=${parentId || ""}`);
-      const data = await res.json();
+      setLoading(true);
 
-      if (data.success) {
+      const response = await fetch(`${host}/api/categories${parentId ? `?parentId=${parentId}` : ""}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const json = await response.json();
+      setLoading(false);
+
+      if (response.ok && json.success) {
         setCategoriesByLevel((prev) => ({
           ...prev,
-          [cacheKey]: data.categories,
+          [cacheKey]: json.data,
         }));
-        return data.categories;
+        return json.data;
       } else {
+        console.error("Error fetching categories:", json.message);
         return [];
       }
     } catch (error) {
-      console.error("Error fetching categories by parent", error);
+      console.error("Error:", error);
+      setLoading(false);
       return [];
     }
   };
 
   return (
-    <CategoryContext.Provider value={{ categories, loading, getAllCategories, getCategoriesByParent, }}>
+    <CategoryContext.Provider
+      value={{
+        categoriesByParentId,
+        loading,
+      }}
+    >
       {props.children}
     </CategoryContext.Provider>
-  )
-}
+  );
+};
 
 export default CategoryState;

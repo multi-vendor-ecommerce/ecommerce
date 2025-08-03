@@ -9,7 +9,7 @@ const HeroSlider = ({ banners = [] }) => {
 
   return (
     <div className="max-w-9xl bg-[#F9F7FC] py-4 lg:py-7">
-      <div className=" mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <Swiper
           modules={[Autoplay, Pagination]}
           autoplay={{ delay: 5000, disableOnInteraction: false }}
@@ -26,10 +26,12 @@ const HeroSlider = ({ banners = [] }) => {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
 
-                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-transparent z-10" />
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-transparent " />
 
+                {/* Text content overlay */}
                 {(banner.title || banner.description) && (
-                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 ">
                     {banner.title && (
                       <h2 className="text-3xl md:text-5xl font-extrabold text-white drop-shadow-lg">
                         {banner.title}
