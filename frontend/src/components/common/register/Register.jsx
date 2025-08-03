@@ -2,7 +2,8 @@ import { useContext, useState } from "react";
 import { useNavigate, useSearchParams, NavLink } from "react-router-dom";
 import AuthContext from "../../../context/auth/AuthContext";
 import AuthSiderImg from "../../../assets/auth-side-bg.png";
-import { FiCheckCircle } from 'react-icons/fi';
+import Stepper from "../Stepper";
+import StepperControls from "../StepperControls";
 
 const Register = ({ registerRole }) => {
   const { register, loading } = useContext(AuthContext);
@@ -12,15 +13,10 @@ const Register = ({ registerRole }) => {
   const [step, setStep] = useState(1);
 
   const baseForm = { role: registerRole, name: "", email: "", password: "", confirmPassword: "", phone: "", address: "" };
-
   const vendorFields = { shopName: "", gstNumber: "" };
-
-  const initialFormState = registerRole === "vendor"
-    ? { ...baseForm, ...vendorFields }
-    : baseForm;
+  const initialFormState = registerRole === "vendor" ? { ...baseForm, ...vendorFields } : baseForm;
 
   const [form, setForm] = useState(initialFormState);
-
   const [errorMsg, setErrorMsg] = useState("");
 
   const handleChange = (e) => {
@@ -29,12 +25,10 @@ const Register = ({ registerRole }) => {
 
   const nextStep = () => {
     setErrorMsg("");
-
     if (step === 1 && (!form.name.trim() || !form.email.trim())) {
       setErrorMsg("Name and Email are required.");
       return;
     }
-
     if (step === 2) {
       if (!form.password.trim() || !form.confirmPassword.trim()) {
         setErrorMsg("Please enter and confirm your password.");
@@ -54,13 +48,11 @@ const Register = ({ registerRole }) => {
     e.preventDefault();
     setErrorMsg("");
 
-    // Common validation for final step
     if (!form.phone.trim() || !form.address.trim()) {
       setErrorMsg("Phone and Address are required.");
       return;
     }
 
-    // Additional validation for vendors
     if (form.role === "vendor") {
       if (!form.shopName.trim() || !form.gstNumber.trim()) {
         setErrorMsg("Shop Name and GST Number are required for vendors.");
@@ -68,9 +60,7 @@ const Register = ({ registerRole }) => {
       }
     }
 
-    // Submit if all good
     const result = await register(form);
-
     if (result.success) {
       navigate(redirectPath, { replace: true });
     } else {
@@ -90,27 +80,13 @@ const Register = ({ registerRole }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="w-full max-w-lg p-6 space-y-4">
-          {errorMsg && (
-            <p className="text-red-600 text-sm text-center">{errorMsg}</p>
-          )}
+          {errorMsg && <p className="text-red-600 text-sm text-center">{errorMsg}</p>}
 
-          {/* Stepper Display */}
-          <div className="flex justify-between items-center text-sm font-medium text-gray-700 mb-4">
-            <div className={`flex items-center gap-2 ${step === 1 ? "text-blue-600 font-semibold" : ""}`}>
-              <FiCheckCircle size={18} />
-              Step 1
-            </div>
-            <div className={`flex items-center gap-2 ${step === 2 ? "text-blue-600 font-semibold" : ""}`}>
-              <FiCheckCircle size={18} />
-              Step 2
-            </div>
-            <div className={`flex items-center gap-2 ${step === 3 ? "text-blue-600 font-semibold" : ""}`}>
-              <FiCheckCircle size={18} />
-              Step 3
-            </div>
-          </div>
+          <Stepper
+            currentStep={step}
+            stepLabels={["Name & Email", "Password", "Basic Info"]}
+          />
 
-          {/* Common Field */}
           {step === 1 && (
             <>
               <div>
@@ -180,7 +156,7 @@ const Register = ({ registerRole }) => {
               <div>
                 <label className="block mb-2 font-medium">Phone</label>
                 <input
-                  type="text"
+                  type="tel"
                   name="phone"
                   placeholder="e.g., 9876543210"
                   title="Enter your phone number"
@@ -235,40 +211,21 @@ const Register = ({ registerRole }) => {
             </>
           )}
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between gap-4 pt-4">
-            {step > 1 && (
-              <button
-                type="button"
-                onClick={prevStep}
-                className="w-full bg-gray-400 text-white py-3.5 rounded-xl hover:bg-gray-500 transition"
-              >
-                Back
-              </button>
-            )}
-            {step < 3 && (
-              <button
-                type="button"
-                onClick={nextStep}
-                className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition"
-              >
-                Next
-              </button>
-            )}
-            {step === 3 &&
+          {/* Navigation Controls */}
+          <StepperControls
+            currentStep={step}
+            totalSteps={3}
+            onNext={nextStep}
+            onBack={prevStep}
+            isLastStep={step === 3}
+            showSubmit={
               form.address.trim() &&
               form.phone.trim() &&
               (registerRole !== "vendor" ||
-                (form.shopName.trim() && form.gstNumber.trim())) && (
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition"
-                >
-                  {loading ? "Registering..." : "Register"}
-                </button>
-              )}
-          </div>
+                (form.shopName.trim() && form.gstNumber.trim()))
+            }
+            loading={loading}
+          />
 
           <div className="text-center mt-4">
             <p className="text-gray-700">

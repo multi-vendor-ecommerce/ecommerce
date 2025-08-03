@@ -90,7 +90,7 @@ export const getCategories = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Categories fetched successfully!",
-      data: categories
+      categories
     });
   } catch (error) {
     res.status(500).json({

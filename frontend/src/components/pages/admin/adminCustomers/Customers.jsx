@@ -9,16 +9,17 @@ import BackButton from "../../../common/layout/BackButton";
 
 const Customers = () => {
   const { users, getAllCustomers, totalCount, loading } = useContext(UserContext);
+
   const [filters, setFilters] = useState({ search: "", date: "" });
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
-    fetchPaginatedCustomers(1, limit); // initial fetch
+    fetchPaginatedCustomers(1, itemsPerPage); // initial fetch
   }, []);
 
-  const fetchPaginatedCustomers = (pg = 1, lim = limit) => {
-    getAllCustomers({ ...filters, page: pg, limit: lim });
+  const fetchPaginatedCustomers = async (pg = 1, limit = itemsPerPage) => {
+    await getAllCustomers({ ...filters, page: pg, limit });
     setPage(pg);
   };
 
@@ -27,7 +28,7 @@ const Customers = () => {
   };
 
   const handleApply = () => {
-    fetchPaginatedCustomers(1, limit);
+    fetchPaginatedCustomers(1, itemsPerPage);
   };
 
   const handleKeyDown = (e) => {
@@ -37,21 +38,21 @@ const Customers = () => {
   const handleClear = () => {
     const reset = { search: "", date: "" };
     setFilters(reset);
-    fetchPaginatedCustomers(1, limit);
+    fetchPaginatedCustomers(1, itemsPerPage);
   };
 
   const handlePageChange = (pg) => {
-    fetchPaginatedCustomers(pg, limit);
+    fetchPaginatedCustomers(pg, itemsPerPage);
   };
 
-  const handleItemsPerPageChange = (lim) => {
-    setLimit(lim);
-    fetchPaginatedCustomers(1, lim); // reset to page 1
+  const handleItemsPerPageChange = (limit) => {
+    setItemsPerPage(limit);
+    fetchPaginatedCustomers(1, limit);
   };
 
   const customerFilterFields = [
     { name: "search", label: "Search by name, email, or location", type: "text" },
-    { name: "date", label: "Date", type: "date" }
+    { name: "date", label: "Date", type: "date" },
   ];
 
   const headers = ["Customer", "Email", "Location", "Total Orders", "Total Value", "Registered On"];
@@ -84,7 +85,7 @@ const Customers = () => {
       <PaginatedLayout
         totalItems={totalCount}
         currentPage={page}
-        itemsPerPage={limit}
+        itemsPerPage={itemsPerPage}
         onPageChange={handlePageChange}
         onItemsPerPageChange={handleItemsPerPageChange}
       >
