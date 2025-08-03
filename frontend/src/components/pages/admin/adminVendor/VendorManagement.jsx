@@ -13,14 +13,14 @@ const VendorManagement = ({ heading }) => {
 
   const [filters, setFilters] = useState({ search: "", status: "" });
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
-    fetchPaginatedVendors(1, limit); // initial fetch
+    fetchPaginatedVendors(1, itemsPerPage); // initial fetch
   }, []);
 
-  const fetchPaginatedVendors = (pg = 1, lim = limit) => {
-    getAllVendors({ ...filters, page: pg, limit: lim });
+  const fetchPaginatedVendors = (pg = 1, limit = itemsPerPage) => {
+    getAllVendors({ ...filters, page: pg, limit });
     setPage(pg);
   };
 
@@ -29,13 +29,13 @@ const VendorManagement = ({ heading }) => {
   };
 
   const handleApply = () => {
-    fetchPaginatedVendors(1, limit);
+    fetchPaginatedVendors(1, itemsPerPage);
   };
 
   const handleClear = () => {
     const reset = { search: "", status: "" };
     setFilters(reset);
-    fetchPaginatedVendors(1, limit);
+    fetchPaginatedVendors(1, itemsPerPage);
   };
 
   const handleKeyDown = (e) => {
@@ -43,15 +43,18 @@ const VendorManagement = ({ heading }) => {
   };
 
   const handlePageChange = (pg) => {
-    fetchPaginatedVendors(pg, limit);
+    fetchPaginatedVendors(pg, itemsPerPage);
   };
 
-  const handleItemsPerPageChange = (lim) => {
-    setLimit(lim);
-    fetchPaginatedVendors(1, lim);
+  const handleItemsPerPageChange = (limit) => {
+    setItemsPerPage(limit);
+    fetchPaginatedVendors(1, limit);
   };
 
-  const headers = ["Vendor", "Email", "Shop", "Products Qty", "Total Sales", "Commission", "Registered On", "Status", "Actions"];
+  const headers = [
+    "Vendor", "Email", "Shop", "Products Qty", "Total Sales",
+    "Commission", "Registered On", "Status", "Actions"
+  ];
 
   if (loading && vendors.length === 0) {
     return (
@@ -81,7 +84,7 @@ const VendorManagement = ({ heading }) => {
       <PaginatedLayout
         totalItems={totalCount}
         currentPage={page}
-        itemsPerPage={limit}
+        itemsPerPage={itemsPerPage}
         onPageChange={handlePageChange}
         onItemsPerPageChange={handleItemsPerPageChange}
       >
