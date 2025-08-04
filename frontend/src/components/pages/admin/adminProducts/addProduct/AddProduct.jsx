@@ -285,6 +285,7 @@ const AddProduct = () => {
               formData.gstRate.trim() &&
               images.length > 0
             }
+            submitButton={['Add Product', 'Adding']}
           />
         </form>
       </div>

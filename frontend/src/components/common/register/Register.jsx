@@ -197,6 +197,7 @@ const Register = ({ registerRole }) => {
                 (form.shopName.trim() && form.gstNumber.trim()))
             }
             loading={loading}
+            submitButton={['Register', 'Registering']}
           />
 
           <div className="text-center mt-4">

@@ -9,6 +9,7 @@ const StepperControls = ({
   isLastStep = false,
   showSubmit = false,
   loading = false,
+  submitButton=[]
 }) => {
   return (
     <div className="flex justify-between gap-4 pt-4">
@@ -30,7 +31,7 @@ const StepperControls = ({
             disabled={loading}
             className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 cursor-pointer"
           >
-            {loading ? "Registering..." : "Register"}
+            {loading ? submitButton[1] : submitButton[0]}
           </button>
         )
       ) : (
