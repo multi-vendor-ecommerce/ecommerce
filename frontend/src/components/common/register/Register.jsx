@@ -83,6 +83,7 @@ const Register = ({ registerRole }) => {
           {errorMsg && <p className="text-red-600 text-sm text-center">{errorMsg}</p>}
 
           <Stepper
+            className="flex justify-between items-center text-sm font-medium text-gray-700 gap-3 md:gap-1 mb-4"
             currentStep={step}
             stepLabels={["Name & Email", "Password", "Basic Info"]}
           />

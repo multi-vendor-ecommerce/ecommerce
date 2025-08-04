@@ -64,11 +64,18 @@ const productSchema = new Schema(
       unique: true,
       required: true,
       trim: true,
+      match: [/^[A-Za-z0-9_-]{4,20}$/, "SKU must be 4-20 characters, letters, numbers, hyphens or underscores only"]
     },
     hsnCode: {
       type: String,
       required: true,
       trim: true,
+      validate: {
+        validator: function (v) {
+          return /^\d{4,8}$/.test(v);
+        },
+        message: "HSN code must be 4 to 8 digits"
+      }
     },
     gstRate: {
       type: Number,
