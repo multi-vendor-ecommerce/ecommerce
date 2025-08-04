@@ -5,9 +5,8 @@ const CartState = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // const host = import.meta.env.VITE_BACKEND_URL;
-  const host = "http://localhost:5000";
-  const token = localStorage.getItem("customerToken");
+  const host = import.meta.env.VITE_BACKEND_URL;
+  // const host = "http://localhost:5000";
 
   // Fetching cart items
   const getCart = async () => {
@@ -103,7 +102,7 @@ const CartState = ({ children }) => {
   }
 
   return (
-    <CartContext.Provider value={{ cart,token, loading, getCart, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ cart, loading, getCart, addToCart, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );

@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 import Spinner from "../../../common/Spinner";
 
 const CartPage = () => {
-  const { cart, loading, token, getCart, removeFromCart, addToCart } = useContext(CartContext);
+  const { cart, loading, getCart, removeFromCart, addToCart } = useContext(CartContext);
   const navigate = useNavigate();
 
   const [updatingProductId, setUpdatingProductId] = useState(null);
   const [removingId, setRemovingId] = useState(null);
-  // const token = localStorage.getItem("customerToken");
+  const token = localStorage.getItem("customerToken");
 
   // Load cart on mount
   useEffect(() => {
