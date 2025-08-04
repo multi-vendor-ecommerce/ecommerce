@@ -105,6 +105,7 @@ const AddProduct = () => {
         <Stepper
           className="flex justify-between items-center text-sm md:text-lg font-medium text-gray-700 gap-3 md:gap-1 mb-6"
           currentStep={step}
+          highlightCurrentStep={true}
           stepLabels={["Select Category", "Basic Info", "Product Details"]}
         />
 

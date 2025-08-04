@@ -4,6 +4,7 @@ import AuthContext from "../../../context/auth/AuthContext";
 import AuthSiderImg from "../../../assets/auth-side-bg.png";
 import Stepper from "../Stepper";
 import StepperControls from "../StepperControls";
+import InputField from "../InputField";
 
 const Register = ({ registerRole }) => {
   const { register, loading } = useContext(AuthContext);
@@ -70,7 +71,6 @@ const Register = ({ registerRole }) => {
 
   return (
     <section className="w-full bg-gray-200 min-h-screen lg:min-h-[80vh] flex items-center justify-between gap-10">
-      {/* Left Side Form */}
       <div className="w-full h-full lg:w-[45%] px-4 flex flex-col lg:justify-center items-center gap-2 lg:gap-4">
         <div className="w-full max-w-lg p-6">
           <h2 className="text-3xl lg:text-5xl font-bold">Register</h2>
@@ -90,129 +90,100 @@ const Register = ({ registerRole }) => {
 
           {step === 1 && (
             <>
-              <div>
-                <label className="block mb-2 font-medium">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="John Doe"
-                  title="Enter your name"
-                  value={form.name}
-                  onChange={handleChange}
-                  className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block mb-2 font-medium">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="abc@example.com"
-                  title="Enter your mail"
-                  value={form.email}
-                  onChange={handleChange}
-                  className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+              <InputField
+                label="Name"
+                name="name"
+                placeholder="John Doe"
+                title="Enter your name"
+                value={form.name}
+                onChange={handleChange}
+                required
+              />
+              <InputField
+                label="Email"
+                name="email"
+                type="email"
+                placeholder="abc@example.com"
+                title="Enter your email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
             </>
           )}
 
           {step === 2 && (
             <>
-              <div>
-                <label className="block mb-2 font-medium">Password</label>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="******"
-                  title="Enter a strong password"
-                  value={form.password}
-                  onChange={handleChange}
-                  className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block mb-2 font-medium">Confirm Password</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  placeholder="******"
-                  title="Enter the confirm password"
-                  value={form.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+              <InputField
+                label="Password"
+                name="password"
+                type="password"
+                placeholder="******"
+                title="Enter a strong password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+              <InputField
+                label="Confirm Password"
+                name="confirmPassword"
+                type="password"
+                placeholder="******"
+                title="Re-enter your password"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                required
+              />
             </>
           )}
 
           {step === 3 && (
             <>
-              <div>
-                <label className="block mb-2 font-medium">Phone</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="e.g., 9876543210"
-                  title="Enter your phone number"
-                  value={form.phone}
-                  onChange={handleChange}
-                  className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block mb-2 font-medium">Address</label>
-                <textarea
-                  name="address"
-                  value={form.address}
-                  placeholder="e.g., 221B Baker Street, India"
-                  title="Enter your full address"
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
+              <InputField
+                label="Phone"
+                name="phone"
+                type="tel"
+                placeholder="e.g., 9876543210"
+                title="Enter your phone number"
+                value={form.phone}
+                onChange={handleChange}
+                required
+              />
+              <InputField
+                label="Address"
+                name="address"
+                placeholder="e.g., 221B Baker Street, India"
+                title="Enter your address"
+                value={form.address}
+                onChange={handleChange}
+                textarea
+                required
+              />
               {form.role === "vendor" && (
                 <>
-                  <div>
-                    <label className="block mb-2 font-medium">Shop Name</label>
-                    <input
-                      type="text"
-                      name="shopName"
-                      placeholder="e.g., TechMart"
-                      title="Enter your shop name"
-                      value={form.shopName}
-                      onChange={handleChange}
-                      className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block mb-2 font-medium">GST Number</label>
-                    <input
-                      type="text"
-                      name="gstNumber"
-                      placeholder="e.g., 22AAAAA0000A1Z5"
-                      title="Enter your 15-digit GST number"
-                      value={form.gstNumber}
-                      onChange={handleChange}
-                      className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+                  <InputField
+                    label="Shop Name"
+                    name="shopName"
+                    placeholder="e.g., TechMart"
+                    title="Enter your shop name"
+                    value={form.shopName}
+                    onChange={handleChange}
+                    required
+                  />
+                  <InputField
+                    label="GST Number"
+                    name="gstNumber"
+                    placeholder="e.g., 22AAAAA0000A1Z5"
+                    title="Enter your 15-digit GST number"
+                    value={form.gstNumber}
+                    onChange={handleChange}
+                    required
+                  />
                 </>
               )}
             </>
           )}
 
-          {/* Navigation Controls */}
           <StepperControls
             currentStep={step}
             totalSteps={3}
@@ -242,7 +213,6 @@ const Register = ({ registerRole }) => {
         </form>
       </div>
 
-      {/* Right Side Image */}
       <div className="w-[55%] h-full hidden lg:flex justify-center items-center p-10">
         <img
           src={AuthSiderImg}
