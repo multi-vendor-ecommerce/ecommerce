@@ -49,7 +49,7 @@ const ProductState = ({ children }) => {
       setProducts(data.products);
       setTotalCount(data.total);
     }
-    return data; // ✅ important: return for the component to use
+    return data;
   };
 
   const getAllPublicProducts = async ({ search = "", page = 1, limit = 10 } = {}) => {
@@ -67,25 +67,31 @@ const ProductState = ({ children }) => {
     }
   };
 
-  const getTopSellingProducts = async (limit = 100) => {
+  const getTopSellingProducts = async ({ limit = 10, skip = 0 } = {}) => {
     try {
-      const res = await fetch(`${host}/api/products/top-products?limit=${limit}`, {
+      setLoading(true);
+      const res = await fetch(`${host}/api/products/top-products?limit=${limit}&skip=${skip}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("adminToken"), // if required
         },
       });
 
       const data = await res.json();
       if (data.success) {
-        return data.products;
+        return {
+          products: data.products,
+          total: data.total,
+          limit: data.limit,
+        };
       } else {
         throw new Error(data.message || "Unknown error");
       }
     } catch (err) {
       console.error("Failed to fetch top-selling products:", err.message);
-      return [];
+      return { products: [], total: 0 };
+    } finally {
+      setLoading(false);
     }
   };
 

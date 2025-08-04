@@ -11,10 +11,8 @@ import ProductContext from "../../../../context/products/ProductContext";
 import UserContext from "../../../../context/user/UserContext";
 import OrderContext from "../../../../context/orders/OrderContext";
 import VendorContext from "../../../../context/vendors/VendorContext";
-import Spinner from "../../../common/Spinner";
 
 const Dashboard = () => {
-  const { getAllProducts } = useContext(ProductContext);
   const { getAllCustomers } = useContext(UserContext);
   const { getAllOrders } = useContext(OrderContext);
   const { getAllVendors } = useContext(VendorContext);
@@ -25,7 +23,6 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    getAllProducts();
     getAllCustomers();
     getAllOrders();
     getAllVendors();

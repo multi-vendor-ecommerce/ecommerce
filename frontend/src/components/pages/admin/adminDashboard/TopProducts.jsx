@@ -7,20 +7,25 @@ import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Spinner from "../../../common/Spinner";
 
 const TopProducts = () => {
-  const { products, loading } = useContext(ProductContext);
+  const { loading, getTopSellingProducts } = useContext(ProductContext);
   const [showAll, setShowAll] = useState(false);
+  const [products, setProducts] = useState([]);
 
-  const approvedProducts = products?.filter(p => p.status) || [];
+  useEffect(() => {
+    const fetchTopSelling = async () => {
+      const result = await getTopSellingProducts(100);
+      if (result?.products) {
+        setProducts(result.products);
+      }
+    };
+    fetchTopSelling();
+  }, []);
 
-  const topProducts = approvedProducts
-    .sort((a, b) => b.unitsSold - a.unitsSold)
-    .slice(0, 100);
-
-  const maxUnitsSold = topProducts.length > 0
-    ? Math.max(...topProducts.map(p => p.unitsSold || 0))
+  const maxUnitsSold = products.length > 0
+    ? Math.max(...products.map(p => p.unitsSold || 0))
     : 0;
 
-  const productsToShow = showAll ? topProducts : topProducts.slice(0, 5);
+  const productsToShow = showAll ? products : products.slice(0, 5);
 
   return (
     <section className="bg-white p-6 rounded-2xl shadow-md transition duration-300">
@@ -40,14 +45,21 @@ const TopProducts = () => {
 
           <div>
             <TabularData
-              headers={["Product", "ID", "Category", "Price", "Units Sold", "Revenue", "Approval Status", "Sales Progress", "Actions"]}
+              headers={[
+                "Product", "ID", "Category", "Price", "Units Sold",
+                "Revenue", "Approval Status", "Sales Progress", "Actions"
+              ]}
               data={productsToShow}
-              renderRow={(p, i) => RenderProductRow(p, i, maxUnitsSold)}
+              renderRow={(p, i) => RenderProductRow(p, i, maxUnitsSold, true)}
               emptyMessage="No products available."
             />
           </div>
 
-          <ShowLessMore showAll={showAll} toggleShowAll={() => setShowAll((prev) => !prev)} condition={topProducts.length > 5} />
+          <ShowLessMore
+            showAll={showAll}
+            toggleShowAll={() => setShowAll(prev => !prev)}
+            condition={products.length > 5}
+          />
         </div>
       )}
     </section>

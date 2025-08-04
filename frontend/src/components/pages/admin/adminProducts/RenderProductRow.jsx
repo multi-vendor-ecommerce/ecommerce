@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import classNames from "classnames";
 
-export const RenderProductRow = (p, i, maxUnitsSold) => {
+export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false) => {
   const isHighSales = (p.unitsSold || 0) >= maxUnitsSold * 0.6;
 
   return (
@@ -70,9 +70,9 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
       {/* Approval Status */}
       <td className="px-6 py-3 min-w-[200px]">
         <span
-          title={p.status || "Status unknown"}
+          title={p.status || (isTopSellingPage ? "approved" : "Status unknown")}
           className={`inline-flex items-center px-3 py-1 rounded-full hover:scale-105 transition duration-150 text-xs font-semibold
-        ${p.status === "approved"
+      ${(p.status || (isTopSellingPage && "approved")) === "approved"
               ? "bg-green-100 text-green-700"
               : p.status === "rejected"
                 ? "bg-red-100 text-red-700"
@@ -81,9 +81,10 @@ export const RenderProductRow = (p, i, maxUnitsSold) => {
                   : "bg-blue-100 text-blue-700"
             }`}
         >
-          {p.status || "Unknown"}
+          {p.status || (isTopSellingPage ? "approved" : "Unknown")}
         </span>
       </td>
+
 
       {/* Sales progress bar */}
       <td className="px-6 py-4 min-w-[220px] hover:scale-105 transition duration-150 relative">
