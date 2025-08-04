@@ -19,7 +19,7 @@ export default function User() {
       <UserHeader />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="product/category/:id" element={<ProductsByCategory />} />
+        <Route path="/category/:id" element={<ProductsByCategory />} />
         <Route path="product/:id" element={<ProductDetails />} />
         <Route path="cart" element={<CartPage />} />
 

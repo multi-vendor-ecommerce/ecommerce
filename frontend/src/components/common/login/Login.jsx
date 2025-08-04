@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { useNavigate, useSearchParams, NavLink } from "react-router-dom";
 import AuthContext from "../../../context/auth/AuthContext";
 import AuthSiderImg from "../../../assets/auth-side-bg.png";
+import InputField from "../InputField";
 
 const Login = ({ loginRole }) => {
   const { login, loading, requestOtp, verifyOtp } = useContext(AuthContext);
@@ -9,11 +10,14 @@ const Login = ({ loginRole }) => {
   const [searchParams] = useSearchParams();
 
   const redirectPath = searchParams.get("redirect") || "/";
-
   const [form, setForm] = useState({ email: "", password: "", otp: "" });
   const [errorMsg, setErrorMsg] = useState("");
   const [isOtpLogin, setIsOtpLogin] = useState(false);
   const [otpRequested, setOtpRequested] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleRoleAndNavigate = (role) => {
     if (loginRole !== role) {
@@ -21,7 +25,6 @@ const Login = ({ loginRole }) => {
       return false;
     }
 
-    // Navigate based on role
     if (role === "admin") navigate("/admin");
     else if (role === "vendor") navigate("/vendor");
     else navigate(redirectPath, { replace: true });
@@ -29,30 +32,22 @@ const Login = ({ loginRole }) => {
     return true;
   };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  // Handle regular login (email + password)
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
 
     const result = await login(form.email, form.password);
-    if (result.success) {
-      handleRoleAndNavigate(result.role);
-    } else {
-      setErrorMsg(result.error || "Login failed");
-    }
+    if (result.success) handleRoleAndNavigate(result.role);
+    else setErrorMsg(result.error || "Login failed");
   };
 
-  // Handle OTP request (send OTP)
   const handleRequestOtp = async () => {
     setErrorMsg("");
     if (!form.email) {
       setErrorMsg("Please enter your email to get OTP.");
       return;
     }
+
     const result = await requestOtp(form.email);
     if (result.success) {
       setOtpRequested(true);
@@ -62,7 +57,6 @@ const Login = ({ loginRole }) => {
     }
   };
 
-  // Handle OTP verification login
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setErrorMsg("");
@@ -72,16 +66,13 @@ const Login = ({ loginRole }) => {
     }
 
     const result = await verifyOtp(form.email, form.otp);
-    if (result.success) {
-      handleRoleAndNavigate(result.role);
-    } else {
-      setErrorMsg(result.error || "OTP verification failed");
-    }
+    if (result.success) handleRoleAndNavigate(result.role);
+    else setErrorMsg(result.error || "OTP verification failed");
   };
 
   const formValid = isOtpLogin
-    ? form.email.trim() !== "" && form.otp.trim() !== ""
-    : form.email.trim() !== "" && form.password.trim() !== "";
+    ? form.email.trim() && form.otp.trim()
+    : form.email.trim() && form.password.trim();
 
   return (
     <section className="w-full bg-gray-200 min-h-screen lg:min-h-[80vh] flex items-center justify-between gap-10">
@@ -100,57 +91,42 @@ const Login = ({ loginRole }) => {
               <p className="text-red-600 text-sm text-center">{errorMsg}</p>
             )}
 
-            <div>
-              <label htmlFor="email" className="block mb-2 font-medium">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                placeholder="abc@example.com"
-                title="Enter your mail"
-                value={form.email}
-                onChange={handleChange}
-                className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
-                required
-                disabled={otpRequested} // disable email change after requesting OTP
-              />
-            </div>
+            <InputField
+              name="email"
+              label="Email"
+              type="email"
+              placeholder="abc@example.com"
+              title="Enter your email"
+              value={form.email}
+              onChange={handleChange}
+              required
+              disabled={otpRequested}
+            />
 
             {!isOtpLogin && (
-              <div>
-                <label htmlFor="password" className="block mb-2 font-medium">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="******"
-                  title="Enter a strong password"
-                  value={form.password}
-                  onChange={handleChange}
-                  className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
-                  required
-                />
-              </div>
+              <InputField
+                name="password"
+                label="Password"
+                type="password"
+                placeholder="******"
+                title="Enter a strong password"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
             )}
 
             {isOtpLogin && otpRequested && (
-              <div>
-                <label htmlFor="otp" className="block mb-1 font-medium">
-                  Enter OTP
-                </label>
-                <input
-                  type="text"
-                  name="otp"
-                  placeholder="******"
-                  title="Enter the OTP"
-                  value={form.otp}
-                  onChange={handleChange}
-                  className="w-full bg-gray-300 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
-                  required
-                />
-              </div>
+              <InputField
+                name="otp"
+                label="Enter OTP"
+                type="text"
+                placeholder="******"
+                title="Enter the OTP"
+                value={form.otp}
+                onChange={handleChange}
+                required
+              />
             )}
 
             {!isOtpLogin && (
@@ -161,7 +137,6 @@ const Login = ({ loginRole }) => {
               >
                 {loading ? <div className="font-semibold">Logging in...</div> : <div className="font-semibold">Login</div>}
               </button>
-
             )}
 
             {isOtpLogin && !otpRequested && (
@@ -173,7 +148,6 @@ const Login = ({ loginRole }) => {
               >
                 {loading ? <div className="font-semibold">Sending OTP...</div> : <div className="font-semibold">Send OTP</div>}
               </button>
-
             )}
 
             {isOtpLogin && otpRequested && (
@@ -184,17 +158,16 @@ const Login = ({ loginRole }) => {
               >
                 {loading ? <div className="font-semibold">Verifying OTP...</div> : <div className="font-semibold">Verify OTP & Login</div>}
               </button>
-
             )}
 
             <div className="text-center mt-4">
               <div className="flex items-center justify-center space-x-2">
-                <div className="border-t border-gray-200 dark:border-gray-400 flex-1 mt-0.5"></div>
+                <div className="border-t border-gray-200 flex-1 mt-0.5"></div>
                 <p className="text-gray-900 font-medium">OR</p>
-                <div className="border-t border-gray-200 dark:border-gray-400 flex-1 mt-0.5"></div>
+                <div className="border-t border-gray-200 flex-1 mt-0.5"></div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-3 md::gap-0 justify-center items-center space-x-4 mt-5">
+              <div className="flex flex-col md:flex-row gap-3 justify-center items-center space-x-4 mt-5">
                 <button
                   type="button"
                   onClick={() => {
@@ -226,6 +199,7 @@ const Login = ({ loginRole }) => {
           </form>
         </div>
       </div>
+
       <div className="w-[55%] h-full hidden lg:flex justify-center items-center p-10">
         <img
           src={AuthSiderImg}

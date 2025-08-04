@@ -108,30 +108,54 @@ export const getProductsByCategoryId = async (req, res) => {
 // Admin/Vendor: Add a new product
 export const addProduct = async (req, res) => {
   try {
-    let { title, brand, description, category, specifications, price, discountPrice, stock, sku, hsnCode, gstRate, isTaxable, freeDelivery, tags, video } = req.body;
+    let {
+      title, brand, description, category, specifications, price,
+      discountPrice, stock, sku, hsnCode, gstRate, isTaxable,
+      freeDelivery, tags, video
+    } = req.body;
 
-    // === Validation ===
-    if (!title || !brand || !price || !category || !sku || !hsnCode || !gstRate) {
+    // === Basic Required Checks ===
+    if (!title || !brand || !category || !sku || !hsnCode || !gstRate || isNaN(price)) {
       return res.status(400).json({
         success: false,
-        message: "Required fields missing: title, brand, price, category, sku, hsnCode, gstRate",
+        message: "Missing required fields: title, brand, price, category, sku, hsnCode, gstRate",
       });
     }
 
-    const allowedGstRates = [0, 5, 12, 18, 28];
-    if (!allowedGstRates.includes(Number(gstRate))) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid GST rate. Allowed values: 0, 5, 12, 18, 28",
-      });
-    }
-
-    if (isNaN(price) || price < 0 || (discountPrice && discountPrice < 0)) {
+    if (price < 0 || (discountPrice && discountPrice < 0)) {
       return res.status(400).json({ success: false, message: "Invalid price or discount price" });
     }
 
     if (stock && (isNaN(stock) || stock < 0)) {
       return res.status(400).json({ success: false, message: "Invalid stock value" });
+    }
+
+    const allowedGstRates = [0, 5, 12, 18, 28];
+    if (!allowedGstRates.includes(Number(gstRate))) {
+      return res.status(400).json({ success: false, message: "Invalid GST rate. Allowed: 0, 5, 12, 18, 28" });
+    }
+
+    const skuRegex = /^[A-Za-z0-9_-]{4,20}$/;
+    if (!skuRegex.test(sku.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: "SKU must be 4–20 characters using letters, numbers, hyphens, or underscores only",
+      });
+    }
+
+    if (!/^\d{4,8}$/.test(hsnCode.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: "HSN Code must be 4 to 8 digits.",
+      });
+    }
+
+    const existing = await Product.findOne({ sku: sku.trim().toUpperCase() });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: "SKU already exists. Please use a unique SKU.",
+      });
     }
 
     // === Formatting ===
@@ -149,13 +173,11 @@ export const addProduct = async (req, res) => {
       }
     }
 
-    // Clean tags: trim + lowercase + deduplicate
     if (tags && Array.isArray(tags)) {
-      tags = [...new Set(tags.map((tag) => tag.trim().toLowerCase()))];
+      tags = [...new Set(tags.map(tag => tag.trim().toLowerCase()))];
     }
 
-    // Get Cloudinary image URLs
-    const imageUrls = req.files?.map((file) => file.path) || [];
+    const imageUrls = req.files?.map(file => file.path) || [];
 
     const newProduct = await Product.create({
       createdBy: req.person.id,
@@ -178,9 +200,19 @@ export const addProduct = async (req, res) => {
       tags: tags || [],
     });
 
-    res.status(201).json({ success: true, message: "Product added successfully.", product: newProduct });
+    res.status(201).json({
+      success: true,
+      message: "Product added successfully.",
+      product: newProduct,
+    });
+
   } catch (err) {
     console.error("Add Product Error:", err);
-    res.status(500).json({ success: false, message: "Server error while adding product.", error: err.message });
+    res.status(500).json({
+      success: false,
+      message: "Server error while adding product.",
+      error: err.message,
+    });
   }
 };
+

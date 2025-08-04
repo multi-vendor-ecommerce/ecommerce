@@ -15,7 +15,7 @@ import CommissionOverview from "./adminCommissions/CommissionOverview";
 import VendorProfile from "./adminVendor/VendorProfile";
 import ProductDetails from "./adminProducts/ProductDetails";
 import AuthContext from "../../../context/auth/AuthContext";
-import AddProduct from "./adminProducts/AddProduct";
+import AddProduct from "./adminProducts/addProduct/AddProduct";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);

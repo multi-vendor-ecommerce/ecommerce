@@ -1,6 +1,4 @@
 // components/common/StepperControls.jsx
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-
 const StepperControls = ({
   currentStep,
   totalSteps,
@@ -11,6 +9,7 @@ const StepperControls = ({
   isLastStep = false,
   showSubmit = false,
   loading = false,
+  submitButton=[]
 }) => {
   return (
     <div className="flex justify-between gap-4 pt-4">
@@ -19,9 +18,8 @@ const StepperControls = ({
           type="button"
           onClick={onBack}
           disabled={backDisabled}
-          className="w-full bg-gray-400 text-white py-3.5 rounded-xl hover:bg-gray-500 transition flex items-center justify-center gap-2"
+          className="w-full bg-gray-400 text-white py-3.5 rounded-xl hover:bg-gray-500 transition flex items-center justify-center gap-2 cursor-pointer"
         >
-          <FaArrowLeft />
           Back
         </button>
       )}
@@ -31,9 +29,9 @@ const StepperControls = ({
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2"
+            className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 cursor-pointer"
           >
-            {loading ? "Registering..." : "Register"}
+            {loading ? submitButton[1] : submitButton[0]}
           </button>
         )
       ) : (
@@ -41,10 +39,9 @@ const StepperControls = ({
           type="button"
           onClick={onNext}
           disabled={nextDisabled}
-          className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2"
+          className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 cursor-pointer"
         >
           Next
-          <FaArrowRight />
         </button>
       )}
     </div>

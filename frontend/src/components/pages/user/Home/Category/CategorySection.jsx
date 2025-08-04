@@ -24,13 +24,10 @@ const CategorySection = () => {
                         <span className="text-base font-semibold">All Categories</span>
                     </div>
 
-
-
                     {/* Parent Categories Horizontal Scroll */}
                     <div className="mt-3 md:mt-0 overflow-x-auto no-scrollbar flex-1">
                         <CategorySidebar showAsHorizontal parentCircleSize="large" />
                     </div>
-
                 </div>
             </div>
 
