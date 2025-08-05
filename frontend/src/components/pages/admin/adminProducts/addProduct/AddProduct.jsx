@@ -14,7 +14,7 @@ const AddProduct = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   const [formData, setFormData] = useState({
-    title: "", brand: "", tags: "", color: "", size: "", sku: "",
+    title: "", brand: "", tags: "", colors: "", size: "", sku: "",
     hsnCode: "", gstRate: "", description: "", price: "", discount: "",
     stock: "", isTaxable: true, freeDelivery: false,
     status: "pending", visibility: "public", category: ""
@@ -27,7 +27,7 @@ const AddProduct = () => {
   };
 
   const handleImageChange = (e) => {
-    setImages([...e.target.files]);
+    setImages((prev) => [...prev, ...Array.from(e.target.files)]);
   };
 
   const nextStep = () => {
@@ -73,26 +73,60 @@ const AddProduct = () => {
     setErrorMsg("");
 
     const submitData = new FormData();
-    Object.entries(formData).forEach(([key, value]) => submitData.append(key, value));
+
+    // Append non-array fields
+    Object.entries(formData).forEach(([key, value]) => {
+      if (!["tags", "colors", "size"].includes(key)) {
+        submitData.append(key, value);
+      }
+    });
+
+    // Handle tags (comma or single value)
+    const tagsArray = formData.tags
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag);
+    tagsArray.forEach((tag) => submitData.append("tags", tag));
+
+    // Handle colors (comma or single value)
+    const colorsArray = formData.colors
+      .split(",")
+      .map((colors) => colors.trim())
+      .filter((colors) => colors);
+    colorsArray.forEach((colors) => submitData.append("colors", colors));
+
+    // Handle sizes (comma or single value)
+    const sizesArray = formData.size
+      .split(",")
+      .map((size) => size.trim())
+      .filter((size) => size);
+    sizesArray.forEach((size) => submitData.append("sizes", size));
+
+    // Append images
     images.forEach((img) => submitData.append("images", img));
 
-    const success = await addProduct(submitData);
+    try {
+      const success = await addProduct(submitData);
 
-    if (success) {
-      alert("Product added successfully!");
-      setFormData({
-        title: "", brand: "", tags: "", color: "", size: "", sku: "",
-        hsnCode: "", gstRate: "", description: "", price: "", discount: "",
-        stock: "", isTaxable: true, freeDelivery: false,
-        status: "pending", visibility: "public", category: ""
-      });
-      setImages([]);
-      setSelectedCategories([]);
-      setStep(1);
-    } else {
-      setErrorMsg("Failed to add product.");
+      if (success) {
+        alert("Product added successfully!");
+        setFormData({
+          title: "", brand: "", tags: "", colors: "", size: "", sku: "",
+          hsnCode: "", gstRate: "", description: "", price: "", discount: "",
+          stock: "", isTaxable: true, freeDelivery: false,
+          status: "pending", visibility: "public", category: ""
+        });
+        setImages([]);
+        setSelectedCategories([]);
+        setStep(1);
+      } else {
+        setErrorMsg("Failed to add product.");
+      }
+    } catch (err) {
+      setErrorMsg(err.message || "Failed to add product.");
     }
   };
+
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 rounded-lg shadow-md">
@@ -124,12 +158,12 @@ const AddProduct = () => {
 
           {step === 2 && (
             <>
-              {["brand", "title", "tags", "color", "size", "sku", "hsnCode"].map((field) => {
+              {["brand", "title", "tags", "colors", "size", "sku", "hsnCode"].map((field) => {
                 const labels = {
                   brand: "Brand",
                   title: "Product Title",
                   tags: "Tags (comma-separated)",
-                  color: "Color",
+                  colors: "Colors (comma-separated)",
                   size: "Size (e.g. M, L, XL)",
                   sku: "SKU (4-20 characters)",
                   hsnCode: "HSN Code (4-8 digits)",
@@ -139,7 +173,7 @@ const AddProduct = () => {
                   brand: "e.g. Nike",
                   title: "e.g. Running Shoes",
                   tags: "e.g. shoes, running, men",
-                  color: "e.g. Red",
+                  colors: "e.g. Red, white, pink",
                   size: "e.g. L",
                   sku: "e.g. RUN1234",
                   hsnCode: "e.g. 6403",
@@ -149,6 +183,16 @@ const AddProduct = () => {
                   <div key={field}>
                     <label htmlFor={field} className="block font-medium text-gray-700 mb-1">
                       {labels[field]}
+                      {field === "hsnCode" && (
+                        <a
+                          href="https://cbic-gst.gov.in/gst-goods-services-rates.html"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ml-2 text-blue-600 hover:underline hover:text-blue-800"
+                        >
+                          (Find HSN)
+                        </a>
+                      )}
                     </label>
                     <input
                       id={field}
@@ -250,7 +294,6 @@ const AddProduct = () => {
                   onChange={handleImageChange}
                   className="cursor-pointer"
                   id="images"
-                  required
                   title="Upload at least one clear image"
                 />
               </div>

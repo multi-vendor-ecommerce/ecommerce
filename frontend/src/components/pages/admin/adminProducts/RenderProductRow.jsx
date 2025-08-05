@@ -12,16 +12,16 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false) =
     >
       {/* Product (image + name) */}
       <td
-        className="px-6 py-4 min-w-[200px] hover:scale-105 transition duration-150"
+        className="px-6 py-4 min-w-[300px] hover:scale-105 transition duration-150"
         title={p.title || "No Title"}
       >
-        <NavLink to={`/admin/product-details/${p._id}`} className="flex items-center gap-4">
+        <NavLink to={`/admin/product-details/${p._id}`} className="w-full flex items-center gap-4">
           <img
             src={p.images?.[0] || "https://m.media-amazon.com/images/I/71Ls4akTeeL._AC_SL1500_.jpg"}
             alt={p.title || "Product Image"}
-            className="w-[120px] h-12 rounded-lg object-cover shadow-md shadow-purple-400"
+            className="w-[140px] h-12 rounded-lg object-cover shadow-md shadow-purple-400"
           />
-          <span className="w-[152px] font-semibold text-gray-800 max-w-[160px] truncate">
+          <span className="w-[160px] font-semibold text-gray-800 max-w-[160px] truncate">
             {p.title || "Untitled"}
           </span>
         </NavLink>
@@ -29,7 +29,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false) =
 
       {/* ID */}
       <td
-        className="px-6 py-4 min-w-[140px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150"
+        className="px-6 py-4 min-w-[90px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150 truncate"
         title={p._id || "No ID"}
       >
         <NavLink to={`/admin/product-details/${p._id}`}>#{p._id || "N/A"}</NavLink>
@@ -37,7 +37,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false) =
 
       {/* Category */}
       <td
-        className="px-6 py-4 min-w-[160px] hover:scale-105 transition duration-150"
+        className="px-6 py-4 min-w-[180px] hover:scale-105 transition duration-150"
         title={p.category?.name || "Uncategorized"}
       >
         {p.category?.name || "Uncategorized"}
@@ -111,7 +111,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false) =
       </td>
 
       {/* Actions */}
-      <td className="px-6 py-4 min-w-[120px] hover:scale-105 transition duration-150">
+      <td className="px-6 py-4 min-w-[100px] hover:scale-105 transition duration-150">
         <div className="flex items-center gap-3">
           <NavLink
             to={`/admin/product-details/${p._id}`}

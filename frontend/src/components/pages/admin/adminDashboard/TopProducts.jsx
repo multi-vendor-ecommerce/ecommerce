@@ -10,12 +10,14 @@ const TopProducts = () => {
   const { loading, getTopSellingProducts } = useContext(ProductContext);
   const [showAll, setShowAll] = useState(false);
   const [products, setProducts] = useState([]);
+  const [categoryStats, setCategoryStats] = useState([]);
 
   useEffect(() => {
     const fetchTopSelling = async () => {
       const result = await getTopSellingProducts(100);
       if (result?.products) {
         setProducts(result.products);
+        setCategoryStats(result.categoryStats || []);
       }
     };
     fetchTopSelling();
@@ -33,8 +35,9 @@ const TopProducts = () => {
         <div className="flex justify-center"><Spinner /></div>
       ) : (
         <div>
+          {/* Title + View All */}
           <div className="min-h-16 flex justify-between items-center mb-5">
-            <h2 className="textxl md:text-2xl font-bold text-gray-800">Top Selling Products</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800">Top Selling Products</h2>
             <NavLink
               to="/admin/top-selling-products"
               className="border-gray-300 px-2 md:px-4 py-2 rounded-xl text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
@@ -43,23 +46,47 @@ const TopProducts = () => {
             </NavLink>
           </div>
 
-          <div>
-            <TabularData
-              headers={[
-                "Product", "ID", "Category", "Price", "Units Sold",
-                "Revenue", "Approval Status", "Sales Progress", "Actions"
-              ]}
-              data={productsToShow}
-              renderRow={(p, i) => RenderProductRow(p, i, maxUnitsSold, true)}
-              emptyMessage="No products available."
-            />
-          </div>
+          {/* Table of Products */}
+          <TabularData
+            headers={[
+              "Product", "ID", "Category", "Price", "Units Sold",
+              "Revenue", "Approval Status", "Sales Progress", "Actions"
+            ]}
+            data={productsToShow}
+            renderRow={(p, i) => RenderProductRow(p, i, maxUnitsSold, true)}
+            emptyMessage="No products available."
+          />
 
+          {/* Show More / Less */}
           <ShowLessMore
             showAll={showAll}
             toggleShowAll={() => setShowAll(prev => !prev)}
             condition={products.length > 5}
           />
+
+          {/* Top Categories Section */}
+          {categoryStats.length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-lg md:text-xl font-semibold mb-3 text-gray-800">Top Categories</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {categoryStats
+                  .sort((a, b) => b.totalRevenue - a.totalRevenue)
+                  .slice(0, 3)
+                  .map((c) => (
+                    <div
+                      key={c.category._id}
+                      className="bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200"
+                    >
+                      <p className="font-bold text-gray-700">{c.category.name}</p>
+                      <p className="text-sm text-gray-600">Revenue: ₹{c.totalRevenue.toLocaleString()}</p>
+                      <p className="text-sm text-gray-600">Units Sold: {c.totalUnitsSold}</p>
+                      <p className="text-sm text-gray-600">Products: {c.productCount}</p>
+                      <p className="text-sm text-gray-600">Avg. Rating: {c.averageRating.toFixed(1)}</p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </section>

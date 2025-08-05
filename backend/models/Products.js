@@ -95,6 +95,16 @@ const productSchema = new Schema(
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
+    colors: {
+      type: [String],
+      default: [],
+      validate: [(val) => val.length > 0, "At least one color is required"],
+    },
+    sizes: {
+      type: [String],
+      default: [],
+      enum: ["XS", "S", "M", "L", "XL", "XXL", "Free Size"],
+    },
     visibility: {
       type: String,
       enum: ["public", "private"],
