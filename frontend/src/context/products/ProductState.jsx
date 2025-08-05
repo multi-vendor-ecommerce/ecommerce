@@ -40,7 +40,7 @@ const ProductState = ({ children }) => {
         products: data.products || [],
         total: data.total || 0,
         success: data.success,
-        categoryStats: data.categoryStats || [],
+
       };
     } catch (err) {
       console.error("Product fetch error:", err);
@@ -58,8 +58,9 @@ const ProductState = ({ children }) => {
     if (search.trim()) params.append("search", search);
     if ((role === "admin" || role === "vendor") && status) params.append("status", status);
 
-    let endpoint = "/api/products";
-    if (role) endpoint = `/api/products/${role}`;
+    let endpoint;
+    if (role === "customer") endpoint = "/api/products";
+    else endpoint = `/api/products/${role}`;
 
     const url = `${host}${endpoint}?${params}`;
     const data = await fetchProducts(url, role);
@@ -78,8 +79,9 @@ const ProductState = ({ children }) => {
 
     const params = new URLSearchParams({ limit, skip });
 
-    let endpoint = "/api/products/top-products";
-    if (role) endpoint = `/api/products/${role}/top-products`;
+    let endpoint;
+    if (role === "customer") endpoint = "/api/products/top-products";
+    else endpoint =  `/api/products/${role}/top-products`;
 
     const url = `${host}${endpoint}?${params}`;
     const data = await fetchProducts(url, role);
@@ -97,8 +99,9 @@ const ProductState = ({ children }) => {
     try {
       const { role, token } = getRoleInfo();
 
-      let endpoint = `/api/products/product/${id}`;
-      if (role) endpoint = `/api/products/${role}/${id}`;
+      let endpoint
+      if (role === "customer") endpoint = `/api/products/product/${id}`;
+      else endpoint = `/api/products/${role}/${id}`;
 
       const headers = { "Content-Type": "application/json" };
       if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");

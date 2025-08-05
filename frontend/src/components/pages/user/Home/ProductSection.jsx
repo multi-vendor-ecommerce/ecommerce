@@ -4,11 +4,11 @@ import ProductContext from "../../../../context/products/ProductContext";
 import { encryptData } from "../Utils/Encryption";
 
 export default function ProductSection({ title }) {
-  const { products, loading, getAllPublicProducts } = useContext(ProductContext);
+  const { products, loading, getAllProducts } = useContext(ProductContext);
   const navigateTo = useNavigate();
 
   useEffect(() => {
-    getAllPublicProducts();
+    getAllProducts();
   }, []);
 
   const handleProductClick = (productId) => {
