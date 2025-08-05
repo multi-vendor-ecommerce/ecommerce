@@ -1,12 +1,20 @@
 import { FiCheckCircle } from "react-icons/fi";
 
-const Stepper = ({ stepLabels = [], currentStep, className = "", highlightCurrentStep = false }) => {
+const Stepper = ({
+  stepLabels = [],
+  currentStep,
+  className = "",
+  highlightCurrentStep = false,
+}) => {
   return (
     <div className={className}>
       {stepLabels.map((label, index) => {
         const isActive = currentStep === index + 1;
-        const activeStyles = highlightCurrentStep && isActive
-          ? "text-blue-700 font-semibold md:bg-purple-100 md:rounded-xl md:px-2"
+
+        const activeStyles = isActive
+          ? `text-blue-700 font-semibold ${
+              highlightCurrentStep ? "md:bg-purple-100 md:rounded-xl md:px-2" : ""
+            }`
           : "";
 
         return (
