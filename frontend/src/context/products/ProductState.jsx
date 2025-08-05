@@ -9,153 +9,146 @@ const ProductState = ({ children }) => {
   // const host = import.meta.env.VITE_BACKEND_URL;
   const host = "http://localhost:5000";
 
-  // Internal fetch handler
-  const fetchProducts = async (url, isAdmin = false) => {
+  // Role + Token utility
+  const getRoleInfo = () => {
+    const adminToken = localStorage.getItem("adminToken");
+    const vendorToken = localStorage.getItem("vendorToken");
+
+    if (adminToken) {
+      return { role: "admin" };
+    } else if (vendorToken) {
+      return { role: "vendor" };
+    } else {
+      return { role: "customer" };
+    }
+  };
+
+  // Secure fetch wrapper with if-else token logic
+  const fetchProducts = async (url, role) => {
     try {
       setLoading(true);
       const headers = { "Content-Type": "application/json" };
-      if (isAdmin) {
-        headers["auth-token"] = localStorage.getItem("adminToken");
-      }
 
-      const response = await fetch(url, { method: "GET", headers });
-      if (!response.ok) throw new Error("Failed to fetch products.");
+      if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
+      else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken")
 
-      const data = await response.json();
+      const res = await fetch(url, { method: "GET", headers });
+      if (!res.ok) throw new Error("Failed to fetch products.");
+
+      const data = await res.json();
       return {
         products: data.products || [],
         total: data.total || 0,
         success: data.success,
+        categoryStats: data.categoryStats || [],
       };
-    } catch (error) {
-      console.error("Product fetch error:", error);
-      return { products: [], total: 0, success: false };
+    } catch (err) {
+      console.error("Product fetch error:", err);
+      return { products: [], total: 0, success: false, categoryStats: [] };
     } finally {
       setLoading(false);
     }
   };
 
-  // Admin - Get all products
+  // Get all products (public/vendor/admin)
   const getAllProducts = async ({ search = "", status = "", page = 1, limit = 10 } = {}) => {
-    const params = new URLSearchParams();
-    if (search?.trim()) params.append("search", search);
-    if (status) params.append("status", status);
-    params.append("page", page);
-    params.append("limit", limit);
+    const { role } = getRoleInfo();
 
-    const url = `${host}/api/products/admin?${params.toString()}`;
-    const data = await fetchProducts(url, true);
+    const params = new URLSearchParams({ page, limit });
+    if (search.trim()) params.append("search", search);
+    if ((role === "admin" || role === "vendor") && status) params.append("status", status);
+
+    let endpoint = "/api/products";
+    if (role) endpoint = `/api/products/${role}`;
+
+    const url = `${host}${endpoint}?${params}`;
+    const data = await fetchProducts(url, role);
+
     if (data.success) {
       setProducts(data.products);
       setTotalCount(data.total);
     }
+
     return data;
   };
 
-  const getAllPublicProducts = async ({ search = "", page = 1, limit = 10 } = {}) => {
-    const params = new URLSearchParams();
-    if (search?.trim()) params.append("search", search);
-    params.append("page", page);
-    params.append("limit", limit);
-
-    const url = `${host}/api/products?${params.toString()}`;
-    const data = await fetchProducts(url);
-
-    if (data?.products) {
-      setProducts(data.products);
-      setTotalCount(data.total); // for pagination on public pages
-    }
-  };
-
+  // Top Selling Products
   const getTopSellingProducts = async ({ limit = 10, skip = 0 } = {}) => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${host}/api/products/top-products?limit=${limit}&skip=${skip}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+    const { role } = getRoleInfo();
 
-      const data = await res.json();
-      if (data.success) {
-        return {
-          products: data.products,
-          total: data.total,
-          limit: data.limit,
-          categoryStats: data.categoryStats || [],
-        };
-      } else {
-        throw new Error(data.message || "Unknown error");
-      }
-    } catch (err) {
-      console.error("Failed to fetch top-selling products:", err.message);
-      return { products: [], total: 0, categoryStats: [] };
-    } finally {
-      setLoading(false);
-    }
+    const params = new URLSearchParams({ limit, skip });
+
+    let endpoint = "/api/products/top-products";
+    if (role) endpoint = `/api/products/${role}/top-products`;
+
+    const url = `${host}${endpoint}?${params}`;
+    const data = await fetchProducts(url, role);
+
+    return {
+      products: data.products,
+      total: data.total,
+      limit,
+      categoryStats: data.categoryStats || [],
+    };
   };
 
+  // Product by ID (public/admin/vendor)
   const getProductById = async (id) => {
     try {
-      const response = await fetch(`${host}/api/products/admin/${id}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token": localStorage.getItem("adminToken")
-          }
-        });
-      if (!response.ok) {
-        throw new Error('Failed to fetch products.');
-      }
+      const { role, token } = getRoleInfo();
 
-      const data = await response.json();
-      return data.product;
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
-  }
+      let endpoint = `/api/products/product/${id}`;
+      if (role) endpoint = `/api/products/${role}/${id}`;
 
-  const getPublicProductById = async (id) => {
-    try {
-      const response = await fetch(`${host}/api/products/product/${id}`, {
+      const headers = { "Content-Type": "application/json" };
+      if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
+      else if (role === "vendor" && token) headers["auth-token"] = localStorage.getItem("vendorToken");
+
+      const response = await fetch(`${host}${endpoint}`, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json"
-        }
+        headers,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch product.');
-      }
-
+      if (!response.ok) throw new Error("Failed to fetch product.");
       const data = await response.json();
       return data.product;
     } catch (error) {
-      console.error('Error fetching public product:', error);
+      console.error("Error fetching product:", error);
+      return null;
     }
   };
 
+  // Products by Category
   const getProductsByCategoryId = async (categoryId) => {
     try {
       const response = await fetch(`${host}/api/products/category/${categoryId}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch products by category.');
+        throw new Error("Failed to fetch products by category.");
       }
 
       const data = await response.json();
       return data.products;
     } catch (error) {
-      console.error('Error fetching products by category:', error);
+      console.error("Error fetching products by category:", error);
     }
   };
 
-  // Add Product (Admin/Vendor)
+  // Add product (admin/vendor only)
   const addProduct = async (formData) => {
     try {
       setLoading(true);
+      const { role, token } = getRoleInfo();
 
+      // const headers = {};
+      // if (role !== "public" && token) {
+      //   headers["auth-token"] = token;
+      // }
+
+      // const response = await fetch(`${host}/api/products/add-product`, {
+      //   method: "POST",
+      //   headers,
+      //   body: formData,
+      // });
       const response = await fetch(`${host}/api/products/add-product`, {
         method: "POST",
         headers: {
@@ -166,7 +159,7 @@ const ProductState = ({ children }) => {
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Failed to add product.");
-      return data; // contains { success, message, product }
+      return data;
     } catch (error) {
       console.error("Error adding product:", error.message);
       throw error;
@@ -176,10 +169,21 @@ const ProductState = ({ children }) => {
   };
 
   return (
-    <ProductContext.Provider value={{ products, loading, totalCount, getAllProducts, getAllPublicProducts, getProductById, getPublicProductById, getProductsByCategoryId, addProduct, getTopSellingProducts }}>
+    <ProductContext.Provider
+      value={{
+        products,
+        loading,
+        totalCount,
+        getAllProducts,
+        getProductById,
+        getProductsByCategoryId,
+        addProduct,
+        getTopSellingProducts,
+      }}
+    >
       {children}
     </ProductContext.Provider>
-  )
-}
+  );
+};
 
 export default ProductState;

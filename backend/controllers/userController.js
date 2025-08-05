@@ -1,39 +1,41 @@
 import User from "../models/User.js";
+import Order from "../models/Order.js";
 import { validationResult } from 'express-validator';
 import buildQuery from "../utils/queryBuilder.js";
 
 export const getAllCustomers = async (req, res) => {
   try {
+    const role = req.person?.role;
     const query = buildQuery(req.query, ["name", "email", "address"]);
 
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit) || 10, 1);
     const skip = (page - 1) * limit;
+
+    // ⛔️ Restrict to customers who have ordered from this vendor
+    if (role === "vendor") {
+      const vendorId = req.person.id;
+
+      // Step 1: Find all customer IDs with orders placed to this vendor
+      const customerIds = await Order.distinct("user", { vendor: vendorId });
+
+      // Step 2: Add restriction to query
+      query._id = { $in: customerIds };
+    }
 
     const [users, total] = await Promise.all([
       User.find(query)
         .select("-password")
         .skip(skip)
         .limit(limit)
-        .sort({ createdAt: -1 }), // optional sort
+        .sort({ createdAt: -1 }),
       User.countDocuments(query),
     ]);
 
-    res.status(200).json({
-      success: true,
-      message: "Customers fetched successfully.",
-      users,
-      total,
-      page,
-      limit,
-    });
+    res.status(200).json({ success: true, message: "Customers fetched successfully.", users, total, page, limit });
   } catch (err) {
     console.error("getAllCustomers error:", err.message);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error.",
-      error: err.message,
-    });
+    res.status(500).json({ success: false, message: "Internal Server Error.", error: err.message });
   }
 };
 

@@ -2,13 +2,18 @@ import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 
-// Public: Get all products
+// Get all products - handles public, admin, and vendor
 export const getAllProducts = async (req, res) => {
   try {
     const query = buildQuery(req.query, ["title"]);
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+
+    // If vendor, restrict to their own products
+    if (req.person?.role === "vendor") {
+      query.createdBy = req.person.id;
+    }
 
     let baseQuery = Product.find(query)
       .skip(skip)
@@ -17,7 +22,8 @@ export const getAllProducts = async (req, res) => {
       .populate("category", "name")
       .populate("createdBy", "name email shopName role");
 
-    if (req.person?.role !== "admin") {
+    // Limit fields for public or vendor
+    if (!req.person || req.person.role !== "admin") {
       baseQuery = baseQuery.select("title description images price category tags freeDelivery rating totalReviews colors sizes");
     }
 
@@ -26,48 +32,39 @@ export const getAllProducts = async (req, res) => {
       Product.countDocuments(query),
     ]);
 
-    res.status(200).json({
-      success: true,
-      message: "Products fetched successfully.",
-      products,
-      total,
-      page,
-      limit,
-    });
+    res.status(200).json({ success: true, message: "Products fetched successfully.", products, total, page, limit });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: "Server error.",
-      details: err.message,
-    });
+    res.status(500).json({ success: false, error: "Server error.", details: err.message });
   }
 };
 
-// Protected: Get top selling products with conditional fields and category stats
+// Get top selling products
 export const getTopSellingProducts = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
-    const isAdmin = req.person?.role === "admin";
+    const role = req.person?.role;
 
-    // Base product query
-    let query = Product.find({ status: "approved" })
+    let filter = { status: "approved" };
+
+    if (role === "vendor") {
+      filter.createdBy = req.person.id;
+    }
+
+    let query = Product.find(filter)
       .sort({ unitsSold: -1 })
       .limit(limit)
       .populate("category", "name")
       .populate("createdBy", "name email shopName role");
 
-    // If not admin, select safe fields
-    if (!isAdmin) {
+    if (role !== "admin") {
       query = query.select("title description images price category tags freeDelivery rating totalReviews colors sizes");
     }
 
-    // Fetch products and total count in parallel
     const [products, total] = await Promise.all([
       query,
-      Product.countDocuments({ status: "approved" }),
+      Product.countDocuments(filter),
     ]);
 
-    // Category-level stats calculation
     const categoryStatsMap = new Map();
 
     for (const product of products) {
@@ -80,11 +77,7 @@ export const getTopSellingProducts = async (req, res) => {
             _id: product.category._id,
             name: product.category.name,
           },
-          totalUnitsSold: 0,
-          totalRevenue: 0,
-          productCount: 0,
-          cumulativeRating: 0,
-          ratingCount: 0,
+          totalUnitsSold: 0, totalRevenue: 0, productCount: 0, cumulativeRating: 0, ratingCount: 0,
         });
       }
 
@@ -99,7 +92,6 @@ export const getTopSellingProducts = async (req, res) => {
       }
     }
 
-    // Finalize average rating
     const categoryStats = Array.from(categoryStatsMap.values()).map(stat => ({
       ...stat,
       averageRating: stat.ratingCount > 0
@@ -107,21 +99,9 @@ export const getTopSellingProducts = async (req, res) => {
         : 0,
     }));
 
-    res.status(200).json({
-      success: true,
-      message: "Top selling products fetched successfully.",
-      products,
-      total,
-      limit,
-      categoryStats,
-    });
-
+    res.status(200).json({ success: true, message: "Top selling products fetched successfully.", products, total, limit, categoryStats });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch top selling products.",
-      error: err.message,
-    });
+    res.status(500).json({ success: false, message: "Failed to fetch top selling products.", error: err.message });
   }
 };
 
@@ -188,17 +168,11 @@ export const addProduct = async (req, res) => {
 
     const skuRegex = /^[A-Za-z0-9_-]{4,20}$/;
     if (!skuRegex.test(sku.trim())) {
-      return res.status(400).json({
-        success: false,
-        message: "SKU must be 4-20 characters using letters, numbers, hyphens, or underscores only",
-      });
+      return res.status(400).json({ success: false, message: "SKU must be 4-20 characters using letters, numbers, hyphens, or underscores only"});
     }
 
     if (!/^\d{4,8}$/.test(hsnCode.trim())) {
-      return res.status(400).json({
-        success: false,
-        message: "HSN Code must be 4 to 8 digits.",
-      });
+      return res.status(400).json({ success: false, message: "HSN Code must be 4 to 8 digits." });
     }
 
     // === Optional Field: Colors ===
@@ -220,10 +194,7 @@ export const addProduct = async (req, res) => {
 
     const existing = await Product.findOne({ sku: sku.trim().toUpperCase() });
     if (existing) {
-      return res.status(400).json({
-        success: false,
-        message: "SKU already exists. Please use a unique SKU.",
-      });
+      return res.status(400).json({ success: false, message: "SKU already exists. Please use a unique SKU." });
     }
 
     // === Formatting ===
@@ -278,19 +249,11 @@ export const addProduct = async (req, res) => {
       sizes,
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Product added successfully.",
-      product: newProduct,
-    });
+    res.status(201).json({ success: true, message: "Product added successfully.", product: newProduct });
 
   } catch (err) {
     console.error("Add Product Error:", err);
-    res.status(500).json({
-      success: false,
-      message: "Server error while adding product.",
-      error: err.message,
-    });
+    res.status(500).json({ success: false, message: "Server error while adding product.", error: err.message });
   }
 };
 

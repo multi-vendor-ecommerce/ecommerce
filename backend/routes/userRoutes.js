@@ -7,13 +7,17 @@ import { getAllCustomers, getUser, updateUser } from '../controllers/userControl
 
 const router = express.Router();
 
-// ROUTE 1: GET /api/all-customers
+// ROUTE 1: GET /api/admin/all-customers
 // Desc: Get customers' details
 router.get('/admin/all-customers', verifyToken, authorizeRoles("admin"), getAllCustomers);
 
+// ROUTE 1: GET /api/vendor/all-customers
+// Desc: Get customers' details
+router.get('/vendor/all-customers', verifyToken, authorizeRoles("vendor"), getAllCustomers);
+
 // ROUTE 2: GET /api/profile
 // Desc: Get loggedIn user's details via the jwt token (Login required)
-router.get('/profile', verifyToken, authorizeRoles("user") ,getUser);
+router.get('/profile', verifyToken, authorizeRoles("user"), getUser);
 
 let checkers = [
   body('name', 'Enter a valid name').optional().isLength({ min: 3 }).notEmpty().trim(),
