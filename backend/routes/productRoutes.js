@@ -4,7 +4,7 @@ import authorizeRoles from "../middleware/authorizeRole.js";
 import upload from "../middleware/multer.js";
 
 // Controllers
-import { getAllProducts, getProductById, getProductsByCategoryId, addProduct } from "../controllers/productController.js";
+import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts } from "../controllers/productController.js";
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ router.get("/", getAllProducts);
 
 // ROUTE 2: GET /api/top-products
 // Desc: Showcase all the top products to the user
-router.get("/top-products", getAllProducts);
+router.get("/top-products", getTopSellingProducts);
 
 // ROUTE 2: GET /api/products/admin
 // Desc: Showcase all the products to the admin

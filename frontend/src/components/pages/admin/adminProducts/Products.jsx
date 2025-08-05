@@ -23,25 +23,27 @@ export default function Products({ heading }) {
 
   useEffect(() => {
     if (isTopSellingPage) {
-      fetchTopSelling();
+      fetchTopSelling(page, itemsPerPage);
     } else {
-      fetchPaginatedProducts(1, itemsPerPage);
+      fetchPaginatedProducts(page, itemsPerPage);
     }
-  }, []);
+  }, [page, itemsPerPage]);
 
   const fetchPaginatedProducts = async (pg = 1, limit = itemsPerPage) => {
     const result = await getAllProducts({ ...filters, page: pg, limit });
     if (result?.products) {
       setProducts(result.products);
       setTotalCount(result.total);
-      setPage(pg);
     }
   };
 
-  const fetchTopSelling = async () => {
-    const topProducts = await getTopSellingProducts(100);
-    setProducts(topProducts);
-    setTotalCount(topProducts.length);
+  const fetchTopSelling = async (pg = 1, limit = itemsPerPage) => {
+    const skip = (pg - 1) * limit;
+    const result = await getTopSellingProducts({ skip, limit });
+    if (result?.products) {
+      setProducts(result.products);
+      setTotalCount(result.total);
+    }
   };
 
   const handleChange = (name, value) => {
@@ -49,8 +51,9 @@ export default function Products({ heading }) {
   };
 
   const handleApply = () => {
+    setPage(1);
     if (isTopSellingPage) {
-      fetchTopSelling();
+      fetchTopSelling(1, itemsPerPage);
     } else {
       fetchPaginatedProducts(1, itemsPerPage);
     }
@@ -59,8 +62,9 @@ export default function Products({ heading }) {
   const handleClear = () => {
     const reset = { search: "", status: "" };
     setFilters(reset);
+    setPage(1);
     if (isTopSellingPage) {
-      fetchTopSelling();
+      fetchTopSelling(1, itemsPerPage);
     } else {
       fetchPaginatedProducts(1, itemsPerPage);
     }
@@ -71,12 +75,12 @@ export default function Products({ heading }) {
   };
 
   const handlePageChange = (pg) => {
-    if (!isTopSellingPage) fetchPaginatedProducts(pg, itemsPerPage);
+    setPage(pg);
   };
 
   const handleItemsPerPageChange = (limit) => {
     setItemsPerPage(limit);
-    if (!isTopSellingPage) fetchPaginatedProducts(1, limit);
+    setPage(1); // Reset to first page on limit change
   };
 
   const headers = [
@@ -125,14 +129,13 @@ export default function Products({ heading }) {
         itemsPerPage={itemsPerPage}
         onPageChange={handlePageChange}
         onItemsPerPageChange={handleItemsPerPageChange}
-        disablePagination={isTopSellingPage} // <--- disables pagination UI if top-selling
       >
         {() => (
           <div className="rounded-xl border border-gray-200 shadow-md shadow-blue-500 bg-white overflow-hidden">
             <TabularData
               headers={headers}
               data={products}
-              renderRow={(p, i) => RenderProductRow(p, i, maxUnitsSold)}
+              renderRow={(p, i) => RenderProductRow(p, i, maxUnitsSold, isTopSellingPage)}
               emptyMessage="No products available."
             />
           </div>

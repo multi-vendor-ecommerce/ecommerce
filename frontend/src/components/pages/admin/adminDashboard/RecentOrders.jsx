@@ -11,10 +11,7 @@ const RecentOrders = () => {
   const { adminOrders, loading } = useContext(OrderContext);
   const [showAll, setShowAll] = useState(false);
 
-  const sortedOrders = [...adminOrders].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  );
-  const ordersToShow = showAll ? sortedOrders : sortedOrders.slice(0, 5);
+  const ordersToShow = showAll ? adminOrders : adminOrders.slice(0, 5);
 
   return (
     <section className="bg-white p-6 rounded-2xl shadow-md">
@@ -41,7 +38,7 @@ const RecentOrders = () => {
             />
           </div>
 
-          <ShowLessMore showAll={showAll} toggleShowAll={() => setShowAll((prev) => !prev)} condition={sortedOrders.length > 5} />
+          <ShowLessMore showAll={showAll} toggleShowAll={() => setShowAll((prev) => !prev)} condition={adminOrders.length > 5} />
         </>
       )}
     </section>

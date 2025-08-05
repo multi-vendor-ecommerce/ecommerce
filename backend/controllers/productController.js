@@ -43,17 +43,25 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
-// Public: Get all 100 top products
+// Protected: Get top selling products with conditional fields
 export const getTopSellingProducts = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
+    const isAdmin = req.person?.role === "admin";
+
+    let query = Product.find({ status: "approved" })
+      .sort({ unitsSold: -1 })
+      .limit(limit)
+      .populate("category", "name")
+      .populate("createdBy", "name email shopName role");
+
+    // If not admin, select only safe fields
+    if (!isAdmin) {
+      query = query.select("title description images price category tags freeDelivery rating totalReviews");
+    }
 
     const [products, total] = await Promise.all([
-      Product.find({ status: "approved" })
-        .sort({ unitsSold: -1 }) // highest selling first
-        .limit(limit)
-        .populate("category", "name")
-        .select("title price unitsSold category images status rating totalReviews"),
+      query,
       Product.countDocuments({ status: "approved" }),
     ]);
 
