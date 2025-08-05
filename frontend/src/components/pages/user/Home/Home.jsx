@@ -11,7 +11,7 @@ export default function Home() {
       <CategorySection  />
       <HeroSlider banners={SliderData} />
       <ProductSection />
-      <ProductByCategory />
+      {/* <ProductByCategory /> */}
     </div>
   );
 }

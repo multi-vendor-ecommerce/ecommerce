@@ -101,15 +101,16 @@ export const getProductById = async (req, res) => {
 // Public: Get products by category ID
 export const getProductsByCategoryId = async (req, res) => {
   try {
-    const categoryId = req.params.id;
+    const categoryId = req.params.categoryId;
+    console.log("Fetching products for category ID:", categoryId);
 
-    const products = await Product.find({ category: categoryId })
-      .populate("category", "name")
-      .populate("createdBy", "name email shopName role");
+    const products = await Product.find({ category: categoryId });
+    console.log("Fetched products:", products);
 
-    res.status(200).send({ success: true, message: "Products fetched successfully.", products });
-  } catch (err) {
-    res.status(500).json({ success: false, error: "Server error.", error: err.message });
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Error fetching products by category ID:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
