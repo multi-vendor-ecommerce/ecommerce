@@ -7,11 +7,11 @@ import { getAllCustomers, getUser, updateUser } from '../controllers/userControl
 
 const router = express.Router();
 
-// ROUTE 1: GET /api/admin/all-customers
+// ROUTE 1: GET /api/users/admin/all-customers
 // Desc: Get customers' details
 router.get('/admin/all-customers', verifyToken, authorizeRoles("admin"), getAllCustomers);
 
-// ROUTE 1: GET /api/vendor/all-customers
+// ROUTE 1: GET /api/users/vendor/all-customers
 // Desc: Get customers' details
 router.get('/vendor/all-customers', verifyToken, authorizeRoles("vendor"), getAllCustomers);
 

@@ -4,6 +4,7 @@ import Stepper from "../../../../common/Stepper";
 import StepperControls from "../../../../common/StepperControls";
 import BackButton from "../../../../common/layout/BackButton";
 import CategorySelector from "./CategorySelector";
+import { FiExternalLink } from "react-icons/fi";
 
 const AddProduct = () => {
   const { addProduct } = useContext(ProductContext);
@@ -127,7 +128,6 @@ const AddProduct = () => {
     }
   };
 
-
   return (
     <section className="bg-gray-100 min-h-screen p-6 rounded-lg shadow-md">
       <BackButton />
@@ -181,16 +181,21 @@ const AddProduct = () => {
 
                 return (
                   <div key={field}>
-                    <label htmlFor={field} className="block font-medium text-gray-700 mb-1">
+                    <label htmlFor={field} className="flex gap-2 font-medium text-gray-700 mb-1">
                       {labels[field]}
                       {field === "hsnCode" && (
                         <a
                           href="https://cbic-gst.gov.in/gst-goods-services-rates.html"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="ml-2 text-blue-600 hover:underline hover:text-blue-800"
+                          className="ml-1.5 text-blue-600 hover:text-blue-800"
                         >
-                          (Find HSN)
+                          <span className="inline-flex gap-1 items-center">
+                            <span className="hover:underline hover:decoration-dotted hover:font-medium">
+                              Lookup HSN Code
+                            </span>
+                            <FiExternalLink size={16} />
+                          </span>
                         </a>
                       )}
                     </label>
