@@ -1,14 +1,26 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getCards } from "./data/summaryData";
 import ProductContext from "../../../../context/products/ProductContext";
+import OrderContext from "../../../../context/orders/OrderContext";
 import UserContext from "../../../../context/user/UserContext";
 import { formatNumber } from "../../../../utils/formatNumber";
-import OrderContext from "../../../../context/orders/OrderContext";
 
 export default function SummaryCards() {
-  const { products } = useContext(ProductContext);
   const { users } = useContext(UserContext);
-  const { adminOrders} = useContext(OrderContext);
+  const { adminOrders } = useContext(OrderContext);
+  const { getAllProducts } = useContext(ProductContext);
+
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      const result = await getAllProducts();
+      if (result?.products) {
+        setProducts(result.products);
+      }
+    };
+    fetchAllProducts();
+  }, []);
 
   // Calculate values
   const totalRevenue = products?.reduce(

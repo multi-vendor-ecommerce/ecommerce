@@ -25,11 +25,14 @@ const registerValidator = [
     .trim()
     .isMobilePhone(),
 
-  body("address", "Address must be at least 5 characters")
-    .optional()
-    .trim()
-    .escape()
-    .isLength({ min: 5 }),
+  body("address.line1", "Address Line 1 is required")
+    .notEmpty()
+    .isLength({ min: 3 }),
+
+  body("address.city", "City is required").notEmpty(),
+  body("address.state", "State is required").notEmpty(),
+  body("address.pincode", "Pincode must be a valid 6-digit number")
+    .matches(/^[1-9][0-9]{5}$/),
 
   body("shopName", "Shop name must be at least 3 characters")
     .optional()
@@ -38,9 +41,9 @@ const registerValidator = [
     .isLength({ min: 3 }),
 
   body("gstNumber", "GST number must be 15 characters")
-  .optional()
-  .trim()
-  .isLength({ min: 15, max: 15 }),
+    .optional()
+    .trim()
+    .isLength({ min: 15, max: 15 }),
 
   body("role", "Invalid role")
     .optional()

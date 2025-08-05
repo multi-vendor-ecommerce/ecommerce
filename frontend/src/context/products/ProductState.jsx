@@ -6,8 +6,8 @@ const ProductState = ({ children }) => {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
   // Internal fetch handler
   const fetchProducts = async (url, isAdmin = false) => {
@@ -83,13 +83,14 @@ const ProductState = ({ children }) => {
           products: data.products,
           total: data.total,
           limit: data.limit,
+          categoryStats: data.categoryStats || [],
         };
       } else {
         throw new Error(data.message || "Unknown error");
       }
     } catch (err) {
       console.error("Failed to fetch top-selling products:", err.message);
-      return { products: [], total: 0 };
+      return { products: [], total: 0, categoryStats: [] };
     } finally {
       setLoading(false);
     }

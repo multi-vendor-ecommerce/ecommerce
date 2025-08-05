@@ -10,10 +10,32 @@ const Register = ({ registerRole }) => {
   const { register, loading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const redirectPath = searchParams.get("redirect") || "/";
+  const redirectPath = searchParams.get("redirect") || (registerRole === "vendor" ? "/vendor" : "/");
   const [step, setStep] = useState(1);
 
-  const baseForm = { role: registerRole, name: "", email: "", password: "", confirmPassword: "", phone: "", address: "" };
+  const baseForm = {
+    role: registerRole,
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phone: "",
+    address: {
+      name: "",           // Recipient name
+      phone: "",          // Alternate phone
+      line1: "",
+      line2: "",
+      locality: "",
+      city: "",
+      state: "",
+      country: "India",
+      pincode: "",
+      geoLocation: {
+        lat: "",
+        lng: ""
+      }
+    },
+  };
   const vendorFields = { shopName: "", gstNumber: "" };
   const initialFormState = registerRole === "vendor" ? { ...baseForm, ...vendorFields } : baseForm;
 
@@ -21,7 +43,35 @@ const Register = ({ registerRole }) => {
   const [errorMsg, setErrorMsg] = useState("");
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name.startsWith("address.geoLocation.")) {
+      const key = name.split(".")[2];
+      setForm((prev) => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          geoLocation: {
+            ...prev.address.geoLocation,
+            [key]: value,
+          },
+        },
+      }));
+    } else if (name.startsWith("address.")) {
+      const key = name.split(".")[1];
+      setForm((prev) => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          [key]: value,
+        },
+      }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const nextStep = () => {
@@ -49,8 +99,10 @@ const Register = ({ registerRole }) => {
     e.preventDefault();
     setErrorMsg("");
 
-    if (!form.phone.trim() || !form.address.trim()) {
-      setErrorMsg("Phone and Address are required.");
+    const { line1, city, state, country, pincode } = form.address;
+
+    if (!form.phone.trim() || !line1.trim() || !city.trim() || !state.trim() || !country.trim() || !pincode.trim()) {
+      setErrorMsg("Please fill in all required address fields.");
       return;
     }
 
@@ -85,7 +137,7 @@ const Register = ({ registerRole }) => {
           <Stepper
             className="flex justify-between items-center text-sm font-medium text-gray-700 gap-3 md:gap-1 mb-4"
             currentStep={step}
-            stepLabels={["Name & Email", "Password", "Basic Info"]}
+            stepLabels={["Name & Email", "Password", "Address", "Basic Info"]}
           />
 
           {step === 1 && (
@@ -124,6 +176,7 @@ const Register = ({ registerRole }) => {
                 onChange={handleChange}
                 required
               />
+              <p className="text-xs text-gray-600">Must include letters, numbers & symbols for better security.</p>
               <InputField
                 label="Confirm Password"
                 name="confirmPassword"
@@ -140,6 +193,95 @@ const Register = ({ registerRole }) => {
           {step === 3 && (
             <>
               <InputField
+                label="Recipient Name"
+                name="address.name"
+                placeholder="Full name of the receiver"
+                title="Delivery recipient"
+                value={form.address.name}
+                onChange={handleChange}
+              />
+              <InputField
+                label="Address Line 1"
+                name="address.line1"
+                placeholder="e.g., 221B Baker Street"
+                title="Street address"
+                value={form.address.line1}
+                onChange={handleChange}
+                required
+              />
+              <InputField
+                label="Address Line 2"
+                name="address.line2"
+                placeholder="Apartment, suite, etc. (optional)"
+                title="Additional address info"
+                value={form.address.line2}
+                onChange={handleChange}
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <InputField
+                  label="Alternate Phone"
+                  name="address.phone"
+                  placeholder="Optional alternate contact"
+                  title="Alternate phone"
+                  value={form.address.phone}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="Locality / Area"
+                  name="address.locality"
+                  placeholder="e.g., MG Layout"
+                  title="Area or locality"
+                  value={form.address.locality}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <InputField
+                  label="City"
+                  name="address.city"
+                  placeholder="e.g., Mumbai"
+                  title="City"
+                  value={form.address.city}
+                  onChange={handleChange}
+                  required
+                />
+                <InputField
+                  label="State"
+                  name="address.state"
+                  placeholder="e.g., Maharashtra"
+                  title="State"
+                  value={form.address.state}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <InputField
+                  label="Country"
+                  name="address.country"
+                  placeholder="e.g., India"
+                  title="Country"
+                  value={form.address.country}
+                  onChange={handleChange}
+                  required
+                />
+                <InputField
+                  label="Pincode"
+                  type="text"
+                  name="address.pincode"
+                  placeholder="e.g., 400001"
+                  title="6-digit postal code"
+                  value={form.address.pincode}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </>
+          )}
+
+          {step === 4 && (
+            <>
+              <InputField
                 label="Phone"
                 name="phone"
                 type="tel"
@@ -147,16 +289,6 @@ const Register = ({ registerRole }) => {
                 title="Enter your phone number"
                 value={form.phone}
                 onChange={handleChange}
-                required
-              />
-              <InputField
-                label="Address"
-                name="address"
-                placeholder="e.g., 221B Baker Street, India"
-                title="Enter your address"
-                value={form.address}
-                onChange={handleChange}
-                textarea
                 required
               />
               {form.role === "vendor" && (
@@ -186,20 +318,17 @@ const Register = ({ registerRole }) => {
 
           <StepperControls
             currentStep={step}
-            totalSteps={3}
+            totalSteps={4}
             onNext={nextStep}
             onBack={prevStep}
-            isLastStep={step === 3}
+            isLastStep={step === 4}
             showSubmit={
-              form.address.trim() &&
               form.phone.trim() &&
-              (registerRole !== "vendor" ||
-                (form.shopName.trim() && form.gstNumber.trim()))
+              (registerRole !== "vendor" || (form.shopName.trim() && form.gstNumber.trim()))
             }
             loading={loading}
             submitButton={['Register', 'Registering']}
           />
-
           <div className="text-center mt-4">
             <p className="text-gray-700">
               Already have an account?{" "}
@@ -218,7 +347,7 @@ const Register = ({ registerRole }) => {
         <img
           src={AuthSiderImg}
           alt="Register Illustration"
-          className="w-[840px] h-[740px] rounded-3xl"
+          className={`w-[840px] rounded-3xl ${step === 3 ? 'h-[860px]' : 'h-[740px]' }`}
         />
       </div>
     </section>

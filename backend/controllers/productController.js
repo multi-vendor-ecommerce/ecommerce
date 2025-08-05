@@ -18,7 +18,7 @@ export const getAllProducts = async (req, res) => {
       .populate("createdBy", "name email shopName role");
 
     if (req.person?.role !== "admin") {
-      baseQuery = baseQuery.select("title description images price category tags freeDelivery rating totalReviews");
+      baseQuery = baseQuery.select("title description images price category tags freeDelivery rating totalReviews colors sizes");
     }
 
     const [products, total] = await Promise.all([
@@ -43,27 +43,69 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
-// Protected: Get top selling products with conditional fields
+// Protected: Get top selling products with conditional fields and category stats
 export const getTopSellingProducts = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
     const isAdmin = req.person?.role === "admin";
 
+    // Base product query
     let query = Product.find({ status: "approved" })
       .sort({ unitsSold: -1 })
       .limit(limit)
       .populate("category", "name")
       .populate("createdBy", "name email shopName role");
 
-    // If not admin, select only safe fields
+    // If not admin, select safe fields
     if (!isAdmin) {
-      query = query.select("title description images price category tags freeDelivery rating totalReviews");
+      query = query.select("title description images price category tags freeDelivery rating totalReviews colors sizes");
     }
 
+    // Fetch products and total count in parallel
     const [products, total] = await Promise.all([
       query,
       Product.countDocuments({ status: "approved" }),
     ]);
+
+    // Category-level stats calculation
+    const categoryStatsMap = new Map();
+
+    for (const product of products) {
+      const categoryId = product.category?._id?.toString();
+      if (!categoryId) continue;
+
+      if (!categoryStatsMap.has(categoryId)) {
+        categoryStatsMap.set(categoryId, {
+          category: {
+            _id: product.category._id,
+            name: product.category.name,
+          },
+          totalUnitsSold: 0,
+          totalRevenue: 0,
+          productCount: 0,
+          cumulativeRating: 0,
+          ratingCount: 0,
+        });
+      }
+
+      const stats = categoryStatsMap.get(categoryId);
+      stats.totalUnitsSold += product.unitsSold || 0;
+      stats.totalRevenue += product.totalRevenue || 0;
+      stats.productCount += 1;
+
+      if (product.rating > 0) {
+        stats.cumulativeRating += product.rating;
+        stats.ratingCount += 1;
+      }
+    }
+
+    // Finalize average rating
+    const categoryStats = Array.from(categoryStatsMap.values()).map(stat => ({
+      ...stat,
+      averageRating: stat.ratingCount > 0
+        ? +(stat.cumulativeRating / stat.ratingCount).toFixed(2)
+        : 0,
+    }));
 
     res.status(200).json({
       success: true,
@@ -71,7 +113,9 @@ export const getTopSellingProducts = async (req, res) => {
       products,
       total,
       limit,
+      categoryStats,
     });
+
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -114,13 +158,12 @@ export const getProductsByCategoryId = async (req, res) => {
   }
 };
 
-// Admin/Vendor: Add a new product
 export const addProduct = async (req, res) => {
   try {
     let {
       title, brand, description, category, specifications, price,
       discountPrice, stock, sku, hsnCode, gstRate, isTaxable,
-      freeDelivery, tags, video
+      freeDelivery, tags, video, colors, sizes
     } = req.body;
 
     // === Basic Required Checks ===
@@ -148,7 +191,7 @@ export const addProduct = async (req, res) => {
     if (!skuRegex.test(sku.trim())) {
       return res.status(400).json({
         success: false,
-        message: "SKU must be 4–20 characters using letters, numbers, hyphens, or underscores only",
+        message: "SKU must be 4-20 characters using letters, numbers, hyphens, or underscores only",
       });
     }
 
@@ -157,6 +200,23 @@ export const addProduct = async (req, res) => {
         success: false,
         message: "HSN Code must be 4 to 8 digits.",
       });
+    }
+
+    // === Optional Field: Colors ===
+    if (colors && !Array.isArray(colors)) {
+      return res.status(400).json({ success: false, message: "Colors must be an array." });
+    }
+
+    // === Optional Field: Sizes ===
+    const allowedSizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+    if (sizes) {
+      if (!Array.isArray(sizes)) {
+        return res.status(400).json({ success: false, message: "Sizes must be an array." });
+      }
+      const isValidSizes = sizes.every(size => allowedSizes.includes(size));
+      if (!isValidSizes) {
+        return res.status(400).json({ success: false, message: "Invalid size(s) provided." });
+      }
     }
 
     const existing = await Product.findOne({ sku: sku.trim().toUpperCase() });
@@ -174,6 +234,14 @@ export const addProduct = async (req, res) => {
     hsnCode = hsnCode.trim();
     description = description?.trim() || "";
 
+    colors = Array.isArray(colors)
+      ? [...new Set(colors.map(c => c.trim().toLowerCase()).filter(Boolean))]
+      : [];
+
+    sizes = Array.isArray(sizes)
+      ? [...new Set(sizes.map(s => s.trim().toUpperCase()).filter(Boolean))]
+      : [];
+
     if (typeof specifications === "string") {
       try {
         specifications = JSON.parse(specifications);
@@ -183,7 +251,7 @@ export const addProduct = async (req, res) => {
     }
 
     if (tags && Array.isArray(tags)) {
-      tags = [...new Set(tags.map(tag => tag.trim().toLowerCase()))];
+      tags = [...new Set(tags.map(tag => tag.trim().toLowerCase()).filter(Boolean))];
     }
 
     const imageUrls = req.files?.map(file => file.path) || [];
@@ -207,6 +275,8 @@ export const addProduct = async (req, res) => {
       isTaxable: isTaxable !== undefined ? isTaxable : true,
       freeDelivery: freeDelivery || false,
       tags: tags || [],
+      colors,
+      sizes,
     });
 
     res.status(201).json({
@@ -224,4 +294,5 @@ export const addProduct = async (req, res) => {
     });
   }
 };
+
 
