@@ -1,35 +1,68 @@
 import React, { useContext, useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import useCategorySelection from "../../../../../hooks/useCategorySelection";
+import { encryptData } from "../../Utils/Encryption";
 import CategoryContext from "../../../../../context/categories/CategoryContext";
 
-const AccordionItem = ({ category, fetchSubcategories }) => {
+// AccordionItem Component
+const AccordionItem = ({ category, levelIndex, handleCategoryClick, categoryLevels, categoriesByParentId }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [children, setChildren] = useState([]);
+  const navigate = useNavigate();
 
-  const toggle = async () => {
+  const handleToggle = async (e) => {
+    e.stopPropagation();
+    if (!isOpen) {
+      await handleCategoryClick(category._id, levelIndex);
+    }
     setIsOpen(!isOpen);
-    if (!isOpen && children.length === 0) {
-      const subs = await fetchSubcategories(category._id);
-      setChildren(subs);
+  };
+
+  const handleNameClick = async (e) => {
+    e.stopPropagation();
+
+    await handleCategoryClick(category._id, levelIndex);
+
+    const children = await categoriesByParentId(category._id);
+    if (!children || children.length === 0) {
+      const secretKey = import.meta.env.VITE_SECRET_KEY;
+      const encryptedId = encryptData(category._id, secretKey);
+      console.log("Leaf category clicked:", category._id);
+      navigate(`/category/${encryptedId}`);
+    } else {
+      setIsOpen((prev) => !prev);
     }
   };
 
   return (
     <div>
-      <div
-        onClick={toggle}
-        className="flex justify-between items-center py-2 px-3 cursor-pointer hover:bg-gray-200 rounded"
-      >
-        <span>{category.name}</span>
-        <span className="text-xl select-none">{isOpen ? "−" : "+"}</span>
+      <div className="flex justify-between items-center py-2 px-3 hover:bg-gray-200 rounded cursor-pointer select-none">
+        <span onClick={handleNameClick} title={category.name} className="flex-1">
+          {category.name}
+        </span>
+
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggle(e);
+          }}
+          className="text-xl select-none px-2 cursor-pointer"
+          title={isOpen ? "Collapse" : "Expand"}
+        >
+          {isOpen ? "−" : "+"}
+        </span>
       </div>
-      {isOpen && children.length > 0 && (
+
+      {isOpen && categoryLevels[levelIndex + 1]?.length > 0 && (
         <div className="ml-4 border-l border-gray-300 pl-3">
-          {children.map((sub) => (
+          {categoryLevels[levelIndex + 1].map((sub) => (
             <AccordionItem
               key={sub._id}
               category={sub}
-              fetchSubcategories={fetchSubcategories}
+              levelIndex={levelIndex + 1}
+              handleCategoryClick={handleCategoryClick}
+              categoryLevels={categoryLevels}
+              categoriesByParentId={categoriesByParentId}
             />
           ))}
         </div>
@@ -44,28 +77,31 @@ const CategorySidebar = ({
   showAsHorizontal = false,
   parentCircleSize = "normal",
 }) => {
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const { categoriesByParentId } = useContext(CategoryContext);
-  const [parents, setParents] = useState([]);
+
+  const {
+    categoryLevels,
+    loadCategories,
+    handleCategoryClick,
+  } = useCategorySelection(() => {}, setSelectedCategories, selectedCategories);
 
   useEffect(() => {
-    (async () => {
-      const data = await categoriesByParentId(null);
-      setParents(data);
-    })();
+    loadCategories(null, 0);
   }, []);
 
-  // Horizontal circle style for parent categories
   if (showAsHorizontal) {
-    const sizeClass =
-      parentCircleSize === "large" ? "w-20 h-20 text-sm" : "w-14 h-14 text-xs";
+    const sizeClass = parentCircleSize === "large" ? "w-20 h-20 text-sm" : "w-14 h-14 text-xs";
+    const rootCategories = categoryLevels[0] || [];
 
     return (
       <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-        {parents.map((cat) => (
+        {rootCategories.map((cat) => (
           <div
             key={cat._id}
             className="flex flex-col items-center text-gray-700 cursor-pointer select-none"
             title={cat.name}
+            onClick={() => console.log("Navigate to:", cat._id)}
           >
             <div
               className={`bg-gray-100 rounded-full flex items-center justify-center shadow-sm ${sizeClass} font-semibold`}
@@ -77,7 +113,6 @@ const CategorySidebar = ({
                 parentCircleSize === "large" ? "text-base" : "text-xs"
               }`}
               style={{ maxWidth: parentCircleSize === "large" ? "5rem" : "3.5rem" }}
-              title={cat.name}
             >
               {cat.name}
             </span>
@@ -87,13 +122,15 @@ const CategorySidebar = ({
     );
   }
 
-  // Sidebar with overlay and accordion
   return (
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 z-60 bg-black/20 -sm"
+          className="fixed inset-0 z-60 bg-black/20"
           onClick={onClose}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Escape" && onClose()}
         >
           <div
             className="absolute top-0 left-0 w-72 max-w-full h-full bg-white shadow-md overflow-y-auto p-4"
@@ -110,13 +147,15 @@ const CategorySidebar = ({
               </button>
             </div>
 
-            {/* Accordion List */}
             <div className="space-y-2">
-              {parents.map((cat) => (
+              {(categoryLevels[0] || []).map((cat) => (
                 <AccordionItem
                   key={cat._id}
                   category={cat}
-                  fetchSubcategories={categoriesByParentId}
+                  levelIndex={0}
+                  handleCategoryClick={handleCategoryClick}
+                  categoryLevels={categoryLevels}
+                  categoriesByParentId={categoriesByParentId}
                 />
               ))}
             </div>
