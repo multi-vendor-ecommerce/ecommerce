@@ -1,5 +1,5 @@
 import CategorySection from './Category/CategorySection.jsx';
-import ProductByCategory from '../Product/ProductsByCategory.jsx';
+// import ProductByCategory from '../Product/ProductsByCategory.jsx';
 import ProductSection from './ProductSection';
 import SliderData from "../Utils/BannersData.js";
 import HeroSlider from '../../../common/HeroSlider';
