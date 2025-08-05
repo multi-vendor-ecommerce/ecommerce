@@ -125,16 +125,14 @@ export const getProductById = async (req, res) => {
 // Public: Get products by category ID
 export const getProductsByCategoryId = async (req, res) => {
   try {
-    const categoryId = req.params.categoryId;
-    console.log("Fetching products for category ID:", categoryId);
-
+    const categoryId = req.params.id;
     const products = await Product.find({ category: categoryId });
-    console.log("Fetched products:", products);
-
-    res.status(200).json(products);
+    if (!products || products.length === 0) {
+      return res.status(404).json({ success: false, message: "No products found for this category." });
+    }
+    res.status(200).json({ success: true, message: "Products by category fetched successfully.", products });
   } catch (error) {
-    console.error("Error fetching products by category ID:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
