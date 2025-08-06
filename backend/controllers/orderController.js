@@ -4,7 +4,6 @@ import buildQuery from "../utils/queryBuilder.js";
 
 export const placeOrder = async (req, res) => {
   const userId = req.person.id;
-  console.log("req.user", req.user);
 
   try {
     const user = await User.findById(userId).populate("cart.product");
@@ -22,21 +21,35 @@ export const placeOrder = async (req, res) => {
     const createdOrders = [];
 
     for (const vendorId in ordersByVendor) {
-      const products = ordersByVendor[vendorId].map(item => ({
-        product: item.product._id,
+      const cartItems = ordersByVendor[vendorId];
+
+      const orderItems = cartItems.map(item => ({
+        name: item.product.title,
+        price: item.product.price,
         quantity: item.quantity,
-        priceAtPurchase: item.product.price,
+        image: item.product.image, 
+        product: item.product._id,
       }));
 
-      const totalAmount = products.reduce((acc, item) => acc + item.quantity * item.priceAtPurchase, 0);
+      const itemPrice = orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+      const tax = itemPrice * 0.18; 
+      const shippingCharges = itemPrice > 500 ? 0 : 50;
+      const totalAmount = itemPrice + tax + shippingCharges;
 
       const order = await Order.create({
         user: userId,
         vendor: vendorId,
-        products,
-        totalAmount,
-        shippingAddress: user.address,
+        orderItems,
         paymentMethod: "COD",
+        shippingInfo: {
+          address: user.address || "N/A",
+          city: user.city || "N/A",
+          country: user.country || "India",
+        },
+        itemPrice,
+        tax,
+        shippingCharges,
+        totalAmount,
       });
 
       createdOrders.push(order);
@@ -47,6 +60,7 @@ export const placeOrder = async (req, res) => {
 
     res.status(201).json({ success: true, message: "Order placed successfully", orders: createdOrders });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, message: "Server Error", error: err.message });
   }
 };
