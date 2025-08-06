@@ -4,7 +4,7 @@ import CartContext from "../../../../context/cart/CartContext";
 import { decryptData } from "../Utils/Encryption";
 import Spinner from "../../../common/Spinner";
 import { useNavigate } from "react-router-dom";
-import { FaStar } from 'react-icons/fa';
+import { FaStar } from "react-icons/fa";
 
 const ProductDetails = () => {
   // Contexts
@@ -17,10 +17,10 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
 
   const navigate = useNavigate();
-
-  // Secret key for decryption 
   const secretKey = import.meta.env.VITE_SECRET_KEY;
 
   // Decode and decrypt product ID from URL
@@ -32,7 +32,6 @@ const ProductDetails = () => {
     try {
       const decodedProductId = decodeURIComponent(decodeURIComponent(encodedProductId));
       const decryptedId = decryptData(decodedProductId, secretKey);
-      console.log("Decrypted ID:", decryptedId);
       setDecryptedProductId(decryptedId);
     } catch (error) {
       console.error("Error decoding or decrypting product ID:", error);
@@ -50,44 +49,41 @@ const ProductDetails = () => {
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [decryptedProductId, getProductById]);
 
-  //  Check login & handle Add to Cart
+  // Update active image when selectedColor changes (if image url includes color name)
+  useEffect(() => {
+    if (selectedColor && productDetails?.images?.length > 1) {
+      const index = productDetails.images.findIndex(img =>
+        img.toLowerCase().includes(selectedColor.toLowerCase())
+      );
+      if (index !== -1) setActiveImage(index);
+    }
+  }, [selectedColor, productDetails]);
+
+  // Handle Add to Cart with validation for color & size
   const handleAddToCart = async () => {
-    const authToken = localStorage.getItem("customerToken");
-    if (!authToken) {
-      const currentPath = window.location.pathname;
-      navigate(`/login/user?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
+    if (productDetails.colors?.length > 0 && !selectedColor) {
+      alert("Please select a color.");
       return;
     }
-    console.log("authToken after navigate: ", authToken);
-
-    if (!productDetails || !productDetails._id) {
-      console.error("Product details or product ID missing");
-      alert("Something went wrong. Please try again.");
+    if (productDetails.sizes?.length > 0 && !selectedSize) {
+      alert("Please select a size.");
       return;
     }
-
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      console.log("Adding product to cart:", productDetails._id);
-
-      const data = await addToCart(productDetails._id, 1);
-      console.log("Add to cart response:", data);
-
+      const data = await addToCart(productDetails._id, 1, selectedColor, selectedSize);
       if (data.success) {
-        alert(" Product added to cart!");
+        alert("Product added to cart!");
       } else {
-        alert(` Failed to add to cart: ${data.message}`);
+        alert(`Failed to add to cart: ${data.message}`);
       }
-    } catch (error) {
-      console.error("Failed to add to cart", error);
+    } catch {
       alert("Something went wrong while adding to cart.");
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   if (loading) {
@@ -99,7 +95,6 @@ const ProductDetails = () => {
   }
 
   if (!productDetails) {
-    // product might be undefined/null while loading or if fetch failed
     return <p>Product not found or loading...</p>;
   }
 
@@ -124,9 +119,7 @@ const ProductDetails = () => {
                     src={img}
                     alt={`thumb-${idx}`}
                     onClick={() => setActiveImage(idx)}
-                    className={`w-20 h-20 object-cover rounded-md cursor-pointer border transition ${activeImage === idx
-                      ? "border-[#7F55B1]"
-                      : "border-transparent hover:border-[#BFA5E0]"
+                    className={`w-20 h-20 object-cover rounded-md cursor-pointer border transition ${activeImage === idx ? "border-[#7F55B1]" : "border-transparent hover:border-[#BFA5E0]"
                       }`}
                   />
                 ))}
@@ -150,50 +143,33 @@ const ProductDetails = () => {
             {productDetails.title}
           </h1>
 
-          {/* Rating */}
-          <div className="flex items-center gap-2 text-md">
-            <span className="font-semibold text-yellow-500">
-              {productDetails.rating}
-            </span>
-            <span className="text-yellow-500">
-              <FaStar />
-            </span>
-            <span className="text-gray-500">
-              ({productDetails.totalReviews.toLocaleString()} reviews)
-            </span>
-          </div>
+          {productDetails.brand && (
+            <div className="text-sm text-gray-500 font-medium">
+              Brand: <span className="text-gray-800">{productDetails.brand}</span>
+            </div>
+          )}
+
+
 
           {/* Price & Delivery */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div className="text-2xl font-bold text-[#7F55B1]">
-              ₹{productDetails.price.toLocaleString()}
-            </div>
-            {productDetails.freeDelivery && (
-              <span className="text-green-600 font-medium text-sm"> Free Delivery</span>
+          <div className="text-2xl font-bold text-[#7F55B1] flex items-center gap-3">
+            {productDetails.discountPrice && productDetails.discountPrice < productDetails.price ? (
+              <>
+                <span>₹{productDetails.discountPrice.toLocaleString()}</span>
+                <span className="text-gray-500 line-through text-lg font-medium">
+                  ₹{productDetails.price.toLocaleString()}
+                </span>
+              </>
+            ) : (
+              <>₹{productDetails.price.toLocaleString()}</>
             )}
-          </div>
-
-          {/* Stock Status */}
-          <div>
-            <span
-              className={`inline-block px-3 py-1 text-sm rounded-full font-medium ${productDetails.stock > 0
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-600"
-                }`}
-            >
-              {productDetails.stock > 0
-                ? `In Stock (${productDetails.stock})`
-                : "Out of Stock"}
-            </span>
           </div>
 
           {/* Category */}
           {productDetails.category?.name && (
             <p className="text-sm text-gray-500">
               Category:{" "}
-              <span className="font-medium text-gray-700">
-                {productDetails.category.name}
-              </span>
+              <span className="font-medium text-gray-700">{productDetails.category.name}</span>
             </p>
           )}
 
@@ -201,20 +177,67 @@ const ProductDetails = () => {
           {productDetails.tags?.length > 0 && (
             <div className="flex flex-wrap gap-2 text-xs">
               {productDetails.tags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="bg-[#EFE7FB] text-[#7F55B1] px-2 py-1 rounded-md"
-                >
+                <span key={i} className="bg-[#EFE7FB] text-[#7F55B1] px-2 py-1 rounded-md">
                   {tag}
                 </span>
               ))}
             </div>
           )}
 
+                    {/* Color Picker */}
+          {productDetails.colors?.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-1">Select Color:</h4>
+              <div className="flex gap-2 flex-wrap">
+                {productDetails.colors.map((color, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedColor(color)}
+                    className={`px-3 py-1 rounded-full border text-sm transition ${selectedColor === color
+                      ? "bg-[#7F55B1] text-white border-[#7F55B1]"
+                      : "bg-white border-gray-300 text-gray-700 hover:border-[#7F55B1]"
+                      }`}
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Size Picker */}
+          {productDetails.sizes?.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-1 mt-4">Select Size:</h4>
+              <div className="flex gap-2 flex-wrap">
+                {productDetails.sizes.map((size, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedSize(size)}
+                    className={`px-3 py-1 rounded-full border text-sm transition ${selectedSize === size
+                      ? "bg-[#7F55B1] text-white border-[#7F55B1]"
+                      : "bg-white border-gray-300 text-gray-700 hover:border-[#7F55B1]"
+                      }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Description */}
-          <p className="text-gray-700 text-sm leading-relaxed">
-            {productDetails.description}
-          </p>
+          <p className="text-gray-700 text-sm leading-relaxed">{productDetails.description}</p>
+
+          {/* Rating */}
+          <div className="flex items-center  gap-1 text-md">
+            <span className="font-semibold text-yellow-500">{productDetails.rating}</span>
+            <FaStar className="text-yellow-500 mt-[1px]" />
+            <span className="text-gray-500 text-sm ml-1">
+              ({productDetails.totalReviews.toLocaleString()} reviews)
+            </span>
+          </div>
+
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 mt-4">
@@ -226,7 +249,8 @@ const ProductDetails = () => {
             </button>
             <button
               className="bg-white border border-[#7F55B1] text-[#7F55B1] px-6 py-2 rounded-lg shadow-md hover:bg-[#f4ecff] transition"
-              onClick={() => handleAddToCart()}
+              onClick={handleAddToCart}
+              disabled={isLoading}
             >
               {isLoading ? "Adding..." : "Add to Cart"}
             </button>
@@ -240,7 +264,6 @@ const ProductDetails = () => {
             ← Back to Products
           </button>
         </div>
-
       </div>
     </div>
   );

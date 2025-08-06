@@ -1,118 +1,110 @@
 import React, { useState } from "react";
-import { checkoutCartItems } from "../Utils/checkoutData";
 
-export default function Checkout() {
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
+const Checkout = () => {
+  const [shippingInfo, setShippingInfo] = useState({
     address: "",
     city: "",
-    pincode: "",
+    country: "",
   });
 
-  const totalAmount = checkoutCartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setShippingInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handlePaymentChange = (e) => {
+    setPaymentMethod(e.target.value);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Order Placed Successfully! 🎉");
+    // You can add validation and submission logic later here
   };
 
   return (
-    <div className="mt-16 bg-user-base min-h-screen text-user-dark p-4">
-      <div className="container mx-auto flex flex-col lg:flex-row gap-8">
-        {/* Left - Shipping Form */}
-        <form onSubmit={handleSubmit} className="w-full lg:w-2/3 bg-white p-6 rounded shadow space-y-4">
-          <h2 className="text-xl font-bold mb-4">Shipping Details</h2>
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow-md mt-10">
+      <h2 className="text-3xl font-bold mb-6">Checkout</h2>
 
+      <form onSubmit={handleSubmit} noValidate>
+        <div className="mb-4">
+          <label htmlFor="address" className="block font-semibold mb-1">
+            Shipping Address
+          </label>
           <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            className="w-full border p-2 rounded"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone Number"
-            className="w-full border p-2 rounded"
-            value={form.phone}
-            onChange={handleChange}
-            required
-          />
-          <textarea
+            id="address"
             name="address"
-            placeholder="Address"
-            className="w-full border p-2 rounded"
-            value={form.address}
-            onChange={handleChange}
-            required
-          ></textarea>
-          <input
             type="text"
-            name="city"
-            placeholder="City"
-            className="w-full border p-2 rounded"
-            value={form.city}
+            value={shippingInfo.address}
             onChange={handleChange}
-            required
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+            placeholder="Enter your address"
           />
-          <input
-            type="text"
-            name="pincode"
-            placeholder="Pincode"
-            className="w-full border p-2 rounded"
-            value={form.pincode}
-            onChange={handleChange}
-            required
-          />
-
-          <button
-            type="submit"
-            className="w-full bg-user-primary text-white py-2 rounded hover:bg-user-secondary"
-          >
-            Place Order
-          </button>
-        </form>
-
-        {/* Right - Order Summary */}
-        <div className="w-full lg:w-1/3 bg-white p-6 rounded shadow">
-          <h3 className="text-lg font-bold mb-4">Order Summary</h3>
-          {checkoutCartItems.map((item) => (
-            <div key={item.id} className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-14 h-14 object-contain bg-gray-100 rounded"
-                />
-                <div>
-                  <p className="font-medium text-sm">{item.name}</p>
-                  <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
-                </div>
-              </div>
-              <p className="text-user-primary font-semibold">
-                ₹{item.price * item.quantity}
-              </p>
-            </div>
-          ))}
-
-          <hr className="my-4" />
-          <div className="flex justify-between font-semibold">
-            <span>Total Amount:</span>
-            <span>₹{totalAmount}</span>
-          </div>
+          {errors.address && <p className="text-red-600 text-sm mt-1">{errors.address}</p>}
         </div>
-      </div>
+
+        <div className="mb-4">
+          <label htmlFor="city" className="block font-semibold mb-1">
+            City
+          </label>
+          <input
+            id="city"
+            name="city"
+            type="text"
+            value={shippingInfo.city}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+            placeholder="Enter city"
+          />
+          {errors.city && <p className="text-red-600 text-sm mt-1">{errors.city}</p>}
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="country" className="block font-semibold mb-1">
+            Country
+          </label>
+          <input
+            id="country"
+            name="country"
+            type="text"
+            value={shippingInfo.country}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+            placeholder="Enter country"
+          />
+          {errors.country && <p className="text-red-600 text-sm mt-1">{errors.country}</p>}
+        </div>
+
+        <div className="mb-6">
+          <label htmlFor="paymentMethod" className="block font-semibold mb-1">
+            Payment Method
+          </label>
+          <select
+            id="paymentMethod"
+            name="paymentMethod"
+            value={paymentMethod}
+            onChange={handlePaymentChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+          >
+            <option value="">Select a payment method</option>
+            <option value="COD">Cash On Delivery (COD)</option>
+            <option value="Online">Online Payment</option>
+          </select>
+          {errors.paymentMethod && (
+            <p className="text-red-600 text-sm mt-1">{errors.paymentMethod}</p>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          className="bg-purple-700 hover:bg-purple-800 text-white font-semibold px-6 py-3 rounded w-full transition"
+        >
+          Place Order
+        </button>
+      </form>
     </div>
   );
-}
+};
+
+export default Checkout;

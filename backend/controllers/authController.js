@@ -204,7 +204,7 @@ export const loginPerson = async (req, res) => {
     const expiresIn = person.role === "customer" ? "7d" : "6h";
     const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
-    res.json({ success: true, message: `${toTitleCase(person.role)} login successful`, data: { authToken, role: person.role } });
+    res.json({ success: true, message: `${toTitleCase(person.role)} login successful`, data: { authToken, role: person.role , name: person.name} });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });

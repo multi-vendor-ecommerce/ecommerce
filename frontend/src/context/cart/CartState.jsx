@@ -5,8 +5,8 @@ const CartState = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
   // Fetching cart items
   const getCart = async () => {
@@ -28,7 +28,7 @@ const CartState = ({ children }) => {
   }
 
   // + , - , Add item to cart
-  const addToCart = async (productId, quantity) => {
+  const addToCart = async (productId, quantity, color, size) => {
     const token = localStorage.getItem("customerToken");
     if (!productId || typeof quantity !== "number") {
       console.error("Invalid productId or quantity");
@@ -43,7 +43,7 @@ const CartState = ({ children }) => {
           "Content-Type": "application/json",
           "auth-token": localStorage.getItem("customerToken"),
         },
-        body: JSON.stringify({ productId, quantity }),
+        body: JSON.stringify({ productId, quantity, color, size }),
       });
 
       const data = await res.json();
