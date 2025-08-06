@@ -1,7 +1,7 @@
 import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
-import { placeOrder, getUserOrders, getVendorOrders, getAllOrders, getOrderById } from "../controllers/orderController.js";
+import { placeOrder, getUserOrders, getAllOrders, getOrderById } from "../controllers/orderController.js";
 
 const router = express.Router();
 
@@ -10,21 +10,28 @@ const router = express.Router();
  * @desc    Place a new order by a logged-in user
  * @access  Private (User)
  */
-router.post("/placeOrder", verifyToken, placeOrder);
+router.post("/place-order", verifyToken, placeOrder);
 
 /**
  * @route   GET /api/orders/myOrder
  * @desc    Get all orders placed by the logged-in user
  * @access  Private (User)
  */
-router.get("/myOrder", verifyToken, getUserOrders);
+router.get("/my-order", verifyToken, getUserOrders);
 
 /**
  * @route   GET /api/orders/vendor
  * @desc    Get all orders related to the logged-in vendor
  * @access  Private (Vendor)
  */
-router.get("/vendor", verifyToken, getVendorOrders);
+router.get("/vendor", verifyToken, authorizeRoles("vendor"), getAllOrders);
+
+/**
+ * @route   GET /api/orders/vendor/:id
+ * @desc    Get specific order details by order ID (Admin only)
+ * @access  Private (Vendor)
+ */
+router.get("/vendor", verifyToken, authorizeRoles("vendor"), getOrderById);
 
 /**
  * @route   GET /api/orders/admin

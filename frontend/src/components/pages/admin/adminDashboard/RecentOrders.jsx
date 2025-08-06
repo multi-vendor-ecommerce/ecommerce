@@ -2,16 +2,16 @@ import { useState, useContext, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import OrderContext from "../../../../context/orders/OrderContext";
 import TabularData from "../../../common/layout/TabularData";
-import { RenderOrderRow } from "../adminOrders/RenderOrderRow";
+import { RenderOrderRow } from "../../adminVendorCommon/orders/RenderOrderRow";
 import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Spinner from "../../../common/Spinner";
 import StatusChip from "../../../common/helperComponents/StatusChip";
 
 const RecentOrders = () => {
-  const { adminOrders, loading } = useContext(OrderContext);
+  const { orders, loading } = useContext(OrderContext);
   const [showAll, setShowAll] = useState(false);
 
-  const ordersToShow = showAll ? adminOrders : adminOrders.slice(0, 5);
+  const ordersToShow = showAll ? orders : orders.slice(0, 5);
 
   return (
     <section className="bg-white p-6 rounded-2xl shadow-md">
@@ -38,7 +38,7 @@ const RecentOrders = () => {
             />
           </div>
 
-          <ShowLessMore showAll={showAll} toggleShowAll={() => setShowAll((prev) => !prev)} condition={adminOrders.length > 5} />
+          <ShowLessMore showAll={showAll} toggleShowAll={() => setShowAll((prev) => !prev)} condition={orders.length > 5} />
         </>
       )}
     </section>

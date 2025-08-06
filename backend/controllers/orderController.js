@@ -68,20 +68,8 @@ export const placeOrder = async (req, res) => {
 export const getUserOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.person.id }).populate([
-      { path: "products.product", select: "title price" },
+      { path: "orderItems.product", select: "title price images category brand" },
       { path: "vendor", select: "name shopName email" }
-    ]);
-    res.status(200).json({ success: true, orders });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Server Error", error: err.message });
-  }
-};
-
-export const getVendorOrders = async (req, res) => {
-  try {
-    const orders = await Order.find({ vendor: req.person.id }).populate([
-      { path: "products.product", select: "title price" },
-      { path: "user", select: "name email" }
     ]);
     res.status(200).json({ success: true, orders });
   } catch (err) {
@@ -91,11 +79,19 @@ export const getVendorOrders = async (req, res) => {
 
 export const getAllOrders = async (req, res) => {
   try {
-    if (req.person.role !== "admin") {
+    const isAdmin = req.person.role === "admin";
+    const isVendor = req.person.role === "vendor";
+
+    if (!isAdmin && !isVendor) {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
 
     const query = buildQuery(req.query, ["status", "paymentStatus", "orderId"]);
+
+    // 🟢 If vendor, only fetch their own orders
+    if (isVendor) {
+      query.vendor = req.person._id;
+    }
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -106,9 +102,9 @@ export const getAllOrders = async (req, res) => {
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })
-        .populate({ path: "products.product", select: "title price" })
-        .populate({ path: "vendor", select: "name email shopName" })
-        .populate({ path: "user", select: "name email" }),
+        .populate({ path: "orderItems.product", select: "title price images category brand" })
+        .populate({ path: "vendor", select: "name email shopName address phone" })
+        .populate({ path: "user", select: "name email address phone" }),
       Order.countDocuments(query),
     ]);
 
@@ -129,11 +125,11 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-// Public: Get a product
+// Get a single order by ID – supports admin and vendor access
 export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate({ path: "products.product", select: "title price" })
+      .populate({ path: "orderItems.product", select: "title price" })
       .populate({ path: "vendor", select: "name email address phone shopName" })
       .populate({ path: "user", select: "name email address phone" });
 
@@ -141,8 +137,17 @@ export const getOrderById = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found." });
     }
 
-    res.status(200).send({ success: true, message: "Order fetched successfully.", order });
+    // 🔒 Access control: Vendor can only access their own order
+    if (req.person.role === "vendor" && order.vendor.toString() !== req.person._id.toString()) {
+      return res.status(403).json({ success: false, message: "Access denied: Not your order." });
+    }
+
+    res.status(200).send({
+      success: true,
+      message: "Order fetched successfully.",
+      order,
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: "Server error.", error: err.message });
+    res.status(500).json({ success: false, message: "Server error.", error: err.message });
   }
 };

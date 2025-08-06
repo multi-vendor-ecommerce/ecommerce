@@ -9,7 +9,7 @@ import { getFormatDate } from "../../../../utils/formatDate";
  * @param {number} index - The index of the row.
  * @param {function} StatusChip - A component that renders the order status visually.
  */
-export const RenderOrderRow = (order, index, StatusChip) => (
+export const RenderOrderRow = (order, index, StatusChip, role = "admin") => (
   <tr
     key={index}
     className={`hover:bg-blue-50 hover:shadow-sm transition ${index !== 0 ? "border-t border-gray-200" : ""}`}
@@ -17,7 +17,7 @@ export const RenderOrderRow = (order, index, StatusChip) => (
     {/* Order ID */}
     <td className="px-6 py-3 min-w-[120px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150">
       <NavLink
-        to={`/admin/all-orders/order-details/${order._id}`}
+        to={`/${role}/all-orders/order-details/${order._id}`}
         title="Order ID"
       >
         #{order._id}
@@ -30,14 +30,16 @@ export const RenderOrderRow = (order, index, StatusChip) => (
     </td>
 
     {/* Vendor Name */}
-    <td className="px-6 py-3 min-w-[140px] hover:scale-105 hover:underline hover:font-semibold transition duration-150">
-      <NavLink
-        to={`/admin/vendor/profile/${order.vendor._id}`}
-        title="Vendor Name"
-      >
-        {order.vendor?.name || "Unassigned Vendor"}
-      </NavLink>
-    </td>
+    {role !== "vendor" && (
+      <td className="px-6 py-3 min-w-[140px] hover:scale-105 hover:underline hover:font-semibold transition duration-150">
+        <NavLink
+          to={`/admin/vendor/profile/${order.vendor._id}`}
+          title="Vendor Name"
+        >
+          {order.vendor?.name || "Unassigned Vendor"}
+        </NavLink>
+      </td>
+    )}
 
     {/* Total Products */}
     <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
@@ -66,7 +68,7 @@ export const RenderOrderRow = (order, index, StatusChip) => (
     <td className="px-6 py-3 min-w-[160px] hover:scale-105 transition duration-150">
       <div className="inline-flex items-center gap-4">
         <NavLink
-          to={`/admin/all-orders/order-details/${order._id}`}
+          to={`/${role}/all-orders/order-details/${order._id}`}
           title="View order"
           className="hover:text-blue-600 hover:scale-110 transition duration-150"
         >

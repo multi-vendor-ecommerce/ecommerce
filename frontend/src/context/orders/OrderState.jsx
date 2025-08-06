@@ -1,124 +1,110 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import OrderContext from "./OrderContext";
 
 const OrderState = ({ children }) => {
   const [loading, setLoading] = useState(false);
-  const [adminOrders, setAdminOrders] = useState([]);
-  const [adminTotalCount, setAdminTotalCount] = useState(0);
+  const [orders, setOrders] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const [vendorOrders, setVendorOrders] = useState([]);
-  const [vendorTotalCount, setVendorTotalCount] = useState(0);
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
-  const [userOrders, setUserOrders] = useState([]);
-  const [userTotalCount, setUserTotalCount] = useState(0);
+  // Token + role utility
+  const getRoleInfo = () => {
+    const adminToken = localStorage.getItem("adminToken");
+    const vendorToken = localStorage.getItem("vendorToken");
 
-  const host = import.meta.env.VITE_BACKEND_URL;
-  // const host = "http://localhost:5000";
+    if (adminToken) return { role: "admin" };
+    else if (vendorToken) return { role: "vendor" };
+    else return { role: "customer" };
+  };
 
-  // Fetch orders placed by the logged-in customer
+  // 🔵 Fetch orders (admin or vendor)
+  const getAllOrders = async ({ search = "", status = "", page = 1, limit = 10 } = {}) => {
+    const { role } = getRoleInfo();
+
+    const params = new URLSearchParams({ page, limit });
+    if (search.trim()) params.append("search", search);
+    if ((role === "admin" || role === "vendor") && status) params.append("status", status);
+
+    const endpoint = role === "admin" ? "admin" : "vendor";
+    const url = `${host}/api/orders/${endpoint}?${params.toString()}`;
+
+    const headers = { "Content-Type": "application/json" };
+    if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
+    else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
+
+    try {
+      setLoading(true);
+      const res = await fetch(url, {
+        method: "GET",
+        headers,
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch orders");
+
+      setOrders(data.orders || []);
+      setTotalCount(data.total || 0);
+
+      return { success: true, total: data.total, orders: data.orders };
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+      return { success: false, orders: [], total: 0 };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔵 Fetch user's own orders
   const getMyOrders = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${host}/api/order/myOrder`, {
+      const res = await fetch(`${host}/api/orders/my-order`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("adminToken")
-        }
-        // credentials: "include",
+          "auth-token": localStorage.getItem("customerToken"),
+        },
       });
+
       const data = await res.json();
-      if (data.success) setUserOrders(data.orders);
-    } catch (error) {
-      console.error("Error fetching user orders:", error);
+      if (data.success) setOrders(data.orders);
+    } catch (err) {
+      console.error("Error fetching user orders:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch orders belonging to a vendor
-  const getVendorOrders = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${host}/api/order/vendor`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("adminToken")
-        }
-        // credentials: "include",
-      });
-      const data = await res.json();
-      if (data.success) setVendorOrders(data.orders);
-    } catch (error) {
-      console.error("Error fetching vendor orders:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch all orders for admin (with optional search, status, pagination)
-  const getAllOrders = async ({ search = "", status = "", page = 1, limit = 10 } = {}) => {
-    try {
-      setLoading(true);
-
-      const params = new URLSearchParams();
-      if (search?.trim()) params.append("search", search);
-      if (status) params.append("status", status);
-      params.append("page", page);
-      params.append("limit", limit);
-
-      const res = await fetch(`${host}/api/order/admin?${params.toString()}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("adminToken")
-        }
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch orders.");
-      }
-
-      const data = await res.json();
-      if (data.success) {
-        setAdminOrders(data.orders);        // Set paginated orders
-        setAdminTotalCount(data.total);     // Set total for pagination
-        
-        return { success: true, total: data.total, orders: data.orders }; // optional return
-      } else {
-        console.error("Server error:", data.message || "Unknown error");
-      }
-    } catch (error) {
-      console.error("Error fetching admin orders:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // 🔵 Fetch single order by ID (admin/vendor)
   const getOrderById = async (id) => {
+    const { role } = getRoleInfo();
+
+    const endpoint = role === "admin" ? "admin" : "vendor";
+    const url = `${host}/api/orders/${endpoint}/${id}`;
+
+    const headers = { "Content-Type": "application/json" };
+    if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
+    else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
+
     try {
-      const response = await fetch(`${host}/api/order/admin/${id}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token": localStorage.getItem("adminToken")
-          }
-        });
-      if (!response.ok) {
-        throw new Error('Failed to fetch products.');
-      }
+      const res = await fetch(url, {
+        method: "GET",
+        headers,
+      });
 
-      const data = await response.json();
-      if (data.success) return data.order;
-      else return null;
-    } catch (error) {
-      console.error('Error fetching products:', error);
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch order");
+
+      return data.order;
+    } catch (err) {
+      console.error("Error fetching order:", err);
+      return null;
     }
-  }
+  };
 
-  // Place a new order (for users)
+  // 🔵 Place new order (user)
   const placeOrder = async (orderData) => {
     try {
       setLoading(true);
@@ -147,20 +133,7 @@ const OrderState = ({ children }) => {
   };
 
   return (
-    <OrderContext.Provider
-      value={{
-        loading,
-        adminTotalCount,
-        userOrders,
-        vendorOrders,
-        adminOrders,
-        placeOrder,
-        getMyOrders,
-        getVendorOrders,
-        getAllOrders,
-        getOrderById,
-      }}
-    >
+    <OrderContext.Provider value={{ loading, orders, totalCount, getAllOrders, getMyOrders, getOrderById, placeOrder }}>
       {children}
     </OrderContext.Provider>
   );

@@ -9,6 +9,8 @@ import NotFoundPage from "../../common/notPageFound";
 import Products from "../adminVendorCommon/product/Products";
 import ProductDetails from "../adminVendorCommon/product/ProductDetails";
 import AddProduct from "../adminVendorCommon/product/addProduct/AddProduct";
+import Orders from "../adminVendorCommon/orders/Orders";
+import OrderDetails from "../adminVendorCommon/orders/OrderDetails";
 
 const Vendor = () => {
   const { authTokens } = useContext(AuthContext);
@@ -25,7 +27,7 @@ const Vendor = () => {
   return (
     <div className="flex min-h-screen relative">
       {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar}  menuData={vendorSidebarMenu} panelLabel="Vendor Panel" homePath="/vendor" />
+      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} menuData={vendorSidebarMenu} panelLabel="Vendor Panel" homePath="/vendor" />
 
       {/* Main Content Area */}
       <div className="w-full lg:w-[80%] flex flex-col">
@@ -36,6 +38,12 @@ const Vendor = () => {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Dashboard />} />
+
+            {/* Nested route block for orders */}
+            <Route path="all-orders/">
+              <Route index element={<Orders role="vendor" />} />
+              <Route path="order-details/:orderId" element={<OrderDetails role="vendor" />} />
+            </Route>
 
             <Route path="all-products" element={<Products heading="All Products" role="vendor" />} />
             <Route path="product-details/:productId" element={<ProductDetails role="vendor" />} />

@@ -7,7 +7,7 @@ import BackButton from "../../../common/layout/BackButton";
 import { getOrderCardData } from "./data/ordersData";
 import StatGrid from "../../../common/helperComponents/StatGrid";
 
-const OrderDetails = () => {
+const OrderDetails = ({ role = "admin" }) => {
   const { orderId } = useParams();
   const { getOrderById } = useContext(OrderContext);
   const [order, setOrder] = useState(null);
@@ -93,18 +93,19 @@ const OrderDetails = () => {
           )}
         </div>
 
-        {/* Vendor Info */}
-        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
-          <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">Vendor Info</h3>
-          <p><span className="font-semibold">Shop:</span> {order.vendor.shopName}</p>
-          <p><span className="font-semibold">Vendor:</span> {order.vendor.name}</p>
-          <p className="flex items-center gap-2 text-blue-600"><MdEmail /> {order.vendor.email}</p>
-          {order.vendor.phone && (
-            <p className="flex items-center gap-2 text-gray-600"><MdPhone /> {order.vendor.phone}</p>
-          )}
+        {role !== "vendor" && (
+          <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
+            <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">Vendor Info</h3>
+            <p><span className="font-semibold">Shop:</span> {order.vendor.shopName}</p>
+            <p><span className="font-semibold">Vendor:</span> {order.vendor.name}</p>
+            <p className="flex items-center gap-2 text-blue-600"><MdEmail /> {order.vendor.email}</p>
+            {order.vendor.phone && (
+              <p className="flex items-center gap-2 text-gray-600"><MdPhone /> {order.vendor.phone}</p>
+            )}
+          </div>
+        )}
         </div>
-      </div>
-    </section>
+    </section >
   );
 };
 

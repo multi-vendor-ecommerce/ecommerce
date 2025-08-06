@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import StatusChip from "../../../common/helperComponents/StatusChip";
 import { getVendorCardData } from "./data/vendorProfileCards";
-import { RenderOrderRow } from "../adminOrders/RenderOrderRow";
+import { RenderOrderRow } from "../../adminVendorCommon/orders/RenderOrderRow";
 import StatGrid from "../../../common/helperComponents/StatGrid";
 import { getFormatDate } from "../../../../utils/formatDate";
 import Spinner from "../../../common/Spinner";

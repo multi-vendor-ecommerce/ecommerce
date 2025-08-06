@@ -42,7 +42,7 @@ app.use('/api/users', userRoutes);
 app.use("/api/coupons", CouponRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
-app.use("/api/order", orderRoutes);
+app.use("/api/orders", orderRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend listening on port http://localhost:${PORT}`);

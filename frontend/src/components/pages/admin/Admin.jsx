@@ -4,8 +4,6 @@ import { adminSidebarMenu } from "./adminCommon/adminSidebar/adminSidebarMenu";
 import Sidebar from "../adminVendorCommon/common/sidebar/Sidebar";
 import Header from "./adminCommon/adminHeader/Header";
 import Dashboard from "./adminDashboard/Dashboard";
-import Orders from "./adminOrders/Orders";
-import OrderDetails from "./adminOrders/OrderDetails";
 import NotFoundPage from "../../common/notPageFound";
 import Customers from "./adminCustomers/Customers";
 import CouponsManager from "./couponManager/CouponManager";
@@ -17,6 +15,8 @@ import AuthContext from "../../../context/auth/AuthContext";
 import Products from "../adminVendorCommon/product/Products";
 import ProductDetails from "../adminVendorCommon/product/ProductDetails";
 import AddProduct from "../adminVendorCommon/product/addProduct/AddProduct";
+import Orders from "../adminVendorCommon/orders/Orders";
+import OrderDetails from "../adminVendorCommon/orders/OrderDetails";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);

@@ -9,13 +9,8 @@ import OrderContext from "../../../../context/orders/OrderContext";
 import Spinner from "../../../common/Spinner";
 import FilterBar from "../../../common/FilterBar";
 
-export default function Orders() {
-  const {
-    adminOrders,
-    getAllOrders,
-    loading,
-    totalCount,
-  } = useContext(OrderContext);
+export default function Orders({ role = "admin" }) {
+  const { orders, getAllOrders, loading, totalCount, } = useContext(OrderContext);
 
   const [filters, setFilters] = useState({ search: "", status: "" });
   const [page, setPage] = useState(1);
@@ -95,8 +90,8 @@ export default function Orders() {
             <div className="overflow-hidden bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
               <TabularData
                 headers={headers}
-                data={adminOrders}
-                renderRow={(o, i) => RenderOrderRow(o, i, StatusChip)}
+                data={orders}
+                renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, role)}
                 emptyMessage="No orders found."
               />
             </div>

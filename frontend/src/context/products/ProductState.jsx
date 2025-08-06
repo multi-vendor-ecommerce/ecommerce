@@ -40,7 +40,6 @@ const ProductState = ({ children }) => {
         products: data.products || [],
         total: data.total || 0,
         success: data.success,
-
       };
     } catch (err) {
       console.error("Product fetch error:", err);
@@ -99,7 +98,7 @@ const ProductState = ({ children }) => {
     try {
       const { role, token } = getRoleInfo();
 
-      let endpoint
+      let endpoint;
       if (role === "customer") endpoint = `/api/products/product/${id}`;
       else endpoint = `/api/products/${role}/${id}`;
 
