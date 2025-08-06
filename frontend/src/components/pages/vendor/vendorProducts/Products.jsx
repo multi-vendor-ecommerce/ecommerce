@@ -103,7 +103,7 @@ export default function Products({ heading }) {
       <div className="flex justify-between items-center mb-3">
         <BackButton />
         <NavLink
-          to={`/admin/add-product`}
+          to={`/vendor/add-product`}
           className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
         >
           <FiEdit className="text-lg md:text-2xl" />

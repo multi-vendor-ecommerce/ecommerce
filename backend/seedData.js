@@ -35,7 +35,6 @@ export const seedDatabase = async () => {
       console.log(`⏭️ Skipped category insertion — ${categoryCount} categories already exist.`);
     }
 
-
     // Seed Admin (only one)
     const adminEmail = process.env.ADMIN_EMAIL || "";
     const existingAdmin = await Person.findOne({ email: adminEmail });
@@ -46,7 +45,7 @@ export const seedDatabase = async () => {
       await Person.create({ name: "Site Admin", email: adminEmail, password: hashedPassword, role: "admin" });
       console.log("✅ Admin user seeded successfully.");
     } else {
-      console.log("⏭️ Admin user already exists. Skipping admin seeding.");
+      console.log("⏭️ Admin already exists. Skipping admin seeding.");
     }
   } catch (error) {
     console.error("❌ Error seeding the database:", error.message);

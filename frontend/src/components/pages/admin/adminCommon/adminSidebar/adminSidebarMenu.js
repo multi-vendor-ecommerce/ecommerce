@@ -87,7 +87,8 @@ export const adminSidebarMenu = [
         children: [
           { label: "All Products", path: "/admin/all-products" },
           { label: "Top Selling Products", path: "/admin/top-selling-products" },
-          { label: "Edit/Delete", path: "/admin/product/edit-delete" },
+          { label: "Add Product", path: "/admin/add-product" },
+          { label: "Approve Products", path: "/admin/approve-products" },
         ],
       },
     ],
@@ -126,7 +127,6 @@ export const adminSidebarMenu = [
           { label: "Text Blocks", path: "/admin/theme/text-blocks" },
           { label: "Image Blocks", path: "/admin/theme/image-blocks" },
           { label: "Category Creation", path: "/admin/theme/categories" },
-          { label: "Add Product", path: "/admin/theme/add-product" },
           { label: "Blog CRUD", path: "/admin/theme/blog-crud" },
         ],
       },

@@ -53,7 +53,8 @@ export const vendorSidebarMenu = [
         path: "/vendor/products",
         children: [
           { label: "All Products", path: "/vendor/all-products" },
-          { label: "Add Product", path: "/vendor/products/add" },
+          { label: "Top Products", path: "/vendor/top-selling-products" },
+          { label: "Add Product", path: "/vendor/add-product" },
           { label: "Approval Requests", path: "/vendor/products/pending-approval" },
         ],
       },
