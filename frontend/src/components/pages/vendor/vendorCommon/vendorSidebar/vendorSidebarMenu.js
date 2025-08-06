@@ -5,6 +5,7 @@ import {
   FiUser,
   FiSettings,
   FiHome,
+  FiUsers
 } from "react-icons/fi";
 
 import { BiRupee } from "react-icons/bi";
@@ -41,6 +42,19 @@ export const vendorSidebarMenu = [
     ],
   },
 
+  // ───────────────── CUSTOMERS ─────────────────
+  {
+    section: "CUSTOMERS",
+    items: [
+      {
+        label: "Manage Customers",
+        icon: FiUsers,
+        expandable: false,
+        path: "/vendor/all-customers",
+      },
+    ],
+  },
+
   // ───────────────── PRODUCTS ─────────────────
   {
     section: "PRODUCT MANAGEMENT",
@@ -53,7 +67,8 @@ export const vendorSidebarMenu = [
         path: "/vendor/products",
         children: [
           { label: "All Products", path: "/vendor/all-products" },
-          { label: "Add Product", path: "/vendor/products/add" },
+          { label: "Top Selling Products", path: "/vendor/top-selling-products" },
+          { label: "Add Product", path: "/vendor/add-product" },
           { label: "Approval Requests", path: "/vendor/products/pending-approval" },
         ],
       },
@@ -110,7 +125,6 @@ export const vendorSidebarMenu = [
         path: "/vendor/profile",
         children: [
           { label: "Edit Personal Info", path: "/vendor/profile/edit" },
-          { label: "Change Store Name", path: "/vendor/profile/store-name" },
           { label: "Change Store Logo", path: "/vendor/profile/logo" },
         ],
       },

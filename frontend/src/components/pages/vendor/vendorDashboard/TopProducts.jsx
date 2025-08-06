@@ -2,9 +2,9 @@ import { useState, useEffect, useContext } from "react";
 import { NavLink } from "react-router-dom";
 import ProductContext from "../../../../context/products/ProductContext";
 import TabularData from "../../../common/layout/TabularData";
-import { RenderProductRow } from "../../admin/adminProducts/RenderProductRow";
 import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Spinner from "../../../common/Spinner";
+import { RenderProductRow } from "../../adminVendorCommon/product/RenderProductRow";
 
 const TopProducts = () => {
   const { loading, getTopSellingProducts } = useContext(ProductContext);
@@ -39,7 +39,7 @@ const TopProducts = () => {
           <div className="min-h-16 flex justify-between items-center mb-5">
             <h2 className="text-xl md:text-2xl font-bold text-gray-800">Top Selling Products</h2>
             <NavLink
-              to="/admin/top-selling-products"
+              to="/vendor/top-selling-products"
               className="border-gray-300 px-2 md:px-4 py-2 rounded-xl text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
             >
               View All

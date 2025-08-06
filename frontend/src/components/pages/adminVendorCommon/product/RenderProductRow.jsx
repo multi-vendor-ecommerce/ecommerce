@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import classNames from "classnames";
 
-export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false) => {
+export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, role = "admin") => {
   const isHighSales = (p.unitsSold || 0) >= maxUnitsSold * 0.6;
 
   return (
@@ -15,7 +15,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false) =
         className="px-6 py-4 min-w-[300px] hover:scale-105 transition duration-150"
         title={p.title || "No Title"}
       >
-        <NavLink to={`/admin/product-details/${p._id}`} className="w-full flex items-center gap-4">
+        <NavLink to={`/${role}/product-details/${p._id}`} className="w-full flex items-center gap-4">
           <img
             src={p.images?.[0] || "https://m.media-amazon.com/images/I/71Ls4akTeeL._AC_SL1500_.jpg"}
             alt={p.title || "Product Image"}
@@ -32,7 +32,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false) =
         className="px-6 py-4 min-w-[90px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150 truncate"
         title={p._id || "No ID"}
       >
-        <NavLink to={`/admin/product-details/${p._id}`}>#{p._id || "N/A"}</NavLink>
+        <NavLink to={`/${role}/product-details/${p._id}`}>#{p._id || "N/A"}</NavLink>
       </td>
 
       {/* Category */}
@@ -114,7 +114,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false) =
       <td className="px-6 py-4 min-w-[100px] hover:scale-105 transition duration-150">
         <div className="flex items-center gap-3">
           <NavLink
-            to={`/admin/product-details/${p._id}`}
+            to={`/${role}/product-details/${p._id}`}
             title="View Product"
             className="hover:text-blue-600 hover:scale-110 transition duration-150"
           >
@@ -122,7 +122,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false) =
           </NavLink>
 
           <NavLink
-            to={`/admin/product/edit-delete/${p._id}`}
+            to={`/${role}/product/edit-delete/${p._id}`}
             title="Edit Product"
             className="hover:text-blue-600 hover:scale-110 transition duration-150"
           >

@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Sidebar from "./adminCommon/adminSidebar/Sidebar";
+import { adminSidebarMenu } from "./adminCommon/adminSidebar/adminSidebarMenu";
+import Sidebar from "../adminVendorCommon/common/sidebar/Sidebar";
 import Header from "./adminCommon/adminHeader/Header";
 import Dashboard from "./adminDashboard/Dashboard";
 import Orders from "./adminOrders/Orders";
@@ -9,13 +10,13 @@ import NotFoundPage from "../../common/notPageFound";
 import Customers from "./adminCustomers/Customers";
 import CouponsManager from "./couponManager/CouponManager";
 import EmailTemplateEditor from "./adminEmailEditor/EmailTemplateEditor";
-import Products from "./adminProducts/Products";
 import VendorManagement from "./adminVendor/VendorManagement";
 import CommissionOverview from "./adminCommissions/CommissionOverview";
 import VendorProfile from "./adminVendor/VendorProfile";
-import ProductDetails from "./adminProducts/ProductDetails";
 import AuthContext from "../../../context/auth/AuthContext";
-import AddProduct from "./adminProducts/addProduct/AddProduct";
+import Products from "../adminVendorCommon/product/Products";
+import ProductDetails from "../adminVendorCommon/product/ProductDetails";
+import AddProduct from "../adminVendorCommon/product/addProduct/AddProduct";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);
@@ -32,7 +33,7 @@ const Admin = () => {
   return (
     <div className="flex min-h-screen relative">
       {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} menuData={adminSidebarMenu} panelLabel="Admin Panel" homePath="/admin" />
 
       {/* Main Content Area */}
       <div className="w-full lg:w-[80%] flex flex-col">
@@ -57,8 +58,8 @@ const Admin = () => {
             <Route path="all-products" element={<Products heading="All Products" />} />
             <Route path="product-details/:productId" element={<ProductDetails />} />
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" />} />
+            <Route path="add-product" element={<AddProduct />} />
             <Route path="product/edit-delete/:productId" element={<OrderDetails />} />
-            <Route path="theme/add-product" element={<AddProduct />} />
 
             <Route path="all-vendors" element={<VendorManagement heading="All Vendors" />} />
             <Route path="top-vendors" element={<VendorManagement heading="Top Vendors" />} />

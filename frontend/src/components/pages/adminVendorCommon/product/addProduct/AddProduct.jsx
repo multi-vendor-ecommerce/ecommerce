@@ -6,7 +6,7 @@ import BackButton from "../../../../common/layout/BackButton";
 import CategorySelector from "./CategorySelector";
 import { FiExternalLink } from "react-icons/fi";
 
-const AddProduct = () => {
+const AddProduct = ({ isVendor = false }) => {
   const { addProduct } = useContext(ProductContext);
 
   const [step, setStep] = useState(1);
@@ -18,7 +18,8 @@ const AddProduct = () => {
     title: "", brand: "", tags: "", colors: "", size: "", sku: "",
     hsnCode: "", gstRate: "", description: "", price: "", discount: "",
     stock: "", isTaxable: true, freeDelivery: false,
-    status: "pending", visibility: "public", category: ""
+    status: isVendor ? "pending" : "approved",
+    visibility: "public", category: ""
   });
 
   const handleInputChange = (e) => {
@@ -264,17 +265,21 @@ const AddProduct = () => {
               ))}
 
               <div className="space-y-2">
-                <label htmlFor="status" className="block font-medium text-gray-700">Status</label>
-                <select
-                  name="status"
-                  className="w-full bg-gray-200 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={formData.status}
-                  onChange={handleInputChange}
-                >
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                </select>
+                {!isVendor && (
+                  <>
+                    <label htmlFor="status" className="block font-medium text-gray-700">Status</label>
+                    <select
+                      name="status"
+                      className="w-full bg-gray-200 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={formData.status}
+                      onChange={handleInputChange}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="approved">Approved</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
+                  </>
+                )}
 
                 <label htmlFor="visibility" className="block font-medium text-gray-700">Visibility</label>
                 <select
@@ -287,6 +292,7 @@ const AddProduct = () => {
                   <option value="private">Private</option>
                 </select>
               </div>
+
 
               <div className="w-full mb-2">
                 <label htmlFor="images" className="block font-medium text-gray-700 mb-1">

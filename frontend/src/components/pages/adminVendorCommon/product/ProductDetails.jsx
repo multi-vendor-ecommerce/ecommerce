@@ -7,7 +7,7 @@ import { FiEdit } from "react-icons/fi";
 import { getProfileCardData } from "./data/productStatCards";
 import BackButton from "../../../common/layout/BackButton";
 
-const ProductDetails = () => {
+const ProductDetails = ({ role = "admin" }) => {
   const { productId } = useParams();
   const { getProductById } = useContext(ProductContext);
   const [product, setProduct] = useState(null);
@@ -43,7 +43,7 @@ const ProductDetails = () => {
         <BackButton />
 
         <NavLink
-          to={`/admin/product/edit-delete/${product._id}`}
+          to={`/${role}/product/edit-delete/${product._id}`}
           className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
         >
           <FiEdit className="text-lg md:text-2xl" />

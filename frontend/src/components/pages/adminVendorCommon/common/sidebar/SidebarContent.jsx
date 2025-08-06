@@ -1,35 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { NavLink, useLocation } from "react-router-dom";
-import { adminSidebarMenu } from "./adminSidebarMenu";
 
-const SidebarContent = ({ isMobileOpen }) => {
+const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", homePath = "/" }) => {
   const location = useLocation();
   const [openMenus, setOpenMenus] = useState({});
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024); // lg
 
-  /* ───── track screen resize for lg breakpoint ──── */
   useEffect(() => {
     const handleResize = () => setIsLargeScreen(window.innerWidth >= 1024);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  /* ───── auto-open expandable menu if its child is active ──── */
   useEffect(() => {
     const newState = {};
-    adminSidebarMenu.forEach((section) => {
+    menuData.forEach((section) => {
       section.items.forEach((item) => {
         if (item.expandable) {
           const isChildActive = item.children?.some((c) =>
             location.pathname.startsWith(c.path)
           );
-          newState[item.key] = isChildActive; // true if any child matches
+          newState[item.key] = isChildActive;
         }
       });
     });
     setOpenMenus((prev) => ({ ...prev, ...newState }));
-  }, [location.pathname]);
+  }, [location.pathname, menuData]);
 
   const toggleMenu = (key) =>
     setOpenMenus((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -42,13 +39,15 @@ const SidebarContent = ({ isMobileOpen }) => {
       {/* Logo */}
       <div className="flex items-center gap-3 mb-6">
         <div className="bg-black text-white py-1 px-4 rounded-full">
-          <span className="font-bold text-xl">A</span>
+          <span className="font-bold text-xl">{panelLabel[0]}</span>
         </div>
-        <NavLink to="/admin" className="text-xl font-bold">Admin Panel</NavLink>
+        <NavLink to={homePath} className="text-xl font-bold">
+          {panelLabel}
+        </NavLink>
       </div>
 
       {/* Menu Sections */}
-      {adminSidebarMenu.map((section) => (
+      {menuData.map((section) => (
         <div key={section.section} className="mb-6">
           <p className="text-gray-500 font-medium mb-2">{section.section}</p>
           <ul>
@@ -58,7 +57,6 @@ const SidebarContent = ({ isMobileOpen }) => {
 
               return (
                 <li key={item.label}>
-                  {/* Parent item */}
                   {item.expandable ? (
                     <div
                       onClick={() => toggleMenu(item.key)}
@@ -75,7 +73,7 @@ const SidebarContent = ({ isMobileOpen }) => {
                   ) : (
                     <NavLink
                       to={item.path}
-                      end                                      /* 👈 exact-match, so /admin doesn’t highlight on /admin/... */
+                      end
                       className={({ isActive }) =>
                         `flex items-center gap-4 px-2 py-2 rounded-xl hover:bg-gray-200 transition ${
                           isActive
@@ -89,7 +87,6 @@ const SidebarContent = ({ isMobileOpen }) => {
                     </NavLink>
                   )}
 
-                  {/* Children */}
                   {item.expandable && isOpen && (
                     <ul className="ml-6 mt-2 text-sm text-gray-600 space-y-2">
                       {item.children.map((child) => (
