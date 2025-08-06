@@ -5,7 +5,7 @@ import Sidebar from "../adminVendorCommon/common/sidebar/Sidebar";
 import Header from "./adminCommon/adminHeader/Header";
 import Dashboard from "./adminDashboard/Dashboard";
 import NotFoundPage from "../../common/notPageFound";
-import Customers from "./adminCustomers/Customers";
+import Customers from "../adminVendorCommon/customers/Customers";
 import CouponsManager from "./couponManager/CouponManager";
 import EmailTemplateEditor from "./adminEmailEditor/EmailTemplateEditor";
 import VendorManagement from "./adminVendor/VendorManagement";

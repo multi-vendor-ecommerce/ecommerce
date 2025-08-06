@@ -11,6 +11,7 @@ import ProductDetails from "../adminVendorCommon/product/ProductDetails";
 import AddProduct from "../adminVendorCommon/product/addProduct/AddProduct";
 import Orders from "../adminVendorCommon/orders/Orders";
 import OrderDetails from "../adminVendorCommon/orders/OrderDetails";
+import Customers from "../adminVendorCommon/customers/Customers";
 
 const Vendor = () => {
   const { authTokens } = useContext(AuthContext);
@@ -44,6 +45,8 @@ const Vendor = () => {
               <Route index element={<Orders role="vendor" />} />
               <Route path="order-details/:orderId" element={<OrderDetails role="vendor" />} />
             </Route>
+
+            <Route path="all-customers" element={<Customers />} />
 
             <Route path="all-products" element={<Products heading="All Products" role="vendor" />} />
             <Route path="product-details/:productId" element={<ProductDetails role="vendor" />} />

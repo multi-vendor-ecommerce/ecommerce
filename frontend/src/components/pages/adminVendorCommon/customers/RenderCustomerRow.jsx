@@ -1,4 +1,5 @@
 // RenderCustomerRow.jsx
+import { formatAddress } from "../../../../utils/formatAddress";
 import { getFormatDate } from "../../../../utils/formatDate";
 
 export const RenderCustomerRow = (user, i) => {
@@ -32,9 +33,16 @@ export const RenderCustomerRow = (user, i) => {
         </a>
       </td>
 
-      {/* Location */}
-      <td className="px-6 py-4 min-w-[160px] hover:scale-105 transition duration-150">
-        {user.address || "Not Provided"}
+      {/* Email */}
+      <td className="px-6 py-4 min-w-[220px] hover:scale-105 hover:underline transition duration-150">
+        <a href={`mailto:${user.phone}`} title={`Send email to ${user.name?.split(" ")[0] || "User"}`}>
+          {user.phone || "N/A"}
+        </a>
+      </td>
+
+      {/* Address  */}
+      <td className="px-6 py-4 min-w-[250px] hover:scale-105 transition duration-150">
+        {user.address ? formatAddress(user.address) : "Not Provided"}
       </td>
 
       {/* Total Orders */}
@@ -48,7 +56,7 @@ export const RenderCustomerRow = (user, i) => {
       </td>
 
       {/* Registered On */}
-      <td className="px-6 py-4 min-w-[150px] hover:scale-105 transition duration-150">
+      <td className="px-6 py-4 min-w-[180px] hover:scale-105 transition duration-150">
         {user.createdAt ? getFormatDate(user.createdAt) : "Unknown"}
       </td>
     </tr>

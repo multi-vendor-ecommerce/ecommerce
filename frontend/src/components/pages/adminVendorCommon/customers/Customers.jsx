@@ -7,7 +7,7 @@ import Spinner from "../../../common/Spinner";
 import FilterBar from "../../../common/FilterBar";
 import BackButton from "../../../common/layout/BackButton";
 
-const Customers = () => {
+const Customers = ({}) => {
   const { users, getAllCustomers, totalCount, loading } = useContext(UserContext);
 
   const [filters, setFilters] = useState({ search: "", date: "" });
@@ -55,7 +55,7 @@ const Customers = () => {
     { name: "date", label: "Date", type: "date" },
   ];
 
-  const headers = ["Customer", "Email", "Location", "Total Orders", "Total Value", "Registered On"];
+  const headers = ["Customer", "Email", "Phone", "Location", "Total Orders", "Total Value", "Registered On"];
 
   if (loading && users.length === 0) {
     return (
