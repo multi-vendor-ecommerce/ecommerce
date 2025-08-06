@@ -10,13 +10,13 @@ import NotFoundPage from "../../common/notPageFound";
 import Customers from "./adminCustomers/Customers";
 import CouponsManager from "./couponManager/CouponManager";
 import EmailTemplateEditor from "./adminEmailEditor/EmailTemplateEditor";
-import Products from "./adminProducts/Products";
 import VendorManagement from "./adminVendor/VendorManagement";
 import CommissionOverview from "./adminCommissions/CommissionOverview";
 import VendorProfile from "./adminVendor/VendorProfile";
-import ProductDetails from "./adminProducts/ProductDetails";
 import AuthContext from "../../../context/auth/AuthContext";
-import AddProduct from "./adminProducts/AdminAddProduct";
+import Products from "../adminVendorCommon/product/Products";
+import ProductDetails from "../adminVendorCommon/product/ProductDetails";
+import AddProduct from "../adminVendorCommon/product/addProduct/AddProduct";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);

@@ -5,9 +5,10 @@ import Sidebar from '../adminVendorCommon/common/sidebar/Sidebar';
 import Header from "./vendorCommon/vendorHeader/Header";
 import Dashboard from "./vendorDashboard/Dashboard";
 import AuthContext from "../../../context/auth/AuthContext";
-import Products from "./vendorProducts/Products";
-import VendorAddProduct from "./vendorProducts/VendorAddProduct";
 import NotFoundPage from "../../common/notPageFound";
+import Products from "../adminVendorCommon/product/Products";
+import ProductDetails from "../adminVendorCommon/product/ProductDetails";
+import AddProduct from "../adminVendorCommon/product/addProduct/AddProduct";
 
 const Vendor = () => {
   const { authTokens } = useContext(AuthContext);
@@ -36,9 +37,10 @@ const Vendor = () => {
           <Routes>
             <Route path="/" element={<Dashboard />} />
 
-            <Route path="all-products" element={<Products heading="All Products" />} />
-            <Route path="top-selling-products" element={<Products heading="Top Products" />} />
-            <Route path="add-product" element={<VendorAddProduct />} />
+            <Route path="all-products" element={<Products heading="All Products" role="vendor" />} />
+            <Route path="product-details/:productId" element={<ProductDetails role="vendor" />} />
+            <Route path="top-selling-products" element={<Products heading="Top Selling Products" role="vendor" />} />
+            <Route path="add-product" element={<AddProduct isVendor={true} />} />
 
             {/* Fallback route for unmatched paths */}
             <Route path="*" element={<NotFoundPage destination="/vendor" />} />

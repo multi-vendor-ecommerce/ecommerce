@@ -2,9 +2,9 @@ import { useState, useEffect, useContext } from "react";
 import { NavLink } from "react-router-dom";
 import ProductContext from "../../../../context/products/ProductContext";
 import TabularData from "../../../common/layout/TabularData";
-import { RenderProductRow } from "../adminProducts/RenderProductRow";
 import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Spinner from "../../../common/Spinner";
+import { RenderProductRow } from "../../adminVendorCommon/product/RenderProductRow";
 
 const TopProducts = () => {
   const { loading, getTopSellingProducts } = useContext(ProductContext);

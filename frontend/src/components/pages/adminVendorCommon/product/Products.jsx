@@ -10,7 +10,7 @@ import BackButton from "../../../common/layout/BackButton";
 import { NavLink } from "react-router-dom";
 import { FiEdit } from "react-icons/fi";
 
-export default function Products({ heading }) {
+export default function Products({ heading, role = "admin" }) {
   const { getAllProducts, getTopSellingProducts, loading } = useContext(ProductContext);
 
   const [products, setProducts] = useState([]);
@@ -103,7 +103,7 @@ export default function Products({ heading }) {
       <div className="flex justify-between items-center mb-3">
         <BackButton />
         <NavLink
-          to={`/vendor/add-product`}
+          to={`/${role}/add-product`}
           className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
         >
           <FiEdit className="text-lg md:text-2xl" />
@@ -135,7 +135,7 @@ export default function Products({ heading }) {
             <TabularData
               headers={headers}
               data={products}
-              renderRow={(p, i) => RenderProductRow(p, i, maxUnitsSold, isTopSellingPage)}
+              renderRow={(p, i) => RenderProductRow(p, i, maxUnitsSold, isTopSellingPage, role)}
               emptyMessage="No products available."
             />
           </div>
