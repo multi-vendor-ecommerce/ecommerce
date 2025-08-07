@@ -3,7 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { vendorSidebarMenu } from "./vendorCommon/vendorSidebar/vendorSidebarMenu";
 import Sidebar from '../adminVendorCommon/common/sidebar/Sidebar';
 import Header from "./vendorCommon/vendorHeader/Header";
-import Dashboard from "./vendorDashboard/Dashboard";
+import Dashboard from "../adminVendorCommon/dashboard/Dashboard";
+import { getCards } from "./vendorDashboard/data/summaryData";
 import AuthContext from "../../../context/auth/AuthContext";
 import NotFoundPage from "../../common/notPageFound";
 import Products from "../adminVendorCommon/product/Products";
@@ -38,7 +39,7 @@ const Vendor = () => {
         {/* Routes */}
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Dashboard summaryData={getCards} />} />
 
             {/* Nested route block for orders */}
             <Route path="all-orders/">

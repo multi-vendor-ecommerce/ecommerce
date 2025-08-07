@@ -1,13 +1,12 @@
 import { useContext, useEffect, useState } from "react";
-import { getCards } from "./data/summaryData";
 import ProductContext from "../../../../context/products/ProductContext";
 import OrderContext from "../../../../context/orders/OrderContext";
 import UserContext from "../../../../context/user/UserContext";
 import { formatNumber } from "../../../../utils/formatNumber";
 
-export default function SummaryCards() {
+export default function SummaryCards({ summaryData }) {
   const { users } = useContext(UserContext);
-  const { adminOrders } = useContext(OrderContext);
+  const { orders } = useContext(OrderContext);
   const { getAllProducts } = useContext(ProductContext);
 
   const [products, setProducts] = useState([]);
@@ -27,11 +26,11 @@ export default function SummaryCards() {
     (sum, p) => sum + (p.revenue || p.price * p.unitsSold || 0),
     0
   );
-  const totalOrders = adminOrders?.length || 0;
+  const totalOrders = orders?.length || 0;
   const totalProducts = products?.length || 0;
   const totalCustomers = users?.filter(u => u.role === "customer").length || 0;
 
-  const cards = getCards({
+  const cards = summaryData({
     totalRevenue: formatNumber(totalRevenue),
     totalOrders,
     totalProducts,

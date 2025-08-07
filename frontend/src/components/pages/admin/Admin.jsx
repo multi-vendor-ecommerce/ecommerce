@@ -3,7 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { adminSidebarMenu } from "./adminCommon/adminSidebar/adminSidebarMenu";
 import Sidebar from "../adminVendorCommon/common/sidebar/Sidebar";
 import Header from "./adminCommon/adminHeader/Header";
-import Dashboard from "./adminDashboard/Dashboard";
+import Dashboard from "../adminVendorCommon/dashboard/Dashboard";
+import { getCards } from "./adminDashboard/data/summaryData";
 import NotFoundPage from "../../common/notPageFound";
 import Customers from "../adminVendorCommon/customers/Customers";
 import CouponsManager from "./couponManager/CouponManager";
@@ -43,7 +44,7 @@ const Admin = () => {
         {/* Routes */}
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Dashboard summaryData={getCards} />} />
 
             {/* Nested route block for orders */}
             <Route path="all-orders/">
