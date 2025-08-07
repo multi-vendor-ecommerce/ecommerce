@@ -1,8 +1,8 @@
 import { useContext, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { adminSidebarMenu } from "./adminCommon/adminSidebar/adminSidebarMenu";
+import { adminSidebarMenu } from "./adminSidebar/adminSidebarMenu";
 import Sidebar from "../adminVendorCommon/common/sidebar/Sidebar";
-import Header from "./adminCommon/adminHeader/Header";
+import Header from "../adminVendorCommon/common/header/Header";
 import Dashboard from "../adminVendorCommon/dashboard/Dashboard";
 import { getCards } from "./adminDashboard/data/summaryData";
 import NotFoundPage from "../../common/notPageFound";

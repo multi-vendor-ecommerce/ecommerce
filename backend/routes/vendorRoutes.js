@@ -3,8 +3,7 @@ import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 
 // Controllers
-import { getAllVendors } from "../controllers/vendorController.js";
-import { getVendorById } from "../controllers/vendorController.js";
+import { getAllVendors, getVendorById } from "../controllers/vendorController.js";
 
 const router = express.Router();
 

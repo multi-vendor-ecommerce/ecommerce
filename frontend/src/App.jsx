@@ -21,28 +21,31 @@ import VendorLogin from "./components/common/login/VendorLogin";
 // Register components
 import UserRegister from "./components/common/register/UserRegister";
 import VendorRegister from "./components/common/register/VendorRegister";
+import PersonState from "./context/person/PersonState";
 
 function App() {
   return (
     <>
       <AuthState>
-        <OrderState>
-          <CartState>
-            <CouponState>
-              <UserState>
-                <CategoryState>
-                  <VendorState>
-                    <ProductState>
-                      <Router>
-                        <AppRoutes />
-                      </Router>
-                    </ProductState>
-                  </VendorState>
-                </CategoryState>
-              </UserState>
-            </CouponState>
-          </CartState>
-        </OrderState>
+        <PersonState>
+          <OrderState>
+            <CartState>
+              <CouponState>
+                <UserState>
+                  <CategoryState>
+                    <VendorState>
+                      <ProductState>
+                        <Router>
+                          <AppRoutes />
+                        </Router>
+                      </ProductState>
+                    </VendorState>
+                  </CategoryState>
+                </UserState>
+              </CouponState>
+            </CartState>
+          </OrderState>
+        </PersonState>
       </AuthState>
     </>
   )

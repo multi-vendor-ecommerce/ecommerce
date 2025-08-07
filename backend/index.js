@@ -5,12 +5,13 @@ import connectToMongo from "./db.js";
 import express from "express";
 import cors from "cors";
 
+import authRoutes from "./routes/authRoutes.js";
+import personRoutes from "./routes/personRoutes.js";
 import productsRoutes from "./routes/productRoutes.js"; 
 import categoryRoutes from "./routes/categoryRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import CouponRoutes from "./routes/couponRoutes.js";
-import authRoutes from "./routes/authRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 
@@ -35,12 +36,13 @@ app.get('/', (req, res) => {
 });
 
 // Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/person", personRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/users', userRoutes);
 app.use("/api/coupons", CouponRoutes);
-app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 

@@ -138,10 +138,15 @@ export const adminSidebarMenu = [
     section: "SETTINGS",
     items: [
       {
-        label: "Admin Settings",
+        label: "Admin Profile",
         icon: FiSettings,
-        expandable: false,
+        expandable: true,
         path: "/admin/settings",
+        children: [
+          { label: "Profile", path: "/admin/settings/profile" },
+          { label: "Security", path: "/admin/settings/security" },
+          { label: "Notifications", path: "/admin/settings/notifications" },
+        ],
       },
     ],
   },

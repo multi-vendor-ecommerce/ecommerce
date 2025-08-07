@@ -105,7 +105,6 @@ export const vendorSidebarMenu = [
         key: "store",
         path: "/vendor/store",
         children: [
-          { label: "Edit Store Info", path: "/vendor/store/edit" },
           { label: "Billing Options", path: "/vendor/store/billing" },
           { label: "Shipping Options", path: "/vendor/store/shipping" },
         ],
@@ -113,33 +112,20 @@ export const vendorSidebarMenu = [
     ],
   },
 
-  // ───────────────── PROFILE SETTINGS ─────────────────
-  {
-    section: "PROFILE",
-    items: [
-      {
-        label: "My Profile",
-        icon: FiUser,
-        expandable: true,
-        key: "profile",
-        path: "/vendor/profile",
-        children: [
-          { label: "Edit Personal Info", path: "/vendor/profile/edit" },
-          { label: "Change Store Logo", path: "/vendor/profile/logo" },
-        ],
-      },
-    ],
-  },
-
   // ───────────────── SETTINGS ─────────────────
   {
-    section: "SETTINGS",
+    section: "VENDOR SETTINGS",
     items: [
       {
-        label: "General Settings",
+        label: "Vendor Profile",
         icon: FiSettings,
-        expandable: false,
+        expandable: true,
         path: "/vendor/settings",
+        children: [
+          { label: "Profile", path: "/vendor/settings/profile" },
+          { label: "Security", path: "/vendor/settings/security" },
+          { label: "Notifications", path: "/vendor/settings/notifications" },
+        ],
       },
     ],
   },

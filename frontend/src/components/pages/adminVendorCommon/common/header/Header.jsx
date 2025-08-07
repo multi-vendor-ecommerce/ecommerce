@@ -1,11 +1,19 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import { RiMenu2Line } from 'react-icons/ri';
 import { FiSettings } from 'react-icons/fi';
 import { IoGlobeOutline, IoNotificationsOutline } from 'react-icons/io5';
-
+import { NavLink } from 'react-router-dom';
 import ProfileMenu from './ProfileMenu';
+import PersonContext from '../../../../../context/person/PersonContext';
+import ProfileImage from './ProfileImage';
 
 const Header = ({ onMenuToggle }) => {
+  const { person, getCurrentPerson } = useContext(PersonContext);
+
+  useEffect(() => {
+    getCurrentPerson();
+  }, []);
+
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null); // 1️⃣ Reference to the menu area
 
@@ -50,25 +58,27 @@ const Header = ({ onMenuToggle }) => {
           </span>
         </button>
 
-        <button className="hover:text-black hover:scale-105 transition-all duration-300 cursor-pointer hover:animate-spin">
-          <FiSettings className="text-2xl md:text-3xl" title="Settings" />
-        </button>
+        {person && (
+          <button className="hover:text-black hover:scale-105 transition-all duration-300 cursor-pointer">
+            <NavLink to={`/${person.role}/settings`}>
+              <FiSettings className="text-2xl md:text-3xl" title="Settings" />
+            </NavLink>
+          </button>
+        )}
 
         {/* Profile Icon + Dropdown */}
-        <div className="relative" title="Profile" ref={profileMenuRef}>
-          <button
-            onClick={toggleProfileMenu}
-            className="focus:outline-none hover:scale-105 transition-all duration-300 cursor-pointer"
-          >
-            <img
-              src="https://randomuser.me/api/portraits/women/44.jpg"
-              alt="Profile"
-              className="w-9 h-9 rounded-full object-cover"
-            />
-          </button>
+        {person && (
+          <div className="relative" title="Profile" ref={profileMenuRef}>
+            <button
+              onClick={toggleProfileMenu}
+              className="focus:outline-none hover:scale-105 transition-all duration-300 cursor-pointer"
+            >
+              <ProfileImage person={person} />
+            </button>
 
-          {showProfileMenu && <ProfileMenu />}
-        </div>
+            {showProfileMenu && <ProfileMenu person={person} />}
+          </div>
+        )}
       </div>
     </header>
   );

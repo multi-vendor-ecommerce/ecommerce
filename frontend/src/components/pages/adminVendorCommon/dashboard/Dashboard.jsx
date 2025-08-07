@@ -17,9 +17,7 @@ const Dashboard = ({ summaryData }) => {
   const { getAllOrders } = useContext(OrderContext);
   const { getAllVendors } = useContext(VendorContext);
 
-  let role;
-  if (localStorage.getItem("adminToken")) role = "admin";
-  else role = "vendor";
+  const role = localStorage.getItem("adminToken") ? "admin" : "vendor";
 
   useEffect(() => {
     getAllCustomers();
