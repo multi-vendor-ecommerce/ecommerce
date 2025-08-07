@@ -24,7 +24,7 @@ export const getAllProducts = async (req, res) => {
 
     // Limit fields for public or vendor
     if (!req.person || req.person.role !== "admin") {
-      baseQuery = baseQuery.select("title description images price category tags freeDelivery rating totalReviews colors sizes");
+      baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
     }
 
     const [products, total] = await Promise.all([
@@ -57,7 +57,7 @@ export const getTopSellingProducts = async (req, res) => {
       .populate("createdBy", "name email shopName role");
 
     if (role !== "admin") {
-      query = query.select("title description images price category tags freeDelivery rating totalReviews colors sizes");
+      query = query.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
     }
 
     const [products, total] = await Promise.all([
@@ -105,20 +105,39 @@ export const getTopSellingProducts = async (req, res) => {
   }
 };
 
-// Public: Get a product
+// Public: Get a product by ID - supports public, admin, and vendor
+// Public: Get a product by ID - supports public, admin, and vendor
 export const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id)
+    const isAdmin = req.person?.role === "admin";
+    const isVendor = req.person?.role === "vendor";
+
+    let productQuery = Product.findById(req.params.id)
       .populate("category", "name")
       .populate("createdBy", "name email shopName role");
+
+    // Limit fields for public or vendor
+    if (!isAdmin) {
+      productQuery = productQuery.select(
+        "title description images price discountPercent category tags freeDelivery rating totalReviews colors sizes"
+      );
+    }
+
+    const [product] = await Promise.all([productQuery]);
 
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found." });
     }
 
-    res.status(200).send({ success: true, message: "Product fetched successfully.", product });
+    // If vendor, restrict to their own products
+    if (isVendor && product.createdBy?._id?.toString() !== req.person.id) {
+      return res.status(403).json({ success: false, message: "Access denied." });
+    }
+
+    res.status(200).json({ success: true, message: "Product fetched successfully.", product });
+
   } catch (err) {
-    res.status(500).json({ success: false, error: "Server error.", error: err.message });
+    res.status(500).json({ success: false, message: "Server error.", error: err.message });
   }
 };
 
@@ -140,7 +159,7 @@ export const addProduct = async (req, res) => {
   try {
     let {
       title, brand, description, category, specifications, price,
-      discountPrice, stock, sku, hsnCode, gstRate, isTaxable,
+      discount, stock, sku, hsnCode, gstRate, isTaxable,
       freeDelivery, tags, video, colors, sizes
     } = req.body;
 
@@ -152,8 +171,15 @@ export const addProduct = async (req, res) => {
       });
     }
 
-    if (price < 0 || (discountPrice && discountPrice < 0)) {
-      return res.status(400).json({ success: false, message: "Invalid price or discount price" });
+    if (price < 0) {
+      return res.status(400).json({ success: false, message: "Invalid price" });
+    }
+
+    if (discount && (isNaN(discount) || discount < 0 || discount > 100)) {
+      return res.status(400).json({
+        success: false,
+        message: "Discount percent must be a number between 0 and 100",
+      });
     }
 
     if (stock && (isNaN(stock) || stock < 0)) {
@@ -167,7 +193,10 @@ export const addProduct = async (req, res) => {
 
     const skuRegex = /^[A-Za-z0-9_-]{4,20}$/;
     if (!skuRegex.test(sku.trim())) {
-      return res.status(400).json({ success: false, message: "SKU must be 4-20 characters using letters, numbers, hyphens, or underscores only"});
+      return res.status(400).json({
+        success: false,
+        message: "SKU must be 4-20 characters using letters, numbers, hyphens, or underscores only"
+      });
     }
 
     if (!/^\d{4,8}$/.test(hsnCode.trim())) {
@@ -236,7 +265,7 @@ export const addProduct = async (req, res) => {
       category,
       specifications: specifications || {},
       price: Number(price),
-      discountPrice: discountPrice ? Number(discountPrice) : null,
+      discount: discount ? Math.floor(discount) : 0,
       stock: stock ? Number(stock) : 0,
       sku,
       hsnCode,

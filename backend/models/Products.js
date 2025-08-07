@@ -51,9 +51,17 @@ const productSchema = new Schema(
       type: Number,
       required: true,
     },
-    discountPrice: {
+    discount: {
       type: Number,
-      default: null,
+      min: 0,
+      max: 100,
+      default: 0,
+      validate: {
+        validator: function (v) {
+          return Number.isInteger(v);
+        },
+        message: "Discount percent must be an integer between 0 and 100",
+      },
     },
     stock: {
       type: Number,

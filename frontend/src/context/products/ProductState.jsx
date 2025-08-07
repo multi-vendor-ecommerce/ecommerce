@@ -96,7 +96,7 @@ const ProductState = ({ children }) => {
   // Product by ID (public/admin/vendor)
   const getProductById = async (id) => {
     try {
-      const { role, token } = getRoleInfo();
+      const { role } = getRoleInfo();
 
       let endpoint;
       if (role === "customer") endpoint = `/api/products/product/${id}`;
@@ -104,7 +104,7 @@ const ProductState = ({ children }) => {
 
       const headers = { "Content-Type": "application/json" };
       if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
-      else if (role === "vendor" && token) headers["auth-token"] = localStorage.getItem("vendorToken");
+      else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
 
       const response = await fetch(`${host}${endpoint}`, {
         method: "GET",
@@ -139,7 +139,7 @@ const ProductState = ({ children }) => {
   const addProduct = async (formData) => {
     try {
       setLoading(true);
-      const { role, token } = getRoleInfo();
+      const { role } = getRoleInfo();
 
       // const headers = {};
       // if (role !== "public" && token) {

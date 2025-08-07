@@ -14,17 +14,7 @@ export const registerPerson = async (req, res) => {
   if (!errors.isEmpty())
     return res.status(400).json({ success: false, errors: errors.array() });
 
-  let {
-    name,
-    email,
-    password,
-    confirmPassword,
-    phone,
-    role,
-    shopName,
-    gstNumber,
-    address = {},  
-  } = req.body;
+  let { name, email, password, confirmPassword, phone, role, shopName, gstNumber, address = {} } = req.body;
 
   try {
     // Normalize input
@@ -62,9 +52,9 @@ export const registerPerson = async (req, res) => {
     }
 
     const trimmedPincode = pincode?.toString().trim();
-if (!pincodeRegex.test(trimmedPincode)) {
-  return res.status(400).json({ success: false, message: "Invalid pincode format." });
-}
+    if (!pincodeRegex.test(trimmedPincode)) {
+      return res.status(400).json({ success: false, message: "Invalid pincode format." });
+    }
 
     if (role === "vendor" && gstNumber && !gstRegex.test(gstNumber)) {
       return res.status(400).json({ success: false, message: "Invalid GST number format." });
@@ -204,7 +194,7 @@ export const loginPerson = async (req, res) => {
     const expiresIn = person.role === "customer" ? "7d" : "6h";
     const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
-    res.json({ success: true, message: `${toTitleCase(person.role)} login successful`, data: { authToken, role: person.role , name: person.name} });
+    res.json({ success: true, message: `${toTitleCase(person.role)} login successful`, data: { authToken, role: person.role } });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
