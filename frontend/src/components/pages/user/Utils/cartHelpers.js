@@ -1,4 +1,3 @@
-// src/utils/cartHelpers.js
 export const validateAndAddToCart = async ({
   product,
   selectedColor,
@@ -8,17 +7,19 @@ export const validateAndAddToCart = async ({
   onSuccess,
   onError,
 }) => {
-  if (product.colors?.length > 0 && !selectedColor) {
+  const colorToUse = selectedColor || (product.colors?.[0] ?? null);
+  const sizeToUse = selectedSize || (product.sizes?.[0] ?? null);
+
+  if (product.colors?.length > 0 && !colorToUse) {
     return onError?.("Please select a color.");
   }
-
-  if (product.sizes?.length > 0 && !selectedSize) {
+  if (product.sizes?.length > 0 && !sizeToUse) {
     return onError?.("Please select a size.");
   }
 
   setLoading(true);
   try {
-    const res = await addToCart(product._id, 1, selectedSize, selectedColor);
+    const res = await addToCart(product._id, 1, sizeToUse, colorToUse);
     if (res.success) {
       onSuccess?.("Product added to cart!");
     } else {

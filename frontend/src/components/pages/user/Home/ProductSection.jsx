@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ProductContext from "../../../../context/products/ProductContext";
 import { encryptData } from "../Utils/Encryption";
 import { FaStar } from "react-icons/fa";
+import { getFinalPrice } from "../Utils/priceUtils";
 
 export default function ProductSection({ title }) {
   const { products, loading, getAllProducts } = useContext(ProductContext);
@@ -36,67 +37,81 @@ export default function ProductSection({ title }) {
                   onClick={() => handleProductClick(product._id)}
                   className="cursor-pointer bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 p-4 border border-gray-100 flex flex-col"
                 >
-                  <div className="aspect-square  overflow-hidden mb-3">
+                  {/* Product Image */}
+                  <div className="aspect-square overflow-hidden mb-3 rounded-lg bg-gray-100">
                     <img
                       src={product.images?.[0] || "https://via.placeholder.com/300"}
                       alt={product.title}
-                      className="w-full h-full object-cover bg-gray-100"
+                      className="w-full h-full object-cover"
                     />
                   </div>
 
+                  {/* Title */}
                   <h3 className="font-semibold text-base md:text-lg text-gray-900 truncate">
                     {product.title}
                   </h3>
 
+                  {/* Description */}
                   <p className="text-sm md:text-base text-gray-600 mt-1 leading-snug line-clamp-2">
                     {product.description}
                   </p>
 
-                  <div className="mt-2">
-                    {product.discountPercentage ? (
-                      <>
-                        <div className="text-[#7F55B1] font-bold text-lg md:text-xl">
-                          ₹{(product.price - (product.price * product.discountPrice / 100)).toFixed(0)}
-                        </div>
-
-                        <div className="text-gray-400 text-sm md:text-base line-through">
-                          ₹{product.price}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="text-[#7F55B1] font-bold text-lg md:text-xl">
-                        ₹{product.price}
+                  {/* Price and Discount */}
+                  <div className="text-2xl font-bold text-[#7F55B1]">
+                    ₹{getFinalPrice(product.price, product.discount).toLocaleString()}
+                    {product.discount && product.discount > 0 && product.discount < 100 && (
+                      <div className="text-sm text-gray-500 font-medium">
+                        <span className="line-through mr-2">
+                          ₹{product.price.toLocaleString()}
+                        </span>
+                        <span className="text-green-600 font-semibold">
+                          ({product.discount}% OFF)
+                        </span>
                       </div>
                     )}
-
-                    {product.discountPercentage && (
-                      <div className="text-green-600 text-xs font-semibold mt-1">
-                        {product.discountPrice }% OFF
-                      </div>
-                    )}
-
                   </div>
 
-                  <div className="text-sm md:text-lg text-yellow-600 font-medium mt-1 flex items-center gap-1">
+
+                  {/* Colors (if any) */}
+                  {product.colors?.length > 0 && (
+                    <div className="mt-2 flex gap-1 flex-wrap">
+                      {product.colors.map((color, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-0.5 text-xs rounded-full border border-gray-300 text-gray-700"
+                          style={{ backgroundColor: color.toLowerCase(), color: 'white' }}
+                          title={color}
+                        >
+                          {/* Just a colored circle */}
+                          &nbsp;
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Sizes (if any) */}
+                  {product.sizes?.length > 0 && (
+                    <div className="mt-2 text-sm text-gray-700">
+                      Sizes: <span className="font-semibold">{product.sizes.join(", ")}</span>
+                    </div>
+                  )}
+
+                  {/* Rating */}
+                  {/* <div className="text-sm md:text-lg text-yellow-600 font-medium mt-2 flex items-center gap-1">
                     {product.rating} <FaStar className="inline" />
-                  </div>
+                    <span className="text-gray-500 text-xs ml-1">
+                      ({product.totalReviews?.toLocaleString() || 0} reviews)
+                    </span>
+                  </div> */}
 
-
-                  <div className="flex justify-between items-center mt-2">
-                    {product.freeDelivery && (
+                  {/* Free Delivery Tag */}
+                  {product.freeDelivery && (
+                    <div className="mt-2">
                       <span className="bg-green-100 text-green-700 text-xs md:text-sm px-2 py-1 rounded-full">
                         Free Delivery
                       </span>
-                    )}
-                    {/* <span
-                      className={`text-xs md:text-sm font-medium ${product.stock > 0
-                        ? "text-green-600"
-                        : "text-red-600"
-                        }`}
-                    >
-                      {product.stock > 0 ? "In Stock" : "Out of Stock"}
-                    </span> */}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ))
             ) : (
@@ -104,6 +119,7 @@ export default function ProductSection({ title }) {
                 No products found.
               </p>
             )}
+
           </div>
         )}
       </div>

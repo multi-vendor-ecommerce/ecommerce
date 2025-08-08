@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import ProductContext from "../../../../context/products/ProductContext";
 import CartContext from "../../../../context/cart/CartContext";
-import { decryptData } from "../Utils/Encryption";
 import Spinner from "../../../common/Spinner";
-import { useNavigate } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 import BackButton from "../../../common/layout/BackButton";
 import ReadMoreLess from "../../../common/ReadMoreLess";
@@ -25,7 +23,6 @@ const ProductDetails = () => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
-  const navigate = useNavigate();
   const secretKey = import.meta.env.VITE_SECRET_KEY;
 
   // Decrypt product ID from URL
@@ -57,6 +54,14 @@ const ProductDetails = () => {
       if (index !== -1) setActiveImage(index);
     }
   }, [selectedColor, productDetails]);
+
+  // default colors and size:
+  useEffect(() => {
+    if (productDetails) {
+      setSelectedColor(productDetails.colors?.[0] || null);
+      setSelectedSize(productDetails.sizes?.[0] || null);
+    }
+  }, [productDetails]);
 
   // Handle Add to Cart with validation for color & size
   const handleAddToCart = () => {
@@ -134,6 +139,15 @@ const ProductDetails = () => {
             </div>
           )}
 
+          {
+            productDetails.createdBy?.name && (
+              <p className="text-sm text-gray-500">
+                Product By:{" "}
+                <span className="font-medium text-gray-700">{productDetails.createdBy.name}</span>
+              </p>
+            )
+          }
+          
           <div className="text-2xl font-bold text-[#7F55B1] flex items-center gap-3">
             {productDetails.discount && productDetails.discount > 0 && productDetails.discount < 100 ? (
               <>
