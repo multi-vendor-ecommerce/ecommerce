@@ -7,6 +7,9 @@ import { useNavigate } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
 import BackButton from "../../../common/layout/BackButton";
 import ReadMoreLess from "../../../common/ReadMoreLess";
+import { validateAndAddToCart } from "../Utils/cartHelpers";
+import { getDecryptedProductIdFromURL } from "../Utils/urlUtils";
+import { getFinalPrice } from "../Utils/priceUtils";
 
 const ProductDetails = () => {
   // Contexts
@@ -25,20 +28,11 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const secretKey = import.meta.env.VITE_SECRET_KEY;
 
-  // Decode and decrypt product ID from URL
+  // Decrypt product ID from URL
   useEffect(() => {
-    const path = window.location.pathname;
-    const parts = path.split("/");
-    const encodedProductId = parts[parts.length - 1];
-
-    try {
-      const decodedProductId = decodeURIComponent(decodeURIComponent(encodedProductId));
-      const decryptedId = decryptData(decodedProductId, secretKey);
-      setDecryptedProductId(decryptedId);
-    } catch (error) {
-      console.error("Error decoding or decrypting product ID:", error);
-      setLoading(false);
-    }
+    const id = getDecryptedProductIdFromURL(window.location.pathname, secretKey);
+    if (id) setDecryptedProductId(id);
+    else setLoading(false);
   }, [secretKey]);
 
   // Fetch product details using decrypted ID
@@ -65,27 +59,16 @@ const ProductDetails = () => {
   }, [selectedColor, productDetails]);
 
   // Handle Add to Cart with validation for color & size
-  const handleAddToCart = async () => {
-    if (productDetails.colors?.length > 0 && !selectedColor) {
-      alert("Please select a color.");
-      return;
-    }
-    if (productDetails.sizes?.length > 0 && !selectedSize) {
-      alert("Please select a size.");
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const data = await addToCart(productDetails._id, 1, selectedSize, selectedColor);
-      if (data.success) {
-        alert("Product added to cart!");
-      } else {
-        alert(`Failed to add to cart: ${data.message}`);
-      }
-    } catch {
-      alert("Something went wrong while adding to cart.");
-    }
-    setIsLoading(false);
+  const handleAddToCart = () => {
+    validateAndAddToCart({
+      product: productDetails,
+      selectedColor,
+      selectedSize,
+      addToCart,
+      setLoading: setIsLoading,
+      onSuccess: (msg) => alert(msg),
+      onError: (err) => alert(err),
+    });
   };
 
   if (loading) {
@@ -155,7 +138,7 @@ const ProductDetails = () => {
             {productDetails.discount && productDetails.discount > 0 && productDetails.discount < 100 ? (
               <>
                 <span>
-                  ₹ {(productDetails.price - (productDetails.price * productDetails.discount) / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}{" "}
+                  ₹{getFinalPrice(productDetails.price, productDetails.discount).toLocaleString()}
                 </span>
 
                 <span className="text-gray-500 line-through text-lg font-medium">
