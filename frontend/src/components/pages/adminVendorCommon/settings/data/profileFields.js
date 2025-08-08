@@ -13,6 +13,7 @@ export const profileSections = [
     fields: [
       { label: "Address Line 1", name: "address.line1", type: "text", required: true },
       { label: "Address Line 2", name: "address.line2", type: "text" },
+      { label: "Recipient Phone Number", name: "address.recipientPhone", type: "tel" },
       { label: "Locality", name: "address.locality", type: "text" },
       { label: "City", name: "address.city", type: "text", required: true },
       { label: "State", name: "address.state", type: "text", required: true },

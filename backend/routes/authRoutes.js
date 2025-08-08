@@ -2,6 +2,7 @@ import express from "express";
 import { body } from "express-validator";
 import { registerPerson, loginPerson } from "../controllers/authController.js";
 import { sendOtp, verifyOtp } from "../controllers/otpController.js";
+import { validate } from "../middleware/validateFields.js";
 
 const router = express.Router();
 
@@ -62,8 +63,8 @@ const loginValidator = [
     .notEmpty()
 ];
 
-router.post("/register", registerValidator, registerPerson);
-router.post("/login", loginValidator, loginPerson);
+router.post("/register", registerValidator, validate, registerPerson);
+router.post("/login", loginValidator, validate, loginPerson);
 
 router.post("/otp/request", sendOtp);
 router.post("/otp/verify", verifyOtp);
