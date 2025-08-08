@@ -8,7 +8,7 @@ import FilterBar from "../../../common/FilterBar";
 import { productFilterFields } from "./data/productFilterFields";
 import BackButton from "../../../common/layout/BackButton";
 import { NavLink } from "react-router-dom";
-import { FiEdit } from "react-icons/fi";
+import { FiBox, FiPlus, FiShoppingCart } from "react-icons/fi";
 
 export default function Products({ heading, role = "admin" }) {
   const { getAllProducts, getTopSellingProducts, loading } = useContext(ProductContext);
@@ -104,9 +104,9 @@ export default function Products({ heading, role = "admin" }) {
         <BackButton />
         <NavLink
           to={`/${role}/add-product`}
-          className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
+          className="flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
         >
-          <FiEdit className="text-lg md:text-2xl" />
+          <FiPlus className="text-lg md:text-2xl" />
           <span className="hidden md:inline-block">Add Product</span>
         </NavLink>
       </div>

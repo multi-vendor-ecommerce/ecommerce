@@ -75,7 +75,7 @@ const Login = ({ loginRole }) => {
     : form.email.trim() && form.password.trim();
 
   return (
-    <section className="w-full bg-gray-200 min-h-screen lg:min-h-[80vh] flex items-center justify-between gap-10">
+    <section className="w-full bg-white min-h-screen lg:min-h-[80vh] flex items-center justify-between gap-10">
       <div className="w-full h-full lg:w-[45%] px-4 flex flex-col lg:justify-center items-center gap-2 lg:gap-4">
         <div className="w-full max-w-lg p-6">
           <h2 className="text-3xl lg:text-5xl font-bold">Welcome back!</h2>
