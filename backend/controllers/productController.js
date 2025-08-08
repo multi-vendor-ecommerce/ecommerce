@@ -119,7 +119,7 @@ export const getProductById = async (req, res) => {
     // Limit fields for public or vendor
     if (!isAdmin) {
       productQuery = productQuery.select(
-        "title description images price discountPercent category tags freeDelivery rating totalReviews colors sizes"
+        "title description images price discount category tags freeDelivery rating totalReviews colors sizes"
       );
     }
 

@@ -1,10 +1,11 @@
 import { FaHeart, FaRandom, FaShoppingCart, FaSearch } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import CartContext from "../../../../context/cart/CartContext";
 
 function UserHeader() {
   const { cart } = useContext(CartContext);
+  const [cartItemCount, setCartItemCount] = useState(CartContext);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
@@ -20,7 +21,9 @@ function UserHeader() {
     }
   };
 
-  const cartItemCount = cart.reduce((count, item) => count + item.quantity, 0);
+  useEffect(() => {
+    setCartItemCount(cart.reduce((count, item) => count + item.quantity, 0))
+  }, [cart]);
 
   return (
     <header className="sticky top-0  bg-white/90 backdrop-blur-sm ">

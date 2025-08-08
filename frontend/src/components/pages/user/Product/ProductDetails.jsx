@@ -5,6 +5,8 @@ import { decryptData } from "../Utils/Encryption";
 import Spinner from "../../../common/Spinner";
 import { useNavigate } from "react-router-dom";
 import { FaStar } from "react-icons/fa";
+import BackButton from "../../../common/layout/BackButton";
+import ReadMoreLess from "../../../common/ReadMoreLess";
 
 const ProductDetails = () => {
   // Contexts
@@ -74,7 +76,7 @@ const ProductDetails = () => {
     }
     setIsLoading(true);
     try {
-      const data = await addToCart(productDetails._id, 1, selectedColor, selectedSize);
+      const data = await addToCart(productDetails._id, 1, selectedSize, selectedColor);
       if (data.success) {
         alert("Product added to cart!");
       } else {
@@ -149,15 +151,19 @@ const ProductDetails = () => {
             </div>
           )}
 
-
-
-          {/* Price & Delivery */}
           <div className="text-2xl font-bold text-[#7F55B1] flex items-center gap-3">
-            {productDetails.discountPrice && productDetails.discountPrice < productDetails.price ? (
+            {productDetails.discount && productDetails.discount > 0 && productDetails.discount < 100 ? (
               <>
-                <span>₹{productDetails.discountPrice.toLocaleString()}</span>
+                <span>
+                  ₹ {(productDetails.price - (productDetails.price * productDetails.discount) / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}{" "}
+                </span>
+
                 <span className="text-gray-500 line-through text-lg font-medium">
                   ₹{productDetails.price.toLocaleString()}
+                </span>
+
+                <span className="text-sm text-green-600 font-semibold">
+                  ({productDetails.discount}% OFF)
                 </span>
               </>
             ) : (
@@ -184,7 +190,7 @@ const ProductDetails = () => {
             </div>
           )}
 
-                    {/* Color Picker */}
+          {/* Color Picker */}
           {productDetails.colors?.length > 0 && (
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-1">Select Color:</h4>
@@ -227,7 +233,7 @@ const ProductDetails = () => {
           )}
 
           {/* Description */}
-          <p className="text-gray-700 text-sm leading-relaxed">{productDetails.description}</p>
+          <ReadMoreLess text={productDetails.description} limit={120} />
 
           {/* Rating */}
           <div className="flex items-center  gap-1 text-md">
@@ -256,13 +262,7 @@ const ProductDetails = () => {
             </button>
           </div>
 
-          {/* Back Link */}
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-block text-sm text-gray-500 hover:text-[#7F55B1] transition hover:underline mt-2"
-          >
-            ← Back to Products
-          </button>
+          <BackButton />
         </div>
       </div>
     </div>

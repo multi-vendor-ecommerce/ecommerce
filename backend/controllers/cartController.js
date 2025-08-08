@@ -13,8 +13,8 @@ export const getCart = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const filteredCart = user.cart.map(({ product, quantity, _id }) => ({
-      _id, 
+    const filteredCart = user.cart.map(({ _id, quantity, color, size, product }) => ({
+      _id,
       quantity,
       product: {
         _id: product._id,
@@ -35,7 +35,7 @@ export const getCart = async (req, res) => {
 // Add to Cart (also used for increase/decrease quantity)
 export const addToCart = async (req, res) => {
   const userId = req.person.id;
-  const { productId, quantity } = req.body;
+  const { productId, quantity, color, size } = req.body;
 
   if (!productId || typeof quantity !== 'number') {
     return res.status(400).json({
@@ -55,7 +55,12 @@ export const addToCart = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const index = user.cart.findIndex(item => item.product.toString() === productId);
+    const index = user.cart.findIndex(
+      (item) =>
+        item.product.toString() === productId &&
+        item.color === color &&
+        item.size === size
+    );
 
     if (index !== -1) {
       //  Product already in cart — adjust quantity
@@ -68,7 +73,7 @@ export const addToCart = async (req, res) => {
     } else {
       //  Add new product only if quantity is positive
       if (quantity > 0) {
-        user.cart.push({ product: productId, quantity });
+        user.cart.push({ product: productId, quantity, color, size });
       } else {
         return res.status(400).json({
           success: false,
@@ -78,8 +83,13 @@ export const addToCart = async (req, res) => {
     }
 
     await user.save();
-    res.status(200).json({ success: true, message: "Cart updated", cart: user.cart });
 
+    await user.populate({
+      path: "cart.product",
+      select: "_id title images price stock freeDelivery"
+    });
+
+    res.status(200).json({ success: true, message: "Cart updated", cart: user.cart });
   } catch (error) {
     console.error("Add to cart error:", error.message);
     res.status(500).json({ success: false, message: "Server Error", error: error.message });

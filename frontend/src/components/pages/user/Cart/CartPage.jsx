@@ -46,9 +46,11 @@ const CartPage = () => {
     const delta = newQuantity - currentItem.quantity;
     if (delta === 0) return;
 
+    const { color, size } = currentItem; 
     setUpdatingProductId(productId);
+
     try {
-      const data = await addToCart(productId, delta);
+      const data = await addToCart(productId, delta, color, size);
       if (!data.success) {
         alert(`Failed to update quantity: ${data.message}`);
       } else {
@@ -99,9 +101,9 @@ const CartPage = () => {
 
 
         <div className="space-y-6">
-          {cart.filter(item => item.product).map(({ product, quantity }, index) => (
+          {cart.filter(item => item.product).map(({_id, color, size, product, quantity }) => (
             <div
-              key={product._id || index}
+              key={_id || `${product._id}-${color || 'default'}-${size || 'default'}`}
               className="flex flex-col md:flex-row md:items-center bg-[#F8F5FD] border border-[#E0D6F2] p-4 rounded-xl shadow-sm gap-4"
             >
               <img

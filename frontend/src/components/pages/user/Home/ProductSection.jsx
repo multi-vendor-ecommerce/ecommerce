@@ -2,6 +2,7 @@ import React, { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductContext from "../../../../context/products/ProductContext";
 import { encryptData } from "../Utils/Encryption";
+import { FaStar } from "react-icons/fa";
 
 export default function ProductSection({ title }) {
   const { products, loading, getAllProducts } = useContext(ProductContext);
@@ -51,14 +52,35 @@ export default function ProductSection({ title }) {
                     {product.description}
                   </p>
 
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-[#7F55B1] font-bold text-lg md:text-xl">
-                      ₹{product.price}
-                    </span>
-                    <span className="text-sm md:text-lg text-yellow-600 font-medium">
-                      {product.rating} ★
-                    </span>
+                  <div className="mt-2">
+                    {product.discountPercentage ? (
+                      <>
+                        <div className="text-[#7F55B1] font-bold text-lg md:text-xl">
+                          ₹{(product.price - (product.price * product.discountPrice / 100)).toFixed(0)}
+                        </div>
+
+                        <div className="text-gray-400 text-sm md:text-base line-through">
+                          ₹{product.price}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-[#7F55B1] font-bold text-lg md:text-xl">
+                        ₹{product.price}
+                      </div>
+                    )}
+
+                    {product.discountPercentage && (
+                      <div className="text-green-600 text-xs font-semibold mt-1">
+                        {product.discountPrice }% OFF
+                      </div>
+                    )}
+
                   </div>
+
+                  <div className="text-sm md:text-lg text-yellow-600 font-medium mt-1 flex items-center gap-1">
+                    {product.rating} <FaStar className="inline" />
+                  </div>
+
 
                   <div className="flex justify-between items-center mt-2">
                     {product.freeDelivery && (
