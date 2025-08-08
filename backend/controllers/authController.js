@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { validationResult } from "express-validator";
 import Person from "../models/Person.js";
 import User from "../models/User.js";
 import Vendor from "../models/Vendor.js";
@@ -10,10 +9,6 @@ import { toTitleCase } from "../utils/titleCase.js";
 // Register Person (User/Vendor)
 // ==========================
 export const registerPerson = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty())
-    return res.status(400).json({ success: false, errors: errors.array() });
-
   let { name, email, password, confirmPassword, phone, role, shopName, gstNumber, address = {} } = req.body;
 
   try {
@@ -163,9 +158,6 @@ export const registerPerson = async (req, res) => {
 // Login Person (User/Vendor/Admin)
 // ==========================
 export const loginPerson = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty())
-    return res.status(400).json({ success: false, errors: errors.array() });
 
   let { email, password } = req.body;
 
