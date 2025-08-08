@@ -10,7 +10,7 @@ import Home from "./Home/Home";
 import ProductsByCategory from "./Product/ProductsByCategory";
 import ProductDetails from "./Product/ProductDetails";
 import CartPage from "./Cart/CartPage";
-// import Checkout from "./Checkout/Checkout";
+import Checkout from "./Checkout/Checkout";
 
 export default function User() {
 
@@ -23,7 +23,7 @@ export default function User() {
         <Route path="/category/:id" element={<ProductsByCategory />} />
         <Route path="product/:id" element={<ProductDetails />} />
         <Route path="cart" element={<CartPage />} />
-        {/* <Route path="checkout" element={<Checkout />} /> */}
+        <Route path="checkout" element={<Checkout />} />
 
       </Routes>
       {/* <UserFooter /> */}

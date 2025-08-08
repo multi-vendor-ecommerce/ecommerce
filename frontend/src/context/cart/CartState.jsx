@@ -30,6 +30,12 @@ const CartState = ({ children }) => {
   // + , - , Add item to cart
   const addToCart = async (productId, quantity, color, size) => {
     const token = localStorage.getItem("customerToken");
+    
+    if (!token) {
+      console.warn("User not logged in");
+      return { success: false, message: "User not logged in" };
+    }
+
     if (!productId || typeof quantity !== "number") {
       console.error("Invalid productId or quantity");
       return { success: false, message: "Invalid input" };
@@ -41,7 +47,7 @@ const CartState = ({ children }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("customerToken"),
+          "auth-token": token,
         },
         body: JSON.stringify({ productId, quantity, color, size }),
       });
@@ -49,7 +55,7 @@ const CartState = ({ children }) => {
       const data = await res.json();
 
       if (data.success) {
-        setCart(data.cart); 
+        setCart(data.cart);
       } else {
         console.warn("Add to cart failed:", data.message);
       }
