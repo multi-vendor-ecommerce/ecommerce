@@ -135,7 +135,7 @@ export const adminSidebarMenu = [
 
   // ───────────────── SETTINGS ─────────────────
   {
-    section: "SETTINGS",
+    section: "PROFILE SETTINGS",
     items: [
       {
         label: "Admin Profile",

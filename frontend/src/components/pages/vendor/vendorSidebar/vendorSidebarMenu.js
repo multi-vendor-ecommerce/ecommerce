@@ -114,7 +114,7 @@ export const vendorSidebarMenu = [
 
   // ───────────────── SETTINGS ─────────────────
   {
-    section: "VENDOR SETTINGS",
+    section: "PROFILE SETTINGS",
     items: [
       {
         label: "Vendor Profile",
