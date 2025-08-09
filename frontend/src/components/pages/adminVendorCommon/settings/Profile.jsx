@@ -5,7 +5,7 @@ import InputField from "../../../common/InputField";
 import { profileSections } from "./data/profileFields";
 import { FiEdit, FiCheck, FiX } from "react-icons/fi";
 import Loader from "../../../common/Loader";
-import useProfileUpdate from "../../../../hooks/useProfileUpdate"; cursor-pointer
+import useProfileUpdate from "../../../../hooks/useProfileUpdate";
 
 const Profile = () => {
   const { person, editPerson, getCurrentPerson } = useContext(PersonContext);
@@ -42,7 +42,7 @@ const Profile = () => {
                 }}
                 className="flex items-center gap-2 px-3 py-2 border border-red-600 hover:bg-red-600 text-black font-semibold hover:text-white rounded-lg transition cursor-pointer"
               >
-                <FiX />
+                <FiX size={19} />
                 <span className="hidden md:inline-block">Cancel</span>
               </button>
               <button
@@ -50,7 +50,7 @@ const Profile = () => {
                 disabled={isLoading}
                 className="flex items-center gap-2 px-3 py-2 border border-green-600 hover:bg-green-600 text-black font-semibold hover:text-white rounded-lg transition cursor-pointer"
               >
-                <FiCheck />
+                <FiCheck size={19} />
                 {isLoading ? "Saving..." : "Save"}
               </button>
             </>
@@ -59,7 +59,7 @@ const Profile = () => {
               onClick={() => setEditing(true)}
               className="flex items-center gap-2 px-3 py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white rounded-lg transition cursor-pointer"
             >
-              <FiEdit />
+              <FiEdit size={19} />
               Edit
             </button>
           )}
@@ -113,7 +113,6 @@ const Profile = () => {
                   value={field.name.split(".").reduce((obj, key) => obj?.[key] ?? "", form)}
                   onChange={handleChange}
                   disabled={!editing || isEmail}
-                  className={isEmail ? "bg-gray-100 cursor-not-allowed" : ""}
                 />
               );
             })}
