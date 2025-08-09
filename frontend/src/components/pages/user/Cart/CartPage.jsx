@@ -3,8 +3,10 @@ import CartContext from "../../../../context/cart/CartContext";
 import { useNavigate } from "react-router-dom";
 // import Spinner from "../../../common/Spinner";
 import BackButton from "../../../common/layout/BackButton";
-import { getFinalPrice } from "../Utils/priceUtils";
+import { getFinalPrice, formatPrice } from "../Utils/priceUtils";
 import { encryptData } from "../Utils/Encryption";
+import { NavLink } from "react-router-dom";
+
 import {
   calculateCartTotal,
   removeItemFromCart,
@@ -69,33 +71,46 @@ const CartPage = () => {
   };
 
 
-  if (!cart.length)
+  if (!cart.length) {
     return (
-      <div className="text-center p-6 text-lg">
-        Your cart is empty.
-        <br />
-        <button
-          onClick={() => navigate("/")}
-          className="inline-block text-sm text-gray-500 hover:text-[#7F55B1] transition hover:underline mt-2"
+      <div className="flex flex-col items-center justify-center py-16 px-6 text-center space-y-4 bg-white max-w-md mx-auto">
+        <p className="text-xl font-semibold text-gray-700">Your cart is empty</p>
+        <NavLink
+          to="/"
+          className="inline-block px-6 py-3 bg-[#7F55B1] text-white font-medium rounded-md  transition-colors duration-300 "
         >
-          ← Back to Products
-        </button>
+          Shop Now
+        </NavLink>
       </div>
     );
+  }
+
+  return (
+    <div className="text-center p-6 text-lg">
+      <p>Your Cart is empty </p>
+      <NavLink to="/">
+        Go to Shop Now
+      </NavLink>
+    </div>
+  );
 
   return (
     <div className="bg-[#F3F0FA] min-h-screen">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl">
-        <BackButton />
-        <h2 className="text-xl sm:text-2xl font-semibold text-[#7F55B1] mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-semibold text-[#7F55B1] mb-4 ">
           Your Shopping Cart
         </h2>
 
-        <div className="space-y-6">
+        <div className="py-2">
+          <BackButton />
+        </div>
+
+
+        <div className="space-y-4">
           {cart.filter(item => item.product).map(({ _id, color, size, product, quantity }) => (
             <div
               key={_id || `${product._id}-${color || 'default'}-${size || 'default'}`}
-              className="flex flex-col md:flex-row md:items-center bg-[#F8F5FD] border border-[#E0D6F2] p-4 rounded-xl shadow-sm gap-4"
+              className="flex flex-col md:flex-row md:items-center bg-white border border-[#E0D6F2] p-4 rounded-xl shadow-sm gap-4"
             >
               <img
                 src={product.image || null}
@@ -108,22 +123,24 @@ const CartPage = () => {
                 <h3 className="font-semibold text-lg text-[#333] cursor-pointer" onClick={() => handleProductClick(product._id)}>{product.title}</h3>
 
                 <div className="text-2xl font-bold text-[#7F55B1] flex items-center gap-3">
-                  {product.discount && product.discount > 0 && product.discount < 100 ? (
+                  {formatPrice(product.price) && product.discount && product.discount > 0 && product.discount < 100 ? (
                     <>
                       <span>
-                        ₹{getFinalPrice(product.price, product.discount).toLocaleString()}
+                        ₹{formatPrice(getFinalPrice(product.price, product.discount))}
                       </span>
 
                       <span className="text-gray-500 line-through text-lg font-medium">
-                        ₹{product.price.toLocaleString()}
+                        ₹{formatPrice(product.price)}
                       </span>
 
                       <span className="text-sm text-green-600 font-semibold">
                         ({product.discount}% OFF)
                       </span>
                     </>
+                  ) : formatPrice(product.price) ? (
+                    <>₹{formatPrice(product.price)}</>
                   ) : (
-                    <>₹{product.price.toLocaleString()}</>
+                    <span>-</span>
                   )}
                 </div>
 

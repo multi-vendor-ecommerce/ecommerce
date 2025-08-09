@@ -11,6 +11,7 @@ import ProductsByCategory from "./Product/ProductsByCategory";
 import ProductDetails from "./Product/ProductDetails";
 import CartPage from "./Cart/CartPage";
 import Checkout from "./Checkout/Checkout";
+import Profile from "../adminVendorCommon/settings/Profile";
 
 export default function User() {
 
@@ -24,7 +25,7 @@ export default function User() {
         <Route path="product/:id" element={<ProductDetails />} />
         <Route path="cart" element={<CartPage />} />
         <Route path="checkout" element={<Checkout />} />
-
+        <Route path="profile" element={<Profile />} />
       </Routes>
       {/* <UserFooter /> */}
     </>

@@ -4,3 +4,11 @@ export const getFinalPrice = (price, discount) => {
   }
   return price;
 };
+
+//safely format price or return null if invalid
+export const formatPrice = (price) => {
+  if (typeof price !== "number" || price <= 0) {
+    return null; 
+  }
+  return price.toLocaleString();
+};

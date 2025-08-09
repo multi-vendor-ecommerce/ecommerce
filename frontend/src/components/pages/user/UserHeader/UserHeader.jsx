@@ -64,6 +64,10 @@ function UserHeader() {
               Sign In
             </Link>
 
+            <Link to="profile" className="hover:text-user-primary text-md">
+              profile
+            </Link>
+
             <Link
               to="/cart"
               className="relative bg-purple-100 p-3 rounded-full hover:bg-purple-200 transition-colors"
