@@ -3,7 +3,7 @@ import UserContext from "../../../../context/user/UserContext";
 import { RenderCustomerRow } from "./RenderCustomerRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
-import Spinner from "../../../common/Spinner";
+import Loader from "../../../common/Loader";
 import FilterBar from "../../../common/FilterBar";
 import BackButton from "../../../common/layout/BackButton";
 
@@ -60,7 +60,7 @@ const Customers = ({}) => {
   if (loading && users.length === 0) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
-        <Spinner />
+        <Loader />
       </section>
     );
   }

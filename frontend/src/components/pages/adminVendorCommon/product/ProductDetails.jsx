@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { useParams, NavLink } from "react-router-dom";
 import ProductContext from "../../../../context/products/ProductContext";
-import Spinner from "../../../common/Spinner";
+import Loader from "../../../common/Loader";
 import StatGrid from "../../../common/helperComponents/StatGrid";
 import { FiEdit } from "react-icons/fi";
 import { getProfileCardData } from "./data/productStatCards";
@@ -27,7 +27,7 @@ const ProductDetails = ({ role = "admin" }) => {
   if (loading) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
-        <Spinner />
+        <Loader />
       </section>
     );
   }

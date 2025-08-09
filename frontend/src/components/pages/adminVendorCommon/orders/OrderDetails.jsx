@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { MdEmail, MdPhone } from "react-icons/md";
 import OrderContext from "../../../../context/orders/OrderContext";
-import Spinner from "../../../common/Spinner";
+import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 import { getOrderCardData } from "./data/ordersData";
 import StatGrid from "../../../common/helperComponents/StatGrid";
@@ -27,7 +27,7 @@ const OrderDetails = ({ role = "admin" }) => {
   if (loading) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
-        <Spinner />
+        <Loader />
       </section>
     );
   }

@@ -2,7 +2,7 @@ import { useEffect, useContext, useState } from "react";
 import VendorContext from "../../../../context/vendors/VendorContext";
 import { RenderVendorRow } from "./RenderVendorRow";
 import TabularData from "../../../common/layout/TabularData";
-import Spinner from "../../../common/Spinner";
+import Loader from "../../../common/Loader";
 import { vendorFilterFields } from "./data/vendorFilterFields";
 import FilterBar from "../../../common/FilterBar";
 import BackButton from "../../../common/layout/BackButton";
@@ -59,7 +59,7 @@ const VendorManagement = ({ heading }) => {
   if (loading && vendors.length === 0) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
-        <Spinner />
+        <Loader />
       </section>
     );
   }

@@ -1,9 +1,9 @@
-import LoaderGif from "../../assets/loader.gif";
+import SpinnerGif from "../../assets/spinner.gif";
 
 const Spinner = () => {
   return (
-    <div className="text-center my-3">
-      <img className="w-11" src={LoaderGif} alt="Loader" />
+    <div className="text-center">
+      <img className="w-13" src={SpinnerGif} alt="Spinner" />
     </div>
   )
 }
