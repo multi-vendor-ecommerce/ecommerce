@@ -23,6 +23,8 @@ const ProductDetails = () => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
+  console.log(`productDetails: color: ${selectedColor} and SelectedSize: ${selectedSize}`);
+
   const secretKey = import.meta.env.VITE_SECRET_KEY;
 
   // Decrypt product ID from URL
@@ -67,8 +69,8 @@ const ProductDetails = () => {
   const handleAddToCart = () => {
     validateAndAddToCart({
       product: productDetails,
-      selectedColor,
       selectedSize,
+      selectedColor,
       addToCart,
       setLoading: setIsLoading,
       onSuccess: (msg) => alert(msg),
@@ -147,7 +149,7 @@ const ProductDetails = () => {
               </p>
             )
           }
-          
+
           <div className="text-2xl font-bold text-[#7F55B1] flex items-center gap-3">
             {productDetails.discount && productDetails.discount > 0 && productDetails.discount < 100 ? (
               <>

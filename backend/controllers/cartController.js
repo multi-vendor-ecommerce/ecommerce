@@ -13,9 +13,11 @@ export const getCart = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const filteredCart = user.cart.map(({ _id, quantity, color, size, product }) => ({
+    const filteredCart = user.cart.map(({ _id, quantity, size, color, product }) => ({
       _id,
       quantity,
+      color,
+      size,
       product: {
         _id: product._id,
         title: product.title,

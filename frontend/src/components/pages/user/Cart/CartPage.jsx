@@ -1,7 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import CartContext from "../../../../context/cart/CartContext";
 import { useNavigate } from "react-router-dom";
-import Spinner from "../../../common/Spinner";
+// import Spinner from "../../../common/Spinner";
+import BackButton from "../../../common/layout/BackButton";
+import {
+  calculateCartTotal,
+  removeItemFromCart,
+  changeCartQuantity,
+} from "../Utils/cartHelpers";
 
 const CartPage = () => {
   const { cart, loading, getCart, removeFromCart, addToCart } = useContext(CartContext);
@@ -11,7 +17,6 @@ const CartPage = () => {
   const [removingId, setRemovingId] = useState(null);
   const token = localStorage.getItem("customerToken");
 
-  // Load cart on mount
   useEffect(() => {
     if (!token) {
       navigate("/login?redirect=/cart", { replace: true });
@@ -20,56 +25,29 @@ const CartPage = () => {
     }
   }, []);
 
-  // Calculate total from backend cart quantities directly
-  const calculateTotal = () => {
-    return cart.reduce((acc, item) => {
-      return acc + (item.product?.price || 0) * item.quantity;
-    }, 0).toFixed(2);
+  const handleRemove = (productId) => {
+    removeItemFromCart({
+      productId,
+      removeFromCart,
+      getCart,
+      setRemovingId,
+    });
   };
 
-  const handleRemove = async (productId) => {
-    setRemovingId(productId);
-    await removeFromCart(productId);
-    await getCart();
-    setRemovingId(null);
+  const handleQuantityChange = (productId, color, size, newQuantity, stock) => {
+    changeCartQuantity({
+      productId,
+      color,
+      size,
+      newQuantity,
+      stock,
+      cart,
+      addToCart,
+      getCart,
+      setUpdatingProductId,
+    });
   };
 
-  // Handle quantity update - calls addToCart with difference in quantity
-  const handleQuantityChange = async (productId, newQuantity, stock) => {
-    if (newQuantity < 1 || newQuantity > stock) {
-      return;
-    }
-
-    const currentItem = cart.find(item => item.product?._id === productId);
-    if (!currentItem) return;
-
-    const delta = newQuantity - currentItem.quantity;
-    if (delta === 0) return;
-
-    const { color, size } = currentItem; 
-    setUpdatingProductId(productId);
-
-    try {
-      const data = await addToCart(productId, delta, color, size);
-      if (!data.success) {
-        alert(`Failed to update quantity: ${data.message}`);
-      } else {
-        await getCart();
-      }
-    } catch (error) {
-      console.error("Error updating quantity:", error);
-      alert("Something went wrong while updating quantity.");
-    }
-    setUpdatingProductId(null);
-  };
-
-  // if (loading) {
-  //   return (
-  //     <section className="bg-gray-100 min-h-screen flex items-center justify-center">
-  //       <Spinner />
-  //     </section>
-  //   );
-  // }
 
   if (!cart.length)
     return (
@@ -86,22 +64,15 @@ const CartPage = () => {
     );
 
   return (
-
     <div className="bg-[#F3F0FA] min-h-screen">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl">
-        <button
-          onClick={() => navigate("/")}
-          className="inline-block text-lg text-gray-500 hover:text-[#7F55B1] transition hover:underline my-3"
-        >
-          ← Back to Products
-        </button>
+       <BackButton />
         <h2 className="text-xl sm:text-2xl font-semibold text-[#7F55B1] mb-4 sm:mb-6">
           Your Shopping Cart
         </h2>
 
-
         <div className="space-y-6">
-          {cart.filter(item => item.product).map(({_id, color, size, product, quantity }) => (
+          {cart.filter(item => item.product).map(({ _id, color, size, product, quantity }) => (
             <div
               key={_id || `${product._id}-${color || 'default'}-${size || 'default'}`}
               className="flex flex-col md:flex-row md:items-center bg-[#F8F5FD] border border-[#E0D6F2] p-4 rounded-xl shadow-sm gap-4"
@@ -120,6 +91,11 @@ const CartPage = () => {
                 <p className="text-sm text-gray-500 mt-1">
                   {product.stock > 0 ? `In stock: ${product.stock}` : "Out of stock"}
                 </p>
+
+                <p className="text-sm text-gray-500 mt-1">
+                  Size: {size ? size : "N/A"} | Color: {color ? color : "N/A"}
+                </p>
+
                 {product.freeDelivery && (
                   <p className="text-green-600 font-medium mt-1">Free Delivery</p>
                 )}
@@ -129,7 +105,7 @@ const CartPage = () => {
                 <div className="flex items-center border rounded overflow-hidden">
                   <button
                     onClick={() =>
-                      handleQuantityChange(product._id, quantity - 1, product.stock)
+                      handleQuantityChange(product._id, color, size, quantity - 1, product.stock)
                     }
                     className="px-3 py-1 bg-[#EDE3F9] hover:bg-[#D7C2F0] text-[#7F55B1]"
                     disabled={quantity <= 1 || updatingProductId === product._id}
@@ -142,14 +118,14 @@ const CartPage = () => {
                     max={product.stock}
                     value={quantity}
                     onChange={(e) =>
-                      handleQuantityChange(product._id, Number(e.target.value), product.stock)
+                      handleQuantityChange(product._id, color, size, Number(e.target.value), product.stock)
                     }
                     className="w-12 text-center border-l border-r focus:outline-none bg-white"
                     disabled={updatingProductId === product._id}
                   />
                   <button
                     onClick={() =>
-                      handleQuantityChange(product._id, quantity + 1, product.stock)
+                      handleQuantityChange(product._id, color, size, quantity + 1, product.stock)
                     }
                     className="px-3 py-1 bg-[#EDE3F9] hover:bg-[#D7C2F0] text-[#7F55B1]"
                     disabled={quantity >= product.stock || updatingProductId === product._id}
@@ -172,7 +148,7 @@ const CartPage = () => {
 
         <div className="mt-8 flex justify-between items-center space-x-6 border-t pt-4">
           <span className="text-xl font-semibold text-[#7F55B1]">
-            Total: ₹{calculateTotal()}
+            Total: ₹{calculateCartTotal(cart)}
           </span>
           <button
             onClick={() => navigate("/checkout")}
