@@ -44,11 +44,17 @@ export const editPerson = async (req, res) => {
 
     for (const field of allowedFields) {
       const keys = field.split(".");
-      let value = req.body;
 
+      // Check nested form
+      let value = req.body;
       for (const key of keys) {
         value = value?.[key];
         if (value === undefined) break;
+      }
+
+      // If nested value not found, check flattened field name
+      if (value === undefined && req.body[field] !== undefined) {
+        value = req.body[field];
       }
 
       if (value !== undefined) {
@@ -62,7 +68,7 @@ export const editPerson = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    res.status(200).json({ success: true, updatedPerson, message: `${req.person.role}'s profile updated successfully.` });
+    res.status(200).json({ success: true, updatedPerson, message: "Profile updated successfully." });
   } catch (err) {
     console.error("Edit Person Error:", err);
     res.status(500).json({ success: false, message: "Server error while updating profile", error: err.message });

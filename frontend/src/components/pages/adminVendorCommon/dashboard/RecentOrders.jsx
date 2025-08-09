@@ -4,7 +4,7 @@ import OrderContext from "../../../../context/orders/OrderContext";
 import TabularData from "../../../common/layout/TabularData";
 import { RenderOrderRow } from "../../adminVendorCommon/orders/RenderOrderRow";
 import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
-import Spinner from "../../../common/Spinner";
+import Loader from "../../../common/Loader";
 import StatusChip from "../../../common/helperComponents/StatusChip";
 
 const RecentOrders = () => {
@@ -16,7 +16,7 @@ const RecentOrders = () => {
   return (
     <section className="bg-white p-6 rounded-2xl shadow-md">
       {loading ? (
-        <div className="flex justify-center"><Spinner /></div>
+        <div className="flex justify-center"><Loader /></div>
       ) : (
         <>
           <div className="min-h-16 flex justify-between items-center mb-5">

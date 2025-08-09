@@ -18,7 +18,7 @@ import { getVendorCardData } from "./data/vendorProfileCards";
 import { RenderOrderRow } from "../../adminVendorCommon/orders/RenderOrderRow";
 import StatGrid from "../../../common/helperComponents/StatGrid";
 import { getFormatDate } from "../../../../utils/formatDate";
-import Spinner from "../../../common/Spinner";
+import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 
 const VendorProfile = () => {
@@ -66,7 +66,7 @@ const VendorProfile = () => {
   if (loading) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
-        <Spinner />
+        <Loader />
       </section>
     );
   }

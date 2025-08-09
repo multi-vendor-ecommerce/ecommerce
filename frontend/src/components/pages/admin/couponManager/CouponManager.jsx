@@ -4,7 +4,7 @@ import AddCoupon from "./AddCoupon";
 import CouponContext from "../../../../context/coupons/CouponContext";
 import { getFormatDate } from "../../../../utils/formatDate";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
-import Spinner from "../../../common/Spinner";
+import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 
 export default function CouponsManager() {
@@ -108,7 +108,7 @@ export default function CouponsManager() {
 
       {/* Loading or No Coupons */}
       {loading ? (
-        <div className="flex justify-center pt-10 mt-6"><Spinner /></div>
+        <div className="flex justify-center pt-10 mt-6"><Loader /></div>
       ) : coupons.length === 0 ? (
         <p className="text-gray-500 mt-6">No coupons available.</p>
       ) : (

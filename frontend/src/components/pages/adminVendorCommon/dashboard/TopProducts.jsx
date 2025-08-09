@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import ProductContext from "../../../../context/products/ProductContext";
 import TabularData from "../../../common/layout/TabularData";
 import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
-import Spinner from "../../../common/Spinner";
+import Loader from "../../../common/Loader";
 import { RenderProductRow } from "../../adminVendorCommon/product/RenderProductRow";
 
 const TopProducts = () => {
@@ -32,7 +32,9 @@ const TopProducts = () => {
   return (
     <section className="bg-white p-6 rounded-2xl shadow-md transition duration-300">
       {loading ? (
-        <div className="flex justify-center"><Spinner /></div>
+        <div className="flex justify-center">
+          <Loader />
+        </div>
       ) : (
         <div>
           {/* Title + View All */}

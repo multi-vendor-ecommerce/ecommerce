@@ -3,7 +3,7 @@ import ProductContext from "../../../../context/products/ProductContext";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
 import { RenderProductRow } from "./RenderProductRow";
-import Spinner from "../../../common/Spinner";
+import Loader from "../../../common/Loader";
 import FilterBar from "../../../common/FilterBar";
 import { productFilterFields } from "./data/productFilterFields";
 import BackButton from "../../../common/layout/BackButton";
@@ -93,7 +93,7 @@ export default function Products({ heading, role = "admin" }) {
   if (loading && products.length === 0) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
-        <Spinner />
+        <Loader />
       </section>
     );
   }

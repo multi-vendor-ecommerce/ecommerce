@@ -6,7 +6,7 @@ import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
 import BackButton from "../../../common/layout/BackButton";
 import OrderContext from "../../../../context/orders/OrderContext";
-import Spinner from "../../../common/Spinner";
+import Loader from "../../../common/Loader";
 import FilterBar from "../../../common/FilterBar";
 
 export default function Orders({ role = "admin" }) {
@@ -76,7 +76,7 @@ export default function Orders({ role = "admin" }) {
       {/* Table + Pagination */}
       {loading ? (
         <div className="flex justify-center items-center min-h-[300px]">
-          <Spinner />
+          <Loader />
         </div>
       ) : (
         <PaginatedLayout
