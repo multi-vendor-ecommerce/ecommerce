@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import ProductContext from "../../../../context/products/ProductContext";
 import CartContext from "../../../../context/cart/CartContext";
 import Spinner from "../../../common/Spinner";
@@ -23,7 +23,7 @@ const ProductDetails = () => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
 
-  console.log(`productDetails: color: ${selectedColor} and SelectedSize: ${selectedSize}`);
+  const lastAddClickTime = useRef(0);
 
   const secretKey = import.meta.env.VITE_SECRET_KEY;
 
@@ -67,6 +67,11 @@ const ProductDetails = () => {
 
   // Handle Add to Cart with validation for color & size
   const handleAddToCart = () => {
+    const now = Date.now();
+    if (now - lastAddClickTime.current < 500) {
+      return;
+    }
+    lastAddClickTime.current = now;
     validateAndAddToCart({
       product: productDetails,
       selectedSize,

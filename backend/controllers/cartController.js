@@ -6,7 +6,7 @@ export const getCart = async (req, res) => {
   try {
     const user = await User.findById(req.person.id).populate({
       path: "cart.product",
-      select: "_id title images price stock freeDelivery",
+      select: "_id title images price discount stock freeDelivery",
     });
 
     if (!user) {
@@ -21,8 +21,9 @@ export const getCart = async (req, res) => {
       product: {
         _id: product._id,
         title: product.title,
-        images: product.images,
+        image: product.images[0] || null,
         price: product.price,
+        discount: product.discount,
         stock: product.stock,
         freeDelivery: product.freeDelivery,
       },

@@ -11,8 +11,6 @@ export const validateAndAddToCart = async ({
   const colorToUse = selectedColor || (product.colors?.[0] ?? null);
   const sizeToUse = selectedSize || (product.sizes?.[0] ?? null);
 
-  console.log(`colorToUse: ${colorToUse} sizeToUse: ${selectedSize}`);
-
   if (product.colors?.length > 0 && !colorToUse) {
     return onError?.("Please select a color.");
   }
