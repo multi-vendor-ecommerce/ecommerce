@@ -102,16 +102,17 @@ export const addToCart = async (req, res) => {
 // Remove from Cart
 export const removeFromCart = async (req, res) => {
   const userId = req.person.id;
-  const { productId } = req.params;
+  const { cartItemId } = req.params;
 
   try {
     const user = await User.findById(userId);
     const originalLength = user.cart.length;
 
-    user.cart = user.cart.filter(item => item.product.toString() !== productId);
+    // Remove only the matching cart entry
+    user.cart = user.cart.filter(item => item._id.toString() !== cartItemId);
 
     if (user.cart.length === originalLength) {
-      return res.status(404).json({ success: false, message: "Product not found in cart" });
+      return res.status(404).json({ success: false, message: "Cart item not found" });
     }
 
     await user.save();

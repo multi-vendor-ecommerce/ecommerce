@@ -64,16 +64,18 @@ export default function ProductGrid({ products, secretKey }) {
                 <span className="text-2xl font-bold text-[#7F55B1]">
                   ₹{getFinalPrice(product.price, product.discount).toLocaleString()}
                 </span>
-                {product.discount && product.discount > 0 && product.discount < 100 && (
-                  <div className="text-sm text-gray-500 font-medium">
-                    <span className="line-through mr-2">
-                      ₹{product.price.toLocaleString()}
-                    </span>
-                    <span className="text-green-600 font-semibold">
-                      ({product.discount}% OFF)
-                    </span>
-                  </div>
-                )}
+                {typeof product.discount === "number" &&
+                  product.discount > 0 &&
+                  product.discount < 100 && (
+                    <div className="text-sm text-gray-500 font-medium">
+                      <span className="line-through mr-2">
+                        ₹{product.price.toLocaleString()}
+                      </span>
+                      <span className="text-green-600 font-semibold">
+                        ({product.discount}% OFF)
+                      </span>
+                    </div>
+                  )}
               </div>
 
               <div className="flex items-center text-yellow-600 font-medium text-sm sm:text-base">

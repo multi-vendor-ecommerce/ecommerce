@@ -31,13 +31,11 @@ const CartPage = () => {
     }
   }, []);
 
-  const handleRemove = (productId) => {
-    removeItemFromCart({
-      productId,
-      removeFromCart,
-      getCart,
-      setRemovingId,
-    });
+  const handleRemove = async (cartItemId) => {
+    setRemovingId(cartItemId);
+    await removeFromCart(cartItemId);
+    await getCart();
+    setRemovingId(null);
   };
 
   const handleQuantityChange = (productId, color, size, newQuantity, stock) => {
@@ -182,12 +180,13 @@ const CartPage = () => {
                 </div>
 
                 <button
-                  onClick={() => handleRemove(product._id)}
+                  onClick={() => handleRemove(_id)} // use cart item _id from outer map
                   className="text-red-600 hover:underline text-sm"
-                  disabled={removingId === product._id}
+                  disabled={removingId === _id}
                 >
-                  {removingId === product._id ? "Removing..." : "Remove"}
+                  {removingId === _id ? "Removing..." : "Remove"}
                 </button>
+
               </div>
             </div>
           ))}

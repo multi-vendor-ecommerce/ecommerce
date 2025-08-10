@@ -41,13 +41,13 @@ export const calculateCartTotal = (cart) => {
 
 // Remove an item from cart
 export const removeItemFromCart = async ({
-  productId,
+  cartItemId,
   removeFromCart,
   getCart,
   setRemovingId,
 }) => {
-  setRemovingId(productId);
-  await removeFromCart(productId);
+  setRemovingId(cartItemId);
+  await removeFromCart(cartItemId);
   await getCart();
   setRemovingId(null);
 };

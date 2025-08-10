@@ -12,7 +12,7 @@ router.get('/', verifyToken, authorizeRoles("customer"), getCart);
 router.post('/', verifyToken, authorizeRoles("customer"), addToCart);
 
 // Remove item by productId using route param
-router.delete('/:productId', verifyToken, authorizeRoles("customer"), removeFromCart);
+router.delete('/:cartItemId', verifyToken, authorizeRoles("customer"), removeFromCart);
 
 
 export default router;

@@ -30,7 +30,7 @@ const CartState = ({ children }) => {
   // + , - , Add item to cart
   const addToCart = async (productId, quantity, color, size) => {
     const token = localStorage.getItem("customerToken");
-    
+
     if (!token) {
       console.warn("User not logged in");
       return { success: false, message: "User not logged in" };
@@ -70,9 +70,9 @@ const CartState = ({ children }) => {
   };
 
   // Removing item from cart
-  const removeFromCart = async (productId) => {
+  const removeFromCart = async (cartItemId) => {
     try {
-      const res = await fetch(`${host}/api/cart/${productId}`, {
+      const res = await fetch(`${host}/api/cart/${cartItemId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -83,13 +83,13 @@ const CartState = ({ children }) => {
       if (data.success) {
         setCart(data.cart);
       }
-
     } catch (error) {
       console.error("Error removing from cart:", error);
     } finally {
       setLoading(false);
     }
-  }
+  };
+
 
   // clear all cart items (this function is not defined in the backend yet, but can be added if needed)
   const clearCart = async () => {
