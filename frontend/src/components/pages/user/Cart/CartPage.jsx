@@ -85,14 +85,14 @@ const CartPage = () => {
     );
   }
 
-  return (
-    <div className="text-center p-6 text-lg">
-      <p>Your Cart is empty </p>
-      <NavLink to="/">
-        Go to Shop Now
-      </NavLink>
-    </div>
-  );
+  // return (
+  //   <div className="text-center p-6 text-lg">
+  //     <p>Your Cart is empty </p>
+  //     <NavLink to="/">
+  //       Go to Shop Now
+  //     </NavLink>
+  //   </div>
+  // );
 
   return (
     <div className="bg-[#F3F0FA] min-h-screen">
@@ -149,7 +149,7 @@ const CartPage = () => {
                 </p>
 
                 <p className="text-sm text-gray-500 mt-1">
-                  Size: {size ? size : "N/A"} | Color: {color ? color : "N/A"}
+                  Size: {size ? size : "Free Size"} | Color: {color ? color : "N/A"}
                 </p>
 
                 {product.freeDelivery && (
