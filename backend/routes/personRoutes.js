@@ -6,7 +6,7 @@ import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 
 // Controllers
-import { getCurrentPerson, editPerson } from "../controllers/personController.js";
+import { getCurrentPerson, editPerson, deletePerson } from "../controllers/personController.js";
 
 const router = express.Router();
 
@@ -40,8 +40,12 @@ export const editPersonValidator = [
 // Desc: Fetch single person details (by token)
 router.get('/me', verifyToken, authorizeRoles("customer", "vendor", "admin"), getCurrentPerson);
 
-// ROUTE 1: PUT /api/person/me
+// ROUTE 1: PUT /api/person/edit/me
 // Desc: Edit single person details (by token)
 router.put('/edit/me', verifyToken, authorizeRoles("customer", "vendor", "admin"), upload.single("profileImage"), editPersonValidator, validate, editPerson);
+
+// ROUTE 1: DELETE /api/person/me
+// Desc: Edit single person details (by token)
+router.delete('/me', verifyToken, authorizeRoles("customer", "vendor", "admin"), deletePerson);
 
 export default router;

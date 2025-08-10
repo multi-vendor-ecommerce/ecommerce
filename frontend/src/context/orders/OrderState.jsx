@@ -19,13 +19,22 @@ const OrderState = ({ children }) => {
     else return { role: "customer" };
   };
 
-  // 🔵 Fetch orders (admin or vendor)
-  const getAllOrders = async ({ search = "", status = "", page = 1, limit = 10 } = {}) => {
+  const getAllOrders = async ({
+    search = "",
+    status = "",
+    vendorId = "",  // new param
+    page = 1,
+    limit = 10,
+  } = {}) => {
     const { role } = getRoleInfo();
 
     const params = new URLSearchParams({ page, limit });
+
     if (search.trim()) params.append("search", search);
     if ((role === "admin" || role === "vendor") && status) params.append("status", status);
+
+    // Append vendorId only if admin and vendorId passed
+    if (role === "admin" && vendorId) params.append("vendorId", vendorId);
 
     const endpoint = role === "admin" ? "admin" : "vendor";
     const url = `${host}/api/orders/${endpoint}?${params.toString()}`;

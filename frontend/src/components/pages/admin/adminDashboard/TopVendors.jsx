@@ -4,7 +4,7 @@ import { NavLink } from "react-router-dom";
 import TabularData from "../../../common/layout/TabularData";
 import { RenderVendorRow } from "../adminVendor/RenderVendorRow";
 import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
-import Spinner from "../../../common/Spinner";
+import Loader from "../../../common/Loader";
 
 const TopVendors = () => {
   const { vendors, loading } = useContext(VendorContext);
@@ -17,7 +17,7 @@ const TopVendors = () => {
     <section className="bg-white p-6 rounded-2xl shadow-md">
       {loading ?
         <div className="flex justify-center">
-          <Spinner />
+          <Loader />
         </div>
         :
         <div>

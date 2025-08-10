@@ -74,3 +74,25 @@ export const editPerson = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error while updating profile", error: err.message });
   }
 };
+
+// Controller: deletePerson
+export const deletePerson = async (req, res) => {
+  try {
+    // req.person contains the logged-in user's data from verifyToken middleware
+    if (req.person.role === "admin") {
+      return res.status(403).json({ success: false, message: "Admin account deletion not allowed here." });
+    }
+
+    // Assuming you have a User/Person model
+    const deleted = await Person.findByIdAndDelete(req.person._id);
+
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: "Person not found or already deleted" });
+    }
+
+    res.status(200).json({ success: true, message: "User account deleted successfully." });
+  } catch (err) {
+    console.error("Error deleting person:", err);
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
