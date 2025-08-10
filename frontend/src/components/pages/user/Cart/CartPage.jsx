@@ -85,15 +85,6 @@ const CartPage = () => {
     );
   }
 
-  // return (
-  //   <div className="text-center p-6 text-lg">
-  //     <p>Your Cart is empty </p>
-  //     <NavLink to="/">
-  //       Go to Shop Now
-  //     </NavLink>
-  //   </div>
-  // );
-
   return (
     <div className="bg-[#F3F0FA] min-h-screen">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl">
