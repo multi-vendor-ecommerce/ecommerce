@@ -24,7 +24,7 @@ import BackButton from "../../../common/layout/BackButton";
 const VendorProfile = () => {
   const { vendorId } = useParams();
   const { getVendorById, loading } = useContext(VendorContext);
-  const { vendorOrders, getVendorOrders } = useContext(OrderContext);
+  const { orders, getAllOrders } = useContext(OrderContext);
   const [vendor, setVendor] = useState(null);
 
   // 1. Fetch vendor
@@ -39,15 +39,17 @@ const VendorProfile = () => {
   // 2. Fetch vendor orders *after* vendor state is set
   useEffect(() => {
     if (vendor?._id) {
-      getVendorOrders(); // no await needed unless you need result here
+      // Pass vendorId to filter orders by this vendor (works if admin)
+      getAllOrders({ vendorId: vendor._id });
     }
-  }, [vendor]);
+  }, [vendor, getAllOrders]);
 
+  // ... rest remains the same
   const monthlyData = useMemo(() => {
-    if (!vendorOrders.length) return [];
+    if (!orders.length) return [];
 
     const map = {};
-    vendorOrders.forEach((o) => {
+    orders.forEach((o) => {
       const d = new Date(o.date);
       const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
       map[key] = (map[key] || 0) + o.products.reduce((sum, p) => sum + p.price * p.qty, 0);
@@ -61,7 +63,7 @@ const VendorProfile = () => {
         const formattedMonth = getFormatDate(`${year}-${month}-01`).split(" ").slice(1).join(" ");
         return { month: formattedMonth, Sales: v };
       });
-  }, [vendorOrders]);
+  }, [orders]);
 
   if (loading) {
     return (
@@ -129,7 +131,7 @@ const VendorProfile = () => {
       <div className="overflow-hidden bg-white shadow-md hover:shadow-blue-500 transition duration-200 rounded-xl border border-gray-200">
         <TabularData
           headers={["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Status", "Actions"]}
-          data={vendorOrders}
+          data={orders}
           renderRow={(o, i) => RenderOrderRow(o, i, StatusChip)}
           emptyMessage="No orders found."
           widthClass="w-full"

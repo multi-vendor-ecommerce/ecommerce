@@ -1,17 +1,20 @@
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PersonContext from "../../../../context/person/PersonContext";
 import BackButton from "../../../common/layout/BackButton";
 import InputField from "../../../common/InputField";
 import { profileSections } from "./data/profileFields";
-import { FiEdit, FiCheck, FiX } from "react-icons/fi";
+import { FiEdit, FiCheck, FiX, FiTrash2 } from "react-icons/fi";
 import Loader from "../../../common/Loader";
 import useProfileUpdate from "../../../../hooks/useProfileUpdate";
 
 const Profile = () => {
-  const { person, editPerson, getCurrentPerson } = useContext(PersonContext);
+  const { person, editPerson, getCurrentPerson, deletePerson } = useContext(PersonContext);
   const [editing, setEditing] = useState(false);
+  const navigate = useNavigate();
 
-  const { form, setForm, handleChange, handleSave, isLoading, setImageFile } = useProfileUpdate(person, editPerson, setEditing, getCurrentPerson);
+  const { form, setForm, handleChange, handleSave, isLoading, setImageFile } =
+    useProfileUpdate(person, editPerson, setEditing, getCurrentPerson);
 
   useEffect(() => {
     getCurrentPerson();
@@ -24,6 +27,22 @@ const Profile = () => {
       </section>
     );
   }
+
+  // Only show delete if NOT admin
+  const showDelete = person?.role !== "admin";
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      const res = await deletePerson(); // res is already JSON parsed object
+      if (res.success) {
+        alert(res.message);
+        // Redirect after successful deletion
+        navigate(`/login/${person.role}`, { replace: true });
+      } else {
+        alert(res.message);
+      }
+    }
+  };
 
   return (
     <div className="p-6 min-h-screen bg-gray-50">
@@ -89,7 +108,7 @@ const Profile = () => {
                   className="absolute inset-0 opacity-0 cursor-pointer"
                   title="Upload Profile Image"
                 />
-                <span className="text-gray-500 text-sm px-2">Click to add image</span>
+                <span className="text-gray-500 text-sm text-center px-2">Click to add image</span>
               </>
             ) : (
               <span className="text-gray-600">No Image</span>
@@ -138,6 +157,19 @@ const Profile = () => {
           ))}
         </div>
       </div>
+
+      {/* Delete Account Button */}
+      {showDelete && (
+        <div className="mt-8">
+          <button
+            onClick={handleDelete}
+            className="flex items-center gap-2 px-4 py-3 border border-red-600 text-red-600 font-semibold rounded-lg hover:bg-red-600 hover:text-white transition cursor-pointer"
+          >
+            <FiTrash2 size={20} />
+            Delete Account
+          </button>
+        </div>
+      )}
     </div>
   );
 };

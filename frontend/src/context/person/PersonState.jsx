@@ -53,44 +53,88 @@ const PersonState = (props) => {
   };
 
   const editPerson = async (formData) => {
-  const { role } = getRoleInfo();
+    const { role } = getRoleInfo();
 
-  try {
-    setLoading(true);
-    if (!role) {
-      console.warn("No valid role or token.");
-      return { success: false, message: "Unauthorized" };
+    try {
+      setLoading(true);
+      if (!role) {
+        console.warn("No valid role or token.");
+        return { success: false, message: "Unauthorized" };
+      }
+
+      const headers = {};
+      if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
+      else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
+      else headers["auth-token"] = localStorage.getItem("customerToken");
+
+      const response = await fetch(`${host}/api/person/edit/me`, {
+        method: "PUT",
+        headers, // don't set Content-Type manually
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setPerson(data.updatedPerson);
+        return { success: true, message: data.message };
+      } else {
+        return { success: false, message: data.message || "Failed to update profile." };
+      }
+    } catch (error) {
+      console.error("Error updating person:", error);
+      return { success: false, message: "Server error" };
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const headers = {};
-    if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
-    else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
-    else headers["auth-token"] = localStorage.getItem("customerToken");
+  // New deletePerson function
+  const deletePerson = async () => {
+    const { role } = getRoleInfo();
 
-    const response = await fetch(`${host}/api/person/edit/me`, {
-      method: "PUT",
-      headers, // don't set Content-Type manually
-      body: formData,
-    });
+    try {
+      setLoading(true);
+      if (!role) {
+        console.warn("No valid role or token.");
+        return { success: false, message: "Unauthorized" };
+      }
 
-    const data = await response.json();
+      if (role === "admin") {
+        return { success: false, message: "Admin account deletion not allowed here." };
+      }
 
-    if (data.success) {
-      setPerson(data.updatedPerson);
-      return { success: true, message: data.message };
-    } else {
-      return { success: false, message: data.message || "Failed to update profile." };
+      const headers = {};;
+      if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
+      else if (role === "customer") headers["auth-token"] = localStorage.getItem("customerToken");
+
+      const response = await fetch(`${host}/api/person/me`, {
+        method: "DELETE",
+        headers,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setPerson(null);
+        // Optionally clear tokens from localStorage after deletion
+        if (role === "vendor") localStorage.removeItem("vendorToken");
+        else if (role === "customer") localStorage.removeItem("customerToken");
+
+        return { success: true, message: data.message || "Account deleted successfully." };
+      } else {
+        return { success: false, message: data.message || "Failed to delete account." };
+      }
+    } catch (error) {
+      console.error("Error deleting person:", error);
+      return { success: false, message: "Server error" };
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error updating person:", error);
-    return { success: false, message: "Server error" };
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
-    <PersonContext.Provider value={{ person, loading, getCurrentPerson, editPerson }}>
+    <PersonContext.Provider value={{ person, loading, getCurrentPerson, editPerson, deletePerson }}>
       {props.children}
     </PersonContext.Provider>
   )

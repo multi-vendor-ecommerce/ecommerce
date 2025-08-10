@@ -27,12 +27,12 @@ export const placeOrder = async (req, res) => {
         name: item.product.title,
         price: item.product.price,
         quantity: item.quantity,
-        image: item.product.image, 
+        image: item.product.image,
         product: item.product._id,
       }));
 
       const itemPrice = orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-      const tax = itemPrice * 0.18; 
+      const tax = itemPrice * 0.18;
       const shippingCharges = itemPrice > 500 ? 0 : 50;
       const totalAmount = itemPrice + tax + shippingCharges;
 
@@ -88,8 +88,9 @@ export const getAllOrders = async (req, res) => {
 
     const query = buildQuery(req.query, ["status", "paymentStatus", "orderId"]);
 
-    // 🟢 If vendor, only fetch their own orders
-    if (isVendor) {
+    if (isAdmin && req.query.vendorId) {
+      query.vendor = req.query.vendorId;
+    } else if (isVendor) {
       query.vendor = req.person._id;
     }
 
