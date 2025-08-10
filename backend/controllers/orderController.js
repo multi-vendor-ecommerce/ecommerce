@@ -12,8 +12,13 @@ export const placeOrder = async (req, res) => {
     }
 
     const ordersByVendor = {};
+
+    // Group cart items by vendor (createdBy)
     user.cart.forEach(item => {
-      const vendorId = item.product.vendorId.toString();
+      const vendorId = item.product?.createdBy?.toString();
+      if (!vendorId) {
+        throw new Error(`Product ${item.product?._id} has no vendor (createdBy)`);
+      }
       if (!ordersByVendor[vendorId]) ordersByVendor[vendorId] = [];
       ordersByVendor[vendorId].push(item);
     });
@@ -27,13 +32,27 @@ export const placeOrder = async (req, res) => {
         name: item.product.title,
         price: item.product.price,
         quantity: item.quantity,
-        image: item.product.image,
+        image: Array.isArray(item.product.images) ? item.product.images[0] : item.product.image,
         product: item.product._id,
       }));
 
-      const itemPrice = orderItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-      const tax = itemPrice * 0.18;
-      const shippingCharges = itemPrice > 500 ? 0 : 50;
+      // Calculate totals per vendor
+      let itemPrice = 0;
+      let tax = 0;
+      let shippingCharges = 0;
+
+      cartItems.forEach(item => {
+        const productPrice = item.product.price * item.quantity;
+        itemPrice += productPrice;
+
+        const gstRate = item.product.gstRate ? item.product.gstRate / 100 : 0;
+        tax += productPrice * gstRate;
+
+        if (!item.product.freeDelivery) {
+          shippingCharges += 50; 
+        }
+      });
+
       const totalAmount = itemPrice + tax + shippingCharges;
 
       const order = await Order.create({
@@ -55,15 +74,21 @@ export const placeOrder = async (req, res) => {
       createdOrders.push(order);
     }
 
+    // Clear cart
     user.cart = [];
     await user.save();
 
-    res.status(201).json({ success: true, message: "Order placed successfully", orders: createdOrders });
+    res.status(201).json({
+      success: true,
+      message: "Order placed successfully",
+      orders: createdOrders,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Server Error", error: err.message });
   }
 };
+
 
 export const getUserOrders = async (req, res) => {
   try {

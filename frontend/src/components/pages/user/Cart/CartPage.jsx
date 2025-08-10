@@ -197,7 +197,7 @@ const CartPage = () => {
             Total: ₹{calculateCartTotal(cart)}
           </span>
           <button
-            onClick={() => navigate("/checkout")}
+            onClick={() => navigate("/checkout", { state: { cart } })}
             className="bg-[#7F55B1] hover:bg-[#6b3fa5] text-white px-6 py-2 rounded-lg shadow"
           >
             Proceed to Checkout

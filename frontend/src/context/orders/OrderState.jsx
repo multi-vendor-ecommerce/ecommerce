@@ -113,22 +113,22 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // 🔵 Place new order (user)
+  //  Place new order (user)
   const placeOrder = async (orderData) => {
     try {
       setLoading(true);
-      const res = await fetch(`${host}/api/order`, {
+      const res = await fetch(`${host}/api/orders/place-order`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("adminToken"),
+          "auth-token": localStorage.getItem("customerToken"),
         },
         body: JSON.stringify(orderData),
       });
 
       const data = await res.json();
       if (data.success) {
-        getMyOrders(); // Refresh user orders
+        getMyOrders(); 
         return { success: true, message: "Order placed successfully" };
       } else {
         return { success: false, message: data.message || "Failed to place order" };

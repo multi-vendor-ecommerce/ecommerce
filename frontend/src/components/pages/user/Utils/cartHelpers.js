@@ -1,3 +1,5 @@
+import { getFinalPrice } from "./priceUtils";
+
 // Add product to cart with validation
 export const validateAndAddToCart = async ({
   product,
@@ -35,9 +37,13 @@ export const validateAndAddToCart = async ({
 // Calculate total price from cart array
 export const calculateCartTotal = (cart) => {
   return cart.reduce((acc, item) => {
-    return acc + (item.product?.price || 0) * item.quantity;
+    const price = item.product?.price || 0;
+    const discount = item.product?.discount || 0;
+    const discountedPrice = price - (price * (discount / 100));
+    return acc + discountedPrice * item.quantity;
   }, 0).toFixed(2);
 };
+
 
 // Remove an item from cart
 export const removeItemFromCart = async ({
@@ -95,3 +101,25 @@ export const changeCartQuantity = async ({
   setUpdatingProductId(null);
 };
 
+export const calculateCheckoutTotals = (
+  cart,
+  taxRate = 0.18,      
+  shippingThreshold = 500,
+  shippingFee = 50
+) => {
+  const itemPrice = cart.reduce((acc, item) => {
+    const discountedPrice = getFinalPrice(item.product.price, item.product.discount);
+    return acc + discountedPrice * item.quantity;
+  }, 0);
+
+  const tax = itemPrice * taxRate;
+  const shippingCharges = itemPrice > shippingThreshold ? 0 : shippingFee;
+  const totalAmount = itemPrice + tax + shippingCharges;
+
+  return {
+    itemPrice: Number(itemPrice.toFixed(2)),
+    tax: Number(tax.toFixed(2)),
+    shippingCharges,
+    totalAmount: Number(totalAmount.toFixed(2)),
+  };
+};
