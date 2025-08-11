@@ -104,7 +104,7 @@ export default function Products({ heading, role = "admin" }) {
         <BackButton />
         <NavLink
           to={`/${role}/add-product`}
-          className="flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
+          className="flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-blue-600 font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
         >
           <FiPlus className="text-lg md:text-2xl" />
           <span className="hidden md:inline-block">Add Product</span>
