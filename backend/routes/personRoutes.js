@@ -6,13 +6,13 @@ import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 
 // Controllers
-import { getCurrentPerson, editPerson, deletePerson } from "../controllers/personController.js";
+import { getCurrentPerson, editPerson, deletePerson, changePassword } from "../controllers/personController.js";
 
 const router = express.Router();
 
 export const editPersonValidator = [
   body("name").optional().trim().escape().isLength({ min: 3 }).withMessage("Name must be at least 3 characters"),
-  
+
   body("profileImage").optional().trim().isURL().withMessage("Profile image must be a valid URL"),
 
   body("phone").optional().trim().isMobilePhone().withMessage("Phone must be valid"),
@@ -36,16 +36,27 @@ export const editPersonValidator = [
   body("address.geoLocation.lng").optional().isFloat().withMessage("Longitude must be a valid number"),
 ];
 
+export const changePasswordValidator = [
+  body("newPassword", "Password must be at least 8 characters").trim().isLength({ min: 8 })
+];
+
+// Common auth middleware
+const auth = [verifyToken, authorizeRoles("customer", "vendor", "admin")];
+
 // ROUTE 1: GET /api/person/me
 // Desc: Fetch single person details (by token)
-router.get('/me', verifyToken, authorizeRoles("customer", "vendor", "admin"), getCurrentPerson);
+router.get('/me', auth, getCurrentPerson);
 
-// ROUTE 1: PUT /api/person/edit/me
+// ROUTE 2: PUT /api/person/edit/me
 // Desc: Edit single person details (by token)
-router.put('/edit/me', verifyToken, authorizeRoles("customer", "vendor", "admin"), upload.single("profileImage"), editPersonValidator, validate, editPerson);
+router.put('/edit/me', auth, upload.single("profileImage"), editPersonValidator, validate, editPerson);
 
-// ROUTE 1: DELETE /api/person/me
-// Desc: Edit single person details (by token)
-router.delete('/me', verifyToken, authorizeRoles("customer", "vendor", "admin"), deletePerson);
+// ROUTE 3: DELETE /api/person/me
+// Desc: Delete person account (by token)
+router.delete('/me', auth, deletePerson);
+
+// ROUTE 4: PUT /api/person/change-password
+// Desc: Change password (by token)
+router.put('/change-password', auth, changePasswordValidator, validate, changePassword);
 
 export default router;

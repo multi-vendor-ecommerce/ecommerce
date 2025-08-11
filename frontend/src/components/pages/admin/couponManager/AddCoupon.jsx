@@ -1,3 +1,4 @@
+import Button from "../../../common/Button";
 import { inputFields } from "./data/addCouponInputFields";
 
 const AddCoupon = ({ form, errors, handleChange, handleAddCoupon }) => {
@@ -42,12 +43,7 @@ const AddCoupon = ({ form, errors, handleChange, handleAddCoupon }) => {
         ))}
       </div>
 
-      <button
-        onClick={handleAddCoupon}
-        className="mt-6 border-2 border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 px-6 py-2 rounded-lg transition cursor-pointer"
-      >
-        Add Coupon
-      </button>
+      <Button text="Add Coupon" className="mt-6 py-3 border-blue-500 text-blue-600" onClick={handleAddCoupon} />
     </div>
   );
 };

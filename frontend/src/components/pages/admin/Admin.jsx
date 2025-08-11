@@ -19,6 +19,7 @@ import AddProduct from "../adminVendorCommon/product/addProduct/AddProduct";
 import Orders from "../adminVendorCommon/orders/Orders";
 import OrderDetails from "../adminVendorCommon/orders/OrderDetails";
 import Profile from "../adminVendorCommon/settings/Profile";
+import Security from "../adminVendorCommon/settings/Security";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);
@@ -69,7 +70,10 @@ const Admin = () => {
             <Route path="vendor/profile/:vendorId" element={<VendorProfile />} />
 
             {/* Settings */}
-            <Route path="settings/profile" element={<Profile />} />
+            <Route path="settings/">
+              <Route path="profile" element={<Profile />} />
+              <Route path="security" element={<Security />} />
+            </Route>
 
             {/* Fallback route for unmatched paths */}
             <Route path="*" element={<NotFoundPage destination="/admin" />} />

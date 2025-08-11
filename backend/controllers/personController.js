@@ -1,4 +1,5 @@
 import Person from "../models/Person.js";
+import bcrypt from "bcryptjs";
 
 export const getCurrentPerson = async (req, res) => {
   try {
@@ -93,6 +94,59 @@ export const deletePerson = async (req, res) => {
     res.status(200).json({ success: true, message: "User account deleted successfully." });
   } catch (err) {
     console.error("Error deleting person:", err);
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
+
+// Controller: changePassword
+export const changePassword = async (req, res) => {
+  try {
+    let { currentPassword, newPassword, confirmPassword } = req.body;
+    currentPassword = currentPassword.trim();
+    confirmPassword = confirmPassword.trim();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ message: "New password must be different from the current one" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "New password and confirm password do not match" });
+    }
+
+    // Validate new password strength
+    const strongPasswordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{6,}$/;
+    if (!strongPasswordRegex.test(newPassword)) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must include letters, numbers, and at least one special character.",
+      });
+    }
+
+    // Find user
+    const person = await Person.findById(req.person.id);
+    if (!person) {
+      return res.status(404).json({ message: `${req.person.role} not found` });
+    }
+
+    // Check current password
+    if (!(await bcrypt.compare(currentPassword, person.password))) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    // Update password
+    await Person.findByIdAndUpdate(
+      req.person.id,
+      { password: await bcrypt.hash(newPassword, 10) },
+      { new: true }
+    );
+
+    res.status(200).json({ success: true, message: "Password updated successfully" });
+  } catch (err) {
+    console.error("Change password error:", err);
     res.status(500).json({ success: false, message: "Server error", error: err.message });
   }
 };

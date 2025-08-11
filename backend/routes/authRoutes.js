@@ -19,7 +19,7 @@ const registerValidator = [
 
   body("password", "Password must be at least 6 characters")
     .trim()
-    .isLength({ min: 6 }),
+    .isLength({ min: 8 }),
 
   body("phone", "Phone must be valid")
     .optional()

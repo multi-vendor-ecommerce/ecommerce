@@ -133,8 +133,45 @@ const PersonState = (props) => {
     }
   };
 
+  const changePassword = async (passwordData) => {
+    const { role } = getRoleInfo();
+
+    try {
+      setLoading(true);
+
+      if (!role) {
+        console.warn("No valid role or token.");
+        return { success: false, message: "Unauthorized" };
+      }
+
+      const headers = { "Content-Type": "application/json" };
+      if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
+      else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
+      else headers["auth-token"] = localStorage.getItem("customerToken");
+
+      const response = await fetch(`${host}/api/person/change-password`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(passwordData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        return { success: true, message: data.message || "Password updated successfully." };
+      } else {
+        return { success: false, message: data.message || "Failed to change password. Try again." };
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      return { success: false, message: "Server error" };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <PersonContext.Provider value={{ person, loading, getCurrentPerson, editPerson, deletePerson }}>
+    <PersonContext.Provider value={{ person, loading, getCurrentPerson, editPerson, deletePerson, changePassword }}>
       {props.children}
     </PersonContext.Provider>
   )

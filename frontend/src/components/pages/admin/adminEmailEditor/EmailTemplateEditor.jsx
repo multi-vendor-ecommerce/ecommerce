@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import BackButton from "../../../common/layout/BackButton";
+import Button from "../../../common/Button";
 
 const emailTemplatesDummy = {
   orderConfirmation: {
@@ -112,12 +113,7 @@ export default function EmailTemplateEditor() {
           </label>
         </div>
 
-        <button
-          onClick={handleSave}
-          className="mt-6 border-2 border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 px-6 py-2 rounded-lg transition cursor-pointer"
-        >
-          Save Template
-        </button>
+        <Button text="Save Template" className="mt-6 py-3 border-blue-500 text-blue-600" onClick={handleSave} />
       </div>
     </section>
   );
