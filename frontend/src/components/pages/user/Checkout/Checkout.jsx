@@ -12,22 +12,15 @@ const Checkout = () => {
   const cart = location.state?.cart || [];
 
   const { placeOrder, loading } = useContext(OrderContext);
-  const { getCurrentPerson } = useContext(PersonContext);
+  const { getCurrentPerson, person } = useContext(PersonContext);
 
-  const [person, setPerson] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchPerson = async () => {
       try {
-        const data = await getCurrentPerson();
-        console.log("Person fetch response:", data);
-        if (data.success) {
-          setPerson(data.person);
-        } else {
-          console.error("Failed to fetch person data");
-        }
+         await getCurrentPerson(); 
       } catch (error) {
         console.error("Error fetching person:", error);
       }
