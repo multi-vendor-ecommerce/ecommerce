@@ -31,7 +31,7 @@ const RecentOrders = () => {
 
           <div>
             <TabularData
-              headers={["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Status", "Actions"]}
+              headers={["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Amount", "Actions"]}
               data={ordersToShow}
               renderRow={(o, i) => RenderOrderRow(o, i, StatusChip)}
               emptyMessage="No orders found."

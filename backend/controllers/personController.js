@@ -83,8 +83,8 @@ export const deletePerson = async (req, res) => {
       return res.status(403).json({ success: false, message: "Admin account deletion not allowed here." });
     }
 
-    // Assuming you have a User/Person model
-    const deleted = await Person.findByIdAndDelete(req.person._id);
+    // Assuming you have a Person model
+    const deleted = await Person.findByIdAndDelete(req.person.id);
 
     if (!deleted) {
       return res.status(404).json({ success: false, message: "Person not found or already deleted" });

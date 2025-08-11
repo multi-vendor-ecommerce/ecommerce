@@ -9,13 +9,14 @@ import { getFormatDate } from "../../../../utils/formatDate";
  * @param {number} index - The index of the row.
  * @param {function} StatusChip - A component that renders the order status visually.
  */
+
 export const RenderOrderRow = (order, index, StatusChip, role = "admin") => (
   <tr
     key={index}
     className={`hover:bg-blue-50 hover:shadow-sm transition ${index !== 0 ? "border-t border-gray-200" : ""}`}
   >
     {/* Order ID */}
-    <td className="px-6 py-3 min-w-[120px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150">
+    <td className="px-6 py-3 min-w-[100px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150">
       <NavLink
         to={`/${role}/all-orders/order-details/${order._id}`}
         title="Order ID"
@@ -31,9 +32,9 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin") => (
 
     {/* Vendor Name */}
     {role !== "vendor" && (
-      <td className="px-6 py-3 min-w-[140px] hover:scale-105 hover:underline hover:font-semibold transition duration-150">
+      <td className="px-6 py-3 min-w-[180px] hover:scale-105 hover:underline hover:font-semibold transition duration-150">
         <NavLink
-          to={`/admin/vendor/profile/${order.vendor._id}`}
+          to={`/admin/vendor/profile/${order.vendor?._id}`}
           title="Vendor Name"
         >
           {order.vendor?.name || "Unassigned Vendor"}
@@ -41,15 +42,15 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin") => (
       </td>
     )}
 
-    {/* Total Products */}
-    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
-      {order.products?.[0]?.product?.title || "No Products"}
-      {order.products?.length > 1 && (
-        <span className="font-semibold"> +{order.products.length - 1} more</span>
+    {/* First Product Title */}
+    <td className="px-6 py-3 min-w-[300px] hover:scale-105 transition duration-150">
+      {order.orderItems?.[0]?.name || "No Products"}
+      {order.orderItems?.length > 1 && (
+        <span className="font-semibold"> +{order.orderItems.length - 1} more</span>
       )}
     </td>
 
-    {/* Mode of Delivery */}
+    {/* Payment Method */}
     <td className="px-6 py-3 min-w-[120px] hover:scale-105 transition duration-150">
       {order.paymentMethod}
     </td>
@@ -59,9 +60,14 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin") => (
       {getFormatDate(order.createdAt)}
     </td>
 
-    {/* Status */}
-    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
-      <StatusChip status={order.status} />
+    {/* Order Status */}
+    {/* <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
+      <StatusChip status={order.orderStatus} />
+    </td> */}
+
+    {/* Total Amount */}
+    <td className="px-6 py-3 min-w-[120px] font-semibold hover:scale-105 transition duration-150">
+      ₹{order.totalAmount}
     </td>
 
     {/* Actions */}

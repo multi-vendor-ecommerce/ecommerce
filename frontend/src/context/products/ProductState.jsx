@@ -80,7 +80,7 @@ const ProductState = ({ children }) => {
 
     let endpoint;
     if (role === "customer") endpoint = "/api/products/top-products";
-    else endpoint =  `/api/products/${role}/top-products`;
+    else endpoint = `/api/products/${role}/top-products`;
 
     const url = `${host}${endpoint}?${params}`;
     const data = await fetchProducts(url, role);

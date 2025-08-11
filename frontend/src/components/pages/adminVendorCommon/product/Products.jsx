@@ -8,7 +8,7 @@ import FilterBar from "../../../common/FilterBar";
 import { productFilterFields } from "./data/productFilterFields";
 import BackButton from "../../../common/layout/BackButton";
 import { NavLink } from "react-router-dom";
-import { FiBox, FiPlus, FiShoppingCart } from "react-icons/fi";
+import { FiPlus } from "react-icons/fi";
 
 export default function Products({ heading, role = "admin" }) {
   const { getAllProducts, getTopSellingProducts, loading } = useContext(ProductContext);
@@ -27,7 +27,7 @@ export default function Products({ heading, role = "admin" }) {
     } else {
       fetchPaginatedProducts(page, itemsPerPage);
     }
-  }, [page, itemsPerPage]);
+  }, [page, itemsPerPage, isTopSellingPage]);
 
   const fetchPaginatedProducts = async (pg = 1, limit = itemsPerPage) => {
     const result = await getAllProducts({ ...filters, page: pg, limit });
