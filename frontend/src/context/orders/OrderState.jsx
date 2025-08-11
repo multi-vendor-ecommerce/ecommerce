@@ -113,22 +113,49 @@ const OrderState = ({ children }) => {
     }
   };
 
-  //  Place new order (user)
   const placeOrder = async (orderData) => {
     try {
       setLoading(true);
+
+      // Check if auth token exists
+      const token = localStorage.getItem("customerToken");
+      if (!token) {
+        setLoading(false);
+        return { success: false, message: "User not authenticated. Please login." };
+      }
+
       const res = await fetch(`${host}/api/orders/place-order`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("customerToken"),
+          "auth-token": token,
         },
         body: JSON.stringify(orderData),
       });
 
+      // Check HTTP response status
+      if (!res.ok) {
+        let errorMsg = "Failed to place order";
+        try {
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errorData = await res.json();
+            errorMsg = errorData.message || errorMsg;
+          } else {
+            // Response is not JSON, maybe HTML or plain text
+            errorMsg = await res.text();
+          }
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError.message || parseError);
+        }
+        return { success: false, message: errorMsg };
+      }
+
       const data = await res.json();
+
       if (data.success) {
-        getMyOrders(); 
+        // Refresh orders after successful placement
+        await getMyOrders();
         return { success: true, message: "Order placed successfully" };
       } else {
         return { success: false, message: data.message || "Failed to place order" };
@@ -140,6 +167,7 @@ const OrderState = ({ children }) => {
       setLoading(false);
     }
   };
+
 
   return (
     <OrderContext.Provider value={{ loading, orders, totalCount, getAllOrders, getMyOrders, getOrderById, placeOrder }}>

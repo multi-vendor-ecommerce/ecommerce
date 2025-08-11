@@ -3,18 +3,19 @@ import mongoose from "mongoose";
 const orderSchema = new mongoose.Schema(
   {
     shippingInfo: {
-      address: {
-        type: String,
-        required: [true, "Shipping address is required"],
-      },
-      city: {
-        type: String,
-        required: [true, "City is required"],
-      },
-      country: {
-        type: String,
-        required: [true, "Country is required"],
-      },
+      recipientName: { type: String, trim: true, required: [true, "Recipient name is required"] },
+      recipientPhone: { type: String, trim: true, required: [true, "Recipient phone is required"] },
+      line1: { type: String, trim: true, required: [true, "Address line 1 is required"] },
+      line2: { type: String, trim: true, default: "" },
+      locality: { type: String, trim: true, default: "" },
+      city: { type: String, trim: true, required: [true, "City is required"] },
+      state: { type: String, trim: true, required: [true, "State is required"] },
+      country: { type: String, trim: true, default: "India" },
+      pincode: { type: String, trim: true, required: [true, "Pincode is required"] },
+      geoLocation: {
+        lat: { type: Number },
+        lng: { type: Number }
+      }
     },
 
     orderItems: [

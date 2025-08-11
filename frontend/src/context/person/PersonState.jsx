@@ -45,6 +45,7 @@ const PersonState = (props) => {
 
       const data = await response.json();
       if (data.success) setPerson(data.person);
+      return data;
     } catch (error) {
       console.error(`Error fetching current ${role}:`, error);
     } finally {

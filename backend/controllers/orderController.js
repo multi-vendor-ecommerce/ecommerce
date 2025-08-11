@@ -1,24 +1,55 @@
+import mongoose from "mongoose";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import buildQuery from "../utils/queryBuilder.js";
 
 export const placeOrder = async (req, res) => {
   const userId = req.person.id;
+  const { shippingInfo: shippingFromBody, paymentMethod } = req.body;
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
   try {
-    const user = await User.findById(userId).populate("cart.product");
+    const user = await User.findById(userId)
+      .populate("cart.product")
+      .session(session);
+
     if (!user || user.cart.length === 0) {
       return res.status(400).json({ success: false, message: "Cart is empty" });
     }
 
+    // Merge shipping info from frontend or user profile
+    const finalShippingInfo = {
+      recipientName: shippingFromBody?.recipientName || user.address?.recipientName,
+      recipientPhone: shippingFromBody?.recipientPhone || user.address?.recipientPhone,
+      line1: shippingFromBody?.line1 || user.address?.line1,
+      line2: shippingFromBody?.line2 || user.address?.line2 || "",
+      locality: shippingFromBody?.locality || user.address?.locality || "",
+      city: shippingFromBody?.city || user.address?.city,
+      state: shippingFromBody?.state || user.address?.state,
+      country: shippingFromBody?.country || user.address?.country || "India",
+      pincode: shippingFromBody?.pincode || user.address?.pincode,
+      geoLocation: {
+        lat: shippingFromBody?.geoLocation?.lat || user.address?.geoLocation?.lat,
+        lng: shippingFromBody?.geoLocation?.lng || user.address?.geoLocation?.lng
+      }
+    };
+
+    // Validate required shipping fields
+    const requiredFields = ["recipientName", "recipientPhone", "line1", "city", "state", "pincode"];
+    for (const field of requiredFields) {
+      if (!finalShippingInfo[field]) {
+        throw new Error(`Shipping field "${field}" is required`);
+      }
+    }
+
     const ordersByVendor = {};
 
-    // Group cart items by vendor (createdBy)
+    // Group items by vendor
     user.cart.forEach(item => {
       const vendorId = item.product?.createdBy?.toString();
-      if (!vendorId) {
-        throw new Error(`Product ${item.product?._id} has no vendor (createdBy)`);
-      }
+      if (!vendorId) throw new Error(`Product ${item.product?._id} has no vendor`);
       if (!ordersByVendor[vendorId]) ordersByVendor[vendorId] = [];
       ordersByVendor[vendorId].push(item);
     });
@@ -36,7 +67,7 @@ export const placeOrder = async (req, res) => {
         product: item.product._id,
       }));
 
-      // Calculate totals per vendor
+      // Calculate totals
       let itemPrice = 0;
       let tax = 0;
       let shippingCharges = 0;
@@ -48,35 +79,37 @@ export const placeOrder = async (req, res) => {
         const gstRate = item.product.gstRate ? item.product.gstRate / 100 : 0;
         tax += productPrice * gstRate;
 
-        if (!item.product.freeDelivery) {
-          shippingCharges += 50; 
-        }
+        if (!item.product.freeDelivery) shippingCharges += 50;
       });
 
       const totalAmount = itemPrice + tax + shippingCharges;
 
-      const order = await Order.create({
+      const orderData = {
         user: userId,
         vendor: vendorId,
         orderItems,
-        paymentMethod: "COD",
-        shippingInfo: {
-          address: user.address || "N/A",
-          city: user.city || "N/A",
-          country: user.country || "India",
-        },
+        paymentMethod,
+        shippingInfo: finalShippingInfo,
         itemPrice,
         tax,
         shippingCharges,
         totalAmount,
-      });
+        ...(paymentMethod === "Online" && { paidAt: new Date(), paymentInfo: { id: "TEMP-ID", status: "pending" } })
+      };
 
+      const [order] = await Order.create([orderData], { session });
       createdOrders.push(order);
     }
 
+    // Update user order stats
+    user.totalOrders += createdOrders.length;
+    user.totalOrderValue += createdOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+
     // Clear cart
     user.cart = [];
-    await user.save();
+    await user.save({ session });
+
+    await session.commitTransaction();
 
     res.status(201).json({
       success: true,
@@ -84,8 +117,11 @@ export const placeOrder = async (req, res) => {
       orders: createdOrders,
     });
   } catch (err) {
+    await session.abortTransaction();
     console.error(err);
-    res.status(500).json({ success: false, message: "Server Error", error: err.message });
+    res.status(500).json({ success: false, message: err.message });
+  } finally {
+    session.endSession();
   }
 };
 
