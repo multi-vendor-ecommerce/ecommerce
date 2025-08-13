@@ -1,4 +1,5 @@
 import { getFinalPrice } from "./priceUtils";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Add product to cart with validation
 export const validateAndAddToCart = async ({
@@ -9,7 +10,14 @@ export const validateAndAddToCart = async ({
   setLoading,
   onSuccess,
   onError,
+  navigate,
+  location
 }) => {
+  const token = localStorage.getItem("customerToken"); 
+  if (!token) {
+    navigate("/login/user", { state: { from: location.pathname } });
+    return;
+  }
   const colorToUse = selectedColor || (product.colors?.[0] ?? null);
   const sizeToUse = selectedSize || (product.sizes?.[0] ?? null);
 
@@ -103,7 +111,7 @@ export const changeCartQuantity = async ({
 
 export const calculateCheckoutTotals = (
   cart,
-  taxRate = 0.18,      
+  taxRate = 0.18,
   shippingThreshold = 500,
   shippingFee = 50
 ) => {

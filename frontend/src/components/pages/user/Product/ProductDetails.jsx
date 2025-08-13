@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import ProductContext from "../../../../context/products/ProductContext";
 import CartContext from "../../../../context/cart/CartContext";
 import Spinner from "../../../common/Spinner";
@@ -26,6 +27,9 @@ const ProductDetails = () => {
   const lastAddClickTime = useRef(0);
 
   const secretKey = import.meta.env.VITE_SECRET_KEY;
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Decrypt product ID from URL
   useEffect(() => {
@@ -80,6 +84,8 @@ const ProductDetails = () => {
       setLoading: setIsLoading,
       onSuccess: (msg) => alert(msg),
       onError: (err) => alert(err),
+      navigate,
+      location,
     });
   };
 

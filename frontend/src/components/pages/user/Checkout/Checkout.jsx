@@ -4,6 +4,7 @@ import OrderContext from "../../../../context/orders/OrderContext";
 import PersonContext from "../../../../context/person/PersonContext.jsx";
 import { calculateCheckoutTotals } from "../Utils/cartHelpers.js";
 import { getFinalPrice } from "../Utils/priceUtils.js";
+import CustomSelect from "../../../common/layout/CustomSelect.jsx";
 
 const Checkout = () => {
   const location = useLocation();
@@ -20,7 +21,7 @@ const Checkout = () => {
   useEffect(() => {
     const fetchPerson = async () => {
       try {
-         await getCurrentPerson(); 
+        await getCurrentPerson();
       } catch (error) {
         console.error("Error fetching person:", error);
       }
@@ -31,9 +32,14 @@ const Checkout = () => {
 
   const totals = calculateCheckoutTotals(cart);
 
-  const handlePaymentChange = (e) => {
-    setPaymentMethod(e.target.value);
-  };
+  // const handlePaymentChange = (e) => {
+  //   setPaymentMethod(e.target.value);
+  // };
+
+  const paymentOptions = [
+    { value: "COD", label: "Cash On Delivery (COD)" },
+    { value: "Online", label: "Online Payment" },
+  ];
 
   const validateForm = () => {
     const newErrors = {};
@@ -158,19 +164,18 @@ const Checkout = () => {
         </div>
 
         <div className="mb-6">
-          <label htmlFor="paymentMethod" className="block font-semibold mb-1">Payment Method</label>
-          <select
-            id="paymentMethod"
-            name="paymentMethod"
+          <label htmlFor="paymentMethod" className="block font-semibold mb-1">
+            Payment Method
+          </label>
+          <CustomSelect
+            options={paymentOptions}
             value={paymentMethod}
-            onChange={handlePaymentChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
-          >
-            <option value="">Select a payment method</option>
-            <option value="COD">Cash On Delivery (COD)</option>
-            <option value="Online">Online Payment</option>
-          </select>
-          {errors.paymentMethod && <p className="text-red-600 text-sm mt-1">{errors.paymentMethod}</p>}
+            onChange={(val) => setPaymentMethod(val)}
+            menuPlacement="auto"
+          />
+          {errors.paymentMethod && (
+            <p className="text-red-600 text-sm mt-1">{errors.paymentMethod}</p>
+          )}
         </div>
 
         <div className="mb-6 border-t pt-4">
