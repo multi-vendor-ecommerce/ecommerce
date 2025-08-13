@@ -25,11 +25,11 @@ const CartPage = () => {
 
   useEffect(() => {
     if (!token) {
-      navigate("/login?redirect=/cart", { replace: true });
+      navigate("/login/user?redirect=/cart", { replace: true });
     } else {
       getCart();
     }
-  }, []);
+  }, [token, navigate]);
 
   const handleRemove = async (cartItemId) => {
     setRemovingId(cartItemId);

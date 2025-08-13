@@ -7,6 +7,7 @@ function UserHeader() {
   const { cart } = useContext(CartContext);
   const [cartItemCount, setCartItemCount] = useState(CartContext);
   const [searchTerm, setSearchTerm] = useState("");
+  const [token, setToken] = useState(localStorage.getItem("customerToken"));
   const navigate = useNavigate();
 
   const handleSearch = () => {
@@ -14,6 +15,18 @@ function UserHeader() {
       navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
     }
   };
+
+
+  // const token = localStorage.getItem("customerToken");
+  useEffect(() => {
+    const onStorageChange = () => {
+      setToken(localStorage.getItem("customerToken"));
+    };
+
+    window.addEventListener("storage", onStorageChange);
+    return () => window.removeEventListener("storage", onStorageChange);
+  }, []);
+
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -74,7 +87,7 @@ function UserHeader() {
               aria-label={`Cart with ${cartItemCount} items`}
             >
               <FaShoppingCart className="text-2xl cursor-pointer hover:text-purple-800" />
-              {cartItemCount > 0 && (
+              {token && cartItemCount > 0 && (
                 <span className="absolute top-0 right-0 bg-red-600 text-white rounded-full text-xs px-1.5 py-0.5">
                   {cartItemCount}
                 </span>
