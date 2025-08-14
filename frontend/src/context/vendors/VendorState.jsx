@@ -75,6 +75,34 @@ const VendorState = (props) => {
     }
   };
 
+  // Edit vendor shop name and logo
+  const editStore = async (formData) => {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${host}/api/vendors/edit/store`, {
+        method: "PUT",
+        headers: {
+          "auth-token": localStorage.getItem("vendorToken"),
+        },
+        body: formData
+      });
+
+      if (!response.ok) throw new Error("Failed to update the store.");
+
+      const data = await response.json();
+      if (data.success) {
+        return { success: data.success, vendor: data.vendor, message: data.message }
+      } else {
+        return { success: false, message: data.message || "Failed to update store." };
+      }
+    } catch (error) {
+      console.error("Error fetching vendors:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getVendorById = useCallback(async (id) => {
     try {
       setLoading(true);
@@ -99,7 +127,7 @@ const VendorState = (props) => {
   }, [host]);
 
   return (
-    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, getVendorById }}>
+    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById }}>
       {props.children}
     </VendorContext.Provider>
   )

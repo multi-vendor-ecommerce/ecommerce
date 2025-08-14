@@ -13,8 +13,6 @@ const router = express.Router();
 export const editPersonValidator = [
   body("name").optional().trim().escape().isLength({ min: 3 }).withMessage("Name must be at least 3 characters"),
 
-  body("profileImage").optional().trim().isURL().withMessage("Profile image must be a valid URL"),
-
   body("phone").optional().trim().isMobilePhone().withMessage("Phone must be valid"),
 
   body("address.line1").optional().isLength({ min: 3 }).withMessage("Address Line 1 must be at least 3 characters"),

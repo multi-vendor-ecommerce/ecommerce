@@ -72,12 +72,12 @@ export const editStore = async (req, res) => {
 
     // If a new file is uploaded, send to Cloudinary
     if (req.file && req.file.path) {
-      update.shopLogo = req.file.path;
+      shopLogo = req.file.path;
     }
 
     // Update only allowed fields
     const updatedVendor = await Vendor.findByIdAndUpdate(
-      req.vendor.id,
+      req.person.id,
       {
         ...(shopName ? { shopName: toTitleCase(shopName.trim()) } : {}),
         ...(shopLogo ? { shopLogo } : {}),
@@ -88,6 +88,8 @@ export const editStore = async (req, res) => {
     if (!updatedVendor) {
       return res.status(404).json({ success: false, message: "Vendor not found" });
     }
+
+    console.log(updatedVendor)
 
     res.status(200).json({ success: true, message: "Store updated successfully", vendor: updatedVendor });
   } catch (error) {
