@@ -4,6 +4,7 @@ import authorizeRoles from "../middleware/authorizeRole.js";
 
 // Controllers
 import { getAllVendors, getTopVendors, editStore, getVendorById } from "../controllers/vendorController.js";
+import upload from "../middleware/multer.js";
 import { validate } from "../middleware/validateFields.js";
 
 const router = express.Router();
