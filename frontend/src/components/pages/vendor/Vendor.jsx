@@ -15,6 +15,7 @@ import OrderDetails from "../adminVendorCommon/orders/OrderDetails";
 import Customers from "../adminVendorCommon/customers/Customers";
 import Profile from "../adminVendorCommon/settings/Profile";
 import Security from "../adminVendorCommon/settings/Security";
+import StoreProfile from "./storeSettings/StoreProfile";
 
 const Vendor = () => {
   const { authTokens } = useContext(AuthContext);
@@ -55,6 +56,11 @@ const Vendor = () => {
             <Route path="product-details/:productId" element={<ProductDetails role="vendor" />} />
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" role="vendor" />} />
             <Route path="add-product" element={<AddProduct isVendor={true} />} />
+
+            {/* Settings */}
+            <Route path="store/">
+              <Route path="profile" element={<StoreProfile />} />
+            </Route>
 
             {/* Settings */}
             <Route path="settings/">

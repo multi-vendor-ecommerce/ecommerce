@@ -60,7 +60,7 @@ const Header = ({ onMenuToggle }) => {
 
         {person && (
           <button className="hover:text-black hover:scale-105 transition-all duration-300 cursor-pointer">
-            <NavLink to={`/${person.role}/settings`}>
+            <NavLink to={`/${person.role}/settings/profile`}>
               <FiSettings className="text-2xl md:text-3xl" title="Settings" />
             </NavLink>
           </button>

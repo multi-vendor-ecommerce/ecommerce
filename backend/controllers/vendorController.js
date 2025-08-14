@@ -1,5 +1,6 @@
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
+import { toTitleCase } from "../utils/titleCase.js";
 
 // Public: Get all vendors (paginated)
 export const getAllVendors = async (req, res) => {
@@ -61,6 +62,37 @@ export const getTopVendors = async (req, res) => {
   } catch (err) {
     console.error("Error fetching top vendors:", err);
     res.status(500).json({ success: false, message: "Failed to fetch top vendors.", error: err.message });
+  }
+};
+
+export const editStore = async (req, res) => {
+  try {
+    const { shopName } = req.body;
+    let shopLogo = req.body.shopLogo || "";
+
+    // If a new file is uploaded, send to Cloudinary
+    if (req.file && req.file.path) {
+      update.shopLogo = req.file.path;
+    }
+
+    // Update only allowed fields
+    const updatedVendor = await Vendor.findByIdAndUpdate(
+      req.vendor.id,
+      {
+        ...(shopName ? { shopName: toTitleCase(shopName.trim()) } : {}),
+        ...(shopLogo ? { shopLogo } : {}),
+      },
+      { new: true, runValidators: true }
+    ).select("shopName shopLogo");
+
+    if (!updatedVendor) {
+      return res.status(404).json({ success: false, message: "Vendor not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Store updated successfully", vendor: updatedVendor });
+  } catch (error) {
+    console.error("Error updating store:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 

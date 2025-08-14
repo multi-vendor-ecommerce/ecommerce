@@ -8,6 +8,7 @@ import { FiEdit, FiCheck, FiX, FiTrash2 } from "react-icons/fi";
 import Loader from "../../../common/Loader";
 import useProfileUpdate from "../../../../hooks/useProfileUpdate";
 import Button from "../../../common/Button";
+import { capitalize } from "../../../../utils/capitalize";
 
 const Profile = () => {
   const { person, editPerson, getCurrentPerson, deletePerson } = useContext(PersonContext);
@@ -51,7 +52,7 @@ const Profile = () => {
 
       {/* Action Buttons */}
       <div className="mt-4 mb-6 flex justify-between items-center gap-2">
-        <h2 className="text-xl md:text-2xl font-bold">Profile</h2>
+        <h2 className="text-xl md:text-2xl font-bold">{capitalize(person?.role)} Profile</h2>
 
         <div className="flex justify-end gap-4">
           {editing ? (

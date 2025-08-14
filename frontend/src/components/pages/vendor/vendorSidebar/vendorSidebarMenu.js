@@ -105,6 +105,7 @@ export const vendorSidebarMenu = [
         key: "store",
         path: "/vendor/store",
         children: [
+          { label: "Logo & Name", path: "/vendor/store/profile" },
           { label: "Billing Options", path: "/vendor/store/billing" },
           { label: "Shipping Options", path: "/vendor/store/shipping" },
         ],

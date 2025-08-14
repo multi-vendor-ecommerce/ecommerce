@@ -106,7 +106,6 @@ export const getTopSellingProducts = async (req, res) => {
 };
 
 // Public: Get a product by ID - supports public, admin, and vendor
-// Public: Get a product by ID - supports public, admin, and vendor
 export const getProductById = async (req, res) => {
   try {
     const isAdmin = req.person?.role === "admin";
