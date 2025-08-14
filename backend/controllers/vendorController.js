@@ -35,6 +35,35 @@ export const getAllVendors = async (req, res) => {
   }
 };
 
+export const getTopVendors = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const role = req.person?.role;
+
+    // Base filter
+    let filter = { status: "active" };
+
+    // Vendors can only see their own stats
+    if (role === "vendor") {
+      filter._id = req.person.id;
+    }
+
+    // Fetch top vendors sorted by totalRevenue, then totalSales
+    const vendors = await Vendor.find(filter)
+      .sort({ totalRevenue: -1, totalSales: -1 })
+      .limit(limit)
+      .select(
+        "name email shopName shopLogo gstNumber status totalSales totalRevenue commissionRate registeredAt"
+      )
+      .lean();
+
+    res.status(200).json({ success: true, message: "Top vendors fetched successfully.", vendors, total: vendors.length, limit });
+  } catch (err) {
+    console.error("Error fetching top vendors:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch top vendors.", error: err.message });
+  }
+};
+
 // Public: Get a vendor by id
 export const getVendorById = async (req, res) => {
   try {

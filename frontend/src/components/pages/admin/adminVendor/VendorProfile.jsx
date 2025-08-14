@@ -52,7 +52,11 @@ const VendorProfile = () => {
     orders.forEach((o) => {
       const d = new Date(o.date);
       const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
-      map[key] = (map[key] || 0) + o.products.reduce((sum, p) => sum + p.price * p.qty, 0);
+      const orderTotal = (Array.isArray(o.products) ? o.products : []).reduce(
+        (sum, p) => sum + (p.price || 0) * (p.qty || 0),
+        0
+      );
+      map[key] = (map[key] || 0) + orderTotal;
     });
 
     return Object.entries(map)

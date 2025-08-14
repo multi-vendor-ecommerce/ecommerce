@@ -15,14 +15,14 @@ import VendorContext from "../../../../context/vendors/VendorContext";
 const Dashboard = ({ summaryData }) => {
   const { getAllCustomers } = useContext(UserContext);
   const { getAllOrders } = useContext(OrderContext);
-  const { getAllVendors } = useContext(VendorContext);
+  const { getTopVendors } = useContext(VendorContext);
 
   const role = localStorage.getItem("adminToken") ? "admin" : "vendor";
 
   useEffect(() => {
     getAllCustomers();
     getAllOrders();
-    if (role === "admin") getAllVendors();
+    if (role === "admin") getTopVendors();
   }, []);
 
   const [dateValue, setDateValue] = useState("today");

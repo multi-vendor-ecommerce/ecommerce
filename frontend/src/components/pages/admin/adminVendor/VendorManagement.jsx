@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useContext, useState, useCallback } from "react";
 import VendorContext from "../../../../context/vendors/VendorContext";
 import { RenderVendorRow } from "./RenderVendorRow";
 import TabularData from "../../../common/layout/TabularData";
@@ -9,20 +9,36 @@ import BackButton from "../../../common/layout/BackButton";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 
 const VendorManagement = ({ heading }) => {
-  const { vendors, getAllVendors, totalCount, loading } = useContext(VendorContext);
+  const { vendors, topVendors, getAllVendors, getTopVendors, totalCount, loading } = useContext(VendorContext);
 
   const [filters, setFilters] = useState({ search: "", status: "" });
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  useEffect(() => {
-    fetchPaginatedVendors(1, itemsPerPage); // initial fetch
-  }, []);
+  const isTopVendorPage = heading?.toLowerCase().includes("top");
+
+  // Choose correct fetch function based on heading
+  const fetchFunction = useCallback(
+    (params) => {
+      if (isTopVendorPage) {
+        return getTopVendors(params);
+      } else {
+        return getAllVendors(params);
+      }
+    },
+    [isTopVendorPage, getAllVendors, getTopVendors]
+  );
 
   const fetchPaginatedVendors = (pg = 1, limit = itemsPerPage) => {
-    getAllVendors({ ...filters, page: pg, limit });
+    fetchFunction({ ...filters, page: pg, limit });
     setPage(pg);
   };
+
+  // Initial fetch and refetch on heading change
+  useEffect(() => {
+    fetchPaginatedVendors(1, itemsPerPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [heading]);
 
   const handleChange = (name, value) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
@@ -52,8 +68,15 @@ const VendorManagement = ({ heading }) => {
   };
 
   const headers = [
-    "Vendor", "Email", "Shop", "Products Qty", "Total Sales",
-    "Commission", "Registered On", "Status", "Actions"
+    "Vendor",
+    "Email",
+    "Shop",
+    "Products Qty",
+    "Total Sales",
+    "Commission",
+    "Registered On",
+    "Status",
+    "Actions"
   ];
 
   if (loading && vendors.length === 0) {
@@ -92,7 +115,7 @@ const VendorManagement = ({ heading }) => {
           <div className="overflow-hidden bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
             <TabularData
               headers={headers}
-              data={vendors}
+              data={isTopVendorPage ? topVendors : vendors}
               renderRow={RenderVendorRow}
               emptyMessage="No vendors found."
             />

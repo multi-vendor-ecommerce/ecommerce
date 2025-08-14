@@ -1,5 +1,5 @@
 // RenderCustomerRow.jsx
-import { formatAddress } from "../../../../utils/formatAddress";
+import { formatAddress, shortFormatAddress } from "../../../../utils/formatAddress";
 import { getFormatDate } from "../../../../utils/formatDate";
 
 export const RenderCustomerRow = (user, i) => {
@@ -40,9 +40,14 @@ export const RenderCustomerRow = (user, i) => {
         </a>
       </td>
 
-      {/* Address  */}
-      <td className="px-6 py-4 min-w-[250px] hover:scale-105 transition duration-150">
+      {/* Laptop Address  */}
+      <td className="px-6 py-4 min-w-[250px] hover:scale-105 transition duration-150 hidden lg:block">
         {user.address ? formatAddress(user.address) : "Not Provided"}
+      </td>
+
+      {/* Mobile-Tab Address  */}
+      <td className="px-6 py-4 min-w-[250px] hover:scale-105 transition duration-150 lg:hidden">
+        {user.address ? shortFormatAddress(user.address) : "Not Provided"}
       </td>
 
       {/* Total Orders */}

@@ -30,7 +30,7 @@ const ProductState = ({ children }) => {
       const headers = { "Content-Type": "application/json" };
 
       if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
-      else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken")
+      else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
 
       const res = await fetch(url, { method: "GET", headers });
       if (!res.ok) throw new Error("Failed to fetch products.");
