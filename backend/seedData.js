@@ -1,13 +1,9 @@
-import Product from "./models/Products.js";
 import Category from "./models/Category.js";
 import Person from "./models/Person.js";
-import Order from "./models/Order.js";
 import bcrypt from "bcryptjs";
 import "./models/Admin.js";
 
 import { categoriesData } from "./data/seedCategories.js";
-import { orderSeedData } from "./data/seedOrder.js";
-
 export const seedDatabase = async () => {
   try {
     // Seed Categories
@@ -51,14 +47,4 @@ export const seedDatabase = async () => {
     console.error("❌ Error seeding the database:", error.message);
     throw error;
   }
-
-  // Seed Orders
-  const orderCount = await Order.countDocuments();
-  if (orderCount === 0) {
-    await Order.insertMany(orderSeedData);
-    console.log(`✅ Inserted ${orderSeedData.length} orders.`);
-  } else {
-    console.log(`⏭️ Skipped order insertion — ${orderCount} orders already exist.`);
-  }
-
 };

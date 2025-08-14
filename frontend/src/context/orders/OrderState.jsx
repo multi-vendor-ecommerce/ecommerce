@@ -19,13 +19,7 @@ const OrderState = ({ children }) => {
     else return { role: "customer" };
   };
 
-  const getAllOrders = async ({
-    search = "",
-    status = "",
-    vendorId = "",  // new param
-    page = 1,
-    limit = 10,
-  } = {}) => {
+  const getAllOrders = async ({ search = "", status = "", vendorId = "", page = 1, limit = 10 } = {}) => {
     const { role } = getRoleInfo();
 
     const params = new URLSearchParams({ page, limit });
@@ -106,7 +100,7 @@ const OrderState = ({ children }) => {
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch order");
 
-      return data.order;
+      if (data.success) return data.order;
     } catch (err) {
       console.error("Error fetching order:", err);
       return null;

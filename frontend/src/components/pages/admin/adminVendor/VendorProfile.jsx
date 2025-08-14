@@ -33,16 +33,16 @@ const VendorProfile = () => {
       const result = await getVendorById(vendorId);
       setVendor(result);
     };
+    
     fetchVendor();
   }, [vendorId, getVendorById]);
 
   // 2. Fetch vendor orders *after* vendor state is set
   useEffect(() => {
     if (vendor?._id) {
-      // Pass vendorId to filter orders by this vendor (works if admin)
       getAllOrders({ vendorId: vendor._id });
     }
-  }, [vendor, getAllOrders]);
+  }, [vendor?._id]);
 
   // ... rest remains the same
   const monthlyData = useMemo(() => {

@@ -9,6 +9,7 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import { formatNumber } from "../../../../../utils/formatNumber";
+import { capitalize } from "../../../../../utils/capitalize";
 
 export const getVendorCardData = (vendor) => [
   {
@@ -38,7 +39,7 @@ export const getVendorCardData = (vendor) => [
   {
     icon: vendor.status === "active" ? FaCheckCircle : FaTimesCircle,
     label: "Status",
-    value: vendor.status?.charAt(0).toUpperCase() + vendor.status?.slice(1) || "Unknown",
+    value: capitalize(vendor.status) || "Unknown",
     title: vendor.status || "Status not available",
     bg: "bg-blue-100",
     shadow: "hover:shadow-blue-500",
