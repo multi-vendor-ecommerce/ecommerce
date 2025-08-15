@@ -2,6 +2,7 @@
 import { NavLink } from "react-router-dom";
 import { getFormatDate } from "../../../../utils/formatDate";
 import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
+import StatusChip from "../../../common/helperComponents/StatusChip";
 
 export const RenderVendorRow = (v, i) => (
   <tr
@@ -79,22 +80,7 @@ export const RenderVendorRow = (v, i) => (
 
     {/* Status */}
     <td className="px-6 py-3 min-w-[140px]">
-      <span
-        title={v.status || "Status unknown"}
-        className={`inline-flex items-center px-3 py-1 rounded-full hover:scale-105 transition duration-150 text-xs font-semibold
-        ${v.status === "active"
-          ? "bg-green-100 text-green-700"
-          : v.status === "suspended"
-            ? "bg-red-100 text-red-700"
-            : v.status === "pending"
-              ? "bg-yellow-100 text-yellow-800"
-              : v.status === "inactive"
-                ? "bg-gray-200 text-gray-700"
-                : "bg-blue-100 text-blue-700"
-        }`}
-      >
-        {v.status || "Unknown"}
-      </span>
+      <StatusChip status={v.status || "Unknown"} />
     </td>
 
     {/* Actions */}

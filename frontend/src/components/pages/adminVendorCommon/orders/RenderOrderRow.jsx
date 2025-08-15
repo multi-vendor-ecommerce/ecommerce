@@ -26,7 +26,7 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin") => (
     </td>
 
     {/* Customer Name */}
-    <td className="px-6 py-3 min-w-[120px] hover:scale-105 transition duration-150">
+    <td className="px-6 py-3 min-w-[180px] hover:scale-105 transition duration-150">
       {order.user?.name || "Unassigned Customer"}
     </td>
 
@@ -56,14 +56,14 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin") => (
     </td>
 
     {/* Order Date */}
-    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
+    <td className="px-6 py-3 min-w-[180px] hover:scale-105 transition duration-150">
       {getFormatDate(order.createdAt)}
     </td>
 
     {/* Order Status */}
-    {/* <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
+    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
       <StatusChip status={order.orderStatus} />
-    </td> */}
+    </td>
 
     {/* Total Amount */}
     <td className="px-6 py-3 min-w-[120px] font-semibold hover:scale-105 transition duration-150">

@@ -13,7 +13,7 @@ const CouponState = (props) => {
   const getAllCoupons = async (page = 1, limit = 10) => {
     try {
       setLoading(true);
-      
+
       const params = new URLSearchParams();
       params.append("page", page);
       params.append("limit", limit);
@@ -69,6 +69,39 @@ const CouponState = (props) => {
     }
   };
 
+  // Edit a coupon
+  const editCoupon = async (id, form) => {
+    try {
+      const response = await fetch(`${host}/api/coupons/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("adminToken"),
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        return {
+          success: data.success,
+          message: data.message || "Failed to edit coupon.",
+        };
+      }
+
+      // Update state
+      setCoupons(coupons.map((coupon) => 
+        coupon._id === id ? data.coupon : coupon
+      ));
+
+      return { success: data.success, message: data.message || "Coupon edited." };
+    } catch (error) {
+      console.error("Error editing coupon:", error);
+      return { success: false, message: "Server error" };
+    }
+  };
+
   // Delete a coupon
   const deleteCoupon = async (id) => {
     // Delete a coupon from backend
@@ -88,7 +121,7 @@ const CouponState = (props) => {
   }
 
   return (
-    <CouponContext.Provider value={{ coupons, totalCount, getAllCoupons, addCoupon, deleteCoupon, loading }}>
+    <CouponContext.Provider value={{ coupons, totalCount, getAllCoupons, addCoupon, editCoupon, deleteCoupon, loading }}>
       {props.children}
     </CouponContext.Provider>
   )

@@ -55,9 +55,10 @@ const Header = ({ onMenuToggle }) => {
             target='_blank'
             rel="noopener noreferrer"
             className="py-2 flex items-center gap-2 px-4 border font-semibold rounded-lg transition duration-150 hover:bg-blue-500 text-blue-500 hover:text-white cursor-pointer"
+            title="Login as Seller"
           >
             <FaStore size={20} />
-            Login as Seller
+            <span className="hidden md:inline">Login as Seller</span>
           </a>
         )}
 

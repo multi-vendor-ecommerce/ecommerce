@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import classNames from "classnames";
+import StatusChip from "../../../common/helperComponents/StatusChip";
 
 export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, role = "admin") => {
   const isHighSales = (p.unitsSold || 0) >= maxUnitsSold * 0.6;
@@ -69,22 +70,10 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
 
       {/* Approval Status */}
       <td className="px-6 py-3 min-w-[200px]">
-        <span
-          title={p.status || (isTopSellingPage ? "approved" : "Status unknown")}
-          className={`inline-flex items-center px-3 py-1 rounded-full hover:scale-105 transition duration-150 text-xs font-semibold
-      ${(p.status || (isTopSellingPage && "approved")) === "approved"
-              ? "bg-green-100 text-green-700"
-              : p.status === "rejected"
-                ? "bg-red-100 text-red-700"
-                : p.status === "pending"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-blue-100 text-blue-700"
-            }`}
-        >
-          {p.status || (isTopSellingPage ? "approved" : "Unknown")}
-        </span>
+        <StatusChip
+          status={p.status || (isTopSellingPage ? "approved" : "Unknown")}
+        />
       </td>
-
 
       {/* Sales progress bar */}
       <td className="px-6 py-4 min-w-[220px] hover:scale-105 transition duration-150 relative">
