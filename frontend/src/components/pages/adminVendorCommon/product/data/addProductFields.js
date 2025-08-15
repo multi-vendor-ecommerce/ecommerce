@@ -1,0 +1,97 @@
+export const addProductFields = {
+  2: [
+    {
+      label: "Brand",
+      name: "brand",
+      placeholder: "e.g., Nike",
+      title: "Enter your brand",
+      required: true,
+    },
+    {
+      label: "Product Title",
+      name: "title",
+      placeholder: "e.g., Running Shoes",
+      title: "Enter product title",
+      required: true,
+    },
+    {
+      label: "Tags",
+      name: "tags",
+      placeholder: "e.g. shoes, running, men (comma-separated)",
+      title: "Enter product tags",
+      required: true,
+    },
+    {
+      label: "Colors",
+      name: "colors",
+      placeholder: "e.g. Red, White, Blue (comma-separated)",
+      title: "Enter product colors",
+      required: true,
+    },
+    {
+      label: "Size",
+      name: "size",
+      placeholder: "e.g., L, XL",
+      title: "Enter product sizes",
+    },
+    {
+      label: "SKU",
+      name: "sku",
+      placeholder: "4-20 characters",
+      title: "Enter product SKU",
+      required: true,
+    },
+    {
+      label: "HSN Code",
+      name: "hsnCode",
+      placeholder: "e.g., 6403",
+      title: "Enter product HSN Code",
+      required: true,
+      link: {
+        href: "https://cbic-gst.gov.in/gst-goods-services-rates.html",
+        text: "Lookup HSN Code",
+      },
+    },
+  ],
+
+  3: [
+    {
+      label: "Description",
+      name: "description",
+      placeholder: "Write product description here...",
+      title: "Enter product description",
+      type: "textarea",
+      required: true,
+    },
+    {
+      label: "Price",
+      name: "price",
+      placeholder: "Enter price",
+      title: "Enter product price",
+      type: "number",
+      required: true,
+    },
+    {
+      label: "Discount",
+      name: "discount",
+      placeholder: "Enter discount",
+      title: "Enter product discount",
+      type: "number",
+    },
+    {
+      label: "Stock",
+      name: "stock",
+      placeholder: "Enter stock quantity",
+      title: "Enter product stock quantity",
+      type: "number",
+      required: true,
+    },
+    {
+      label: "GST Rate",
+      name: "gstRate",
+      placeholder: "Enter GST rate (%)",
+      title: "Enter product GST rate",
+      required: true,
+    },
+  ],
+};

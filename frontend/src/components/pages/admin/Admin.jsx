@@ -15,7 +15,6 @@ import VendorProfile from "./adminVendor/VendorProfile";
 import AuthContext from "../../../context/auth/AuthContext";
 import Products from "../adminVendorCommon/product/Products";
 import ProductDetails from "../adminVendorCommon/product/ProductDetails";
-import AddProduct from "../adminVendorCommon/product/addProduct/AddProduct";
 import Orders from "../adminVendorCommon/orders/Orders";
 import OrderDetails from "../adminVendorCommon/orders/OrderDetails";
 import Profile from "../adminVendorCommon/settings/Profile";
@@ -61,7 +60,6 @@ const Admin = () => {
             <Route path="all-products" element={<Products heading="All Products" />} />
             <Route path="product-details/:productId" element={<ProductDetails />} />
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" />} />
-            <Route path="add-product" element={<AddProduct />} />
             <Route path="product/edit-delete/:productId" element={<OrderDetails />} />
 
             <Route path="all-vendors" element={<VendorManagement heading="All Vendors" />} />

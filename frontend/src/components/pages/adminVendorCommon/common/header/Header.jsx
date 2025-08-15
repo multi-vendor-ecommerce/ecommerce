@@ -49,15 +49,17 @@ const Header = ({ onMenuToggle }) => {
 
       {/* Right: Icons */}
       <div className="flex items-center justify-center gap-4 text-gray-600">
-        <a
-          href='/login/vendor'
-          target='_blank'
-          rel="noopener noreferrer"
-          className="py-2 flex items-center gap-2 px-4 border font-semibold rounded-lg transition duration-150 hover:bg-blue-500 text-blue-500 hover:text-white cursor-pointer"
-        >
-          <FaStore size={20} />
-          Login as Seller
-        </a>
+        {person && person.role === "admin" && (
+          <a
+            href='/login/vendor'
+            target='_blank'
+            rel="noopener noreferrer"
+            className="py-2 flex items-center gap-2 px-4 border font-semibold rounded-lg transition duration-150 hover:bg-blue-500 text-blue-500 hover:text-white cursor-pointer"
+          >
+            <FaStore size={20} />
+            Login as Seller
+          </a>
+        )}
 
         <NavLink className="hover:text-black hover:scale-105 transition-all duration-300 cursor-pointer">
           <IoGlobeOutline className="text-2xl md:text-3xl" title="Languages" />

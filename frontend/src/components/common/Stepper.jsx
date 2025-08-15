@@ -20,7 +20,7 @@ const Stepper = ({
         return (
           <div
             key={index}
-            className={`flex items-center gap-2 flex-wrap break-words ${activeStyles}`}
+            className={`w-full md:w-auto flex items-center gap-2 flex-wrap break-words ${activeStyles}`}
           >
             <FiCheckCircle size={18} />
             {label}

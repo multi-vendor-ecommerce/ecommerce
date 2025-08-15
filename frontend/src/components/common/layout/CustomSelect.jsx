@@ -2,9 +2,9 @@
 import Select from "react-select";
 
 const responsiveFont = {
-  fontSize: "0.875rem",           // 14px default (mobile)
+  fontSize: "0.875rem", // 14px default (mobile)
   "@media (min-width: 640px)": {
-    fontSize: "1rem",             // 16px on ≥640px
+    fontSize: "1rem", // 16px on ≥640px
   },
 };
 
@@ -36,15 +36,21 @@ const customStyles = {
     borderRadius: "0.75rem",
     boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
     marginBottom: 8,
+    zIndex: 9999, // Ensure it appears above modals and other UI
   }),
 
   menuList: (provided) => ({
     ...provided,
     padding: "4px 0",
   }),
+
+  menuPortal: (base) => ({
+    ...base,
+    zIndex: 9999, // Keep it above everything else
+  }),
 };
 
-const CustomSelect = ({ options, value, onChange, menuPlacement }) => (
+const CustomSelect = ({ options, value, onChange, menuPlacement = "auto" }) => (
   <Select
     value={options.find((opt) => opt.value === value)}
     onChange={(selected) => onChange(selected.value)}
@@ -52,6 +58,8 @@ const CustomSelect = ({ options, value, onChange, menuPlacement }) => (
     styles={customStyles}
     isSearchable={false}
     menuPlacement={menuPlacement}
+    menuPosition="fixed" // Positions relative to the viewport
+    menuPortalTarget={document.body} // Renders dropdown outside parent
   />
 );
 

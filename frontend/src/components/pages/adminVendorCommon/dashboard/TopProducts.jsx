@@ -38,11 +38,11 @@ const TopProducts = () => {
       ) : (
         <div>
           {/* Title + View All */}
-          <div className="min-h-16 flex justify-between items-center mb-5">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800">Top Selling Products</h2>
+          <div className="min-h-16 w-full flex gap-2 justify-between items-center mb-5">
+            <h2 className="w-2/3 md:w-auto text-xl md:text-2xl font-bold text-gray-800 truncate">Top Selling Products</h2>
             <NavLink
               to="/admin/top-selling-products"
-              className="border-gray-300 px-2 md:px-4 py-2 rounded-xl text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
+              className="w-1/3 md:w-auto border-gray-300 px-2 md:px-4 py-2 rounded-xl text-center text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
             >
               View All
             </NavLink>

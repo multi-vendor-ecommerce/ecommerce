@@ -21,11 +21,11 @@ const TopVendors = () => {
         </div>
         :
         <div>
-          <div className="min-h-16 flex justify-between items-center mb-5">
-            <h2 className="textxl md:text-2xl font-bold text-gray-800">Top Vendors</h2>
+          <div className="min-h-16 w-full flex gap-2 justify-between items-center mb-5">
+            <h2 className="w-[60%] md:w-auto text-xl md:text-2xl font-bold text-gray-800 truncate">Top Vendors</h2>
             <NavLink
               to="/admin/top-vendors"
-              className="border-gray-300 px-2 md:px-4 py-2 rounded-xl text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
+              className="w-[40%] md:w-auto border-gray-300 px-2 md:px-4 py-2 rounded-xl text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
             >
               View Vendors
             </NavLink>
