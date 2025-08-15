@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect, useContext } from 'react';
 import { RiMenu2Line } from 'react-icons/ri';
 import { FiSettings } from 'react-icons/fi';
+import { FaStore } from 'react-icons/fa';
 import { IoGlobeOutline, IoNotificationsOutline } from 'react-icons/io5';
 import { NavLink } from 'react-router-dom';
 import ProfileMenu from './ProfileMenu';
 import PersonContext from '../../../../../context/person/PersonContext';
 import ProfileImage from './ProfileImage';
+import { capitalize } from '../../../../../utils/capitalize';
 
 const Header = ({ onMenuToggle }) => {
   const { person, getCurrentPerson } = useContext(PersonContext);
@@ -47,9 +49,19 @@ const Header = ({ onMenuToggle }) => {
 
       {/* Right: Icons */}
       <div className="flex items-center justify-center gap-4 text-gray-600">
-        <button className="hover:text-black hover:scale-105 transition-all duration-300 cursor-pointer">
+        <a
+          href='/login/vendor'
+          target='_blank'
+          rel="noopener noreferrer"
+          className="py-2 flex items-center gap-2 px-4 border font-semibold rounded-lg transition duration-150 hover:bg-blue-500 text-blue-500 hover:text-white cursor-pointer"
+        >
+          <FaStore size={20} />
+          Login as Seller
+        </a>
+
+        <NavLink className="hover:text-black hover:scale-105 transition-all duration-300 cursor-pointer">
           <IoGlobeOutline className="text-2xl md:text-3xl" title="Languages" />
-        </button>
+        </NavLink>
 
         <button className="hover:text-black hover:scale-105 transition-all duration-300 relative cursor-pointer">
           <IoNotificationsOutline className="text-2xl md:text-3xl" title="Notifications" />
@@ -68,7 +80,7 @@ const Header = ({ onMenuToggle }) => {
 
         {/* Profile Icon + Dropdown */}
         {person && (
-          <div className="relative" title="Profile" ref={profileMenuRef}>
+          <div className="relative" title={`${capitalize(person.role)}'s profile`} ref={profileMenuRef}>
             <button
               onClick={toggleProfileMenu}
               className="focus:outline-none hover:scale-105 transition-all duration-300 cursor-pointer"
