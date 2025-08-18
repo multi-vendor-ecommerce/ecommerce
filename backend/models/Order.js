@@ -3,15 +3,15 @@ import mongoose from "mongoose";
 const orderSchema = new mongoose.Schema(
   {
     shippingInfo: {
-      recipientName: { type: String, trim: true, required: [true, "Recipient name is required"] },
-      recipientPhone: { type: String, trim: true, required: [true, "Recipient phone is required"] },
-      line1: { type: String, trim: true, required: [true, "Address line 1 is required"] },
+      recipientName: { type: String, trim: true },
+      recipientPhone: { type: String, trim: true },
+      line1: { type: String, trim: true },
       line2: { type: String, trim: true, default: "" },
       locality: { type: String, trim: true, default: "" },
-      city: { type: String, trim: true, required: [true, "City is required"] },
-      state: { type: String, trim: true, required: [true, "State is required"] },
+      city: { type: String, trim: true },
+      state: { type: String, trim: true },
       country: { type: String, trim: true, default: "India" },
-      pincode: { type: String, trim: true, required: [true, "Pincode is required"] },
+      pincode: { type: String, trim: true },
       geoLocation: {
         lat: { type: Number },
         lng: { type: Number }
@@ -28,26 +28,22 @@ const orderSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
           required: [true, "Product is required"]
-        }
+        },
+        color: { type: String, default: null },
+        size: { type: String, default: null },
       }
     ],
 
     paymentMethod: {
       type: String,
-      required: [true, "Payment method is required"],
-      enum: ["COD", "Online"]
+      enum: ["COD", "Online"],
+      required: false,
     },
 
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Person",
       required: [true, "User is required"]
-    },
-
-    vendor: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Person",
-      required: [true, "Vendor is required"]
     },
 
     paidAt: {
@@ -89,7 +85,7 @@ const orderSchema = new mongoose.Schema(
     orderStatus: {
       type: String,
       default: "processing",
-      enum: ["processing", "shipped", "delivered", "cancelled"]
+      enum: ["draft", "Pending", "processing", "shipped", "delivered", "cancelled"]
     },
 
     deliveredAt: {

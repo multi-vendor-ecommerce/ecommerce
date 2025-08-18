@@ -8,12 +8,15 @@ import BackButton from "../../../common/layout/BackButton";
 import ReadMoreLess from "../../../common/ReadMoreLess";
 import { validateAndAddToCart } from "../Utils/cartHelpers";
 import { getDecryptedProductIdFromURL } from "../Utils/urlUtils";
+import { encryptData } from "../Utils/Encryption";
 import { getFinalPrice } from "../Utils/priceUtils";
+import OrderContext from "../../../../context/orders/OrderContext";
 
 const ProductDetails = () => {
   // Contexts
   const { getProductById } = useContext(ProductContext);
   const { addToCart } = useContext(CartContext);
+  const { createOrderDraft } = useContext(OrderContext);
 
   // State variables
   const [decryptedProductId, setDecryptedProductId] = useState("");
@@ -89,13 +92,31 @@ const ProductDetails = () => {
     });
   };
 
-  if (loading) {
-    return (
-      <section className="bg-[#F3EDFA] min-h-screen flex items-center justify-center">
-        <Spinner />
-      </section>
-    );
-  }
+  const handleBuyNow = async () => {
+    if (!productDetails?._id) return;
+
+    const res = await createOrderDraft({
+      buyNow: true,
+      productId: productDetails._id,
+      quantity: 1,
+      color: selectedColor,
+      size: selectedSize,
+    });
+    console.log(res.draftOrderId) // showing undefined:
+    if (res?.success && res.draftOrderId) {
+      navigate(`/order-summary/${res.draftOrderId}`);
+    } else {
+      alert("Failed to create order draft");
+    }
+  };
+
+  // if (loading) {
+  //   return (
+  //     <section className="bg-[#F3EDFA] min-h-screen flex items-center justify-center">
+  //       <Spinner />
+  //     </section>
+  //   );
+  // }
 
   if (!productDetails) {
     return <p>Product not found or loading...</p>;
@@ -258,8 +279,8 @@ const ProductDetails = () => {
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 mt-4">
             <button
-              className="bg-[#7F55B1] hover:bg-[#6d48a1] text-white px-6 py-2 rounded-lg shadow-md transition"
-              onClick={() => alert("Buy Now clicked!")}
+              className="bg-[#7F55B1] hover:bg-[#6d48a1] text-white px-6 py-2 rounded-lg shadow-md transition cursor-pointer"
+              onClick={handleBuyNow}
             >
               Buy Now
             </button>

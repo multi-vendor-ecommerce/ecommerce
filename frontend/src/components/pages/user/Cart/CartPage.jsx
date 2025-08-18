@@ -6,6 +6,7 @@ import BackButton from "../../../common/layout/BackButton";
 import { getFinalPrice, formatPrice } from "../Utils/priceUtils";
 import { encryptData } from "../Utils/Encryption";
 import { NavLink } from "react-router-dom";
+import OrderContext from "../../../../context/orders/OrderContext";
 
 import {
   calculateCartTotal,
@@ -15,6 +16,7 @@ import {
 
 const CartPage = () => {
   const { cart, loading, getCart, removeFromCart, addToCart } = useContext(CartContext);
+  const { createOrderDraft } = useContext(OrderContext);
   const navigate = useNavigate();
 
   const lastClickTime = useRef(0);
@@ -68,6 +70,17 @@ const CartPage = () => {
     navigate(`/product/${encodeURIComponent(encryptedProductId)}`);
   };
 
+  const handleCartCheckout = async () => {
+    const res = await createOrderDraft({
+      buyNow: false 
+    });
+
+    if (res.success) {
+      navigate(`/order-summary/${res.draftOrderId}`);
+    } else {
+      alert(res.message);
+    }
+  };
 
   if (!cart.length) {
     return (
@@ -180,7 +193,7 @@ const CartPage = () => {
                 </div>
 
                 <button
-                  onClick={() => handleRemove(_id)} // use cart item _id from outer map
+                  onClick={() => handleRemove(_id)}
                   className="text-red-600 hover:underline text-sm"
                   disabled={removingId === _id}
                 >
@@ -197,8 +210,8 @@ const CartPage = () => {
             Total: ₹{calculateCartTotal(cart)}
           </span>
           <button
-            onClick={() => navigate("/checkout", { state: { cart } })}
-            className="bg-[#7F55B1] hover:bg-[#6b3fa5] text-white px-6 py-2 rounded-lg shadow"
+            onClick={handleCartCheckout}
+            className="bg-[#7F55B1] hover:bg-[#6b3fa5] text-white px-6 py-2 rounded-lg shadow cursor-pointer"
           >
             Proceed to Checkout
           </button>

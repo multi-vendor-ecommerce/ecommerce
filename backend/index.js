@@ -14,6 +14,7 @@ import userRoutes from "./routes/userRoutes.js";
 import CouponRoutes from "./routes/couponRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js"
 
 connectToMongo();
 
@@ -45,6 +46,7 @@ app.use('/api/users', userRoutes);
 app.use("/api/coupons", CouponRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/payment", paymentRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend listening on port http://localhost:${PORT}`);

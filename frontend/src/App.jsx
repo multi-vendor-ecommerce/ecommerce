@@ -22,6 +22,7 @@ import VendorLogin from "./components/common/login/VendorLogin";
 import UserRegister from "./components/common/register/UserRegister";
 import VendorRegister from "./components/common/register/VendorRegister";
 import PersonState from "./context/person/PersonState";
+import PaymentState from "./context/paymentContext/PaymentState";
 
 function App() {
   return (
@@ -29,21 +30,23 @@ function App() {
       <AuthState>
         <PersonState>
           <OrderState>
-            <CartState>
-              <CouponState>
-                <UserState>
-                  <CategoryState>
-                    <VendorState>
-                      <ProductState>
-                        <Router>
-                          <AppRoutes />
-                        </Router>
-                      </ProductState>
-                    </VendorState>
-                  </CategoryState>
-                </UserState>
-              </CouponState>
-            </CartState>
+            <PaymentState>
+              <CartState>
+                <CouponState>
+                  <UserState>
+                    <CategoryState>
+                      <VendorState>
+                        <ProductState>
+                          <Router>
+                            <AppRoutes />
+                          </Router>
+                        </ProductState>
+                      </VendorState>
+                    </CategoryState>
+                  </UserState>
+                </CouponState>
+              </CartState>
+            </PaymentState>
           </OrderState>
         </PersonState>
       </AuthState>
