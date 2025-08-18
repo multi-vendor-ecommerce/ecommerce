@@ -8,7 +8,7 @@ import { FiExternalLink, FiPlusCircle } from "react-icons/fi";
 import CustomSelect from "../../../../common/layout/CustomSelect";
 import InputField from "../../../../common/InputField";
 import { addProductFields } from "../data/addProductFields";
-import * as Checkbox from "@radix-ui/react-checkbox";
+// import * as Checkbox from "@radix-ui/react-checkbox";
 import { FaCheck } from "react-icons/fa";
 
 const AddProduct = () => {

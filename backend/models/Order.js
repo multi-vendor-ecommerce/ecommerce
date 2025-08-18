@@ -88,6 +88,12 @@ const orderSchema = new mongoose.Schema(
       enum: ["draft", "Pending", "processing", "shipped", "delivered", "cancelled"]
     },
 
+    source: {
+      type: String,
+      enum: ["cart", "buyNow"],
+      required: true,
+    }, 
+
     deliveredAt: {
       type: Date,
       default: null

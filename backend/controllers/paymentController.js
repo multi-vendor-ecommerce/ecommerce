@@ -1,6 +1,7 @@
 // controllers/paymentController.js
 import Razorpay from "razorpay";
 import Order from "../models/Order.js";
+import User from "../models/User.js";
 import crypto from "crypto";
 
 const razorpay = new Razorpay({
@@ -64,6 +65,10 @@ export const verifyRazorpayPayment = async (req, res) => {
     order.paidAt = new Date();
     order.orderStatus = "Pending"; // confirmed but not yet delivered
 
+    if (order.source === "cart") {
+      await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
+    }
+
     await order.save();
 
     res.status(200).json({ success: true, message: "Payment verified successfully", order });
@@ -89,8 +94,11 @@ export const confirmCOD = async (req, res) => {
     order.paymentInfo = { id: null, status: "pending" };
     order.orderStatus = "Pending"; // confirmed
 
+    if (order.source === "cart") {
+      await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
+    }
+
     await order.save();
-    conosle.log(order);
 
     res.status(200).json({ success: true, message: "COD confirmed", order });
   } catch (err) {

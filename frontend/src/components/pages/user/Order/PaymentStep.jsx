@@ -6,7 +6,7 @@ const PaymentStep = ({ orderId, onBack }) => {
   const { confirmCOD, createRazorpayOrder, confirmRazorpayPayment } = useContext(PaymentContext);
   const navigate = useNavigate();
 
-  const [paymentMethod, setPaymentMethod] = useState("COD"); 
+  const [paymentMethod, setPaymentMethod] = useState("COD");
   const [loading, setLoading] = useState(false);
 
   const handleConfirm = async () => {
@@ -15,9 +15,10 @@ const PaymentStep = ({ orderId, onBack }) => {
     try {
       if (paymentMethod === "COD") {
         const res = await confirmCOD(orderId);
+        alert(`Message: ${res.message }\nOrderId: ${orderId}` || "COD confirmed");
         // if (res.success) navigate(`/order-success/${orderId}`);
         if (res.success) console.log("Navigate kra lo order-success page pe: ", orderId);
-        else alert("Error: ",res.message);
+        else alert("Error: ", res.message);
       } else if (paymentMethod === "Online") {
         // Step 1: Create Razorpay order
         const razorpayData = await createRazorpayOrder(orderId);
@@ -31,8 +32,8 @@ const PaymentStep = ({ orderId, onBack }) => {
           amount: razorpayOrder.amount,
           currency: razorpayOrder.currency,
           order_id: razorpayOrder.id,
-          name: "MyShop",
-          description: "Purchase",
+          name: "NoahPlanet",
+          description: `Payment for Order #${orderId} on NoahPlanet e-commerce`,
           prefill: {
             contact: "", // optional: fetch from shippingInfo
             email: "",
@@ -45,7 +46,8 @@ const PaymentStep = ({ orderId, onBack }) => {
               razorpaySignature: response.razorpay_signature,
             });
 
-            if (paymentRes.success) navigate(`/order-success/${orderId}`);
+            // if (paymentRes.success) navigate(`/order-success/${orderId}`);
+            if (paymentRes.success) console.log("/ordersuccess page pe navigate krao with orderId", orderId);
             else alert(paymentRes.message);
           },
           theme: { color: "#7e22ce" },
@@ -61,6 +63,7 @@ const PaymentStep = ({ orderId, onBack }) => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="space-y-4">

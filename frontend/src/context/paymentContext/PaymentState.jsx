@@ -37,7 +37,7 @@ const PaymentState = ({ children }) => {
   const confirmRazorpayPayment = async (orderId, paymentData) => {
     try {
       setLoading(true);
-      const res = await fetch(`${host}/api/payment/confirm-payment`, {
+      const res = await fetch(`${host}/api/payment/verify-payment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -102,7 +102,7 @@ const ProductDetails = () => {
       color: selectedColor,
       size: selectedSize,
     });
-    console.log(res.draftOrderId) // showing undefined:
+
     if (res?.success && res.draftOrderId) {
       navigate(`/order-summary/${res.draftOrderId}`);
     } else {

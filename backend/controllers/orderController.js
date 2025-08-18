@@ -4,132 +4,6 @@ import User from "../models/User.js";
 import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
 
-// export const placeOrder = async (req, res) => {
-//   const userId = req.person.id;
-//   const { shippingInfo: shippingFromBody, paymentMethod } = req.body;
-
-//   const session = await mongoose.startSession();
-//   session.startTransaction();
-
-//   try {
-//     const user = await User.findById(userId)
-//       .populate("cart.product")
-//       .session(session);
-
-//     if (!user || user.cart.length === 0) {
-//       return res.status(400).json({ success: false, message: "Cart is empty" });
-//     }
-
-//     // Merge shipping info from frontend or user profile
-//     const finalShippingInfo = {
-//       recipientName: shippingFromBody?.recipientName || user.address?.recipientName,
-//       recipientPhone: shippingFromBody?.recipientPhone || user.address?.recipientPhone,
-//       line1: shippingFromBody?.line1 || user.address?.line1,
-//       line2: shippingFromBody?.line2 || user.address?.line2 || "",
-//       locality: shippingFromBody?.locality || user.address?.locality || "",
-//       city: shippingFromBody?.city || user.address?.city,
-//       state: shippingFromBody?.state || user.address?.state,
-//       country: shippingFromBody?.country || user.address?.country || "India",
-//       pincode: shippingFromBody?.pincode || user.address?.pincode,
-//       geoLocation: {
-//         lat: shippingFromBody?.geoLocation?.lat || user.address?.geoLocation?.lat,
-//         lng: shippingFromBody?.geoLocation?.lng || user.address?.geoLocation?.lng
-//       }
-//     };
-
-//     // Validate required shipping fields
-//     const requiredFields = ["recipientName", "recipientPhone", "line1", "city", "state", "pincode"];
-//     for (const field of requiredFields) {
-//       if (!finalShippingInfo[field]) {
-//         throw new Error(`Shipping field "${field}" is required`);
-//       }
-//     }
-
-//     const ordersByVendor = {};
-
-//     // Group items by vendor
-//     user.cart.forEach(item => {
-//       const vendorId = item.product?.createdBy?.toString();
-//       if (!vendorId) throw new Error(`Product ${item.product?._id} has no vendor`);
-//       if (!ordersByVendor[vendorId]) ordersByVendor[vendorId] = [];
-//       ordersByVendor[vendorId].push(item);
-//     });
-
-//     const createdOrders = [];
-
-//     for (const vendorId in ordersByVendor) {
-//       const cartItems = ordersByVendor[vendorId];
-
-//       const orderItems = cartItems.map(item => ({
-//         name: item.product.title,
-//         price: item.product.price,
-//         quantity: item.quantity,
-//         image: Array.isArray(item.product.images) ? item.product.images[0] : item.product.image,
-//         product: item.product._id,
-//       }));
-
-//       // Calculate totals
-//       let itemPrice = 0;
-//       let tax = 0;
-//       let shippingCharges = 0;
-
-//       cartItems.forEach(item => {
-//         const productPrice = item.product.price * item.quantity;
-//         itemPrice += productPrice;
-
-//         const gstRate = item.product.gstRate ? item.product.gstRate / 100 : 0;
-//         tax += productPrice * gstRate;
-
-//         if (!item.product.freeDelivery) shippingCharges += 50;
-//       });
-
-//       const totalAmount = itemPrice + tax + shippingCharges;
-
-//       const orderData = {
-//         user: userId,
-//         vendor: vendorId,
-//         orderItems,
-//         paymentMethod,
-//         shippingInfo: finalShippingInfo,
-//         itemPrice,
-//         tax,
-//         shippingCharges,
-//         totalAmount,
-
-//       };
-
-//       if (paymentMethod === "Online") {
-//         orderData.paymentInfo = { status: "pending", id: null };
-//       }
-
-//       const [order] = await Order.create([orderData], { session });
-//       createdOrders.push(order);
-//     }
-
-//     // Update user order stats
-//     user.totalOrders += createdOrders.length;
-//     user.totalOrderValue += createdOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-
-//     // Clear cart
-//     user.cart = [];
-//     await user.save({ session });
-
-//     await session.commitTransaction();
-
-//     res.status(201).json({
-//       success: true,
-//       message: "Order placed successfully",
-//       orders: createdOrders,
-//     });
-//   } catch (err) {
-//     await session.abortTransaction();
-//     console.error(err);
-//     res.status(500).json({ success: false, message: err.message });
-//   } finally {
-//     session.endSession();
-//   }
-// };
-
 export const createOrUpdateDraftOrder = async (req, res) => {
   const userId = req.person.id;
   const { buyNow, productId, quantity = 1, color, size } = req.body;
@@ -169,7 +43,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       shippingCharges = product.freeDelivery ? 0 : 50;
 
       // Check existing draft for this product
-      draftOrder = await Order.findOne({ user: userId, orderStatus: "draft", "orderItems.product": productId });
+      draftOrder = await Order.findOne({ user: userId, orderStatus: "draft", source: "buyNow", "orderItems.product": productId });
       if (draftOrder) {
         draftOrder.orderItems = orderItems;
         draftOrder.itemPrice = itemPrice;
@@ -188,6 +62,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           shippingCharges,
           totalAmount: itemPrice + tax + shippingCharges,
           orderStatus: "draft",
+          source: "buyNow",
         });
       }
     } else {
@@ -198,7 +73,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       tax = itemPrice * 0.18;
       shippingCharges = user.cart.some(i => !i.product.freeDelivery) ? 50 : 0;
 
-      draftOrder = await Order.findOne({ user: userId, orderStatus: "draft" });
+      draftOrder = await Order.findOne({ user: userId, orderStatus: "draft", source: "cart" });
       if (draftOrder) {
         draftOrder.orderItems = orderItems;
         draftOrder.itemPrice = itemPrice;
@@ -217,6 +92,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           shippingCharges,
           totalAmount: itemPrice + tax + shippingCharges,
           orderStatus: "draft",
+          source: "cart",
         });
       }
     }
