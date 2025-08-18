@@ -51,8 +51,7 @@ export default function Orders({ role = "admin" }) {
     setPage(1);
   };
 
-  // const headers = ["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Status", "Amount" ,"Actions"];
-  const headers = ["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Amount", "Actions"];
+  const headers = ["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Status", "Amount" ,"Actions"];
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">

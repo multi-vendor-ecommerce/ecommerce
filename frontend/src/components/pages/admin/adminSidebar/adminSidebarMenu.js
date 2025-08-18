@@ -1,6 +1,6 @@
 import {
   FiBarChart2, FiClipboard, FiUsers, FiTag, FiMail, FiBox,
-  FiShoppingCart, FiLayers, FiSettings,
+  FiShoppingCart, FiLayers, FiSettings, FiHome
 } from 'react-icons/fi';
 
 export const adminSidebarMenu = [
@@ -87,7 +87,6 @@ export const adminSidebarMenu = [
         children: [
           { label: "All Products", path: "/admin/all-products" },
           { label: "Top Selling Products", path: "/admin/top-selling-products" },
-          { label: "Add Product", path: "/admin/add-product" },
           { label: "Approve Products", path: "/admin/approve-products" },
         ],
       },
@@ -133,7 +132,7 @@ export const adminSidebarMenu = [
     ],
   },
 
-  // ───────────────── SETTINGS ─────────────────
+  // ───────────────── PROFILE SETTINGS ─────────────────
   {
     section: "PROFILE SETTINGS",
     items: [

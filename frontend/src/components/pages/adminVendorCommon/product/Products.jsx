@@ -102,13 +102,15 @@ export default function Products({ heading, role = "admin" }) {
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
       <div className="flex justify-between items-center mb-3">
         <BackButton />
-        <NavLink
-          to={`/${role}/add-product`}
-          className="flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-blue-600 font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
-        >
-          <FiPlus className="text-lg md:text-2xl" />
-          <span className="hidden md:inline-block">Add Product</span>
-        </NavLink>
+        {role === "vendor" && (
+          <NavLink
+            to={`/vendor/add-product`}
+            className="flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-blue-600 font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
+          >
+            <FiPlus className="text-lg md:text-2xl" />
+            <span className="hidden md:inline-block">Add Product</span>
+          </NavLink>
+        )}
       </div>
 
       <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mt-4 mb-6">

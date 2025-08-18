@@ -35,7 +35,7 @@ export default function Pagination({
       onPageChange={({ selected }) => onPageChange(selected + 1)} // 0-index → 1-index
       pageRangeDisplayed={pageRange}
       marginPagesDisplayed={marginPages}
-      containerClassName="flex gap-0.5 md:gap-3 justify-center items-center text-sm"
+      containerClassName="flex justify-center items-center text-sm"
       pageClassName="cursor-pointer px-3 py-1 rounded font-semibold hover:bg-blue-100 transition duration-150"
       activeClassName="bg-blue-500 text-white font-bold"
       previousClassName="px-2 py-1 rounded font-semibold"

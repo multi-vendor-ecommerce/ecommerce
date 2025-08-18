@@ -46,7 +46,7 @@ const Dashboard = ({ summaryData }) => {
               options={dateFilterFields[0].options}
               value={dateValue}
               onChange={(newValue) => handleChange("date", newValue)}
-              menuPlacement="bottom"
+              menuPlacement="auto"
             />
           </div>
         </div>

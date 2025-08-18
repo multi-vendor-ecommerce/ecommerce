@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { FiTrash2 } from "react-icons/fi";
+import { useContext, useEffect, useState } from "react";
+import { FiTrash2, FiEdit } from "react-icons/fi";
 import AddCoupon from "./AddCoupon";
 import CouponContext from "../../../../context/coupons/CouponContext";
 import { getFormatDate } from "../../../../utils/formatDate";
@@ -8,28 +8,14 @@ import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 
 export default function CouponsManager() {
-  const {
-    coupons,
-    getAllCoupons,
-    addCoupon,
-    deleteCoupon,
-    loading,
-    totalCount,
-  } = useContext(CouponContext);
+  const { coupons, getAllCoupons, addCoupon, editCoupon, deleteCoupon, loading, totalCount } = useContext(CouponContext);
 
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const [errors, setErrors] = useState({});
-  const [form, setForm] = useState({
-    code: "",
-    discount: "",
-    minPurchase: "",
-    maxDiscount: "",
-    expiryDate: "",
-    usageLimit: "",
-    isActive: true,
-  });
+  const [form, setForm] = useState({ code: "", discount: "", minPurchase: "", maxDiscount: "", expiryDate: "", usageLimit: "", isActive: true });
+
 
   useEffect(() => {
     getAllCoupons(page, itemsPerPage);
@@ -66,15 +52,7 @@ export default function CouponsManager() {
     const result = await addCoupon(payload);
 
     if (result.success) {
-      setForm({
-        code: "",
-        discount: "",
-        minPurchase: "",
-        maxDiscount: "",
-        expiryDate: "",
-        usageLimit: "",
-        isActive: true,
-      });
+      setForm({ code: "", discount: "", minPurchase: "", maxDiscount: "", expiryDate: "", usageLimit: "", isActive: true });
       setErrors({});
       getAllCoupons(page, itemsPerPage); // Refresh list after add
     } else {
@@ -89,6 +67,40 @@ export default function CouponsManager() {
       getAllCoupons(page, itemsPerPage); // Refresh list after delete
     }
   };
+
+  // const handleEdit = async (id) => {
+  //   const { code, discount, minPurchase, maxDiscount, expiryDate, usageLimit, isActive } = form;
+  //   const newErrors = {};
+
+  //   if (!code.trim()) newErrors.code = "Coupon code is required";
+  //   if (discount === "" || Number(discount) <= 0) newErrors.discount = "Enter a valid discount amount";
+  //   if (minPurchase === "" || Number(minPurchase) < 0) newErrors.minPurchase = "Enter a valid minimum purchase";
+  //   if (!expiryDate) newErrors.expiryDate = "Expiry date is required";
+  //   if (usageLimit === "" || Number(usageLimit) < 1) newErrors.usageLimit = "Usage limit must be at least 1";
+
+  //   setErrors(newErrors);
+  //   if (Object.keys(newErrors).length > 0) return;
+
+  //   const payload = {
+  //     code: code.trim(),
+  //     discount: Number(discount),
+  //     minPurchase: Number(minPurchase),
+  //     maxDiscount: maxDiscount ? Number(maxDiscount) : null,
+  //     expiryDate,
+  //     usageLimit: Number(usageLimit),
+  //     isActive,
+  //   };
+
+  //   const result = await editCoupon(id, payload);
+
+  //   if (result.success) {
+  //     setForm({ code: "", discount: "", minPurchase: "", maxDiscount: "", expiryDate: "", usageLimit: "", isActive: true });
+  //     setErrors({});
+  //     getAllCoupons(page, itemsPerPage); // Refresh list after edit
+  //   } else {
+  //     alert(result.message);
+  //   }
+  // };
 
   return (
     <section className="bg-gray-100 min-h-screen w-full p-6 shadow-md">
@@ -147,6 +159,14 @@ export default function CouponsManager() {
                         </span>
                       </p>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                      onClick={() => handleEdit(c._id)}
+                      className="hover:text-blue-600 transition cursor-pointer"
+                      title="Edit coupon"
+                    >
+                      <FiEdit size={22} />
+                    </button>
                     <button
                       onClick={() => handleDelete(c._id)}
                       className="hover:text-red-600 transition cursor-pointer"
@@ -154,6 +174,7 @@ export default function CouponsManager() {
                     >
                       <FiTrash2 size={22} />
                     </button>
+                    </div>
                   </li>
                 ))}
               </ul>

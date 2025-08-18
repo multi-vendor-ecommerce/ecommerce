@@ -4,9 +4,19 @@ import Stepper from "../../../../common/Stepper";
 import StepperControls from "../../../../common/StepperControls";
 import BackButton from "../../../../common/layout/BackButton";
 import CategorySelector from "./CategorySelector";
-import { FiExternalLink } from "react-icons/fi";
+import { FiExternalLink, FiPlusCircle } from "react-icons/fi";
+import CustomSelect from "../../../../common/layout/CustomSelect";
+import InputField from "../../../../common/InputField";
+import { addProductFields } from "../data/addProductFields";
+import * as Checkbox from "@radix-ui/react-checkbox";
+import { FaCheck } from "react-icons/fa";
 
-const AddProduct = ({ isVendor = false }) => {
+const AddProduct = () => {
+  const visibilityOptions = [
+    { value: "public", label: "Public" },
+    { value: "private", label: "Private" }
+  ];
+
   const { addProduct } = useContext(ProductContext);
 
   const [step, setStep] = useState(1);
@@ -18,14 +28,13 @@ const AddProduct = ({ isVendor = false }) => {
     title: "", brand: "", tags: "", colors: "", size: "", sku: "",
     hsnCode: "", gstRate: "", description: "", price: "", discount: "",
     stock: "", isTaxable: true, freeDelivery: false,
-    status: isVendor ? "pending" : "approved",
+    status: "pending",
     visibility: "public", category: ""
   });
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    const val = type === "checkbox" ? checked : value;
-    setFormData((prev) => ({ ...prev, [name]: val }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleImageChange = (e) => {
@@ -138,7 +147,7 @@ const AddProduct = ({ isVendor = false }) => {
         {errorMsg && <p className="text-red-600 text-sm md:text-[16px] text-center mb-4">{errorMsg}</p>}
 
         <Stepper
-          className="flex justify-between items-center text-sm md:text-lg font-medium text-gray-700 gap-3 md:gap-1 mb-6"
+          className="w-full flex justify-between items-center text-sm md:text-lg font-medium text-gray-700 gap-3 md:gap-1 mb-6"
           currentStep={step}
           highlightCurrentStep={true}
           stepLabels={["Select Category", "Basic Info", "Product Details"]}
@@ -157,155 +166,82 @@ const AddProduct = ({ isVendor = false }) => {
             />
           )}
 
-          {step === 2 && (
-            <>
-              {["brand", "title", "tags", "colors", "size", "sku", "hsnCode"].map((field) => {
-                const labels = {
-                  brand: "Brand",
-                  title: "Product Title",
-                  tags: "Tags (comma-separated)",
-                  colors: "Colors (comma-separated)",
-                  size: "Size (e.g. M, L, XL)",
-                  sku: "SKU (4-20 characters)",
-                  hsnCode: "HSN Code (4-8 digits)",
-                };
-
-                const placeholders = {
-                  brand: "e.g. Nike",
-                  title: "e.g. Running Shoes",
-                  tags: "e.g. shoes, running, men",
-                  colors: "e.g. Red, white, pink",
-                  size: "e.g. L",
-                  sku: "e.g. RUN1234",
-                  hsnCode: "e.g. 6403",
-                };
-
-                return (
-                  <div key={field}>
-                    <label htmlFor={field} className="flex gap-2 font-medium text-gray-700 mb-1">
-                      {labels[field]}
-                      {field === "hsnCode" && (
-                        <a
-                          href="https://cbic-gst.gov.in/gst-goods-services-rates.html"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ml-1.5 text-blue-600 hover:text-blue-800"
-                        >
-                          <span className="inline-flex gap-1 items-center">
-                            <span className="hover:underline hover:decoration-dotted hover:font-medium">
-                              Lookup HSN Code
-                            </span>
-                            <FiExternalLink size={16} />
-                          </span>
-                        </a>
-                      )}
-                    </label>
-                    <input
-                      id={field}
-                      name={field}
-                      type="text"
-                      placeholder={placeholders[field]}
-                      title={placeholders[field]}
-                      className="w-full bg-gray-200 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={formData[field]}
-                      onChange={handleInputChange}
-                      required={["title", "sku", "hsnCode"].includes(field)}
-                    />
-                  </div>
-                );
-              })}
-            </>
-          )}
+          <div className="space-y-4">
+            {(addProductFields[step] || []).map((field, idx) => (
+              <div key={idx} className="col-span-2">
+                <InputField
+                  label={`${field.label}${field.required ? " *" : ""}`}
+                  name={field.name}
+                  type={field.type || "text"}
+                  placeholder={field.placeholder}
+                  title={field.title}
+                  required={field.required}
+                  value={formData[field.name]}
+                  onChange={handleInputChange}
+                />
+                {field.name === "hsnCode" && (
+                  <a
+                    href={field.link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="md:ml-1.5 text-blue-600 hover:text-blue-800 truncate"
+                  >
+                    <span className="inline-flex gap-1 mt-1 items-center">
+                      <span className="hover:underline hover:decoration-dotted hover:font-medium">
+                        {field.link.text}
+                      </span>
+                      <FiExternalLink size={16} />
+                    </span>
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
 
           {step === 3 && (
             <>
-              <div>
-                <label htmlFor="description" className="block font-medium text-gray-700 mb-1">
-                  Product Description
-                </label>
-                <textarea
-                  name="description"
-                  placeholder="e.g. High-quality running shoes with breathable material and durable sole."
-                  className="w-full bg-gray-200 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              {["price", "discount", "stock", "gstRate"].map((field) => (
-                <div key={field}>
-                  <label htmlFor={field} className="block font-medium text-gray-700 mb-1">
-                    {field.replace(/([A-Z])/g, " $1")}
-                  </label>
-                  <input
-                    id={field}
-                    name={field}
-                    type="number"
-                    placeholder={`Enter ${field.replace(/([A-Z])/g, " $1").toLowerCase()}`}
-                    className="w-full bg-gray-200 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={formData[field]}
-                    onChange={handleInputChange}
-                    required={["price", "stock", "gstRate"].includes(field)}
-                  />
-                </div>
-              ))}
-
               {["isTaxable", "freeDelivery"].map((field) => (
-                <label key={field} className="block">
-                  <input
-                    type="checkbox"
-                    name={field}
+                <label key={field} className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox.Root
+                    id={field}
                     checked={formData[field]}
-                    onChange={handleInputChange}
-                    className="mr-2"
-                  />
-                  {field.replace(/([A-Z])/g, " $1")}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({ ...prev, [field]: checked }))
+                    }
+                    className="w-5 h-5 bg-white border-2 border-gray-300 rounded flex items-center justify-center cursor-pointer"
+                  >
+                    <Checkbox.Indicator>
+                      <FaCheck size={14} className="text-blue-600" />
+                    </Checkbox.Indicator>
+                  </Checkbox.Root>
+                  <span className="text-gray-700">
+                    {field.replace(/([A-Z])/g, " $1")}
+                  </span>
                 </label>
               ))}
 
               <div className="space-y-2">
-                {!isVendor && (
-                  <>
-                    <label htmlFor="status" className="block font-medium text-gray-700">Status</label>
-                    <select
-                      name="status"
-                      className="w-full bg-gray-200 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
-                  </>
-                )}
-
                 <label htmlFor="visibility" className="block font-medium text-gray-700">Visibility</label>
-                <select
-                  name="visibility"
-                  className="w-full bg-gray-200 rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <CustomSelect
+                  options={visibilityOptions}
                   value={formData.visibility}
-                  onChange={handleInputChange}
-                >
-                  <option value="public">Public</option>
-                  <option value="private">Private</option>
-                </select>
+                  onChange={(value) => setFormData((prev) => ({ ...prev, visibility: value }))}
+                  menuPlacement="auto"
+                />
               </div>
 
-
               <div className="w-full mb-2">
-                <label htmlFor="images" className="block font-medium text-gray-700 mb-1">
-                  Upload Product Images
+                <label htmlFor="images" className="flex font-medium text-gray-700 mb-1 items-center gap-2 cursor-pointer" title="Upload at least one clear image">
+                  <FiPlusCircle size={20} className="text-blue-600" />
+                  <span>Upload Product Images</span>
                 </label>
                 <input
                   type="file"
                   multiple
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="cursor-pointer"
+                  className="hidden"
                   id="images"
-                  title="Upload at least one clear image"
                 />
               </div>
 

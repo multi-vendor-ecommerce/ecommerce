@@ -20,8 +20,8 @@ const ProfileMenu = ({ person }) => {
           <ProfileImage person={person} />
 
           <div>
-            <p className="font-semibold text-gray-800">{person.name}</p>
-            <p className="text-gray-500 text-xs">{person.email}</p>
+            <p className="font-semibold text-gray-800 hover:scale-110 transition duration-300" title={person.name}>{person.name}</p>
+            <p className="text-gray-500 text-xs hover:scale-110 transition duration-300" title={person.email}>{person.email}</p>
           </div>
         </div>
       </div>
@@ -30,20 +30,20 @@ const ProfileMenu = ({ person }) => {
 
       <ul className="py-2 w-full text-black text-[16px] md:text-lg">
         <li className="px-4 mx-2 pt-2 pb-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer">
-          <NavLink to={`/${person.role}/settings/profile`} className="flex items-center gap-2">
+          <NavLink to={`/${person.role}/settings/profile`} className="flex items-center gap-2 hover:scale-105 transition duration-300">
             <FiUser size={22} className="text-xl font-semibold" />
             <span>Profile</span>
           </NavLink>
         </li>
-        <li className="px-4 mx-2 pt-2 pb-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer">
-          <NavLink to={`/${person.role}/settings/security`} className="flex items-center gap-2">
+        <li className="px-4 mx-2 pt-2 pb-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer" title="Change password">
+          <NavLink to={`/${person.role}/settings/security`} className="flex items-center gap-2 hover:scale-105 transition duration-300">
             <RiLockLine size={22} className="text-xl font-semibold" />
             <span>Security</span>
           </NavLink>
         </li>
         <div className="w-[90%] mx-auto h-[1px] bg-gray-300 mt-2 mb-1.5"></div>
-        <li className="px-4 mx-2 py-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer text-red-600">
-          <button onClick={handleLogOut} className="flex items-center gap-2">
+        <li className="px-4 mx-2 py-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer text-red-600" title="Sign out">
+          <button onClick={handleLogOut} className="flex items-center gap-2 cursor-pointer hover:scale-105 transition duration-300">
             <HiOutlineLogout size={22} className="text-xl font-semibold" />
             <span>Sign Out</span>
           </button>

@@ -55,7 +55,7 @@ const Vendor = () => {
             <Route path="all-products" element={<Products heading="All Products" role="vendor" />} />
             <Route path="product-details/:productId" element={<ProductDetails role="vendor" />} />
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" role="vendor" />} />
-            <Route path="add-product" element={<AddProduct isVendor={true} />} />
+            <Route path="add-product" element={<AddProduct />} />
 
             {/* Settings */}
             <Route path="store/">

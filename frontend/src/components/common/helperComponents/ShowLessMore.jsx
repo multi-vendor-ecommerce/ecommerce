@@ -7,6 +7,7 @@ const ShowLessMore = ({ showAll, toggleShowAll, condition }) => {
       <button
         onClick={toggleShowAll}
         className="text-blue-600 hover:underline cursor-pointer font-medium"
+        title="Toggle visibility"
       >
         {showAll ? "Show Less" : "Show More"}
       </button>

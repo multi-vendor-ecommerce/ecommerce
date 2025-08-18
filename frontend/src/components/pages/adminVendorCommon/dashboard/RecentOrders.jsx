@@ -19,11 +19,11 @@ const RecentOrders = () => {
         <div className="flex justify-center"><Loader /></div>
       ) : (
         <>
-          <div className="min-h-16 flex justify-between items-center mb-5">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800">Recent Orders</h2>
+          <div className="min-h-16 w-full flex gap-2 justify-between items-center mb-5">
+            <h2 className="w-[60%] md:w-auto text-xl md:text-2xl font-bold text-gray-800 truncate">Recent Orders</h2>
             <NavLink
               to="/admin/all-orders"
-              className="border-gray-300 px-2 md:px-4 py-2 rounded-xl text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
+              className="w-[40%] md:w-auto border-gray-300 px-2 md:px-4 py-2 rounded-xl text-center text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
             >
               View Orders
             </NavLink>
@@ -31,7 +31,7 @@ const RecentOrders = () => {
 
           <div>
             <TabularData
-              headers={["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Amount", "Actions"]}
+              headers={["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Status", "Amount", "Actions"]}
               data={ordersToShow}
               renderRow={(o, i) => RenderOrderRow(o, i, StatusChip)}
               emptyMessage="No orders found."
