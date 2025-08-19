@@ -75,12 +75,19 @@ function UserHeader() {
       <div className="py-3 lg:px-16">
         <div className="container mx-auto px-4 flex items-center justify-between gap-4 flex-wrap">
           {/* Logo */}
-          <Link
+          {/* <Link
             to="/"
             className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap"
           >
             <span className="text-user-dark">NOAH</span>PLANET
-          </Link>
+          </Link> */}
+
+          <Link
+            to="/"
+            className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap"
+          >
+          <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-12 sm:h-17" />
+          </Link> 
 
           {/* Desktop Search */}
           <div className="hidden lg:flex flex-1 max-w-xl">
