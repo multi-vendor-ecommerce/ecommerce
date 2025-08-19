@@ -119,7 +119,11 @@ const ProductDetails = () => {
   // }
 
   if (!productDetails) {
-    return <p>Product not found or loading...</p>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner />
+      </div>
+    );
   }
 
   return (

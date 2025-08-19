@@ -15,7 +15,7 @@ import {
 } from "../Utils/cartHelpers";
 
 const CartPage = () => {
-  const { cart, loading, getCart, removeFromCart, addToCart } = useContext(CartContext);
+  const { cart, getCart, removeFromCart, addToCart } = useContext(CartContext);
   const { createOrderDraft } = useContext(OrderContext);
   const navigate = useNavigate();
 

@@ -13,7 +13,9 @@ export default function ProductSection({ title }) {
 
   if (loading) {
     return (
-      <p className="text-lg text-gray-500">Loading products...</p>
+      <div className="flex justify-center items-center h-64">
+        <Spinner />
+      </div>
     );
   }
 

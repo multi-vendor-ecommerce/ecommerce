@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import OrderContext from "../../../../context/orders/OrderContext";
+import { useParams, useNavigate } from "react-router-dom";
+import Spinner from "../../../common/Spinner";
 import ShippingStep from "./ShippingStep";
 import ReviewStep from "./ReviewStep";
 import PaymentStep from "./PaymentStep";
@@ -25,7 +26,13 @@ const OrderSummary = () => {
   const next = () => setStep((s) => Math.min(s + 1, 3));
   const prev = () => setStep((s) => Math.max(s - 1, 1));
 
-  if (!order) return <p>Loading draft order...</p>;
+  if (!order) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow">
@@ -34,9 +41,8 @@ const OrderSummary = () => {
         {["Shipping", "Review", "Payment"].map((label, i) => (
           <div
             key={i}
-            className={`flex-1 text-center py-2 border-b-4 ${
-              step === i + 1 ? "border-purple-600 font-bold" : "border-gray-300"
-            }`}
+            className={`flex-1 text-center py-2 border-b-4 ${step === i + 1 ? "border-purple-600 font-bold" : "border-gray-300"
+              }`}
           >
             {label}
           </div>

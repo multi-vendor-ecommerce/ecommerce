@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaCaretDown } from "react-icons/fa";
 import CategorySidebar from "./CategorySideBar";
+import Spinner from "../../../../common/Spinner";
 
 const CategorySection = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -24,7 +25,7 @@ const CategorySection = () => {
             className="flex items-center gap-3 px-5 py-3 bg-[#7F55B1] hover:bg-[#6e45a1] text-white rounded-full shadow-lg cursor-pointer transition duration-200"
           >
             <FaCaretDown className="text-white text-xl" />
-            <span className="text-base font-semibold">All Categories</span>
+            <span className="text-base font-semibold">All Categories</span> 
           </div>
 
           {/* Parent Categories Horizontal Scroll */}
