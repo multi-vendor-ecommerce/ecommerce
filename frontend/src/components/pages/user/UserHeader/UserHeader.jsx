@@ -86,7 +86,7 @@ function UserHeader() {
             to="/"
             className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap"
           >
-          <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-12 sm:h-17" />
+          <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-12 sm:h-17 rounded" />
           </Link> 
 
           {/* Desktop Search */}

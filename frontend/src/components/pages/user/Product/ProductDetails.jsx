@@ -110,14 +110,6 @@ const ProductDetails = () => {
     }
   };
 
-  // if (loading) {
-  //   return (
-  //     <section className="bg-[#F3EDFA] min-h-screen flex items-center justify-center">
-  //       <Spinner />
-  //     </section>
-  //   );
-  // }
-
   if (!productDetails) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -289,7 +281,7 @@ const ProductDetails = () => {
               Buy Now
             </button>
             <button
-              className="bg-white border border-[#7F55B1] text-[#7F55B1] px-6 py-2 rounded-lg shadow-md hover:bg-[#f4ecff] transition"
+              className="bg-white border border-[#7F55B1] text-[#7F55B1] px-6 py-2 rounded-lg shadow-md hover:bg-[#f4ecff] transition cursor-pointer"
               onClick={handleAddToCart}
               disabled={isLoading}
             >
