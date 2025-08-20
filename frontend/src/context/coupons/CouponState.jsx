@@ -90,10 +90,9 @@ const CouponState = (props) => {
         };
       }
 
-      // Update state
-      setCoupons(coupons.map((coupon) => 
-        coupon._id === id ? data.coupon : coupon
-      ));
+      setCoupons((prev) =>
+        prev.map((coupon) => (coupon._id === id ? data.coupon : coupon))
+      );
 
       return { success: data.success, message: data.message || "Coupon edited." };
     } catch (error) {
@@ -104,21 +103,27 @@ const CouponState = (props) => {
 
   // Delete a coupon
   const deleteCoupon = async (id) => {
-    // Delete a coupon from backend
-    const response = await fetch(`${host}/api/coupons/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        "auth-token": localStorage.getItem("adminToken"),
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${host}/api/coupons/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("adminToken"),
+        },
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setCoupons((prev) => prev.filter((coupon) => coupon._id !== id));
       }
-    });
-
-    if (!response.ok) throw new Error("Delete to fetch coupons.");
-
-    // Delete the coupon from frontend
-    const newCoupons = coupons.filter((coupon) => { return coupon._id !== id });
-    setCoupons(newCoupons);
-  }
+    } catch (error) {
+      console.error("Error deleting coupon:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <CouponContext.Provider value={{ coupons, totalCount, getAllCoupons, addCoupon, editCoupon, deleteCoupon, loading }}>

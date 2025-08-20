@@ -9,7 +9,7 @@ export const getCurrentPerson = async (req, res) => {
   } catch (err) {
     // Catch the error
     console.log(err.message);
-    res.status(500).json({ success: false, error: 'Interal Server Error', message: err.message });
+    res.status(500).json({ success: false, message: 'Interal Server Error', error: err.message });
   }
 }
 

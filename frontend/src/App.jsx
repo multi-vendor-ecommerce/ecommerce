@@ -7,6 +7,9 @@ import CouponState from "./context/coupons/CouponState";
 import AuthState from "./context/auth/AuthState";
 import CartState from "./context/cart/cartState";
 import OrderState from "./context/orders/OrderState";
+import PersonState from "./context/person/PersonState";
+import PaymentState from "./context/paymentContext/PaymentState";
+import AddressState from "./context/shippingAddress/AddressState";
 
 // Person components
 import Admin from "./components/pages/admin/Admin";
@@ -21,34 +24,34 @@ import VendorLogin from "./components/common/login/VendorLogin";
 // Register components
 import UserRegister from "./components/common/register/UserRegister";
 import VendorRegister from "./components/common/register/VendorRegister";
-import PersonState from "./context/person/PersonState";
-import PaymentState from "./context/paymentContext/PaymentState";
 
 function App() {
   return (
     <>
       <AuthState>
-        <PersonState>
-          <OrderState>
-            <PaymentState>
-              <CartState>
-                <CouponState>
-                  <UserState>
-                    <CategoryState>
-                      <VendorState>
-                        <ProductState>
-                          <Router>
-                            <AppRoutes />
-                          </Router>
-                        </ProductState>
-                      </VendorState>
-                    </CategoryState>
-                  </UserState>
-                </CouponState>
-              </CartState>
-            </PaymentState>
-          </OrderState>
-        </PersonState>
+        <AddressState>
+          <PersonState>
+            <OrderState>
+              <PaymentState>
+                <CartState>
+                  <CouponState>
+                    <UserState>
+                      <CategoryState>
+                        <VendorState>
+                          <ProductState>
+                            <Router>
+                              <AppRoutes />
+                            </Router>
+                          </ProductState>
+                        </VendorState>
+                      </CategoryState>
+                    </UserState>
+                  </CouponState>
+                </CartState>
+              </PaymentState>
+            </OrderState>
+          </PersonState>
+        </AddressState>
       </AuthState>
     </>
   )
