@@ -6,8 +6,8 @@ const CouponState = (props) => {
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
-  // const host = http://localhost:5000
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
   // Get paginated coupons
   const getAllCoupons = async (page = 1, limit = 10) => {
@@ -104,8 +104,6 @@ const CouponState = (props) => {
   // Delete a coupon
   const deleteCoupon = async (id) => {
     try {
-      setLoading(true);
-
       const response = await fetch(`${host}/api/coupons/${id}`, {
         method: "DELETE",
         headers: {
@@ -116,12 +114,11 @@ const CouponState = (props) => {
 
       const data = await response.json();
       if (data.success) {
-        setCoupons((prev) => prev.filter((coupon) => coupon._id !== id));
+        setCoupons(coupons.filter(coupon => coupon._id !== id));
+        // setCoupons((prev) => prev.filter((coupon) => coupon._id !== id));
       }
     } catch (error) {
       console.error("Error deleting coupon:", error);
-    } finally {
-      setLoading(false);
     }
   };
 

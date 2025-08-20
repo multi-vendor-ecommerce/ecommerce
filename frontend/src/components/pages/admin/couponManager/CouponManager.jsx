@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react";
-import { FiTrash2, FiEdit } from "react-icons/fi";
-import AddCoupon from "./AddCoupon";
+import AddEditCoupon from "./AddEditCoupon";
 import CouponContext from "../../../../context/coupons/CouponContext";
-import { getFormatDate } from "../../../../utils/formatDate";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
+import { RenderCouponRow } from "./RenderCouponRow";
+import TabularData from "../../../common/layout/TabularData";
 
 export default function CouponsManager() {
   const { coupons, getAllCoupons, addCoupon, editCoupon, deleteCoupon, loading, totalCount } = useContext(CouponContext);
@@ -15,46 +15,73 @@ export default function CouponsManager() {
 
   const [errors, setErrors] = useState({});
   const [form, setForm] = useState({ code: "", discount: "", minPurchase: "", maxDiscount: "", expiryDate: "", usageLimit: "", isActive: true });
-
+  const [editingId, setEditingId] = useState(null); // null = add mode, id = edit mode
+  const [originalForm, setOriginalForm] = useState(null); // Track original coupon
 
   useEffect(() => {
     getAllCoupons(page, itemsPerPage);
   }, [page, itemsPerPage]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+  const handleChange = (name, value) => {
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddCoupon = async () => {
-    const { code, discount, minPurchase, maxDiscount, expiryDate, usageLimit, isActive } = form;
-    const newErrors = {};
+  // Start editing a coupon
+  const handleStartEdit = (coupon) => {
+    const formData = {
+      code: coupon.code || "",
+      discount: coupon.discount || "",
+      minPurchase: coupon.minPurchase || "",
+      maxDiscount: coupon.maxDiscount || "",
+      expiryDate: coupon.expiryDate || "",
+      usageLimit: coupon.usageLimit || "",
+      isActive: coupon.isActive ?? true,
+    };
 
-    if (!code.trim()) newErrors.code = "Coupon code is required";
-    if (discount === "" || Number(discount) <= 0) newErrors.discount = "Enter a valid discount amount";
-    if (minPurchase === "" || Number(minPurchase) < 0) newErrors.minPurchase = "Enter a valid minimum purchase";
-    if (!expiryDate) newErrors.expiryDate = "Expiry date is required";
-    if (usageLimit === "" || Number(usageLimit) < 1) newErrors.usageLimit = "Usage limit must be at least 1";
+    setForm(formData);
+    setOriginalForm(formData); // Save original for change detection
+    setEditingId(coupon._id);
+  };
+
+  // Add or Edit handler
+  const handleSubmit = async () => {
+    const newErrors = {};
+    if (!form.code.trim()) newErrors.code = "Coupon code is required";
+    if (form.discount === "" || Number(form.discount) <= 0) newErrors.discount = "Enter a valid discount";
+    if (form.minPurchase === "" || Number(form.minPurchase) < 0)
+      newErrors.minPurchase = "Enter a valid minimum purchase";
+    if (!form.expiryDate) newErrors.expiryDate = "Expiry date is required";
+    if (form.usageLimit === "" || Number(form.usageLimit) < 1)
+      newErrors.usageLimit = "Usage limit must be at least 1";
 
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
-    const payload = {
-      code: code.trim(),
-      discount: Number(discount),
-      minPurchase: Number(minPurchase),
-      maxDiscount: maxDiscount ? Number(maxDiscount) : null,
-      expiryDate,
-      usageLimit: Number(usageLimit),
-      isActive,
-    };
+    // Build payload only with non-empty and changed fields
+    const payload = {};
+    Object.keys(form).forEach((key) => {
+      if (form[key] !== "" && form[key] !== null) {
+        // If editing, only include changed fields
+        if (!editingId || form[key] !== originalForm[key]) {
+          payload[key] = form[key];
+        }
+      }
+    });
 
-    const result = await addCoupon(payload);
+    if (editingId && Object.keys(payload).length === 0) {
+      alert("No changes made. Nothing to update.");
+      return; // Skip API call if nothing changed
+    }
+
+    let result;
+    if (editingId) result = await editCoupon(editingId, payload); // Edit mode
+    else result = await addCoupon(payload); // Add mode
 
     if (result.success) {
       setForm({ code: "", discount: "", minPurchase: "", maxDiscount: "", expiryDate: "", usageLimit: "", isActive: true });
       setErrors({});
-      getAllCoupons(page, itemsPerPage); // Refresh list after add
+      setEditingId(null);
+      setOriginalForm(null);
     } else {
       alert(result.message);
     }
@@ -63,68 +90,31 @@ export default function CouponsManager() {
   const handleDelete = async (id) => {
     const confirmation = confirm("Are you sure?");
     if (confirmation) {
-      await deleteCoupon(id);
-      getAllCoupons(page, itemsPerPage); // Refresh list after delete
+      deleteCoupon(id); // Optimistic update
     }
   };
-
-  // const handleEdit = async (id) => {
-  //   const { code, discount, minPurchase, maxDiscount, expiryDate, usageLimit, isActive } = form;
-  //   const newErrors = {};
-
-  //   if (!code.trim()) newErrors.code = "Coupon code is required";
-  //   if (discount === "" || Number(discount) <= 0) newErrors.discount = "Enter a valid discount amount";
-  //   if (minPurchase === "" || Number(minPurchase) < 0) newErrors.minPurchase = "Enter a valid minimum purchase";
-  //   if (!expiryDate) newErrors.expiryDate = "Expiry date is required";
-  //   if (usageLimit === "" || Number(usageLimit) < 1) newErrors.usageLimit = "Usage limit must be at least 1";
-
-  //   setErrors(newErrors);
-  //   if (Object.keys(newErrors).length > 0) return;
-
-  //   const payload = {
-  //     code: code.trim(),
-  //     discount: Number(discount),
-  //     minPurchase: Number(minPurchase),
-  //     maxDiscount: maxDiscount ? Number(maxDiscount) : null,
-  //     expiryDate,
-  //     usageLimit: Number(usageLimit),
-  //     isActive,
-  //   };
-
-  //   const result = await editCoupon(id, payload);
-
-  //   if (result.success) {
-  //     setForm({ code: "", discount: "", minPurchase: "", maxDiscount: "", expiryDate: "", usageLimit: "", isActive: true });
-  //     setErrors({});
-  //     getAllCoupons(page, itemsPerPage); // Refresh list after edit
-  //   } else {
-  //     alert(result.message);
-  //   }
-  // };
 
   return (
     <section className="bg-gray-100 min-h-screen w-full p-6 shadow-md">
       <BackButton />
 
-      {/* Header */}
       <h2 className="text-2xl font-bold mt-4 mb-6">Coupon Manager</h2>
 
-      {/* Form */}
-      <AddCoupon
+      <AddEditCoupon
         form={form}
         setForm={setForm}
         errors={errors}
         handleChange={handleChange}
-        handleAddCoupon={handleAddCoupon}
+        handleAddCoupon={handleSubmit}
+        isEditing={!!editingId}
       />
 
-      {/* Loading or No Coupons */}
       {loading ? (
         <div className="flex justify-center pt-10 mt-6"><Loader /></div>
       ) : coupons.length === 0 ? (
         <p className="text-gray-500 mt-6">No coupons available.</p>
       ) : (
-        <div className="bg-white hover:shadow-blue-500 shadow-md transition duration-200 rounded-xl border border-gray-200 p-6 mt-6">
+        <div className="mt-6">
           <h3 className="text-lg md:text-xl font-semibold mb-4">All Coupons</h3>
 
           <PaginatedLayout
@@ -134,50 +124,19 @@ export default function CouponsManager() {
             onPageChange={(pg) => setPage(pg)}
             onItemsPerPageChange={(limit) => {
               setItemsPerPage(limit);
-              setPage(1); // reset to first page
+              setPage(1);
             }}
           >
             {() => (
-              <ul className="space-y-3">
-                {coupons.map((c) => (
-                  <li
-                    key={c._id}
-                    className="flex justify-between items-center border-b border-gray-300 mx-2 px-1.5 py-3"
-                  >
-                    <div>
-                      <p className="text-[16px] md:text-lg font-semibold text-gray-800">{c.code}</p>
-                      <p className="text-sm md:text-[16px] text-gray-600 mt-1">
-                        ₹{c.discount} off | Min ₹{c.minPurchase} | Expires:{" "}
-                        <span className="font-medium">{getFormatDate(c.expiryDate)}</span> | Limit:&nbsp;
-                        {c.usageLimit}
-                        <span
-                          className={`ml-2 font-semibold ${
-                            c.isActive ? "text-green-600" : "text-red-500"
-                          }`}
-                        >
-                          {c.isActive ? "Active" : "Inactive"}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                      onClick={() => handleEdit(c._id)}
-                      className="hover:text-blue-600 transition cursor-pointer"
-                      title="Edit coupon"
-                    >
-                      <FiEdit size={22} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(c._id)}
-                      className="hover:text-red-600 transition cursor-pointer"
-                      title="Delete coupon"
-                    >
-                      <FiTrash2 size={22} />
-                    </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <div className="overflow-hidden bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
+                <TabularData
+                  headers={["Coupon Code", "Discount", "Min Purchase", "Max Discount", "Status", "Expiry Date", "Actions"]}
+                  data={coupons}
+                  renderRow={(c, i) => RenderCouponRow(c, i, handleStartEdit, handleDelete)}
+                  emptyMessage="No coupons found."
+                  widthClass="w-full"
+                />
+              </div>
             )}
           </PaginatedLayout>
         </div>

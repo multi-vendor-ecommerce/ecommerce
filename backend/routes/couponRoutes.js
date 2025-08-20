@@ -17,7 +17,7 @@ router.post("/", verifyToken, authorizeRoles("admin"), addCoupon);
 
 // ROUTE 3: PUT /api/coupons
 // Desc: Edit a coupon in the admin panel
-router.put("/", verifyToken, authorizeRoles("admin"), editCoupon);
+router.put("/:id", verifyToken, authorizeRoles("admin"), editCoupon);
 
 // ROUTE 4: DELETE /api/coupons/:id
 // Desc: Delete a coupon in the admin panel
