@@ -5,6 +5,7 @@ import { useContext } from 'react';
 import { NavLink } from "react-router-dom";
 import AuthContext from '../../../../../context/auth/AuthContext';
 import ProfileImage from './ProfileImage';
+import { FaShoppingBag } from 'react-icons/fa';
 
 const ProfileMenu = ({ person }) => {
   const { logout } = useContext(AuthContext);
@@ -41,6 +42,14 @@ const ProfileMenu = ({ person }) => {
             <span>Security</span>
           </NavLink>
         </li>
+        {person.role === "customer" && (
+          <li className="px-4 mx-2 pt-2 pb-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer">
+            <NavLink to={`/orders`} className="flex items-center gap-2 hover:scale-105 transition duration-300">
+              <FaShoppingBag size={22} className="text-xl font-semibold" />
+              <span>My Orders</span>
+            </NavLink>
+          </li>
+        )}
         <div className="w-[90%] mx-auto h-[1px] bg-gray-300 mt-2 mb-1.5"></div>
         <li className="px-4 mx-2 py-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer text-red-600" title="Sign out">
           <button onClick={handleLogOut} className="flex items-center gap-2 cursor-pointer hover:scale-105 transition duration-300">

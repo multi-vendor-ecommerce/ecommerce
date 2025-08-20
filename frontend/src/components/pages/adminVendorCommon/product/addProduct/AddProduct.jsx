@@ -28,7 +28,6 @@ const AddProduct = () => {
     title: "", brand: "", tags: "", colors: "", size: "", sku: "",
     hsnCode: "", gstRate: "", description: "", price: "", discount: "",
     stock: "", isTaxable: true, freeDelivery: false,
-    status: "pending",
     visibility: "public", category: ""
   });
 
@@ -125,7 +124,7 @@ const AddProduct = () => {
           title: "", brand: "", tags: "", colors: "", size: "", sku: "",
           hsnCode: "", gstRate: "", description: "", price: "", discount: "",
           stock: "", isTaxable: true, freeDelivery: false,
-          status: "pending", visibility: "public", category: ""
+          visibility: "public", category: ""
         });
         setImages([]);
         setSelectedCategories([]);
