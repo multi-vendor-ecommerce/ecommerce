@@ -4,7 +4,7 @@ import { body } from "express-validator";
 import { validate } from "../middleware/validateFields.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 import verifyToken from "../middleware/verifyToken.js";
-import { addAddress, getAddresses, updateAddress, deleteAddress, setDefaultAddress } from "../controllers/shippingAddressController.js";
+import { addAddress, getAddresses, updateAddress, deleteAddress, setDefaultAddress, getAddressById } from "../controllers/shippingAddressController.js";
 
 const router = express.Router();
 
@@ -73,5 +73,6 @@ router.get("/", verifyToken, authorizeRoles("customer"), getAddresses);
 router.put("/:id", verifyToken, authorizeRoles("customer"), updateAddressValidator, validate, updateAddress);
 router.delete("/:id", verifyToken, authorizeRoles("customer"), deleteAddress);
 router.put("/:id/default", verifyToken, authorizeRoles("customer"), setDefaultAddress);
+router.get("/:id", verifyToken, authorizeRoles("customer"), getAddressById);
 
 export default router;

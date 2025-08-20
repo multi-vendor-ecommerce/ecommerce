@@ -18,6 +18,27 @@ export const getAddresses = async (req, res) => {
   }
 };
 
+// Get single address by ID
+export const getAddressById = async (req, res) => {
+  try {
+    const customerId = req.person.id;
+    const { id } = req.params;
+
+    const address = await ShippingAddress.findById(id);
+    if (!address) {
+      return res.status(404).json({ success: false, message: "Address not found" });
+    }
+
+    if (address.customer.toString() !== customerId) {
+      return res.status(403).json({ success: false, message: "Unauthorized access" });
+    }
+
+    res.status(200).json({ success: true, message: "Address fetched successfully", address });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching address", error: error.message });
+  }
+};
+
 // Add new address
 export const addAddress = async (req, res) => {
   const { recipientName, recipientPhone, line1, line2, locality, city, state, country, pincode, geoLocation } = req.body;

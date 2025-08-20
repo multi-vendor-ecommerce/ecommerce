@@ -1,8 +1,10 @@
 // AddressState.jsx
 import { useState } from "react";
 import AddressContext from "./AddressContext";
+import { set } from "mongoose";
 
 const AddressState = ({ children }) => {
+  const [address, setAddress] = useState(null);
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +33,30 @@ const AddressState = ({ children }) => {
       setLoading(false);
     }
   };
+
+  // Fetch single address
+  const getAddressById = async (addressId) => {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${host}/api/shipping-address/${addressId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("customerToken"),
+        },
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setAddress(data.address);
+      }
+    } catch (error) {
+      console.error("Error fetching address:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   // Add address
   const addAddress = async (address) => {
@@ -138,7 +164,7 @@ const AddressState = ({ children }) => {
 
   return (
     <AddressContext.Provider
-      value={{ addresses, loading, getAddresses, addAddress, updateAddress, deleteAddress, setAddresses, setDefaultAddress }}
+      value={{ addresses, loading, getAddresses, getAddressById, addAddress, updateAddress, deleteAddress, setAddresses, setDefaultAddress }}
     >
       {children}
     </AddressContext.Provider>
