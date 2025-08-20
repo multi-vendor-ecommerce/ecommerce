@@ -3,6 +3,7 @@ import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
+import { getShippingInfoForOrder } from "../utils/getShippingInfo.js";
 
 export const createOrUpdateDraftOrder = async (req, res) => {
   const userId = req.person.id;
@@ -12,19 +13,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
     const user = await User.findById(userId).populate("cart.product").select("cart address name phone");
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-    // Default shipping info from user profile
-    const shippingInfo = user.address ? {
-      recipientName: user.address.recipientName || user.name,
-      recipientPhone: user.address.recipientPhone || user.phone,
-      line1: user.address.line1,
-      line2: user.address.line2 || "",
-      locality: user.address.locality || "",
-      city: user.address.city,
-      state: user.address.state,
-      country: user.address.country || "India",
-      pincode: user.address.pincode,
-      geoLocation: user.address.geoLocation || {},
-    } : {};
+    const shippingInfo = await getShippingInfoForOrder(user);
 
     let orderItems = [];
     let itemPrice = 0;
@@ -117,8 +106,12 @@ export const confirmOrder = async (req, res) => {
 
     if (!paymentMethod) return res.status(400).json({ success: false, message: "Payment method required" });
 
-    // Update shipping info
-    if (shippingInfo) order.shippingInfo = shippingInfo;
+    if (shippingInfo) {
+      order.shippingInfo = shippingInfo;
+    } else if (!order.shippingInfo || !order.shippingInfo.line1) {
+      const user = await User.findById(userId).select("address name phone");
+      order.shippingInfo = await getShippingInfoForOrder(user);
+    }
 
     order.paymentMethod = paymentMethod;
     order.orderStatus = "Pending"; // ready for payment/delivery

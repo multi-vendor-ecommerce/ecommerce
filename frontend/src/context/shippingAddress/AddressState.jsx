@@ -139,7 +139,7 @@ const AddressState = ({ children }) => {
   // Set default address
   const setDefaultAddress = async (addressId) => {
     try {
-      const response = await fetch(`${host}/api/shipping-address/default/${addressId}`, {
+      const response = await fetch(`${host}/api/shipping-address/${addressId}/default`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
