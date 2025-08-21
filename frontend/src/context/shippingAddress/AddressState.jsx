@@ -139,7 +139,7 @@ const AddressState = ({ children }) => {
   // Set default address
   const setDefaultAddress = async (addressId) => {
     try {
-      const response = await fetch(`${host}/api/shipping-address/${addressId}/default`, {
+      const response = await fetch(`${host}/api/shipping-address/default/${addressId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -164,7 +164,7 @@ const AddressState = ({ children }) => {
 
   return (
     <AddressContext.Provider
-      value={{ addresses, loading, getAddresses, getAddressById, addAddress, updateAddress, deleteAddress, setAddresses, setDefaultAddress }}
+      value={{ address, addresses, loading, getAddresses, getAddressById, addAddress, updateAddress, deleteAddress, setAddresses, setDefaultAddress }}
     >
       {children}
     </AddressContext.Provider>

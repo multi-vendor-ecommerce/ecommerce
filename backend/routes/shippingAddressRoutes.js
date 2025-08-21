@@ -72,7 +72,7 @@ router.post("/", verifyToken, authorizeRoles("customer"), addAddressValidator, v
 router.get("/", verifyToken, authorizeRoles("customer"), getAddresses);
 router.put("/:id", verifyToken, authorizeRoles("customer"), updateAddressValidator, validate, updateAddress);
 router.delete("/:id", verifyToken, authorizeRoles("customer"), deleteAddress);
-router.put("/:id/default", verifyToken, authorizeRoles("customer"), setDefaultAddress);
+router.put("/default/:id", verifyToken, authorizeRoles("customer"), setDefaultAddress);
 router.get("/:id", verifyToken, authorizeRoles("customer"), getAddressById);
 
 export default router;

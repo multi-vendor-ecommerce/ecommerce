@@ -41,18 +41,22 @@ export const getAddressById = async (req, res) => {
 
 // Add new address
 export const addAddress = async (req, res) => {
+  const customerId = req.person.id;
   const { recipientName, recipientPhone, line1, line2, locality, city, state, country, pincode, geoLocation } = req.body;
 
   try {
     // Check max 3 addresses
-    const count = await ShippingAddress.countDocuments({ customer: req.person.id });
+    const count = await ShippingAddress.countDocuments({ customer: customerId });
     if (count >= 3) {
       return res.status(400).json({ success: false, message: "You can only save up to 3 addresses." });
     }
 
+    // If first address, set as default
+    const isDefault = count === 0;
+
     const newAddress = await ShippingAddress.create({
       customer: customerId, recipientName, recipientPhone, line1, line2,
-      locality, city, state, country, pincode, geoLocation,
+      locality, city, state, country, pincode, geoLocation, isDefault,
     });
 
     res.status(201).json({ success: true, message: "Address added successfully", address: newAddress });
