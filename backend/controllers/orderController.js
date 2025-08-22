@@ -114,7 +114,7 @@ export const confirmOrder = async (req, res) => {
     }
 
     order.paymentMethod = paymentMethod;
-    order.orderStatus = "Pending"; // ready for payment/delivery
+    order.orderStatus = "Pending"; 
 
     await order.save();
 

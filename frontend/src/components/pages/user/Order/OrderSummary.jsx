@@ -1,32 +1,90 @@
-import React, { useEffect, useState, useContext } from "react";
-import OrderContext from "../../../../context/orders/OrderContext";
+import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Spinner from "../../../common/Spinner";
+import Stepper from "../../../common/Stepper";
+import StepperControls from "../../../common/StepperControls";
+
 import ShippingStep from "./ShippingStep";
 import ReviewStep from "./ReviewStep";
 import PaymentStep from "./PaymentStep";
 
+import OrderContext from "../../../../context/orders/OrderContext";
+import PaymentContext from "../../../../context/paymentContext/PaymentContext";
+
 const OrderSummary = () => {
-  const { id } = useParams(); // draft order ID
+  const { id } = useParams();
   const navigate = useNavigate();
+
   const { getUserDraftOrderById } = useContext(OrderContext);
+  const { confirmCOD, createRazorpayOrder, confirmRazorpayPayment } = useContext(PaymentContext);
 
   const [order, setOrder] = useState(null);
   const [step, setStep] = useState(1);
+  const [modeOfPayment, setModeOfPayemnt] = useState("COD");
+  const [loading, setLoading] = useState(false);
 
+  // Fetch draft order
   useEffect(() => {
     const fetchDraft = async () => {
+      setLoading(true);
       const data = await getUserDraftOrderById(id);
       if (data) setOrder(data);
-      else navigate("/"); // order not found
+      else navigate("/");
+      setLoading(false);
     };
     fetchDraft();
   }, [id]);
 
+  if (order) {
+    console.log(order.shippingInfo.recipientName);
+  }
+
   const next = () => setStep((s) => Math.min(s + 1, 3));
   const prev = () => setStep((s) => Math.max(s - 1, 1));
 
-  if (!order) {
+  // Payment handler
+  const handlePayment = async (modeOfPayment) => {
+    if (!order) return;
+    setLoading(true);
+    try {
+      if (modeOfPayment === "COD") {
+        const res = await confirmCOD(order._id);
+        if (res.success) navigate(`/order-success/${order._id}`);
+        else alert(res.message);
+      } else {
+        const razorpayData = await createRazorpayOrder(order._id);
+        if (!razorpayData) throw new Error("Failed to create Razorpay order");
+
+        const { razorpayOrder, key } = razorpayData;
+        const options = {
+          key,
+          amount: razorpayOrder.amount,
+          currency: razorpayOrder.currency,
+          order_id: razorpayOrder.id,
+          name: "NoahPlanet",
+          description: `Payment for Order #${order._id}`,
+          handler: async function (response) {
+            const paymentRes = await confirmRazorpayPayment(order._id, {
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpaySignature: response.razorpay_signature,
+            });
+            if (paymentRes.success) navigate(`/order-success/${order._id}`);
+            else alert(paymentRes.message);
+          },
+          theme: { color: "#7e22ce" },
+        };
+
+        new window.Razorpay(options).open();
+      }
+    } catch (err) {
+      alert(err.message || "Payment failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading || !order) {
     return (
       <div className="flex justify-center items-center h-64">
         <Spinner />
@@ -36,23 +94,39 @@ const OrderSummary = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow">
-      {/* Step Progress */}
-      <div className="flex justify-between mb-6">
-        {["Shipping", "Review", "Payment"].map((label, i) => (
-          <div
-            key={i}
-            className={`flex-1 text-center py-2 border-b-4 ${step === i + 1 ? "border-purple-600 font-bold" : "border-gray-300"
-              }`}
-          >
-            {label}
-          </div>
-        ))}
-      </div>
+      <Stepper
+        stepLabels={["Shipping", "Review", "Payment"]}
+        currentStep={step}
+        highlightCurrentStep
+        className="flex justify-between mb-6"
+      />
 
-      {/* Render Steps */}
-      {step === 1 && <ShippingStep order={order} onNext={next} />}
-      {step === 2 && <ReviewStep order={order} onNext={next} onBack={prev} />}
-      {step === 3 && <PaymentStep order={order} orderId={order._id} onBack={prev} />}
+      {step === 1 && (
+        <ShippingStep
+          order={order}
+          onNext={next}
+          setOrder={setOrder}
+        />
+      )}
+      {step === 2 && (
+        <ReviewStep order={order} onNext={next} onBack={prev} step={step} />
+      )}
+      {step === 3 && (
+        <PaymentStep orderId={order._id} onBack={prev} step={step} modeOfPayment={modeOfPayment} setModeOfPayemnt={setModeOfPayemnt} handlePayment={handlePayment}
+        />
+      )}
+
+      {/* Stepper Controls */}
+      <StepperControls
+        currentStep={step}
+        totalSteps={3}
+        onNext={next}
+        onBack={prev}
+        isLastStep={step === 3}
+        showSubmit={step === 3}
+        loading={loading}
+        submitButton={["Confirm Order", "Processing..."]}
+      />
     </div>
   );
 };
