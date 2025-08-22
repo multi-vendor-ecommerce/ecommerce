@@ -15,7 +15,7 @@ router.post("/create-draft", verifyToken, createOrUpdateDraftOrder);
 router.get("/draft/:id", verifyToken, getUserDraftOrder);
 
 /**
- * @route   GET /api/orders/myOrder
+ * @route   GET /api/orders/confirm
  * @desc    Get all orders placed by the logged-in user
  * @access  Private (User)
  */
@@ -30,10 +30,10 @@ router.get("/vendor", verifyToken, authorizeRoles("vendor"), getAllOrders);
 
 /**
  * @route   GET /api/orders/vendor/:id
- * @desc    Get specific order details by order ID (Admin only)
+ * @desc    Get specific order details by order ID
  * @access  Private (Vendor)
  */
-router.get("/vendor", verifyToken, authorizeRoles("vendor"), getOrderById);
+router.get("/vendor/:id", verifyToken, authorizeRoles("vendor"), getOrderById);
 
 /**
  * @route   GET /api/orders/admin

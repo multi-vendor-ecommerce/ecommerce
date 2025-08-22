@@ -125,12 +125,17 @@ export const confirmOrder = async (req, res) => {
   }
 };
 
-
 export const getUserOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.person.id }).populate([
-      { path: "orderItems.product", select: "title price images category brand" },
-      { path: "vendor", select: "name shopName email" }
+      {
+        path: "orderItems.product",
+        select: "title price images category brand createdBy",
+        populate: {
+          path: "createdBy",
+          select: "name shopName email address phone"
+        }
+      }
     ]);
     res.status(200).json({ success: true, orders });
   } catch (err) {
@@ -149,10 +154,13 @@ export const getAllOrders = async (req, res) => {
 
     const query = buildQuery(req.query, ["status", "paymentStatus", "orderId"]);
 
+    // Admin: filter by vendorId if provided (for vendor profile view)
     if (isAdmin && req.query.vendorId) {
-      query.vendor = req.query.vendorId;
-    } else if (isVendor) {
-      query.vendor = req.person._id;
+      query["orderItems.product.createdBy"] = req.query.vendorId;
+    }
+    // Vendor: only their own orders
+    else if (isVendor) {
+      query["orderItems.product.createdBy"] = req.person.id;
     }
 
     const page = parseInt(req.query.page) || 1;
@@ -164,8 +172,14 @@ export const getAllOrders = async (req, res) => {
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })
-        .populate({ path: "orderItems.product", select: "title price images category brand" })
-        .populate({ path: "vendor", select: "name email shopName address phone" })
+        .populate({
+          path: "orderItems.product",
+          select: "title price images category brand createdBy",
+          populate: {
+            path: "createdBy",
+            select: "name email shopName address phone"
+          }
+        })
         .populate({ path: "user", select: "name email address phone" }),
       Order.countDocuments(query),
     ]);
@@ -191,8 +205,14 @@ export const getAllOrders = async (req, res) => {
 export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate({ path: "orderItems.product", select: "title price" })
-      .populate({ path: "vendor", select: "name email address phone shopName" })
+      .populate({
+        path: "orderItems.product",
+        select: "title price createdBy",
+        populate: {
+          path: "createdBy",
+          select: "name email address phone shopName"
+        }
+      })
       .populate({ path: "user", select: "name email address phone" });
 
     if (!order) {
@@ -200,7 +220,16 @@ export const getOrderById = async (req, res) => {
     }
 
     // 🔒 Access control: Vendor can only access their own order
-    if (req.person.role === "vendor" && order.vendor.toString() !== req.person._id.toString()) {
+    if (
+      req.person.role === "vendor" &&
+      !order.orderItems.some(
+        item =>
+          item.product &&
+          item.product.createdBy &&
+          item.product.createdBy._id &&
+          item.product.createdBy._id.toString() === req.person.id.toString()
+      )
+    ) {
       return res.status(403).json({ success: false, message: "Access denied: Not your order." });
     }
 

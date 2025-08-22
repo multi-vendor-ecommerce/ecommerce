@@ -4,14 +4,11 @@ const { Schema } = mongoose;
 
 const productSchema = new Schema(
   {
+    // vendor
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Person",
-      required: true,
-    },
-    createdByRole: {
-      type: String,
-      enum: ["vendor", "admin"],
+      enum: ["vendor"],
       required: true,
     },
     title: {

@@ -31,20 +31,20 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin") => (
     </td>
 
     {/* Vendor Name */}
-    {role !== "vendor" && (
+    {role === "admin" && (
       <td className="px-6 py-3 min-w-[180px] hover:scale-105 hover:underline hover:font-semibold transition duration-150">
         <NavLink
-          to={`/admin/vendor/profile/${order.vendor?._id}`}
+          to={`/admin/vendor/profile/${order.orderItems?.[0]?.product?.createdBy?._id || ""}`}
           title="Vendor Name"
         >
-          {order.vendor?.name || "Unassigned Vendor"}
+          {order.orderItems?.[0]?.product?.createdBy?.name || "Unassigned Vendor"}
         </NavLink>
       </td>
     )}
 
     {/* First Product Title */}
     <td className="px-6 py-3 min-w-[300px] hover:scale-105 transition duration-150">
-      {order.orderItems?.[0]?.name || "No Products"}
+      {order.orderItems?.[0]?.product?.title || "No Products"}
       {order.orderItems?.length > 1 && (
         <span className="font-semibold"> +{order.orderItems.length - 1} more</span>
       )}
@@ -52,7 +52,7 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin") => (
 
     {/* Payment Method */}
     <td className="px-6 py-3 min-w-[120px] hover:scale-105 transition duration-150">
-      {order.paymentMethod}
+      {order.paymentMethod || "N/A"}
     </td>
 
     {/* Order Date */}

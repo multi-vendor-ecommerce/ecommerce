@@ -11,13 +11,15 @@ import CustomSelect from "../../../common/layout/CustomSelect";
 import UserContext from "../../../../context/user/UserContext";
 import OrderContext from "../../../../context/orders/OrderContext";
 import VendorContext from "../../../../context/vendors/VendorContext";
+import PersonContext from "../../../../context/person/PersonContext";
 
 const Dashboard = ({ summaryData }) => {
+  const { person } = useContext(PersonContext);
   const { getAllCustomers } = useContext(UserContext);
   const { getAllOrders } = useContext(OrderContext);
   const { getTopVendors } = useContext(VendorContext);
 
-  const role = localStorage.getItem("adminToken") ? "admin" : "vendor";
+  const role = person?.role || "vendor";
 
   useEffect(() => {
     getAllCustomers();

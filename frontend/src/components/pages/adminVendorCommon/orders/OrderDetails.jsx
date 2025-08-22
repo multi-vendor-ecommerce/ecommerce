@@ -7,12 +7,16 @@ import BackButton from "../../../common/layout/BackButton";
 import { getOrderCardData } from "./data/ordersData";
 import StatGrid from "../../../common/helperComponents/StatGrid";
 import { formatAddress } from "../../../../utils/formatAddress";
+import PersonContext from "../../../../context/person/PersonContext";
 
-const OrderDetails = ({ role = "admin" }) => {
+const OrderDetails = () => {
+  const { person } = useContext(PersonContext);
   const { orderId } = useParams();
   const { getOrderById } = useContext(OrderContext);
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const role = person?.role || "vendor";
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -68,15 +72,15 @@ const OrderDetails = ({ role = "admin" }) => {
             className="flex justify-between items-center bg-gray-50 rounded-lg p-4 border border-gray-200 shadow-sm hover:shadow-purple-500 transition duration-150"
           >
             <div>
-              <p className="font-semibold text-gray-800">{item.product?.title || item.name}</p>
+              <p className="font-semibold text-gray-800">{item.product?.title || "No Product Title"}</p>
               <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
             </div>
             <div className="text-right">
               <p className="text-gray-700 font-medium">
-                ₹{item.price} x {item.quantity}
+                ₹{item.product?.price ?? 0} x {item.quantity}
               </p>
               <p className="text-xs md:text-sm text-gray-500">
-                Total: ₹{item.price * item.quantity}
+                Total: ₹{(item.product?.price ?? 0) * item.quantity}
               </p>
             </div>
           </div>
@@ -99,11 +103,19 @@ const OrderDetails = ({ role = "admin" }) => {
         {role !== "vendor" && (
           <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
             <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">Vendor Info</h3>
-            <p><span className={`font-semibold ${order.vendor?.role === "admin" ? "hidden" : ""}`}>Shop:</span> {order.vendor?.shopName}</p>
-            <p><span className="font-semibold">Vendor:</span> {order.vendor?.name}</p>
-            <p className="flex items-center gap-2 text-blue-600"><MdEmail /> {order.vendor?.email}</p>
-            {order.vendor?.phone && (
-              <p className="flex items-center gap-2 text-gray-600"><MdPhone /> +91 {order.vendor.phone}</p>
+            <p>
+              <span className="font-semibold">Shop:</span> {order.orderItems?.[0]?.product?.createdBy?.shopName || "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold">Vendor:</span> {order.orderItems?.[0]?.product?.createdBy?.name || "N/A"}
+            </p>
+            <p className="flex items-center gap-2 text-blue-600">
+              <MdEmail /> {order.orderItems?.[0]?.product?.createdBy?.email || "N/A"}
+            </p>
+            {order.orderItems?.[0]?.product?.createdBy?.phone && (
+              <p className="flex items-center gap-2 text-gray-600">
+                <MdPhone /> +91 {order.orderItems?.[0]?.product?.createdBy?.phone}
+              </p>
             )}
           </div>
         )}

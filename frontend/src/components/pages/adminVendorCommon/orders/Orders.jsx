@@ -8,13 +8,17 @@ import BackButton from "../../../common/layout/BackButton";
 import OrderContext from "../../../../context/orders/OrderContext";
 import Loader from "../../../common/Loader";
 import FilterBar from "../../../common/FilterBar";
+import PersonContext from "../../../../context/person/PersonContext";
 
-export default function Orders({ role = "admin" }) {
+export default function Orders() {
+  const { person } = useContext(PersonContext);
   const { orders, getAllOrders, loading, totalCount, } = useContext(OrderContext);
 
   const [filters, setFilters] = useState({ search: "", status: "" });
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const role = person?.role || "vendor";
 
   useEffect(() => {
     getAllOrders({ ...filters, page, limit: itemsPerPage });
@@ -51,7 +55,17 @@ export default function Orders({ role = "admin" }) {
     setPage(1);
   };
 
-  const headers = ["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Status", "Amount" ,"Actions"];
+  const headers = [
+    "Order ID",
+    "Customer",
+    ...(role === "admin" ? ["Vendor"] : []),
+    "Total",
+    "Mode",
+    "Date",
+    "Status",
+    "Amount",
+    "Actions"
+  ];
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">

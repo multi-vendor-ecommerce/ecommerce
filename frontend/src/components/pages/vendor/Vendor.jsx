@@ -46,8 +46,8 @@ const Vendor = () => {
 
             {/* Nested route block for orders */}
             <Route path="all-orders/">
-              <Route index element={<Orders role="vendor" />} />
-              <Route path="order-details/:orderId" element={<OrderDetails role="vendor" />} />
+              <Route index element={<Orders />} />
+              <Route path="order-details/:orderId" element={<OrderDetails />} />
             </Route>
 
             <Route path="all-customers" element={<Customers />} />

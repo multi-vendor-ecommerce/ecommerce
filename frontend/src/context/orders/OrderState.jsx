@@ -8,21 +8,25 @@ const OrderState = ({ children }) => {
 
   const host = "http://localhost:5000";
 
-  // ------------------- Helper: Get role & token -------------------
+  // Utility to get role
   const getRoleInfo = () => {
-    if (localStorage.getItem("adminToken")) return { role: "admin", token: localStorage.getItem("adminToken") };
-    if (localStorage.getItem("vendorToken")) return { role: "vendor", token: localStorage.getItem("vendorToken") };
-    return { role: "customer", token: localStorage.getItem("customerToken") };
+    const adminToken = localStorage.getItem("adminToken");
+    const vendorToken = localStorage.getItem("vendorToken");
+    if (adminToken) return { role: "admin" };
+    else if (vendorToken) return { role: "vendor" };
+    else return { role: "customer" };
   };
 
-  // ------------------- 1. Create / Update Draft -------------------
+  // Create / Update Draft Order
   const createOrderDraft = async (orderData) => {
     setLoading(true);
     try {
-      const token = getRoleInfo().token;
       const res = await fetch(`${host}/api/orders/create-draft`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "auth-token": token },
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("customerToken"),
+        },
         body: JSON.stringify(orderData),
       });
 
@@ -38,23 +42,21 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // ------------------- 2. Confirm Order -------------------
+  // Confirm Order
   const confirmOrder = async ({ orderId, paymentMethod, shippingInfo }) => {
     setLoading(true);
     try {
-      const token = getRoleInfo().token;
       const res = await fetch(`${host}/api/orders/confirm`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "auth-token": token },
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("customerToken"),
+        },
         body: JSON.stringify({ orderId, paymentMethod, shippingInfo }),
       });
-
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Failed to confirm order");
-
-      // Refresh user's orders after confirmation
       await getMyOrders();
-
       return { success: true, order: data.order };
     } catch (err) {
       console.error("Error confirming order:", err);
@@ -64,28 +66,32 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // ------------------- 3. Fetch All Orders (Admin/Vendor) -------------------
+  // Fetch All Orders (Admin/Vendor)
   const getAllOrders = async ({ search = "", status = "", vendorId = "", page = 1, limit = 10 } = {}) => {
     setLoading(true);
     try {
-      const { role, token } = getRoleInfo();
+      const { role } = getRoleInfo();
       const params = new URLSearchParams({ page, limit });
       if (search.trim()) params.append("search", search);
       if ((role === "admin" || role === "vendor") && status) params.append("status", status);
       if (role === "admin" && vendorId) params.append("vendorId", vendorId);
 
       const endpoint = role === "admin" ? "admin" : "vendor";
+      const headers = {
+        "Content-Type": "application/json",
+        "auth-token": role === "admin"
+          ? localStorage.getItem("adminToken")
+          : localStorage.getItem("vendorToken"),
+      };
       const res = await fetch(`${host}/api/orders/${endpoint}?${params.toString()}`, {
         method: "GET",
-        headers: { "Content-Type": "application/json", "auth-token": token },
+        headers,
       });
-
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch orders");
-
+      
       setOrders(data.orders || []);
       setTotalCount(data.total || 0);
-
       return { success: true, total: data.total, orders: data.orders };
     } catch (err) {
       console.error("Error fetching orders:", err);
@@ -95,16 +101,17 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // ------------------- 4. Fetch My Orders -------------------
+  // Fetch My Orders (Customer)
   const getMyOrders = async () => {
     setLoading(true);
     try {
-      const token = getRoleInfo().token;
       const res = await fetch(`${host}/api/orders/my-order`, {
         method: "GET",
-        headers: { "Content-Type": "application/json", "auth-token": token },
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("customerToken"),
+        },
       });
-
       const data = await res.json();
       if (data.success) setOrders(data.orders || []);
       return data;
@@ -116,20 +123,23 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // ------------------- 5. Fetch Single Order -------------------
+  // Fetch Single Order (Admin/Vendor)
   const getOrderById = async (id) => {
+    const { role } = getRoleInfo();
+    const endpoint = role === "admin" ? "admin" : "vendor";
+    const headers = {
+      "Content-Type": "application/json",
+      "auth-token": role === "admin"
+        ? localStorage.getItem("adminToken")
+        : localStorage.getItem("vendorToken"),
+    };
     try {
-      const { role, token } = getRoleInfo();
-      const endpoint = role === "admin" ? "admin" : "vendor";
-
       const res = await fetch(`${host}/api/orders/${endpoint}/${id}`, {
         method: "GET",
-        headers: { "Content-Type": "application/json", "auth-token": token },
+        headers,
       });
-
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch order");
-
       return data.order;
     } catch (err) {
       console.error("Error fetching order:", err);
@@ -137,14 +147,16 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // ------------------- 6. Fetch Single Draft (Customer) -------------------
+  // Fetch Single Draft (Customer)
   const getUserDraftOrderById = useCallback(async (id) => {
     setLoading(true);
     try {
-      const token = getRoleInfo().token;
       const res = await fetch(`${host}/api/orders/draft/${id}`, {
         method: "GET",
-        headers: { "Content-Type": "application/json", "auth-token": token },
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("customerToken"),
+        }
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch draft order");
@@ -157,20 +169,47 @@ const OrderState = ({ children }) => {
     }
   }, [host]);
 
+  // Place New Order (User)
+  const placeOrder = async (orderData) => {
+    setLoading(true);
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        "auth-token": localStorage.getItem("customerToken"),
+      };
+      const res = await fetch(`${host}/api/order`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(orderData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        await getMyOrders();
+        return { success: true, message: "Order placed successfully" };
+      } else {
+        return { success: false, message: data.message || "Failed to place order" };
+      }
+    } catch (err) {
+      console.error("Error placing order:", err);
+      return { success: false, message: "An error occurred while placing the order" };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <OrderContext.Provider
-      value={{
-        loading,
-        orders,
-        totalCount,
-        createOrderDraft,
-        confirmOrder,
-        getAllOrders,
-        getMyOrders,
-        getOrderById,
-        getUserDraftOrderById,
-      }}
-    >
+    <OrderContext.Provider value={{
+      loading,
+      orders,
+      totalCount,
+      createOrderDraft,
+      confirmOrder,
+      getAllOrders,
+      getMyOrders,
+      getOrderById,
+      getUserDraftOrderById,
+      placeOrder,
+    }}>
       {children}
     </OrderContext.Provider>
   );

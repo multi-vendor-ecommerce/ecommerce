@@ -1,5 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import PersonContext from "../../../../context/person/PersonContext";
 import OrderContext from "../../../../context/orders/OrderContext";
 import TabularData from "../../../common/layout/TabularData";
 import { RenderOrderRow } from "../../adminVendorCommon/orders/RenderOrderRow";
@@ -8,10 +9,25 @@ import Loader from "../../../common/Loader";
 import StatusChip from "../../../common/helperComponents/StatusChip";
 
 const RecentOrders = () => {
+  const { person } = useContext(PersonContext);
   const { orders, loading } = useContext(OrderContext);
   const [showAll, setShowAll] = useState(false);
 
   const ordersToShow = showAll ? orders : orders.slice(0, 5);
+
+  const role = person?.role || "vendor";
+
+  const headers = [
+    "Order ID",
+    "Customer",
+    ...(role === "admin" ? ["Vendor"] : []),
+    "Total",
+    "Mode",
+    "Date",
+    "Status",
+    "Amount",
+    "Actions"
+  ];
 
   return (
     <section className="bg-white p-6 rounded-2xl shadow-md">
@@ -22,7 +38,7 @@ const RecentOrders = () => {
           <div className="min-h-16 w-full flex gap-2 justify-between items-center mb-5">
             <h2 className="w-[60%] md:w-auto text-xl md:text-2xl font-bold text-gray-800 truncate">Recent Orders</h2>
             <NavLink
-              to="/admin/all-orders"
+              to={`/${role}/all-orders`}
               className="w-[40%] md:w-auto border-gray-300 px-2 md:px-4 py-2 rounded-xl text-center text-sm md:text-[16px] font-medium text-black hover:text-blue-500 border-2 hover:border-blue-500 transition cursor-pointer"
             >
               View Orders
@@ -31,9 +47,9 @@ const RecentOrders = () => {
 
           <div>
             <TabularData
-              headers={["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Status", "Amount", "Actions"]}
+              headers={headers}
               data={ordersToShow}
-              renderRow={(o, i) => RenderOrderRow(o, i, StatusChip)}
+              renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, role)}
               emptyMessage="No orders found."
             />
           </div>
