@@ -93,38 +93,6 @@ export const createOrUpdateDraftOrder = async (req, res) => {
   }
 };
 
-/**
- * STEP 2: Confirm Order (Finalize with Payment + Shipping)
- */
-export const confirmOrder = async (req, res) => {
-  const userId = req.person.id;
-  const { orderId, paymentMethod, shippingInfo } = req.body;
-
-  try {
-    const order = await Order.findOne({ _id: orderId, user: userId, orderStatus: "draft" });
-    if (!order) return res.status(404).json({ success: false, message: "Draft order not found" });
-
-    if (!paymentMethod) return res.status(400).json({ success: false, message: "Payment method required" });
-
-    if (shippingInfo) {
-      order.shippingInfo = shippingInfo;
-    } else if (!order.shippingInfo || !order.shippingInfo.line1) {
-      const user = await User.findById(userId).select("address name phone");
-      order.shippingInfo = await getShippingInfoForOrder(user);
-    }
-
-    order.paymentMethod = paymentMethod;
-    order.orderStatus = "Pending"; 
-
-    await order.save();
-
-    return res.status(200).json({ success: true, message: "Order confirmed", orderId: order._id });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ success: false, message: err.message });
-  }
-};
-
 export const getUserOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.person.id }).populate([
@@ -242,7 +210,6 @@ export const getOrderById = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error.", error: err.message });
   }
 };
-
 
 // Get a draft order for a user (for review)
 export const getUserDraftOrder = async (req, res) => {

@@ -9,7 +9,7 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// ✅ 1. Create Razorpay order for Online Payment
+// 1. Create Razorpay order for Online Payment
 export const createRazorpayOrder = async (req, res) => {
   const { orderId } = req.body;
 
@@ -41,7 +41,7 @@ export const createRazorpayOrder = async (req, res) => {
   }
 };
 
-// ✅ 2. Verify Razorpay payment signature
+// 2. Verify Razorpay payment signature
 export const verifyRazorpayPayment = async (req, res) => {
   const { orderId, razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
 
@@ -63,7 +63,7 @@ export const verifyRazorpayPayment = async (req, res) => {
     order.paymentMethod = "Online";
     order.paymentInfo = { id: razorpayPaymentId, status: "paid" };
     order.paidAt = new Date();
-    order.orderStatus = "Pending"; // confirmed but not yet delivered
+    order.orderStatus = "Pending";
 
     if (order.source === "cart") {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
@@ -78,9 +78,12 @@ export const verifyRazorpayPayment = async (req, res) => {
   }
 };
 
-// ✅ 3. Confirm COD Payment
+// 3. Confirm COD Payment
 export const confirmCOD = async (req, res) => {
-  const { orderId } = req.body;
+  const { orderId, shippingInfo } = req.body;
+  if (!shippingInfo) {
+    return res.status(400).json({ success: false, message: "shippingInfo is required for COD confirmation" });
+  }
 
   try {
     const order = await Order.findById(orderId);
@@ -88,6 +91,11 @@ export const confirmCOD = async (req, res) => {
 
     if (order.paymentInfo?.status === "paid") {
       return res.status(400).json({ success: false, message: "Order already paid" });
+    }
+
+    // Update shippingInfo if provided
+    if (shippingInfo) {
+      order.shippingInfo = shippingInfo;
     }
 
     order.paymentMethod = "COD";

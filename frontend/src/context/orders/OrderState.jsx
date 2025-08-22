@@ -42,29 +42,27 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // Confirm Order
-  const confirmOrder = async ({ orderId, paymentMethod, shippingInfo }) => {
+  // Fetch Single Draft (Customer)
+  const getUserDraftOrderById = useCallback(async (id) => {
     setLoading(true);
     try {
-      const res = await fetch(`${host}/api/orders/confirm`, {
-        method: "POST",
+      const res = await fetch(`${host}/api/orders/draft/${id}`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           "auth-token": localStorage.getItem("customerToken"),
-        },
-        body: JSON.stringify({ orderId, paymentMethod, shippingInfo }),
+        }
       });
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.message || "Failed to confirm order");
-      await getMyOrders();
-      return { success: true, order: data.order };
+      if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch draft order");
+      return data.order;
     } catch (err) {
-      console.error("Error confirming order:", err);
-      return { success: false, message: err.message };
+      console.error("Error fetching user draft order:", err);
+      return null;
     } finally {
       setLoading(false);
     }
-  };
+  }, [host]);
 
   // Fetch All Orders (Admin/Vendor)
   const getAllOrders = async ({ search = "", status = "", vendorId = "", page = 1, limit = 10 } = {}) => {
@@ -89,7 +87,7 @@ const OrderState = ({ children }) => {
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch orders");
-      
+
       setOrders(data.orders || []);
       setTotalCount(data.total || 0);
       return { success: true, total: data.total, orders: data.orders };
@@ -147,68 +145,16 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // Fetch Single Draft (Customer)
-  const getUserDraftOrderById = useCallback(async (id) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${host}/api/orders/draft/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("customerToken"),
-        }
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch draft order");
-      return data.order;
-    } catch (err) {
-      console.error("Error fetching user draft order:", err);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [host]);
-
-  // Place New Order (User)
-  const placeOrder = async (orderData) => {
-    setLoading(true);
-    try {
-      const headers = {
-        "Content-Type": "application/json",
-        "auth-token": localStorage.getItem("customerToken"),
-      };
-      const res = await fetch(`${host}/api/order`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(orderData),
-      });
-      const data = await res.json();
-      if (data.success) {
-        await getMyOrders();
-        return { success: true, message: "Order placed successfully" };
-      } else {
-        return { success: false, message: data.message || "Failed to place order" };
-      }
-    } catch (err) {
-      console.error("Error placing order:", err);
-      return { success: false, message: "An error occurred while placing the order" };
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <OrderContext.Provider value={{
       loading,
       orders,
       totalCount,
       createOrderDraft,
-      confirmOrder,
       getAllOrders,
       getMyOrders,
       getOrderById,
       getUserDraftOrderById,
-      placeOrder,
     }}>
       {children}
     </OrderContext.Provider>

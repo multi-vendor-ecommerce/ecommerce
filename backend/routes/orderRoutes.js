@@ -1,7 +1,7 @@
 import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
-import { createOrUpdateDraftOrder, confirmOrder, getAllOrders, getOrderById, getUserDraftOrder } from "../controllers/orderController.js";
+import { createOrUpdateDraftOrder, getAllOrders, getOrderById, getUserDraftOrder } from "../controllers/orderController.js";
 
 const router = express.Router();
 
@@ -13,13 +13,6 @@ const router = express.Router();
 router.post("/create-draft", verifyToken, createOrUpdateDraftOrder);
 
 router.get("/draft/:id", verifyToken, getUserDraftOrder);
-
-/**
- * @route   GET /api/orders/confirm
- * @desc    Get all orders placed by the logged-in user
- * @access  Private (User)
- */
-router.post("/confirm", verifyToken, confirmOrder);
 
 /**
  * @route   GET /api/orders/vendor

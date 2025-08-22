@@ -20,7 +20,7 @@ const OrderSummary = () => {
 
   const [order, setOrder] = useState(null);
   const [step, setStep] = useState(1);
-  const [modeOfPayment, setModeOfPayemnt] = useState("COD");
+  const [modeOfPayment, setModeOfPayment] = useState("COD");
   const [loading, setLoading] = useState(false);
 
   // Fetch draft order
@@ -39,16 +39,22 @@ const OrderSummary = () => {
     console.log(order.shippingInfo.recipientName);
   }
 
+  if (modeOfPayment) {
+    console.log("mode of payment", modeOfPayment);
+  }
+
   const next = () => setStep((s) => Math.min(s + 1, 3));
   const prev = () => setStep((s) => Math.max(s - 1, 1));
 
   // Payment handler
-  const handlePayment = async (modeOfPayment) => {
+  const handlePayment = async (e) => {
+    e.preventDefault();
+    console.log(e);
     if (!order) return;
     setLoading(true);
     try {
       if (modeOfPayment === "COD") {
-        const res = await confirmCOD(order._id);
+        const res = await confirmCOD(order._id, order.shippingInfo);
         if (res.success) navigate(`/order-success/${order._id}`);
         else alert(res.message);
       } else {
@@ -104,15 +110,14 @@ const OrderSummary = () => {
       {step === 1 && (
         <ShippingStep
           order={order}
-          onNext={next}
           setOrder={setOrder}
         />
       )}
       {step === 2 && (
-        <ReviewStep order={order} onNext={next} onBack={prev} step={step} />
+        <ReviewStep order={order} />
       )}
       {step === 3 && (
-        <PaymentStep orderId={order._id} onBack={prev} step={step} modeOfPayment={modeOfPayment} setModeOfPayemnt={setModeOfPayemnt} handlePayment={handlePayment}
+        <PaymentStep orderId={order._id} modeOfPayment={modeOfPayment} setModeOfPayment={setModeOfPayment} handlePayment={handlePayment}
         />
       )}
 
@@ -123,9 +128,11 @@ const OrderSummary = () => {
         onNext={next}
         onBack={prev}
         isLastStep={step === 3}
-        showSubmit={step === 3}
+        // showSubmit={
+        //   order && modeOfPayment
+        // }
         loading={loading}
-        submitButton={["Confirm Order", "Processing..."]}
+      // submitButton={["Confirm Order", "Processing..."]}
       />
     </div>
   );

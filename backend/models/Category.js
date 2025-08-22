@@ -31,7 +31,18 @@ const categorySchema = new Schema(
     level: {
       type: Number,
       default: 1,
-    }
+    },
+
+    hsnCode: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    
+    gstRate: {
+      type: Number,
+      required: true
+    },
   },
   { timestamps: true }
 );

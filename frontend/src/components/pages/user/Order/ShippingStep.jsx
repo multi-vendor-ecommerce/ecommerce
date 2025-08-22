@@ -1,14 +1,14 @@
 import { useState, useEffect, useContext } from "react";
 import AddressContext from "../../../../context/shippingAddress/AddressContext";
 
-const ShippingStep = ({ order, setOrder, onNext }) => {
+const ShippingStep = ({ order, setOrder }) => {
   const { addresses, getAddresses, deleteAddress, setDefaultAddress, addAddress, updateAddress } =
     useContext(AddressContext);
 
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); // 👈 track add vs edit
-  const [editId, setEditId] = useState(null); // 👈 current editing addressId
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null); 
   const [formData, setFormData] = useState({
     recipientName: "",
     recipientPhone: "",
@@ -49,7 +49,6 @@ const ShippingStep = ({ order, setOrder, onNext }) => {
     }));
   };
 
-
   const handleDelete = async (addressId) => {
     if (window.confirm("Are you sure you want to delete this address?")) {
       await deleteAddress(addressId);
@@ -63,11 +62,6 @@ const ShippingStep = ({ order, setOrder, onNext }) => {
     await setDefaultAddress(addressId);
     const defaultAddr = addresses.find((a) => a._id === addressId);
     if (defaultAddr) setSelectedAddress(defaultAddr);
-  };
-
-  const handleConfirm = () => {
-    if (!selectedAddress) return alert("Please select an address");
-    onNext();
   };
 
   const resetForm = () => {

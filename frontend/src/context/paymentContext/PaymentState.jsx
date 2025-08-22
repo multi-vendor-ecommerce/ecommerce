@@ -57,28 +57,30 @@ const PaymentState = ({ children }) => {
   };
 
   // Confirm COD
-  const confirmCOD = async (orderId) => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${host}/api/payment/confirm-cod`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("customerToken"),
-        },
-        body: JSON.stringify({ orderId }),
-      });
+    const confirmCOD = async (orderId, shippingInfo) => {
+      if (!shippingInfo) {
+        throw new Error("shippingInfo is required for COD confirmation");
+      }
+      try {
+        setLoading(true);
+        const res = await fetch(`${host}/api/payment/confirm-cod`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "auth-token": localStorage.getItem("customerToken"),
+          },
+          body: JSON.stringify({ orderId, shippingInfo }),
+        });
 
-      const data = await res.json();
-      console.log(data);
-      return data;
-    } catch (err) {
-      console.error(err);
-      return { success: false, message: "COD confirmation failed" };
-    } finally {
-      setLoading(false);
-    }
-  };
+        const data = await res.json();
+        return data;
+      } catch (err) {
+        console.error(err);
+        return { success: false, message: "COD confirmation failed" };
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <PaymentContext.Provider
