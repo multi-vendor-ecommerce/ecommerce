@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import AddressContext from "../../../../context/shippingAddress/AddressContext";
 import StepperControls from "../../../common/StepperControls";
 
-const ShippingStep = ({ order, setOrder, step, next, prev, loading }) => {
+const ShippingStep = ({ order, setOrder, step, next, prev }) => {
   const { addresses, getAddresses, deleteAddress, setDefaultAddress, addAddress, updateAddress } =
     useContext(AddressContext);
 

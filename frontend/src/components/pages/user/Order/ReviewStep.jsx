@@ -1,8 +1,7 @@
-import React from "react";
 import { getFinalPrice, formatPrice } from "../Utils/priceUtils";
 import StepperControls from "../../../common/StepperControls";
 
-const ReviewStep = ({ order, step, next, prev, loading }) => {
+const ReviewStep = ({ order, step, next, prev }) => {
   if (!order?.orderItems || order.orderItems.length === 0) {
     return <p>No items in your order.</p>;
   }

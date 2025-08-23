@@ -101,7 +101,6 @@ const OrderSummary = () => {
           step={step}
           next={next}
           prev={prev}
-          loading={loading}
         />
       )}
       {step === 2 && (
@@ -110,7 +109,6 @@ const OrderSummary = () => {
           step={step}
           next={next}
           prev={prev}
-          loading={loading}
         />
       )}
       {step === 3 && (
