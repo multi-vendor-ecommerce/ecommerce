@@ -262,7 +262,6 @@ const AddProduct = () => {
 
           <StepperControls
             currentStep={step}
-            totalSteps={3}
             onNext={nextStep}
             onBack={prevStep}
             isLastStep={step === 3}

@@ -1,6 +1,15 @@
 import React from "react";
+import StepperControls from "../../../common/StepperControls";
 
-const PaymentStep = ({ modeOfPayment, setModeOfPayment, handlePayment, loading }) => {
+const PaymentStep = ({
+  modeOfPayment,
+  setModeOfPayment,
+  handlePayment,
+  loading,
+  step,
+  next,
+  prev
+}) => {
   return (
     <form onSubmit={handlePayment} className="space-y-4">
       <h2 className="text-xl font-bold">Payment</h2>
@@ -16,14 +25,16 @@ const PaymentStep = ({ modeOfPayment, setModeOfPayment, handlePayment, loading }
         <option value="ONLINE">Online Payment</option>
       </select>
 
-      {/* Confirm Order Button */}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition"
-      >
-        {loading ? "Processing..." : "Confirm Order"}
-      </button>
+      {/* Stepper Controls */}
+      <StepperControls
+        currentStep={step}
+        onNext={next}
+        onBack={prev}
+        isLastStep={step === 3}
+        showSubmit={!!modeOfPayment}
+        loading={loading}
+        submitButton={["Confirm Order", "Processing..."]}
+      />
     </form>
   );
 };

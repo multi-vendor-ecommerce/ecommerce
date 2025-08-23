@@ -1,7 +1,6 @@
 // components/common/StepperControls.jsx
 const StepperControls = ({
   currentStep,
-  totalSteps,
   onNext,
   onBack,
   nextDisabled = false,

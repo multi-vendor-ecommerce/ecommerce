@@ -2,12 +2,9 @@ import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Spinner from "../../../common/Spinner";
 import Stepper from "../../../common/Stepper";
-import StepperControls from "../../../common/StepperControls";
-
 import ShippingStep from "./ShippingStep";
 import ReviewStep from "./ReviewStep";
 import PaymentStep from "./PaymentStep";
-
 import OrderContext from "../../../../context/orders/OrderContext";
 import PaymentContext from "../../../../context/paymentContext/PaymentContext";
 
@@ -35,21 +32,12 @@ const OrderSummary = () => {
     fetchDraft();
   }, [id]);
 
-  if (order) {
-    console.log(order.shippingInfo.recipientName);
-  }
-
-  if (modeOfPayment) {
-    console.log("mode of payment", modeOfPayment);
-  }
-
   const next = () => setStep((s) => Math.min(s + 1, 3));
   const prev = () => setStep((s) => Math.max(s - 1, 1));
 
   // Payment handler
   const handlePayment = async (e) => {
     e.preventDefault();
-    console.log(e);
     if (!order) return;
     setLoading(true);
     try {
@@ -103,7 +91,6 @@ const OrderSummary = () => {
       <Stepper
         stepLabels={["Shipping", "Review", "Payment"]}
         currentStep={step}
-        highlightCurrentStep
         className="flex justify-between mb-6"
       />
 
@@ -111,29 +98,33 @@ const OrderSummary = () => {
         <ShippingStep
           order={order}
           setOrder={setOrder}
+          step={step}
+          next={next}
+          prev={prev}
+          loading={loading}
         />
       )}
       {step === 2 && (
-        <ReviewStep order={order} />
-      )}
-      {step === 3 && (
-        <PaymentStep orderId={order._id} modeOfPayment={modeOfPayment} setModeOfPayment={setModeOfPayment} handlePayment={handlePayment}
+        <ReviewStep
+          order={order}
+          step={step}
+          next={next}
+          prev={prev}
+          loading={loading}
         />
       )}
-
-      {/* Stepper Controls */}
-      <StepperControls
-        currentStep={step}
-        totalSteps={3}
-        onNext={next}
-        onBack={prev}
-        isLastStep={step === 3}
-        // showSubmit={
-        //   order && modeOfPayment
-        // }
-        loading={loading}
-      // submitButton={["Confirm Order", "Processing..."]}
-      />
+      {step === 3 && (
+        <PaymentStep
+          orderId={order._id}
+          modeOfPayment={modeOfPayment}
+          setModeOfPayment={setModeOfPayment}
+          handlePayment={handlePayment}
+          step={step}
+          next={next}
+          prev={prev}
+          loading={loading}
+        />
+      )}
     </div>
   );
 };

@@ -168,7 +168,6 @@ const Register = ({ registerRole }) => {
 
           <StepperControls
             currentStep={step}
-            totalSteps={4}
             onNext={nextStep}
             onBack={prevStep}
             isLastStep={step === 4}

@@ -1,7 +1,8 @@
 import { useState, useEffect, useContext } from "react";
 import AddressContext from "../../../../context/shippingAddress/AddressContext";
+import StepperControls from "../../../common/StepperControls";
 
-const ShippingStep = ({ order, setOrder }) => {
+const ShippingStep = ({ order, setOrder, step, next, prev, loading }) => {
   const { addresses, getAddresses, deleteAddress, setDefaultAddress, addAddress, updateAddress } =
     useContext(AddressContext);
 
@@ -259,6 +260,13 @@ const ShippingStep = ({ order, setOrder }) => {
           </div>
         </form>
       )}
+
+      <StepperControls
+        currentStep={step}
+        onNext={next}
+        onBack={prev}
+        showSubmit={!!selectedAddress}
+      />
     </div>
   );
 };

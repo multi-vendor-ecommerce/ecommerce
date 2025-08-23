@@ -1,7 +1,8 @@
 import React from "react";
 import { getFinalPrice, formatPrice } from "../Utils/priceUtils";
+import StepperControls from "../../../common/StepperControls";
 
-const ReviewStep = ({ order }) => {
+const ReviewStep = ({ order, step, next, prev, loading }) => {
   if (!order?.orderItems || order.orderItems.length === 0) {
     return <p>No items in your order.</p>;
   }
@@ -83,6 +84,12 @@ const ReviewStep = ({ order }) => {
           </span>
         </div>
       </div>
+
+      <StepperControls
+        currentStep={step}
+        onNext={next}
+        onBack={prev}
+      />
     </div>
   );
 };
