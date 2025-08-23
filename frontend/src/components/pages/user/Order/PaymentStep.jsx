@@ -1,6 +1,6 @@
 import StepperControls from "../../../common/StepperControls";
 
-const PaymentStep = ({ modeOfPayment, setModeOfPayment, handlePayment, step, next, prev }) => {
+const PaymentStep = ({ modeOfPayment, setModeOfPayment, handlePayment, step, next, prev, loading }) => {
   return (
     <form onSubmit={handlePayment} className="space-y-4">
       <h2 className="text-xl font-bold">Payment</h2>

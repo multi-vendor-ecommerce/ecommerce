@@ -43,6 +43,7 @@ const OrderSummary = () => {
     try {
       if (modeOfPayment === "COD") {
         const res = await confirmCOD(order._id, order.shippingInfo);
+        alert("Thankyou! your placed successfully");
         if (res.success) navigate(`/order-success/${order._id}`);
         else alert(res.message);
       } else {
@@ -62,14 +63,25 @@ const OrderSummary = () => {
               razorpayPaymentId: response.razorpay_payment_id,
               razorpayOrderId: response.razorpay_order_id,
               razorpaySignature: response.razorpay_signature,
+              shippingInfo: order.shippingInfo,
             });
+            alert("Thankyou! your placed successfully");
             if (paymentRes.success) navigate(`/order-success/${order._id}`);
             else alert(paymentRes.message);
           },
           theme: { color: "#7e22ce" },
         };
 
-        new window.Razorpay(options).open();
+        if (window.Razorpay) {
+          new window.Razorpay(options).open();
+        } else {
+          const script = document.createElement("script");
+          script.src = "https://checkout.razorpay.com/v1/checkout.js";
+          script.onload = () => {
+            new window.Razorpay(options).open();
+          };
+          document.body.appendChild(script);
+        }
       }
     } catch (err) {
       alert(err.message || "Payment failed");

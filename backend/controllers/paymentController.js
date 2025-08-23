@@ -22,7 +22,7 @@ export const createRazorpayOrder = async (req, res) => {
     }
 
     const options = {
-      amount: Math.round(order.totalAmount * 100), // amount in paise
+      amount: Math.round(order.totalAmount * 100), 
       currency: "INR",
       receipt: order._id.toString(),
     };
@@ -43,7 +43,7 @@ export const createRazorpayOrder = async (req, res) => {
 
 // 2. Verify Razorpay payment signature
 export const verifyRazorpayPayment = async (req, res) => {
-  const { orderId, razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
+  const { orderId, razorpayPaymentId, razorpayOrderId, razorpaySignature, shippingInfo } = req.body;
 
   try {
     const body = razorpayOrderId + "|" + razorpayPaymentId;
@@ -64,6 +64,10 @@ export const verifyRazorpayPayment = async (req, res) => {
     order.paymentInfo = { id: razorpayPaymentId, status: "paid" };
     order.paidAt = new Date();
     order.orderStatus = "Pending";
+
+    if (shippingInfo) {
+      order.shippingInfo = shippingInfo;
+    }
 
     if (order.source === "cart") {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
@@ -100,7 +104,7 @@ export const confirmCOD = async (req, res) => {
 
     order.paymentMethod = "COD";
     order.paymentInfo = { id: null, status: "pending" };
-    order.orderStatus = "Pending"; // confirmed
+    order.orderStatus = "Pending"; 
 
     if (order.source === "cart") {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
