@@ -1,7 +1,6 @@
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
-import { editImage } from "./imageController.js";
 
 // Public: Get all vendors (paginated)
 export const getAllVendors = async (req, res) => {
@@ -70,15 +69,6 @@ export const editStore = async (req, res) => {
   try {
     const { shopName } = req.body;
     let shopLogo = req.body.shopLogo || "";
-
-    // If a new file is uploaded, use imageController to handle Cloudinary and DB update
-    if (req.file && req.file.path) {
-      req.body.type = "shopLogo";
-      req.body.targetId = req.person.id;
-      req.body.oldPublicId = req.person.shopLogoId; // Assuming you store public_id for shopLogo
-      await editImage(req, res);
-      return; // editImage sends the response
-    }
 
     // Update only allowed fields
     const updatedVendor = await Vendor.findByIdAndUpdate(
