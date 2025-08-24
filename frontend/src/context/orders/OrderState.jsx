@@ -69,19 +69,26 @@ const OrderState = ({ children }) => {
     setLoading(true);
     try {
       const { role } = getRoleInfo();
+
       const params = new URLSearchParams({ page, limit });
       if (search.trim()) params.append("search", search);
-      if ((role === "admin" || role === "vendor") && status) params.append("status", status);
+      if (status) params.append("status", status);
+
       if (role === "admin" && vendorId) params.append("vendorId", vendorId);
 
-      const endpoint = role === "admin" ? "admin" : "vendor";
+      let endpoint;
+      if (role === "customer") endpoint = "/api/orders";
+      else endpoint = `/api/orders/${role}`;
+
       const headers = {
         "Content-Type": "application/json",
-        "auth-token": role === "admin"
-          ? localStorage.getItem("adminToken")
-          : localStorage.getItem("vendorToken"),
+        "auth-token": role === "customer"
+          ? localStorage.getItem("customerToken")
+          : role === "admin"
+            ? localStorage.getItem("adminToken")
+            : localStorage.getItem("vendorToken"),
       };
-      const res = await fetch(`${host}/api/orders/${endpoint}?${params.toString()}`, {
+      const res = await fetch(`${host}${endpoint}?${params.toString()}`, {
         method: "GET",
         headers,
       });
@@ -102,15 +109,21 @@ const OrderState = ({ children }) => {
   // Fetch Single Order (Admin/Vendor)
   const getOrderById = async (id) => {
     const { role } = getRoleInfo();
-    const endpoint = role === "admin" ? "admin" : "vendor";
+
+    let endpoint;
+    if (role === "customer") endpoint = `/api/orders/${id}`;
+    else endpoint = `/api/orders/${role}/${id}`;
+
     const headers = {
       "Content-Type": "application/json",
-      "auth-token": role === "admin"
-        ? localStorage.getItem("adminToken")
-        : localStorage.getItem("vendorToken"),
+      "auth-token": role === "customer"
+          ? localStorage.getItem("customerToken")
+          : role === "admin"
+            ? localStorage.getItem("adminToken")
+            : localStorage.getItem("vendorToken"),
     };
     try {
-      const res = await fetch(`${host}/api/orders/${endpoint}/${id}`, {
+      const res = await fetch(`${host}${endpoint}`, {
         method: "GET",
         headers,
       });

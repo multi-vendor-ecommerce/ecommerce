@@ -20,7 +20,7 @@ export const deleteImage = async (req, res) => {
 
     // 2. Update DB
     if (type === "profile") {
-      await Person.findByIdAndUpdate(targetId, { $unset: { profileImage: "", profileImageId: "" } });
+      await Person.findByIdAndUpdate(targetId, { $set: { profileImage: "", profileImageId: "" } });
     }
 
     if (type === "product") {

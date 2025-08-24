@@ -9,6 +9,8 @@ import Loader from "../../../common/Loader";
 import useProfileUpdate from "../../../../hooks/useProfileUpdate";
 import Button from "../../../common/Button";
 import { capitalize } from "../../../../utils/capitalize";
+import ImageEditor from "./ImageEditor";
+import ProfileActionButtons from "./ProfileActionButtons";
 
 const Profile = () => {
   const { person, editPerson, getCurrentPerson, deletePerson } = useContext(PersonContext);
@@ -35,10 +37,9 @@ const Profile = () => {
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      const res = await deletePerson(); // res is already JSON parsed object
+      const res = await deletePerson();
       if (res.success) {
         alert(res.message);
-        // Redirect after successful deletion
         navigate(`/login/${person.role}`, { replace: true });
       } else {
         alert(res.message);
@@ -53,94 +54,32 @@ const Profile = () => {
       {/* Action Buttons */}
       <div className="mt-4 mb-6 flex justify-between items-center gap-2">
         <h2 className="text-xl md:text-2xl font-bold">{capitalize(person?.role)} Profile</h2>
-
-        <div className="flex justify-end gap-4">
-          {editing ? (
-            <>
-              <Button
-                icon={FiX}
-                text="Cancel"
-                onClick={() => {
-                  setForm(JSON.parse(JSON.stringify(person)));
-                  setEditing(false);
-                }}
-                disabled={isLoading}
-                className="py-2 border-red-600 text-red-600"
-                color="red"
-              />
-              <Button
-                icon={FiCheck}
-                text={isLoading ? "Saving..." : "Save"}
-                onClick={handleSave}
-                disabled={isLoading}
-                className="py-2 border-green-600 text-green-600"
-                color="green"
-              />
-            </>
-          ) : (
-            <Button icon={FiEdit} text="Edit" className="py-2 border-blue-500 text-blue-600" onClick={() => setEditing(true)} />
-          )}
-        </div>
       </div>
 
-      {/* Basic Info */}
-      <div className="bg-white px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500 flex flex-col md:flex-row gap-8">
-        {/* Profile Image */}
-        <div className="flex-shrink-0 flex flex-col items-center justify-center">
-          <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-200 border flex items-center justify-center group">
-            {form.profileImage ? (
-              <>
-                <img
-                  src={form.profileImage}
-                  alt="Profile"
-                  className="w-full h-full object-cover cursor-pointer group-hover:opacity-70 transition"
-                  onClick={() => editing && document.getElementById("profileImageInput").click()}
-                  title={editing ? "Click to change image" : ""}
-                />
-                {editing && (
-                  <>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      id="profileImageInput"
-                      style={{ display: "none" }}
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          const tempUrl = URL.createObjectURL(file);
-                          setForm((prev) => ({ ...prev, profileImage: tempUrl }));
-                          setImageFile(file);
-                        }
-                      }}
-                    />
-                    <div
-                      className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 cursor-pointer"
-                      onClick={() => document.getElementById("profileImageInput").click()}
-                      title="Click to change image"
-                    >
-                      <span className="text-white text-sm">Change Image</span>
-                    </div>
-                  </>
-                )}
-              </>
-            ) : (
-              <span className="text-gray-600">No Image</span>
-            )}
-          </div>
-          {/* Remove Profile Image button below the circle */}
-          {editing && form.profileImage && (
-            <Button
-              text="Remove Profile Image"
-              color="red"
-              className="mt-2 py-1 px-3 text-xs border-red-600 text-red-600 bg-white bg-opacity-80"
-              onClick={() => {
-                setForm((prev) => ({ ...prev, profileImage: "" }));
-                setImageFile(null);
-              }}
-            />
-          )}
-        </div>
+      {/* Profile Image Editor */}
+      <div className="bg-white px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500 flex flex-col md:flex-row gap-8 mb-8">
+        {/* Profile Image Editor always visible */}
+        <ImageEditor
+          heading="Profile Image"
+          person={person}
+          getCurrentPerson={getCurrentPerson}
+          editing={true} // Always allow image update/remove
+        />
+      </div>
 
+      <ProfileActionButtons
+        editing={editing}
+        isLoading={isLoading}
+        onEdit={() => setEditing(true)}
+        onCancel={() => {
+          setForm(JSON.parse(JSON.stringify(person)));
+          setEditing(false);
+        }}
+        onSave={handleSave}
+      />
+
+      {/* Basic Info */}
+      <div className="bg-white px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500 flex flex-col md:flex-row gap-8 mb-8">
         {/* Basic Info Fields */}
         <div className="flex-1 space-y-4 w-full">
           <h3 className="text-lg font-semibold">Basic Information</h3>
@@ -187,7 +126,6 @@ const Profile = () => {
       {showDelete && (
         <Button icon={FiTrash2} text="Delete Account" className="mt-8 py-3 border-red-600 text-red-600 hover:bg-red-600" onClick={handleDelete} />
       )}
-
     </div>
   );
 };

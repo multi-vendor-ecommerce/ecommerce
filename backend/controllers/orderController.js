@@ -93,42 +93,24 @@ export const createOrUpdateDraftOrder = async (req, res) => {
   }
 };
 
-export const getUserOrders = async (req, res) => {
-  try {
-    const orders = await Order.find({ user: req.person.id }).populate([
-      {
-        path: "orderItems.product",
-        select: "title price images category brand createdBy",
-        populate: {
-          path: "createdBy",
-          select: "name shopName email address phone"
-        }
-      }
-    ]);
-    res.status(200).json({ success: true, orders });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Server Error", error: err.message });
-  }
-};
-
 export const getAllOrders = async (req, res) => {
   try {
-    const isAdmin = req.person.role === "admin";
-    const isVendor = req.person.role === "vendor";
+    const role = req.person.role;
+    let query = {};
 
-    if (!isAdmin && !isVendor) {
-      return res.status(403).json({ success: false, message: "Access denied" });
-    }
+    // Build query for status, paymentStatus, orderId for all roles
+    query = buildQuery(req.query, ["status", "paymentStatus", "orderId"]);
 
-    const query = buildQuery(req.query, ["status", "paymentStatus", "orderId"]);
-
-    // Admin: filter by vendorId if provided (for vendor profile view)
-    if (isAdmin && req.query.vendorId) {
-      query["orderItems.product.createdBy"] = req.query.vendorId;
-    }
-    // Vendor: only their own orders
-    else if (isVendor) {
-      query["orderItems.product.createdBy"] = req.person.id;
+    if (role === "customer") {
+      // Customers: only their own orders, but can filter by status/paymentStatus/orderId
+      query.user = req.person.id;
+    } else {
+      // Admin and vendor: build query from params
+      if (role === "admin" && req.query.vendorId) {
+        query["orderItems.product.createdBy"] = req.query.vendorId;
+      } else if (role === "vendor") {
+        query["orderItems.product.createdBy"] = req.person.id;
+      }
     }
 
     const page = parseInt(req.query.page) || 1;
@@ -185,6 +167,15 @@ export const getOrderById = async (req, res) => {
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    // 🔒 Access control: Customer can only access their own order
+    if (
+      req.person.role === "customer" &&
+      order.user &&
+      order.user._id.toString() !== req.person.id.toString()
+    ) {
+      return res.status(403).json({ success: false, message: "Access denied: Not your order." });
     }
 
     // 🔒 Access control: Vendor can only access their own order

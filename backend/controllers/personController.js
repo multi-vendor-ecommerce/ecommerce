@@ -29,16 +29,6 @@ export const editPerson = async (req, res) => {
 
     const update = {};
 
-    // ✅ Use imageController for profile image edit
-    if (req.file && req.file.path) {
-      // Call editImage controller logic directly
-      req.body.type = "profile";
-      req.body.targetId = req.person.id;
-      req.body.oldPublicId = person.profileImageId;
-      await editImage(req, res);
-      return; // Prevent further update, as editImage sends the response
-    }
-
     // ✅ Handle nested fields
     const setNestedValue = (obj, path, value) => {
       const keys = path.split(".");
@@ -111,6 +101,7 @@ export const deletePerson = async (req, res) => {
       req.body.publicId = person.profileImageId;
       req.body.type = "profile";
       req.body.targetId = req.person.id;
+      
       await deleteImage(req, res);
       // Note: deleteImage sends the response, so you may want to delete the person after image deletion
       // If you want to send a single response, you can move the DB deletion logic into deleteImage or handle here after image deletion
