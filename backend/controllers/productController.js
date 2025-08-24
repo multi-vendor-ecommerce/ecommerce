@@ -283,5 +283,3 @@ export const addProduct = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error while adding product.", error: err.message });
   }
 };
-
-

@@ -9,7 +9,7 @@ import AuthContext from "../../../context/auth/AuthContext";
 import NotFoundPage from "../../common/notPageFound";
 import Products from "../adminVendorCommon/product/Products";
 import ProductDetails from "../adminVendorCommon/product/ProductDetails";
-import AddProduct from "../adminVendorCommon/product/addProduct/AddProduct";
+import AddProduct from "./vendorProducts/addProduct/AddProduct";
 import Orders from "../adminVendorCommon/orders/Orders";
 import OrderDetails from "../adminVendorCommon/orders/OrderDetails";
 import Customers from "../adminVendorCommon/customers/Customers";

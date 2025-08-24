@@ -139,22 +139,11 @@ const ProductState = ({ children }) => {
   const addProduct = async (formData) => {
     try {
       setLoading(true);
-      const { role } = getRoleInfo();
-
-      // const headers = {};
-      // if (role !== "public" && token) {
-      //   headers["auth-token"] = token;
-      // }
-
-      // const response = await fetch(`${host}/api/products/add-product`, {
-      //   method: "POST",
-      //   headers,
-      //   body: formData,
-      // });
+      
       const response = await fetch(`${host}/api/products/add-product`, {
         method: "POST",
         headers: {
-          "auth-token": localStorage.getItem("adminToken"),
+          "auth-token": localStorage.getItem("vendorToken"),
         },
         body: formData,
       });

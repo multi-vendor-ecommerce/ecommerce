@@ -24,9 +24,8 @@ export const addProductFields = {
     {
       label: "Colors",
       name: "colors",
-      placeholder: "e.g. Red, White, Blue (comma-separated)",
+      placeholder: "e.g. red, white, blue (comma-separated)",
       title: "Enter product colors",
-      required: true,
     },
     {
       label: "Size",
@@ -74,7 +73,7 @@ export const addProductFields = {
     {
       label: "Discount",
       name: "discount",
-      placeholder: "Enter discount",
+      placeholder: "Enter discount (%)",
       title: "Enter product discount",
       type: "number",
     },

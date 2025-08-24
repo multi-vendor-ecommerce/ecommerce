@@ -69,7 +69,7 @@ router.get("/vendor/top-products", verifyToken, authorizeRoles("vendor"), getTop
 router.get("/vendor/:id", verifyToken, authorizeRoles("vendor"), getProductById);
 
 // ROUTE 10: POST /api/products/add-product
-// Desc: Add a product (admin + vendor only)
-router.post("/add-product", verifyToken, authorizeRoles("admin", "vendor"), upload.array("images", 7), addProduct);
+// Desc: Add a product (vendor only)
+router.post("/add-product", verifyToken, authorizeRoles("vendor"), upload.array("images", 7), addProduct);
 
 export default router;

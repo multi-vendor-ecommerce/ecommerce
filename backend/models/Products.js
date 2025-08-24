@@ -103,7 +103,6 @@ const productSchema = new Schema(
     colors: {
       type: [String],
       default: [],
-      validate: [(val) => val.length > 0, "At least one color is required"],
     },
     sizes: {
       type: [String],
