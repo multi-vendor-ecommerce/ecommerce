@@ -10,9 +10,12 @@ const ImageEditor = ({ heading, person, getCurrentPerson }) => {
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
     setLoading(true);
     const res = await editProfileImage(file, person._id);
     setLoading(false);
+    
+    e.target.value = "";
     if (res.ok) getCurrentPerson();
   };
 
@@ -20,7 +23,6 @@ const ImageEditor = ({ heading, person, getCurrentPerson }) => {
     setLoading(true);
     const res = await removeProfileImage({
       publicId: person.profileImageId,
-      type: "profile", // <-- Add this line
       targetId: person._id,
     });
     setLoading(false);

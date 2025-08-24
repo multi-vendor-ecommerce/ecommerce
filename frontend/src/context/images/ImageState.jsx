@@ -7,7 +7,6 @@ const ImageState = ({ children }) => {
   const getRoleInfo = () => {
     const adminToken = localStorage.getItem("adminToken");
     const vendorToken = localStorage.getItem("vendorToken");
-    const customerToken = localStorage.getItem("customerToken");
 
     if (adminToken) {
       return { role: "admin" };
@@ -28,7 +27,6 @@ const ImageState = ({ children }) => {
       formData.append("targetId", targetId);
 
       const headers = {
-        "Content-Type": "application/json",
         "auth-token": role === "customer"
           ? localStorage.getItem("customerToken")
           : role === "admin"
