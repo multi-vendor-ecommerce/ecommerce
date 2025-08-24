@@ -11,9 +11,7 @@ import Profile from "../adminVendorCommon/settings/Profile";
 import ProtectedRoute from "../../common/ProtectedRoute";
 
 import OrderSummary from "./Order/OrderSummary";
-// import PaymentStep from "./Order/PaymentStep";
-// import ReviewStep from "./Order/ReviewStep";
-// import ShippingStep from "./Order/ShippingStep";
+import MyOrdersList from "./Order/MyOrders/MyOrdersList";
 
 export default function User() {
   return (
@@ -42,12 +40,19 @@ export default function User() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/order-summary/:id"
           element={
             <ProtectedRoute>
               <OrderSummary />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-orders"
+          element={
+            <ProtectedRoute>
+              <MyOrdersList />
             </ProtectedRoute>
           }
         />

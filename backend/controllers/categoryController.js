@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 export const createCategory = async (req, res) => {
   try {
-    const { name, description = "", image = "", parent = null, hsnCode, gstRate } = req.body;
+    const { name, description = "", image = "", parent = null } = req.body;
 
     // Validate category name
     if (!name || !name.trim()) {
@@ -20,24 +20,6 @@ export const createCategory = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Invalid parent category ID",
-      });
-    }
-
-    //  Validate HSN Code with regex
-    const hsnRegex = /^\d{4}(\d{2}(\d{2})?)?$/;
-    if (!hsnCode || !hsnRegex.test(hsnCode)) {
-      return res.status(400).json({
-        success: false,
-        message: "HSN Code must be 4, 6 or 8 digit numeric code",
-      });
-    }
-
-    //  Validate GST Rate with allowed values
-    const allowedGSTRates = [0, 5, 12, 18, 28];
-    if (gstRate === undefined || gstRate === null || isNaN(gstRate) || !allowedGSTRates.includes(Number(gstRate))) {
-      return res.status(400).json({
-        success: false,
-        message: `GST Rate must be one of: ${allowedGSTRates.join(", ")}`,
       });
     }
 
@@ -74,9 +56,7 @@ export const createCategory = async (req, res) => {
       description: description.trim(),
       image: image.trim(),
       parent: parent || null,
-      level,
-      hsnCode: hsnCode.trim(),
-      gstRate: Number(gstRate),
+      level
     });
 
     res.status(201).json({

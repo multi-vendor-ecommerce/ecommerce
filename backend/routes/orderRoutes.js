@@ -42,4 +42,6 @@ router.get("/admin", verifyToken, authorizeRoles("admin"), getAllOrders);
  */
 router.get("/admin/:id", verifyToken, authorizeRoles("admin"), getOrderById);
 
+router.get("/my-orders", verifyToken, authorizeRoles("customer"), getAllOrders);
+
 export default router;

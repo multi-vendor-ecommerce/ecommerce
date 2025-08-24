@@ -99,28 +99,6 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // Fetch My Orders (Customer)
-  const getMyOrders = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${host}/api/orders/my-order`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "auth-token": localStorage.getItem("customerToken"),
-        },
-      });
-      const data = await res.json();
-      if (data.success) setOrders(data.orders || []);
-      return data;
-    } catch (err) {
-      console.error("Error fetching my orders:", err);
-      return { success: false };
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Fetch Single Order (Admin/Vendor)
   const getOrderById = async (id) => {
     const { role } = getRoleInfo();
@@ -152,7 +130,6 @@ const OrderState = ({ children }) => {
       totalCount,
       createOrderDraft,
       getAllOrders,
-      getMyOrders,
       getOrderById,
       getUserDraftOrderById,
     }}>
