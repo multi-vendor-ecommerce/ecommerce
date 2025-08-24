@@ -5,12 +5,11 @@ import { createOrUpdateDraftOrder, getAllOrders, getOrderById, getUserDraftOrder
 
 const router = express.Router();
 
-/**
- * @route   POST /api/orders/placeOrder
- * @desc    Place a new order by a logged-in user
- * @access  Private (User)
- */
+router.get("/", verifyToken, authorizeRoles("customer"), getAllOrders);
+
 router.post("/create-draft", verifyToken, createOrUpdateDraftOrder);
+
+router.get("/:id", verifyToken, authorizeRoles("customer"), getOrderById);
 
 router.get("/draft/:id", verifyToken, getUserDraftOrder);
 
