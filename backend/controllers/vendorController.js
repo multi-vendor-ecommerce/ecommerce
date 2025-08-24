@@ -1,6 +1,7 @@
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
+import { editImage } from "./imageController.js";
 
 // Public: Get all vendors (paginated)
 export const getAllVendors = async (req, res) => {
@@ -70,9 +71,13 @@ export const editStore = async (req, res) => {
     const { shopName } = req.body;
     let shopLogo = req.body.shopLogo || "";
 
-    // If a new file is uploaded, send to Cloudinary
+    // If a new file is uploaded, use imageController to handle Cloudinary and DB update
     if (req.file && req.file.path) {
-      shopLogo = req.file.path;
+      req.body.type = "shopLogo";
+      req.body.targetId = req.person.id;
+      req.body.oldPublicId = req.person.shopLogoId; // Assuming you store public_id for shopLogo
+      await editImage(req, res);
+      return; // editImage sends the response
     }
 
     // Update only allowed fields
@@ -88,8 +93,6 @@ export const editStore = async (req, res) => {
     if (!updatedVendor) {
       return res.status(404).json({ success: false, message: "Vendor not found" });
     }
-
-    console.log(updatedVendor)
 
     res.status(200).json({ success: true, message: "Store updated successfully", vendor: updatedVendor });
   } catch (error) {

@@ -86,32 +86,59 @@ const Profile = () => {
       {/* Basic Info */}
       <div className="bg-white px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500 flex flex-col md:flex-row gap-8">
         {/* Profile Image */}
-        <div className="flex-shrink-0 flex justify-center">
-          <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-200 border flex items-center justify-center">
+        <div className="flex-shrink-0 flex flex-col items-center justify-center">
+          <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-200 border flex items-center justify-center group">
             {form.profileImage ? (
-              <img src={form.profileImage} alt="Profile" className="w-full h-full object-cover" />
-            ) : editing ? (
               <>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      const tempUrl = URL.createObjectURL(file);
-                      setForm((prev) => ({ ...prev, profileImage: tempUrl }));
-                      setImageFile(file);
-                    }
-                  }}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  title="Upload Profile Image"
+                <img
+                  src={form.profileImage}
+                  alt="Profile"
+                  className="w-full h-full object-cover cursor-pointer group-hover:opacity-70 transition"
+                  onClick={() => editing && document.getElementById("profileImageInput").click()}
+                  title={editing ? "Click to change image" : ""}
                 />
-                <span className="text-gray-500 text-sm text-center px-2">Click to add image</span>
+                {editing && (
+                  <>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="profileImageInput"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const tempUrl = URL.createObjectURL(file);
+                          setForm((prev) => ({ ...prev, profileImage: tempUrl }));
+                          setImageFile(file);
+                        }
+                      }}
+                    />
+                    <div
+                      className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 cursor-pointer"
+                      onClick={() => document.getElementById("profileImageInput").click()}
+                      title="Click to change image"
+                    >
+                      <span className="text-white text-sm">Change Image</span>
+                    </div>
+                  </>
+                )}
               </>
             ) : (
               <span className="text-gray-600">No Image</span>
             )}
           </div>
+          {/* Remove Profile Image button below the circle */}
+          {editing && form.profileImage && (
+            <Button
+              text="Remove Profile Image"
+              color="red"
+              className="mt-2 py-1 px-3 text-xs border-red-600 text-red-600 bg-white bg-opacity-80"
+              onClick={() => {
+                setForm((prev) => ({ ...prev, profileImage: "" }));
+                setImageFile(null);
+              }}
+            />
+          )}
         </div>
 
         {/* Basic Info Fields */}

@@ -1,7 +1,7 @@
 import express from "express";
 import { body } from "express-validator";
 import { validate } from "../middleware/validateFields.js";
-import upload from "../middleware/multer.js";
+import uploadProfile from "../middleware/multerProfile.js";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 
@@ -47,7 +47,7 @@ router.get('/me', auth, getCurrentPerson);
 
 // ROUTE 2: PUT /api/person/edit/me
 // Desc: Edit single person details (by token)
-router.put('/edit/me', auth, upload.single("profileImage"), editPersonValidator, validate, editPerson);
+router.put('/edit/me', auth, uploadProfile.single("profileImage"), editPersonValidator, validate, editPerson);
 
 // ROUTE 3: DELETE /api/person/me
 // Desc: Delete person account (by token)

@@ -251,15 +251,18 @@ export const addProduct = async (req, res) => {
       tags = [...new Set(tags.map(tag => tag.trim().toLowerCase()).filter(Boolean))];
     }
 
-    const imageUrls = req.files?.map(file => file.path) || [];
+    const images =
+      req.files?.map(file => ({
+        url: file.path,
+        public_id: file.filename || file.public_id
+      })) || [];
 
     const newProduct = await Product.create({
       createdBy: req.person.id,
-      createdByRole: req.person.role,
       title,
       brand,
       description,
-      images: imageUrls,
+      images, // <-- use the array of objects
       video: video || null,
       category,
       specifications: specifications || {},

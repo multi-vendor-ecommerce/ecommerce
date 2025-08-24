@@ -5,7 +5,7 @@ import authorizeRoles from "../middleware/authorizeRole.js";
 // Controllers
 import { getAllVendors, getTopVendors, editStore, getVendorById } from "../controllers/vendorController.js";
 import { body } from "express-validator";
-import upload from "../middleware/multer.js";
+import uploadProfile from "../middleware/multerProfile.js";
 import { validate } from "../middleware/validateFields.js";
 
 const router = express.Router();
@@ -24,7 +24,7 @@ router.get("/top", verifyToken, authorizeRoles("admin"), getTopVendors);
 
 // ROUTE 3: PUT /api/vendors/top
 // Desc: Showcase all the top vendors to the admin
-router.put("/edit/store", verifyToken, authorizeRoles("vendor"), upload.single("shopLogo"), editStoreValidator, validate, editStore);
+router.put("/edit/store", verifyToken, authorizeRoles("vendor"), uploadProfile.single("shopLogo"), editStoreValidator, validate, editStore);
 
 // ROUTE 4: GET /api/vendors/:id
 // Desc: Fetch single vendor

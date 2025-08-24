@@ -16,6 +16,7 @@ import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import shippingAddressRoutes from "./routes/shippingAddressRoutes.js";
+import imageRoutes from "./routes/imageRoutes.js";
 
 connectToMongo();
 
@@ -38,17 +39,22 @@ app.get('/', (req, res) => {
 });
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/person", personRoutes);
-app.use('/api/products', productsRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/vendors', vendorRoutes);
-app.use('/api/users', userRoutes);
-app.use("/api/coupons", CouponRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/payment", paymentRoutes);
-app.use("/api/shipping-address", shippingAddressRoutes);
+const apiRoutes = [
+  { path: "auth", route: authRoutes },
+  { path: "person", route: personRoutes },
+  { path: "products", route: productsRoutes },
+  { path: "categories", route: categoryRoutes },
+  { path: "vendors", route: vendorRoutes },
+  { path: "users", route: userRoutes },
+  { path: "coupons", route: CouponRoutes },
+  { path: "cart", route: cartRoutes },
+  { path: "orders", route: orderRoutes },
+  { path: "payment", route: paymentRoutes },
+  { path: "shipping-address", route: shippingAddressRoutes },
+  { path: "images", route: imageRoutes }
+];
+
+apiRoutes.map(({ path, route }) => app.use(`/api/${path}`, route));
 
 app.listen(PORT, () => {
   console.log(`Backend listening on port http://localhost:${PORT}`);

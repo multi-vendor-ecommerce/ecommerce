@@ -1,13 +1,12 @@
 import Person from "../models/Person.js";
 import bcrypt from "bcryptjs";
+import { deleteImage, editImage } from "./imageController.js"; // Import your image controller
 
 export const getCurrentPerson = async (req, res) => {
   try {
-    // Fetch the user's details except password using the id
     const person = await Person.findById(req.person.id).select("-password");
     res.json({ success: true, person, message: `${req.person.role}'s details fetched successfully.` })
   } catch (err) {
-    // Catch the error
     console.log(err.message);
     res.status(500).json({ success: false, message: 'Interal Server Error', error: err.message });
   }
@@ -15,9 +14,13 @@ export const getCurrentPerson = async (req, res) => {
 
 export const editPerson = async (req, res) => {
   try {
-    // Only allow updatable fields
+    const person = await Person.findById(req.person.id);
+    if (!person) {
+      return res.status(404).json({ success: false, message: "Person not found" });
+    }
+
     const allowedFields = [
-      "name", "profileImage", "phone",
+      "name", "phone",
       "address.line1", "address.line2", "address.city",
       "address.state", "address.country", "address.pincode",
       "address.locality", "address.recipientName", "address.recipientPhone",
@@ -26,11 +29,17 @@ export const editPerson = async (req, res) => {
 
     const update = {};
 
-    // 1. Handle uploaded image
+    // ✅ Use imageController for profile image edit
     if (req.file && req.file.path) {
-      update.profileImage = req.file.path;
+      // Call editImage controller logic directly
+      req.body.type = "profile";
+      req.body.targetId = req.person.id;
+      req.body.oldPublicId = person.profileImageId;
+      await editImage(req, res);
+      return; // Prevent further update, as editImage sends the response
     }
 
+    // ✅ Handle nested fields
     const setNestedValue = (obj, path, value) => {
       const keys = path.split(".");
       let current = obj;
@@ -45,19 +54,14 @@ export const editPerson = async (req, res) => {
 
     for (const field of allowedFields) {
       const keys = field.split(".");
-
-      // Check nested form
       let value = req.body;
       for (const key of keys) {
         value = value?.[key];
         if (value === undefined) break;
       }
-
-      // If nested value not found, check flattened field name
       if (value === undefined && req.body[field] !== undefined) {
         value = req.body[field];
       }
-
       if (value !== undefined) {
         setNestedValue(update, field, value);
       }
@@ -69,36 +73,68 @@ export const editPerson = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    res.status(200).json({ success: true, updatedPerson, message: "Profile updated successfully." });
+    res.status(200).json({
+      success: true,
+      updatedPerson,
+      message: "Profile updated successfully."
+    });
+
   } catch (err) {
     console.error("Edit Person Error:", err);
-    res.status(500).json({ success: false, message: "Server error while updating profile", error: err.message });
+    res.status(500).json({
+      success: false,
+      message: "Server error while updating profile",
+      error: err.message
+    });
   }
 };
 
 // Controller: deletePerson
 export const deletePerson = async (req, res) => {
   try {
-    // req.person contains the logged-in user's data from verifyToken middleware
     if (req.person.role === "admin") {
-      return res.status(403).json({ success: false, message: "Admin account deletion not allowed here." });
+      return res
+        .status(403)
+        .json({ success: false, message: "Admin account deletion not allowed here." });
     }
 
-    // Assuming you have a Person model
-    const deleted = await Person.findByIdAndDelete(req.person.id);
-
-    if (!deleted) {
-      return res.status(404).json({ success: false, message: "Person not found or already deleted" });
+    const person = await Person.findById(req.person.id);
+    if (!person) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Person not found or already deleted" });
     }
 
-    res.status(200).json({ success: true, message: "User account deleted successfully." });
+    // ✅ Use imageController for profile image delete
+    if (person.profileImageId) {
+      // Call deleteImage controller logic directly
+      req.body.publicId = person.profileImageId;
+      req.body.type = "profile";
+      req.body.targetId = req.person.id;
+      await deleteImage(req, res);
+      // Note: deleteImage sends the response, so you may want to delete the person after image deletion
+      // If you want to send a single response, you can move the DB deletion logic into deleteImage or handle here after image deletion
+      await Person.findByIdAndDelete(req.person.id);
+      return res
+        .status(200)
+        .json({ success: true, message: "User account deleted successfully." });
+    }
+
+    await Person.findByIdAndDelete(req.person.id);
+
+    res
+      .status(200)
+      .json({ success: true, message: "User account deleted successfully." });
+
   } catch (err) {
     console.error("Error deleting person:", err);
-    res.status(500).json({ success: false, message: "Server error", error: err.message });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: err.message });
   }
 };
 
-// Controller: changePassword
+// Controller: changePassword (unchanged)
 export const changePassword = async (req, res) => {
   try {
     let { currentPassword, newPassword, confirmPassword } = req.body;
@@ -117,7 +153,6 @@ export const changePassword = async (req, res) => {
       return res.status(400).json({ message: "New password and confirm password do not match" });
     }
 
-    // Validate new password strength
     const strongPasswordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{6,}$/;
     if (!strongPasswordRegex.test(newPassword)) {
       return res.status(400).json({
@@ -126,18 +161,15 @@ export const changePassword = async (req, res) => {
       });
     }
 
-    // Find user
     const person = await Person.findById(req.person.id);
     if (!person) {
       return res.status(404).json({ message: `${req.person.role} not found` });
     }
 
-    // Check current password
     if (!(await bcrypt.compare(currentPassword, person.password))) {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
 
-    // Update password
     await Person.findByIdAndUpdate(
       req.person.id,
       { password: await bcrypt.hash(newPassword, 10) },

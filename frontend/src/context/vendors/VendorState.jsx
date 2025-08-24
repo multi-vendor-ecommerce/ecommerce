@@ -84,6 +84,7 @@ const VendorState = (props) => {
         method: "PUT",
         headers: {
           "auth-token": localStorage.getItem("vendorToken"),
+          // DO NOT set "Content-Type" for FormData!
         },
         body: formData
       });
@@ -91,13 +92,16 @@ const VendorState = (props) => {
       if (!response.ok) throw new Error("Failed to update the store.");
 
       const data = await response.json();
-      if (data.success) {
-        return { success: data.success, vendor: data.vendor, message: data.message }
+      // Always return the updated vendor object from backend
+      if (data.success && data.vendor) {
+        // This vendor object should have the new shopLogo URL
+        return { success: true, vendor: data.vendor, message: data.message };
       } else {
         return { success: false, message: data.message || "Failed to update store." };
       }
     } catch (error) {
-      console.error("Error fetching vendors:", error);
+      console.error("Error updating store:", error);
+      return { success: false, message: "Error updating store." };
     } finally {
       setLoading(false);
     }

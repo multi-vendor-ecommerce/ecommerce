@@ -13,6 +13,10 @@ const Vendor = Person.discriminator("vendor", new mongoose.Schema({
     type: String,
     default: ""
   },
+  shopLogoId: {
+    type: String,
+    default: ""
+  },
   gstNumber: {
     type: String,
     required: true,

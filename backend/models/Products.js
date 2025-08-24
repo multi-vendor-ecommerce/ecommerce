@@ -2,13 +2,20 @@ import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
+const imageSchema = new Schema(
+  {
+    url: { type: String, required: true },
+    public_id: { type: String, required: true },
+  },
+  { _id: false }
+);
+
 const productSchema = new Schema(
   {
     // vendor
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Person",
-      enum: ["vendor"],
       required: true,
     },
     title: {
@@ -24,14 +31,15 @@ const productSchema = new Schema(
     description: {
       type: String,
       trim: true,
+      default: "",
     },
     images: {
-      type: [String], // URLs or Cloudinary paths
+      type: [imageSchema], // Array of { url, public_id }
       required: true,
       validate: [(val) => val.length > 0, "At least one image is required"],
     },
     video: {
-      type: String,
+      type: String, // Or use { url, public_id } if you want to manage videos
       default: null,
     },
     category: {
@@ -69,7 +77,10 @@ const productSchema = new Schema(
       unique: true,
       required: true,
       trim: true,
-      match: [/^[A-Za-z0-9_-]{4,20}$/, "SKU must be 4-20 characters, letters, numbers, hyphens or underscores only"]
+      match: [
+        /^[A-Za-z0-9_-]{4,20}$/,
+        "SKU must be 4-20 characters, letters, numbers, hyphens or underscores only",
+      ],
     },
     hsnCode: {
       type: String,
@@ -79,8 +90,8 @@ const productSchema = new Schema(
         validator: function (v) {
           return /^\d{4,8}$/.test(v);
         },
-        message: "HSN code must be 4 to 8 digits"
-      }
+        message: "HSN code must be 4 to 8 digits",
+      },
     },
     gstRate: {
       type: Number,
@@ -140,4 +151,4 @@ const productSchema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Product", productSchema); 
+export default mongoose.model("Product", productSchema);
