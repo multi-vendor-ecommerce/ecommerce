@@ -58,7 +58,7 @@ const ProductDetails = () => {
   useEffect(() => {
     if (selectedColor && productDetails?.images?.length > 1) {
       const index = productDetails.images.findIndex(img =>
-        img.toLowerCase().includes(selectedColor.toLowerCase())
+        (img.publicId || " ").toLowerCase().includes(selectedColor.toLowerCase())
       );
       if (index !== -1) setActiveImage(index);
     }

@@ -63,7 +63,7 @@ export const verifyRazorpayPayment = async (req, res) => {
     order.paymentMethod = "Online";
     order.paymentInfo = { id: razorpayPaymentId, status: "paid" };
     order.paidAt = new Date();
-    order.orderStatus = "Pending";
+    order.orderStatus = "processing";
 
     if (shippingInfo) {
       order.shippingInfo = shippingInfo;
@@ -104,7 +104,7 @@ export const confirmCOD = async (req, res) => {
 
     order.paymentMethod = "COD";
     order.paymentInfo = { id: null, status: "pending" };
-    order.orderStatus = "Pending"; 
+    order.orderStatus = "processing"; 
 
     if (order.source === "cart") {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });

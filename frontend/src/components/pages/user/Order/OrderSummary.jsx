@@ -44,7 +44,7 @@ const OrderSummary = () => {
       if (modeOfPayment === "COD") {
         const res = await confirmCOD(order._id, order.shippingInfo);
         alert("Thankyou! your placed successfully");
-        if (res.success) navigate(`/order-success/${order._id}`);
+        if (res.success) navigate(`/my-orders`);
         else alert(res.message);
       } else {
         const razorpayData = await createRazorpayOrder(order._id);
@@ -66,7 +66,7 @@ const OrderSummary = () => {
               shippingInfo: order.shippingInfo,
             });
             alert("Thankyou! your placed successfully");
-            if (paymentRes.success) navigate(`/order-success/${order._id}`);
+            if (paymentRes.success) navigate(`/my-orders`);
             else alert(paymentRes.message);
           },
           theme: { color: "#7e22ce" },
