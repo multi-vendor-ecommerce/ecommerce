@@ -97,7 +97,7 @@ export const getAllOrders = async (req, res) => {
   try {
     const role = req.person.role;
     let query = {};
-
+    
     // Build query for status, paymentStatus, orderId for all roles
     query = buildQuery(req.query, ["status", "paymentStatus", "orderId"]);
 
@@ -109,7 +109,43 @@ export const getAllOrders = async (req, res) => {
       if (role === "admin" && req.query.vendorId) {
         query["orderItems.product.createdBy"] = req.query.vendorId;
       } else if (role === "vendor") {
-        query["orderItems.product.createdBy"] = req.person.id;
+        // Get all orders, then filter in JS after population
+        const allOrders = await Order.find(query)
+          .sort({ createdAt: -1 })
+          .populate({
+            path: "orderItems.product",
+            select: "title price images category brand createdBy",
+            populate: {
+              path: "createdBy",
+              select: "name email shopName address phone"
+            }
+          })
+          .populate({ path: "user", select: "name email address phone" });
+
+        // Only keep orders where at least one product was created by this vendor
+        const vendorOrders = allOrders.filter(order =>
+          order.orderItems.some(
+            item =>
+              item.product &&
+              item.product.createdBy &&
+              item.product.createdBy._id.toString() === req.person.id.toString()
+          )
+        );
+
+        // Pagination
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        const paginatedOrders = vendorOrders.slice(skip, skip + limit);
+
+        return res.status(200).json({
+          success: true,
+          message: "Orders fetched successfully.",
+          orders: paginatedOrders,
+          total: vendorOrders.length,
+          page,
+          limit,
+        });
       }
     }
 

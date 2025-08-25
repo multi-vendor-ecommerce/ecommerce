@@ -19,10 +19,14 @@ import Orders from "../adminVendorCommon/orders/Orders";
 import OrderDetails from "../adminVendorCommon/orders/OrderDetails";
 import Profile from "../adminVendorCommon/settings/Profile";
 import Security from "../adminVendorCommon/settings/Security";
+import PersonContext from "../../../context/person/PersonContext";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);
+  const { person } = useContext(PersonContext);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const role = person?.role || "admin";
 
   const token = localStorage.getItem("adminToken") || authTokens?.admin;
   if (!token) {
@@ -45,21 +49,21 @@ const Admin = () => {
         {/* Routes */}
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<Dashboard summaryData={getCards} />} />
+            <Route path="/" element={<Dashboard summaryData={getCards} role={role} />} />
 
             {/* Nested route block for orders */}
             <Route path="all-orders/">
-              <Route index element={<Orders />} />
-              <Route path="order-details/:orderId" element={<OrderDetails />} />
+              <Route index element={<Orders role={role} />} />
+              <Route path="order-details/:orderId" element={<OrderDetails role={role} />} />
             </Route>
 
             <Route path="all-customers" element={<Customers />} />
             <Route path="coupons" element={<CouponsManager />} />
             <Route path="emails-template-editor" element={<EmailTemplateEditor />} />
 
-            <Route path="all-products" element={<Products heading="All Products" />} />
-            <Route path="product-details/:productId" element={<ProductDetails />} />
-            <Route path="top-selling-products" element={<Products heading="Top Selling Products" />} />
+            <Route path="all-products" element={<Products heading="All Products" role={role} />} />
+            <Route path="product-details/:productId" element={<ProductDetails role={role} />} />
+            <Route path="top-selling-products" element={<Products heading="Top Selling Products" role={role} />} />
             <Route path="product/edit-delete/:productId" element={<OrderDetails />} />
 
             <Route path="all-vendors" element={<VendorManagement heading="All Vendors" />} />

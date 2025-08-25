@@ -58,7 +58,7 @@ const ProductDetails = ({ role = "admin" }) => {
           {product.images?.map((img, index) => (
             <div key={index} className="min-w-[120px]">
               <img
-                src={img}
+                src={img.url}
                 alt={`${product.title} - ${index + 1}`}
                 className="w-30 h-30 object-cover rounded-xl shadow-md shadow-purple-400 hover:shadow-purple-500 transition duration-150"
               />

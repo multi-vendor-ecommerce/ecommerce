@@ -31,7 +31,7 @@ export default function ProductGrid({ products, secretKey }) {
             onClick={() => handleProductClick(product._id)}
           >
             <img
-              src={product.images?.[0] || "https://via.placeholder.com/300"}
+              src={product.images?.[0].url || "https://via.placeholder.com/300"}
               alt={product.title}
               className="w-full h-full object-cover"
               loading="lazy"

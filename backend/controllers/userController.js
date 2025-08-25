@@ -17,7 +17,26 @@ export const getAllCustomers = async (req, res) => {
       const vendorId = req.person.id;
 
       // Step 1: Find all customer IDs with orders placed to this vendor
-      const customerIds = await Order.distinct("user", { vendor: vendorId });
+      const orders = await Order.find({})
+        .populate({
+          path: "orderItems.product",
+          select: "createdBy"
+        });
+      
+        const customerIds = [
+          ...new Set(
+            orders
+              .filter(order =>
+                order.orderItems.some(
+                  item =>
+                    item.product &&
+                    item.product.createdBy &&
+                    item.product.createdBy.toString() === vendorId.toString()
+                )
+              )
+              .map(order => order.user.toString())
+          )
+        ];
 
       // Step 2: Add restriction to query
       query._id = { $in: customerIds };

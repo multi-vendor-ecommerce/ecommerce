@@ -18,7 +18,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
       >
         <NavLink to={`/${role}/product-details/${p._id}`} className="w-full flex items-center gap-4">
           <img
-            src={p.images?.[0] || "https://m.media-amazon.com/images/I/71Ls4akTeeL._AC_SL1500_.jpg"}
+            src={p.images?.[0].url || "https://m.media-amazon.com/images/I/71Ls4akTeeL._AC_SL1500_.jpg"}
             alt={p.title || "Product Image"}
             className="w-[140px] h-12 rounded-lg object-cover shadow-md shadow-purple-400"
           />

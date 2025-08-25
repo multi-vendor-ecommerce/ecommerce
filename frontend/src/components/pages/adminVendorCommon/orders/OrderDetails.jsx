@@ -7,16 +7,12 @@ import BackButton from "../../../common/layout/BackButton";
 import { getOrderCardData } from "./data/ordersData";
 import StatGrid from "../../../common/helperComponents/StatGrid";
 import { formatAddress } from "../../../../utils/formatAddress";
-import PersonContext from "../../../../context/person/PersonContext";
 
-const OrderDetails = () => {
-  const { person } = useContext(PersonContext);
+const OrderDetails = ({ role = "admin" }) => {
   const { orderId } = useParams();
   const { getOrderById } = useContext(OrderContext);
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const role = person?.role || "vendor";
 
   useEffect(() => {
     const fetchOrder = async () => {

@@ -4,7 +4,7 @@ import PersonContext from "../../../../context/person/PersonContext";
 import BackButton from "../../../common/layout/BackButton";
 import InputField from "../../../common/InputField";
 import { profileSections } from "./data/profileFields";
-import { FiEdit, FiCheck, FiX, FiTrash2 } from "react-icons/fi";
+import { FiTrash2 } from "react-icons/fi";
 import Loader from "../../../common/Loader";
 import useProfileUpdate from "../../../../hooks/useProfileUpdate";
 import Button from "../../../common/Button";
@@ -17,7 +17,7 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const navigate = useNavigate();
 
-  const { form, setForm, handleChange, handleSave, isLoading, setImageFile } =
+  const { form, setForm, handleChange, handleSave, isLoading } =
     useProfileUpdate(person, editPerson, setEditing, getCurrentPerson);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const Profile = () => {
       const res = await deletePerson();
       if (res.success) {
         alert(res.message);
-        navigate(`/login/${person.role}`, { replace: true });
+        navigate(`/login/${person?.role}`, { replace: true });
       } else {
         alert(res.message);
       }

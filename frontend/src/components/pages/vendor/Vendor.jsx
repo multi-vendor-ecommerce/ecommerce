@@ -16,15 +16,19 @@ import Customers from "../adminVendorCommon/customers/Customers";
 import Profile from "../adminVendorCommon/settings/Profile";
 import Security from "../adminVendorCommon/settings/Security";
 import StoreProfile from "./storeSettings/StoreProfile";
+import PersonContext from "../../../context/person/PersonContext";
 
 const Vendor = () => {
   const { authTokens } = useContext(AuthContext);
+  const { person } = useContext(PersonContext);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const role = person?.role || "vendor";
 
   const token = localStorage.getItem("vendorToken") || authTokens?.vendor;
   if (!token) {
     return <Navigate to="/login/vendor" replace />;
-  };
+  }
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const closeSidebar = () => setIsSidebarOpen(false);
@@ -42,19 +46,19 @@ const Vendor = () => {
         {/* Routes */}
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<Dashboard summaryData={getCards} />} />
+            <Route path="/" element={<Dashboard summaryData={getCards} role={role} />} />
 
             {/* Nested route block for orders */}
             <Route path="all-orders/">
-              <Route index element={<Orders />} />
-              <Route path="order-details/:orderId" element={<OrderDetails />} />
+              <Route index element={<Orders role={role} />} />
+              <Route path="order-details/:orderId" element={<OrderDetails role={role} />} />
             </Route>
 
             <Route path="all-customers" element={<Customers />} />
 
-            <Route path="all-products" element={<Products heading="All Products" role="vendor" />} />
-            <Route path="product-details/:productId" element={<ProductDetails role="vendor" />} />
-            <Route path="top-selling-products" element={<Products heading="Top Selling Products" role="vendor" />} />
+            <Route path="all-products" element={<Products heading="All Products" role={role} />} />
+            <Route path="product-details/:productId" element={<ProductDetails role={role} />} />
+            <Route path="top-selling-products" element={<Products heading="Top Selling Products" role={role} />} />
             <Route path="add-product" element={<AddProduct />} />
 
             {/* Settings */}
@@ -64,7 +68,7 @@ const Vendor = () => {
 
             {/* Settings */}
             <Route path="settings/">
-              <Route path="profile" element={<Profile />} />
+              <Route path="profile" element={<Profile role={role} />} />
               <Route path="security" element={<Security />} />
             </Route>
 
