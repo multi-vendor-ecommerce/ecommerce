@@ -21,7 +21,7 @@ const ReviewStep = ({ order, step, next, prev }) => {
             >
               {/* Image */}
               <img
-                src={item.product.images?.[0]}
+                src={item.product.images?.[0].url}
                 alt={item.product.title}
                 className="w-20 h-20 object-cover rounded-md"
               />

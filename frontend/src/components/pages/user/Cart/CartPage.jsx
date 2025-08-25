@@ -115,7 +115,7 @@ const CartPage = () => {
               className="flex flex-col md:flex-row md:items-center bg-white border border-[#E0D6F2] p-4 rounded-xl shadow-sm gap-4"
             >
               <img
-                src={product.image || null}
+                src={product.image?.url || null}
                 alt={product.title}
                 className="h-50 w-full md:w-24 md:h-24 object-center rounded bg-white p-1 cursor-pointer"
                 onClick={() => handleProductClick(product._id)}

@@ -12,6 +12,7 @@ import ProtectedRoute from "../../common/ProtectedRoute";
 
 import OrderSummary from "./Order/OrderSummary";
 import MyOrdersList from "./Order/MyOrders/MyOrdersList";
+import MyOrderDetails from "./Order/MyOrders/MyOrderDetails";
 
 export default function User() {
   return (
@@ -53,6 +54,15 @@ export default function User() {
           element={
             <ProtectedRoute>
               <MyOrdersList />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route 
+          path="/my-orders/:id"
+          element={
+            <ProtectedRoute>
+              <MyOrderDetails />
             </ProtectedRoute>
           }
         />

@@ -56,7 +56,7 @@ const ProductDetails = () => {
 
   // Update active image when selectedColor changes (if image url includes color name)
   useEffect(() => {
-    if (selectedColor && productDetails?.images?.length > 1) {
+    if (selectedColor && productDetails?.images.url?.length > 1) {
       const index = productDetails.images.findIndex(img =>
         (img.publicId || " ").toLowerCase().includes(selectedColor.toLowerCase())
       );
@@ -120,23 +120,24 @@ const ProductDetails = () => {
 
   return (
     <div className="bg-[#F3EDFA] min-h-screen p-4 md:p-10">
-      <div className="max-w-7xl mx-auto bg-white shadow-lg border border-[#E4D9F7] rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto bg-white shadow-lg border border-[#E4D9F7] rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-8 ">
         {/* LEFT: IMAGE */}
         <div className="p-6">
           {productDetails.images?.length > 1 ? (
             <>
-              <div className="aspect-square w-full rounded-xl overflow-hidden mb-4">
+              <div className="aspect-square w-full rounded-xl overflow-hidden mb-4 bg-gray-100 flex items-center justify-center">
                 <img
-                  src={productDetails.images[activeImage]}
+                  src={productDetails.images[activeImage]?.url}
                   alt="product"
-                  className="w-full h-full object-cover rounded-xl"
+                  className="max-w-full max-h-full"
+                  style={{ objectFit: "contain" }}
                 />
               </div>
               <div className="flex gap-2 overflow-x-auto">
                 {productDetails.images.map((img, idx) => (
                   <img
                     key={idx}
-                    src={img}
+                    src={img.url}
                     alt={`thumb-${idx}`}
                     onClick={() => setActiveImage(idx)}
                     className={`w-20 h-20 object-cover rounded-md cursor-pointer border transition ${activeImage === idx ? "border-[#7F55B1]" : "border-transparent hover:border-[#BFA5E0]"

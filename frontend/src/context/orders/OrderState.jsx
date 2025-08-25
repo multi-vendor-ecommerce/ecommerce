@@ -12,7 +12,6 @@ const OrderState = ({ children }) => {
   const getRoleInfo = () => {
     const adminToken = localStorage.getItem("adminToken");
     const vendorToken = localStorage.getItem("vendorToken");
-    
     if (adminToken) return { role: "admin" };
     else if (vendorToken) return { role: "vendor" };
     else return { role: "customer" };

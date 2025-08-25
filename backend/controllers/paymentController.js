@@ -17,7 +17,7 @@ export const createRazorpayOrder = async (req, res) => {
     const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
-    if (order.orderStatus !== "draft") {
+    if (order.orderStatus !== "pending") {
       return res.status(400).json({ success: false, message: "Order already confirmed" });
     }
 

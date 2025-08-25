@@ -32,7 +32,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       shippingCharges = product.freeDelivery ? 0 : 50;
 
       // Check existing draft for this product
-      draftOrder = await Order.findOne({ user: userId, orderStatus: "draft", source: "buyNow", "orderItems.product": productId });
+      draftOrder = await Order.findOne({ user: userId, orderStatus: "pending", source: "buyNow", "orderItems.product": productId });
       if (draftOrder) {
         draftOrder.orderItems = orderItems;
         draftOrder.itemPrice = itemPrice;
@@ -50,7 +50,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           tax,
           shippingCharges,
           totalAmount: itemPrice + tax + shippingCharges,
-          orderStatus: "draft",
+          orderStatus: "pending",
           source: "buyNow",
         });
       }
@@ -62,7 +62,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       tax = itemPrice * 0.18;
       shippingCharges = user.cart.some(i => !i.product.freeDelivery) ? 50 : 0;
 
-      draftOrder = await Order.findOne({ user: userId, orderStatus: "draft", source: "cart" });
+      draftOrder = await Order.findOne({ user: userId, orderStatus: "pending", source: "cart" });
       if (draftOrder) {
         draftOrder.orderItems = orderItems;
         draftOrder.itemPrice = itemPrice;
@@ -80,7 +80,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           tax,
           shippingCharges,
           totalAmount: itemPrice + tax + shippingCharges,
-          orderStatus: "draft",
+          orderStatus: "pending",
           source: "cart",
         });
       }
@@ -244,7 +244,7 @@ export const getUserDraftOrder = async (req, res) => {
     const { id } = req.params; // draft order ID
     const userId = req.person.id;
 
-    const order = await Order.findOne({ _id: id, user: userId, orderStatus: "draft" })
+    const order = await Order.findOne({ _id: id, user: userId, orderStatus: "pending" })
       .populate({ path: "orderItems.product", select: "title price images" });
 
     if (!order) {

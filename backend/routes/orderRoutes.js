@@ -33,12 +33,13 @@ router.get("/admin", verifyToken, authorizeRoles("admin"), getAllOrders);
  */
 router.get("/admin/:id", verifyToken, authorizeRoles("admin"), getOrderById);
 
-router.get("/my-orders", verifyToken, authorizeRoles("customer"), getAllOrders);
+router.get("/", verifyToken, authorizeRoles("customer"), getAllOrders);
 
 router.post("/create-draft", verifyToken, authorizeRoles("customer"), createOrUpdateDraftOrder);
 
 // Place generic routes LAST
 router.get("/draft/:id", verifyToken, authorizeRoles("customer"), getUserDraftOrder);
+
 router.get("/:id", verifyToken, authorizeRoles("customer"), getOrderById);
 
 export default router;
