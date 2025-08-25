@@ -11,15 +11,11 @@ import CustomSelect from "../../../common/layout/CustomSelect";
 import UserContext from "../../../../context/user/UserContext";
 import OrderContext from "../../../../context/orders/OrderContext";
 import VendorContext from "../../../../context/vendors/VendorContext";
-import PersonContext from "../../../../context/person/PersonContext";
 
-const Dashboard = ({ summaryData }) => {
-  const { person } = useContext(PersonContext);
+const Dashboard = ({ summaryData, role = "admin" }) => {
   const { getAllCustomers } = useContext(UserContext);
   const { getAllOrders } = useContext(OrderContext);
   const { getTopVendors } = useContext(VendorContext);
-
-  const role = person?.role || "vendor";
 
   useEffect(() => {
     getAllCustomers();
@@ -60,7 +56,7 @@ const Dashboard = ({ summaryData }) => {
       </div>
 
       <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
-        <RecentOrders />
+        <RecentOrders role={role} />
       </div>
 
       <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">

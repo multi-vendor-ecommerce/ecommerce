@@ -1,6 +1,5 @@
 import { useState, useContext, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import PersonContext from "../../../../context/person/PersonContext";
 import OrderContext from "../../../../context/orders/OrderContext";
 import TabularData from "../../../common/layout/TabularData";
 import { RenderOrderRow } from "../../adminVendorCommon/orders/RenderOrderRow";
@@ -8,14 +7,11 @@ import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Loader from "../../../common/Loader";
 import StatusChip from "../../../common/helperComponents/StatusChip";
 
-const RecentOrders = () => {
-  const { person } = useContext(PersonContext);
+const RecentOrders = ({ role = "admin" }) => {
   const { orders, loading } = useContext(OrderContext);
   const [showAll, setShowAll] = useState(false);
 
   const ordersToShow = showAll ? orders : orders.slice(0, 5);
-
-  const role = person?.role || "vendor";
 
   const headers = [
     "Order ID",

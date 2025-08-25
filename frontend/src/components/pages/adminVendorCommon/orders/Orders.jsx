@@ -8,17 +8,13 @@ import BackButton from "../../../common/layout/BackButton";
 import OrderContext from "../../../../context/orders/OrderContext";
 import Loader from "../../../common/Loader";
 import FilterBar from "../../../common/FilterBar";
-import PersonContext from "../../../../context/person/PersonContext";
 
-export default function Orders() {
-  const { person } = useContext(PersonContext);
+export default function Orders({ role = "admin" }) {
   const { orders, getAllOrders, loading, totalCount, } = useContext(OrderContext);
 
   const [filters, setFilters] = useState({ search: "", status: "" });
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-
-  const role = person?.role || "vendor";
 
   useEffect(() => {
     getAllOrders({ ...filters, page, limit: itemsPerPage });

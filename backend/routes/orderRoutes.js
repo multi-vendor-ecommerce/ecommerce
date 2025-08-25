@@ -5,14 +5,6 @@ import { createOrUpdateDraftOrder, getAllOrders, getOrderById, getUserDraftOrder
 
 const router = express.Router();
 
-router.get("/", verifyToken, authorizeRoles("customer"), getAllOrders);
-
-router.post("/create-draft", verifyToken, createOrUpdateDraftOrder);
-
-router.get("/:id", verifyToken, authorizeRoles("customer"), getOrderById);
-
-router.get("/draft/:id", verifyToken, getUserDraftOrder);
-
 /**
  * @route   GET /api/orders/vendor
  * @desc    Get all orders related to the logged-in vendor
@@ -40,5 +32,11 @@ router.get("/admin", verifyToken, authorizeRoles("admin"), getAllOrders);
  * @access  Private (Admin)
  */
 router.get("/admin/:id", verifyToken, authorizeRoles("admin"), getOrderById);
+
+router.post("/create-draft", verifyToken, authorizeRoles("customer"), createOrUpdateDraftOrder);
+
+// Place generic routes LAST
+router.get("/draft/:id", verifyToken, authorizeRoles("customer"), getUserDraftOrder);
+router.get("/:id", verifyToken, authorizeRoles("customer"), getOrderById);
 
 export default router;

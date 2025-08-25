@@ -34,14 +34,14 @@ export const RenderCustomerRow = (user, i) => {
       </td>
 
       {/* Email */}
-      <td className="px-6 py-4 min-w-[220px] hover:scale-105 hover:underline transition duration-150">
+      <td className="px-6 py-4 min-w-[160px] hover:scale-105 hover:underline transition duration-150">
         <a href={`mailto:${user.phone}`} title={`Send email to ${user.name?.split(" ")[0] || "User"}`}>
           {user.phone || "N/A"}
         </a>
       </td>
 
       {/* Laptop Address  */}
-      <td className="px-6 py-4 min-w-[250px] hover:scale-105 transition duration-150 hidden lg:block">
+      <td className="px-6 py-4 min-w-[350px] mr-4 hover:scale-105 transition duration-150 hidden lg:block">
         {user.address ? formatAddress(user.address) : "Not Provided"}
       </td>
 
