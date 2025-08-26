@@ -62,15 +62,15 @@ const PersonState = (props) => {
         return { success: false, message: "Unauthorized" };
       }
 
-      const headers = {};
+      const headers = { "Content-Type": "application/json" };
       if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
       else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
       else headers["auth-token"] = localStorage.getItem("customerToken");
 
       const response = await fetch(`${host}/api/person/edit/me`, {
         method: "PUT",
-        headers, // don't set Content-Type manually
-        body: formData,
+        headers,
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();

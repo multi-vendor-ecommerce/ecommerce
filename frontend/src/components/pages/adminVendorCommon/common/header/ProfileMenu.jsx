@@ -1,11 +1,10 @@
 import { HiOutlineLogout } from 'react-icons/hi';
-import { RiLockLine } from 'react-icons/ri';
-import { FiUser } from 'react-icons/fi';
+import { FiLock, FiShoppingBag, FiUser } from 'react-icons/fi';
+import { FaStore } from 'react-icons/fa';
 import { useContext } from 'react';
 import { NavLink } from "react-router-dom";
 import AuthContext from '../../../../../context/auth/AuthContext';
 import ProfileImage from './ProfileImage';
-import { FaShoppingBag } from 'react-icons/fa';
 
 const ProfileMenu = ({ person }) => {
   const { logout } = useContext(AuthContext);
@@ -38,15 +37,23 @@ const ProfileMenu = ({ person }) => {
         </li>
         <li className="px-4 mx-2 pt-2 pb-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer" title="Change password">
           <NavLink to={`/${person.role}/settings/security`} className="flex items-center gap-2 hover:scale-105 transition duration-300">
-            <RiLockLine size={22} className="text-xl font-semibold" />
+            <FiLock size={22} className="text-xl font-semibold" />
             <span>Security</span>
           </NavLink>
         </li>
         {person.role === "customer" && (
           <li className="px-4 mx-2 pt-2 pb-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer">
             <NavLink to={`/orders`} className="flex items-center gap-2 hover:scale-105 transition duration-300">
-              <FaShoppingBag size={22} className="text-xl font-semibold" />
+              <FiShoppingBag size={22} className="text-xl font-semibold" />
               <span>My Orders</span>
+            </NavLink>
+          </li>
+        )}
+        {person.role === "vendor" && (
+          <li className="px-4 mx-2 pt-2 pb-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer">
+            <NavLink to={`/vendor/store/profile`} className="flex items-center gap-2 hover:scale-105 transition duration-300">
+              <FaStore size={22} className="text-xl font-semibold" />
+              <span>My Store</span>
             </NavLink>
           </li>
         )}

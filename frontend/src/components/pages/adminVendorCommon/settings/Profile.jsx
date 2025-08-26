@@ -63,6 +63,7 @@ const Profile = () => {
           heading="Profile Image"
           person={person}
           getCurrentPerson={getCurrentPerson}
+          type="profile"
           editing={true} // Always allow image update/remove
         />
       </div>

@@ -76,17 +76,17 @@ const VendorState = (props) => {
   };
 
   // Edit vendor shop name and logo
-  const editStore = async (formData) => {
+  const editStore = async (data) => {
     try {
       setLoading(true);
 
       const response = await fetch(`${host}/api/vendors/edit/store`, {
         method: "PUT",
         headers: {
+          "Content-Type": "application/json",
           "auth-token": localStorage.getItem("vendorToken"),
-          // DO NOT set "Content-Type" for FormData!
         },
-        body: formData
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) throw new Error("Failed to update the store.");

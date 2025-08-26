@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import PersonContext from "../../../../context/person/PersonContext";
 import VendorContext from "../../../../context/vendors/VendorContext";
 import Loader from "../../../common/Loader";
@@ -21,8 +21,7 @@ const StoreProfile = () => {
     handleChange,
     handleSave,
     isLoading,
-    setImageFile,
-  } = useProfileUpdate(person, editStore, setEditing, getCurrentPerson, "shopLogo");
+  } = useProfileUpdate(person, editStore, setEditing, getCurrentPerson);
 
   if (!person || !form) {
     return (
@@ -34,9 +33,9 @@ const StoreProfile = () => {
 
   // Map shopLogo fields to ImageEditor props
   const shopLogoPerson = {
-    profileImage: form.shopLogo,
-    profileImageId: form.shopLogoId,
-    _id: person._id,
+    shopLogo: person.shopLogo,
+    shopLogoId: person.shopLogoId,
+    _id: person?._id,
   };
 
   return (
@@ -93,6 +92,8 @@ const StoreProfile = () => {
           heading="Shop Logo"
           person={shopLogoPerson}
           getCurrentPerson={getCurrentPerson}
+          type="shopLogo"
+          editing={true}
         />
 
         {/* Shop Name */}

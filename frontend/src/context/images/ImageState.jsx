@@ -17,13 +17,13 @@ const ImageState = ({ children }) => {
     }
   };
 
-  const editProfileImage = async (file, targetId) => {
+  const editProfileImage = async (file, targetId, type = "profile") => {
     try {
       const { role } = getRoleInfo();
 
       const formData = new FormData();
       formData.append("image", file);
-      formData.append("type", "profile");
+      formData.append("type", type);
       formData.append("targetId", targetId);
 
       const headers = {
@@ -46,7 +46,7 @@ const ImageState = ({ children }) => {
     }
   };
 
-  const removeProfileImage = async ({ publicId, targetId }) => {
+  const removeProfileImage = async ({ publicId, targetId, type="profile" }) => {
     try {
       const { role } = getRoleInfo();
       
@@ -64,7 +64,7 @@ const ImageState = ({ children }) => {
         headers,
         body: JSON.stringify({
           publicId,
-          type: "profile",
+          type,
           targetId,
         }),
       });
