@@ -1,17 +1,21 @@
+// middleware/uploadProfile.js
 import multer from "multer";
-import path from "path";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.js";
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/profiles"),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "profiles", // 📂 Cloudinary folder
+    allowed_formats: ["jpeg", "jpg", "png", "webp"],
+    public_id: (req, file) =>
+      "profile-" + Date.now() + "-" + file.originalname.split(".")[0],
+  },
 });
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|webp/;
-  if (allowedTypes.test(path.extname(file.originalname).toLowerCase()) && allowedTypes.test(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Only images are allowed (jpeg, jpg, png, webp)"));
-  }
-};
-const uploadProfile = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 }, fileFilter }); // 2MB
+
+const uploadProfile = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+});
+
 export default uploadProfile;

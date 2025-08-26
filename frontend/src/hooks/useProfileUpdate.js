@@ -47,7 +47,7 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
     if ("email" in formCopy) delete formCopy.email;
 
     try {
-      const res = await editPerson(formCopy); // Send as JSON, not FormData
+      const res = await editPerson(formCopy);
       if (res.success) {
         alert(res.message || "Profile updated successfully.");
         if (getCurrentPerson) getCurrentPerson();

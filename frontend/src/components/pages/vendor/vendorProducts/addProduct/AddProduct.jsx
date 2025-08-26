@@ -18,7 +18,7 @@ const AddProduct = () => {
     { value: "private", label: "Private" }
   ];
 
-  const { addProduct } = useContext(ProductContext);
+  const { addProduct, loading } = useContext(ProductContext);
 
   const [step, setStep] = useState(1);
   const [errorMsg, setErrorMsg] = useState("");
@@ -49,7 +49,7 @@ const AddProduct = () => {
   };
 
   const handleImageDelete = (idx) => {
-    setImages(prev => prev.filter((_, i) => i !== idx)); 
+    setImages(prev => prev.filter((_, i) => i !== idx));
   };
 
   const nextStep = () => {
@@ -99,11 +99,6 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Only proceed if the submit button was clicked
-    if (!e.nativeEvent.submitter || e.nativeEvent.submitter.type !== "submit") {
-      return;
-    }
 
     setErrorMsg("");
 
@@ -314,6 +309,8 @@ const AddProduct = () => {
               formData.gstRate.trim()
             }
             submitButton={['Add Product', 'Adding']}
+            loading={loading}
+            onSubmitClick={handleSubmit}
           />
         </form>
       </div>

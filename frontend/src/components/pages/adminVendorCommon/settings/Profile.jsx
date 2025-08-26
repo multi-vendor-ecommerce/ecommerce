@@ -9,8 +9,8 @@ import Loader from "../../../common/Loader";
 import useProfileUpdate from "../../../../hooks/useProfileUpdate";
 import Button from "../../../common/Button";
 import { capitalize } from "../../../../utils/capitalize";
-import ImageEditor from "./ImageEditor";
 import ProfileActionButtons from "./ProfileActionButtons";
+import ImageEditor from "../../../common/ImageEditor";
 
 const Profile = () => {
   const { person, editPerson, getCurrentPerson, deletePerson } = useContext(PersonContext);

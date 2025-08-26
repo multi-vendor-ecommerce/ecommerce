@@ -76,7 +76,7 @@ const VendorState = (props) => {
   };
 
   // Edit vendor shop name and logo
-  const editStore = async (data) => {
+  const editStore = async (formData) => {
     try {
       setLoading(true);
 
@@ -86,7 +86,7 @@ const VendorState = (props) => {
           "Content-Type": "application/json",
           "auth-token": localStorage.getItem("vendorToken"),
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) throw new Error("Failed to update the store.");

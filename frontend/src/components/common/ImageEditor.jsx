@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
-import Button from "../../../common/Button";
 import { FiTrash2, FiUpload } from "react-icons/fi";
-import ImageContext from "../../../../context/images/ImageContext";
+import ImageContext from "../../context/images/ImageContext";
+import Button from "./Button";
 
 const ImageEditor = ({ heading, person, getCurrentPerson, type = "profile" }) => {
   const [loading, setLoading] = useState(false);

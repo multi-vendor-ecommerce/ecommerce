@@ -2,6 +2,7 @@ import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 import uploadProduct from "../middleware/multerProduct.js";
+import multerErrorHandler from "../middleware/multerErrorHandler.js";
 
 // Controllers
 import {
@@ -70,6 +71,6 @@ router.get("/vendor/:id", verifyToken, authorizeRoles("vendor"), getProductById)
 
 // ROUTE 10: POST /api/products/add-product
 // Desc: Add a product (vendor only)
-router.post("/add-product", verifyToken, authorizeRoles("vendor"), uploadProduct.array("images", 7), addProduct);
+router.post("/add-product", verifyToken, authorizeRoles("vendor"), uploadProduct.array("images", 7), multerErrorHandler, addProduct);
 
 export default router;
