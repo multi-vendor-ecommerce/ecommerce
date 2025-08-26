@@ -1,5 +1,5 @@
 export const addProductFields = {
-  2: [
+  3: [
     {
       label: "Brand",
       name: "brand",
@@ -48,12 +48,12 @@ export const addProductFields = {
       required: true,
       link: {
         href: "https://cbic-gst.gov.in/gst-goods-services-rates.html",
-        text: "Lookup HSN Code",
+        text: "Don't know the code? Look up here",
       },
     },
   ],
 
-  3: [
+  4: [
     {
       label: "Description",
       name: "description",

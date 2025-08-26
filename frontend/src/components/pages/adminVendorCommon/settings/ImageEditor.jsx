@@ -58,23 +58,20 @@ const ImageEditor = ({ heading, person, getCurrentPerson, type = "profile" }) =>
           onChange={handleImageChange}
           disabled={loading}
         />
-        <div className="flex gap-4">
-          <Button
-            icon={FiUpload}
-            text={`Update ${heading}`}
-            color="blue"
-            className="py-1.5 border-blue-600 text-blue-600"
-            onClick={() => document.getElementById(inputId).click()}
-            disabled={loading}
-          />
-          <Button
-            icon={FiTrash2}
-            text={`Remove ${heading}`}
-            color="red"
-            className="py-1.5 border-red-600 text-red-600"
-            onClick={handleRemove}
-            disabled={loading || !imageUrl}
-          />
+        <div className="flex flex-col md:flex-row gap-4">
+          {[{ icon: FiUpload, text: `Upload ${heading}`, color: "blue", onClick: () => document.getElementById(inputId).click(), disabled: loading },
+            { icon: FiTrash2, text: `Remove ${heading}`, color: "red", onClick: handleRemove, disabled: loading || !imageUrl }
+          ].map(({ icon, text, color, onClick, disabled }, index) => (
+            <Button
+              key={index}
+              icon={icon}
+              text={text}
+              color={color}
+              className={`py-2 border-${color}-600 text-${color}-600`}
+              onClick={onClick}
+              disabled={disabled}
+            />
+          ))}
         </div>
       </div>
     </div>
