@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import OrderContext from "../../../../../context/orders/OrderContext";
 import Loader from "../../../../common/Loader";
 import { useNavigate } from "react-router-dom";
+import StatusChip from "../../../../common/helperComponents/StatusChip";
+import BackButton from "../../../../common/layout/BackButton";
 
 const MyOrdersList = () => {
   const { getAllOrders } = useContext(OrderContext);
@@ -28,75 +30,78 @@ const MyOrdersList = () => {
   };
 
   const goToDetails = (orderId) => {
-    navigate(`/my-orders/${orderId}`); 
+    navigate(`/my-orders/${orderId}`);
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">My Orders</h2>
-
+    <div className="p-4 max-w-6xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">My Orders</h2>
+      <div className="mb-4">
+        <BackButton />
+      </div>
       {loading ? (
-        <div className="min-h-screen flex justify-center items-center">
+        <div className="min-h-[50vh] flex justify-center items-center">
           <Loader />
         </div>
       ) : myOrders.length === 0 ? (
-        <p>No orders found.</p>
+        <p className="text-gray-500">No orders found.</p>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {myOrders.map((order) => (
             <div
               key={order._id}
-              className="border rounded-lg p-4 shadow-sm bg-white"
+              className="rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-300"
             >
-              <div className="flex justify-between items-center">
-                <h3 className="font-medium">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 border-b border-gray-100">
+                <h3 className="font-semibold text-gray-800 text-sm sm:text-base break-all">
                   Order ID: {order._id.toUpperCase()}
                 </h3>
-                <span
-                  className={`px-2 py-1 text-sm rounded ${
-                    order.orderStatus === "delivered"
-                      ? "bg-green-100 text-green-700"
-                      : order.orderStatus === "processing"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-gray-100 text-gray-700"
-                  }`}
-                >
-                  {order.orderStatus}
-                </span>
+                <StatusChip status={order.orderStatus} />
               </div>
 
-              <p className="text-sm text-gray-600">
-                Placed on: {new Date(order.createdAt).toLocaleDateString()}
-              </p>
-
-              <div className="mt-2">
+              {/* Items */}
+              <div className="p-4 grid gap-1">
                 {order.orderItems.map((item) => (
                   <div
                     key={item._id}
-                    className="flex items-center gap-3 border-b py-2 last:border-0"
+                    className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-lg bg-gray-50 p-3 hover:bg-gray-100 transition"
                   >
-                    <img
-                      src={item.product.images[0]?.url}
-                      alt={item.product.title}
-                      className="w-14 h-14 object-cover rounded"
-                    />
-                    <div>
-                      <p className="text-sm font-medium">{item.product.title}</p>
-                      <p className="text-xs text-gray-500">
-                        Qty: {item.quantity} | Size: {item.size} | Color:{" "}
-                        {item.color}
+                    {/* Image */}
+                    <div className="w-full sm:w-30 h-30  flex-shrink-0 flex items-center justify-center bg-white  overflow-hidden">
+                      <img
+                        src={item?.product?.images?.[0]?.url || "/placeholder.png"}
+                        alt={item?.product?.title || "Product"}
+                        className="max-h-full max-w-full object-cover"
+                      />
+                    </div>
+
+                    {/* Text */}
+                    <div className="flex-1">
+                      <p className="text-sm sm:text-base font-medium text-gray-900 line-clamp-2">
+                        {item.product.title}
                       </p>
-                      <p className="text-sm font-semibold">₹{item.product.price}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Qty: {item.quantity}
+                        {item.size && ` | Size: ${item.size}`}
+                        {item.color && ` | Color: ${item.color}`}
+                      </p>
+                      <p className="text-sm sm:text-base font-semibold text-green-700 mt-1">
+                        ₹{item.product.price}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="flex justify-between items-center mt-3">
-                <p className="font-semibold">Total: ₹{order.totalAmount}</p>
+              {/* Footer */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 border-t border-gray-100">
+                <p className="font-semibold text-gray-800 text-sm sm:text-base">
+                  Total: ₹{order.totalAmount}
+                </p>
                 <button
                   onClick={() => goToDetails(order._id)}
-                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors w-full sm:w-auto"
                 >
                   View Details
                 </button>

@@ -84,6 +84,13 @@ export const getCategories = async (req, res) => {
       });
     }
 
+    const filter = {};
+    if (parentId) {
+      filter.parent = parentId;
+    } else {
+      filter.parent = null;
+    }
+
     const categories = await Category.find({ parent: parentId });
 
     res.status(200).json({

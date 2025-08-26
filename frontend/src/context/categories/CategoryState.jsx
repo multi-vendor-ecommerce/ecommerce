@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import CategoryContext from "./CategoryContext";
 
 const CategoryState = (props) => {
@@ -51,7 +51,7 @@ const CategoryState = (props) => {
   //   }
   // };
 
-  const categoriesByParentId = async (parentId = null) => {
+  const categoriesByParentId = useCallback(async(parentId = null) => {
     const cacheKey = `parent-${parentId || "root"}`;
 
     if (categoriesByLevel[cacheKey]) {
@@ -81,7 +81,7 @@ const CategoryState = (props) => {
         }));
         return data.categories; 
       } else {
-        console.error("Error fetching categories:", json.message);
+        console.error("Error fetching categories:", data.message);
         return [];
       }
     } catch (error) {
@@ -89,7 +89,7 @@ const CategoryState = (props) => {
       setLoading(false);
       return [];
     }
-  };
+  }, [categoriesByLevel, host]);
 
   return (
     <CategoryContext.Provider
