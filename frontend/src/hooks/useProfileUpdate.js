@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 
-const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson, image = "profileImage") => {
+const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
   const [form, setForm] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -42,37 +41,13 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson, imag
     }
 
     setIsLoading(true);
-    const formData = new FormData();
-
-    const appendNested = (obj, parentKey = "") => {
-      Object.entries(obj).forEach(([key, value]) => {
-        const fullKey = parentKey ? `${parentKey}.${key}` : key;
-
-        if (typeof value === "object" && value !== null && !(value instanceof File)) {
-          appendNested(value, fullKey);
-        } else {
-          // Avoid adding temporary blob URLs to the backend
-          if (typeof value === "string" && value.startsWith("blob:")) return;
-          if (value !== undefined && value !== null) {
-            formData.append(fullKey, value);
-          }
-        }
-      });
-    };
-
-    const formCopy = { ...form };
 
     // Always prevent email changes for security
+    const formCopy = { ...form };
     if ("email" in formCopy) delete formCopy.email;
 
-    appendNested(formCopy);
-
-    if (imageFile) {
-      formData.append(image, imageFile);
-    }
-
     try {
-      const res = await editPerson(formData);
+      const res = await editPerson(formCopy);
       if (res.success) {
         alert(res.message || "Profile updated successfully.");
         if (getCurrentPerson) getCurrentPerson();
@@ -94,7 +69,6 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson, imag
     handleChange,
     handleSave,
     isLoading,
-    setImageFile,
   };
 };
 

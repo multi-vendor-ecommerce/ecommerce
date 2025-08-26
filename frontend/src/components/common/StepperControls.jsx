@@ -8,7 +8,8 @@ const StepperControls = ({
   isLastStep = false,
   showSubmit = false,
   loading = false,
-  submitButton=[]
+  submitButton = [],
+  onSubmitClick
 }) => {
   return (
     <div className="flex justify-between gap-4 pt-4">
@@ -26,8 +27,10 @@ const StepperControls = ({
       {isLastStep ? (
         showSubmit && (
           <button
-            type="submit"
+            type="button"                // 👈 not "submit" anymore
+            onClick={onSubmitClick}
             disabled={loading}
+            id="add-product-btn"
             className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 cursor-pointer"
           >
             {loading ? submitButton[1] : submitButton[0]}

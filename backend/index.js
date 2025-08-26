@@ -4,6 +4,7 @@ dotenv.config();
 import connectToMongo from "./db.js";
 import express from "express";
 import cors from "cors";
+import fs from "fs";
 
 import authRoutes from "./routes/authRoutes.js";
 import personRoutes from "./routes/personRoutes.js";
@@ -17,6 +18,14 @@ import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import shippingAddressRoutes from "./routes/shippingAddressRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
+
+// Create necessary folders for file uploads
+const folders = ["uploads/profiles", "uploads/shopLogos", "uploads/products"];
+folders.forEach(folder => {
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder, { recursive: true });
+  }
+});
 
 connectToMongo();
 

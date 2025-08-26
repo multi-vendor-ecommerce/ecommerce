@@ -2,20 +2,18 @@ import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import cloudinary from "../config/cloudinary.js";
 
-const productStorage = new CloudinaryStorage({
+const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "products",
-    allowed_formats: ["jpg", "jpeg", "png", "webp"],
-    transformation: [
-      { width: 1000, height: 1000, crop: "limit" }, // keeps aspect ratio, up to 1000px
-      { quality: "auto" }, // balance performance + quality
-      { fetch_format: "auto" }
-    ],
-    secure: true,
+    folder: "products", // Cloudinary folder
+    allowed_formats: ["jpeg", "jpg", "png", "webp"],
+    public_id: (req, file) => Date.now() + "-" + file.originalname.split(".")[0],
   },
 });
 
-const uploadProduct = multer({ storage: productStorage });
+const uploadProduct = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+});
 
 export default uploadProduct;

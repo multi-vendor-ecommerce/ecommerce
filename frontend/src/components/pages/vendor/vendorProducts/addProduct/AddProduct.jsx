@@ -4,12 +4,13 @@ import Stepper from "../../../../common/Stepper";
 import StepperControls from "../../../../common/StepperControls";
 import BackButton from "../../../../common/layout/BackButton";
 import CategorySelector from "./CategorySelector";
-import { FiExternalLink, FiPlusCircle } from "react-icons/fi";
+import { FiExternalLink, FiPlusCircle, FiX } from "react-icons/fi";
 import CustomSelect from "../../../../common/layout/CustomSelect";
 import InputField from "../../../../common/InputField";
 import { addProductFields } from "../data/addProductFields";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { FaCheck } from "react-icons/fa";
+import { appendCommaSeparatedToFormData } from "../../../../../utils/appendCommaSeparatedToFormData";
 
 const AddProduct = () => {
   const visibilityOptions = [
@@ -17,7 +18,7 @@ const AddProduct = () => {
     { value: "private", label: "Private" }
   ];
 
-  const { addProduct } = useContext(ProductContext);
+  const { addProduct, loading } = useContext(ProductContext);
 
   const [step, setStep] = useState(1);
   const [errorMsg, setErrorMsg] = useState("");
@@ -37,7 +38,18 @@ const AddProduct = () => {
   };
 
   const handleImageChange = (e) => {
-    setImages((prev) => [...prev, ...Array.from(e.target.files)]);
+    const newFiles = Array.from(e.target.files);
+    setImages((prev) => {
+      // Filter out files that are already present (by name and size)
+      const existing = prev.map(f => f.name + f.size);
+      const filtered = newFiles.filter(f => !existing.includes(f.name + f.size));
+      return [...prev, ...filtered];
+    });
+    e.target.value = ""; // Reset input so same file can be re-added
+  };
+
+  const handleImageDelete = (idx) => {
+    setImages(prev => prev.filter((_, i) => i !== idx));
   };
 
   const nextStep = () => {
@@ -55,6 +67,13 @@ const AddProduct = () => {
     }
 
     if (step === 2) {
+      if (images && images.length === 0) {
+        setErrorMsg("Please upload at least one product image.");
+        return;
+      }
+    }
+
+    if (step === 3) {
       const { title, sku, hsnCode } = formData;
       if (!title.trim() || !sku.trim() || !hsnCode.trim()) {
         setErrorMsg("Please fill all required fields.");
@@ -70,7 +89,7 @@ const AddProduct = () => {
       }
     }
 
-    setStep((prev) => Math.min(prev + 1, 3));
+    setStep((prev) => Math.min(prev + 1, 4));
   };
 
   const prevStep = () => {
@@ -80,6 +99,7 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setErrorMsg("");
 
     const submitData = new FormData();
@@ -92,25 +112,17 @@ const AddProduct = () => {
     });
 
     // Handle tags (comma or single value)
-    const tagsArray = formData.tags
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag);
-    tagsArray.forEach((tag) => submitData.append("tags", tag));
+    appendCommaSeparatedToFormData(submitData, "tags", formData.tags);
 
-    // Handle colors (comma or single value)
-    const colorsArray = formData.colors
-      .split(",")
-      .map((colors) => colors.trim())
-      .filter((colors) => colors);
-    colorsArray.forEach((colors) => submitData.append("colors", colors));
+    // Only append colors if provided
+    if (formData.colors && formData.colors.trim()) {
+      appendCommaSeparatedToFormData(submitData, "colors", formData.colors);
+    }
 
-    // Handle sizes (comma or single value)
-    const sizesArray = formData.size
-      .split(",")
-      .map((size) => size.trim())
-      .filter((size) => size);
-    sizesArray.forEach((size) => submitData.append("sizes", size));
+    // Only append sizes if provided
+    if (formData.size && formData.size.trim()) {
+      appendCommaSeparatedToFormData(submitData, "sizes", formData.size);
+    }
 
     // Append images
     images.forEach((img) => submitData.append("images", img));
@@ -149,10 +161,13 @@ const AddProduct = () => {
           className="w-full flex justify-between items-center text-sm md:text-lg font-medium text-gray-700 gap-3 md:gap-1 mb-6"
           currentStep={step}
           highlightCurrentStep={true}
-          stepLabels={["Select Category", "Basic Info", "Product Details"]}
+          stepLabels={["Select Category", "Upload Images", "Basic Info", "Product Details"]}
         />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
           {step === 1 && (
             <CategorySelector
               selectedCategories={selectedCategories}
@@ -163,6 +178,56 @@ const AddProduct = () => {
                 setFormData((prev) => ({ ...prev, category: id }))
               }
             />
+          )}
+
+          {step === 2 && (
+            <>
+              <div className="w-full min-h-[200px] mb-5 bg-gray-100 rounded-xl flex flex-col justify-center items-center hover:border-2 hover:border-blue-500 transition duration-200">
+                <div>
+                  <label htmlFor="images" className="flex flex-col font-medium text-gray-700 items-center gap-2 cursor-pointer" title="Upload at least one clear image">
+                    <FiPlusCircle size={50} className="text-blue-600" />
+                    <span className="text-base md:text-lg">Upload Product Images</span>
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    id="images"
+                  />
+                </div>
+                <p className="text-gray-600 text-center px-3 md:px-0 text-xs md:text-sm mt-3">Upload clear images of the product from multiple angles.</p>
+                <p className="text-yellow-600 text-xs md:text-sm">Image size should not exceed 5MB.</p>
+              </div>
+
+              <div>
+                <div className="text-lg md:text-xl font-semibold">Images:</div>
+                {images.length > 0 && (
+                  <div className="flex flex-wrap gap-3 my-3">
+                    {images.map((file, idx) => (
+                      <div key={idx} className="w-24 h-24 rounded-lg overflow-hidden relative">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={`preview-${idx}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-red-600/60 transition rounded-lg cursor-pointer"
+                          style={{ zIndex: 2 }}
+                          onClick={() => handleImageDelete(idx)}
+                          title="Delete image"
+                        >
+                          <FiX size={50} className="text-white select-none pointer-events-none" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="text-gray-600 text-sm">{images.length} image{images.length !== 1 ? 's' : ''} selected</div>
+              </div>
+            </>
           )}
 
           <div className="space-y-4">
@@ -185,7 +250,7 @@ const AddProduct = () => {
                     rel="noopener noreferrer"
                     className="md:ml-1.5 text-blue-600 hover:text-blue-800 truncate"
                   >
-                    <span className="inline-flex gap-1 mt-1 items-center">
+                    <span className="inline-flex gap-1 mt-1 items-center text-sm md:text-base">
                       <span className="hover:underline hover:decoration-dotted hover:font-medium">
                         {field.link.text}
                       </span>
@@ -197,7 +262,7 @@ const AddProduct = () => {
             ))}
           </div>
 
-          {step === 3 && (
+          {step === 4 && (
             <>
               {["isTaxable", "freeDelivery"].map((field) => (
                 <label key={field} className="flex items-center gap-2 cursor-pointer">
@@ -228,35 +293,6 @@ const AddProduct = () => {
                   menuPlacement="auto"
                 />
               </div>
-
-              <div className="w-full mb-2">
-                <label htmlFor="images" className="flex font-medium text-gray-700 mb-1 items-center gap-2 cursor-pointer" title="Upload at least one clear image">
-                  <FiPlusCircle size={20} className="text-blue-600" />
-                  <span>Upload Product Images</span>
-                </label>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  id="images"
-                />
-              </div>
-
-              {images.length > 0 && (
-                <div className="flex flex-wrap gap-3 mt-3">
-                  {images.map((file, idx) => (
-                    <div key={idx} className="w-24 h-24 rounded-lg overflow-hidden border">
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={`preview-${idx}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
             </>
           )}
 
@@ -264,16 +300,17 @@ const AddProduct = () => {
             currentStep={step}
             onNext={nextStep}
             onBack={prevStep}
-            isLastStep={step === 3}
+            isLastStep={step === 4}
             showSubmit={
-              step === 3 &&
+              step === 4 &&
               formData.description.trim() &&
               formData.price.trim() &&
               formData.stock.trim() &&
-              formData.gstRate.trim() &&
-              images.length > 0
+              formData.gstRate.trim()
             }
             submitButton={['Add Product', 'Adding']}
+            loading={loading}
+            onSubmitClick={handleSubmit}
           />
         </form>
       </div>

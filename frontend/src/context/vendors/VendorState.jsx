@@ -83,10 +83,10 @@ const VendorState = (props) => {
       const response = await fetch(`${host}/api/vendors/edit/store`, {
         method: "PUT",
         headers: {
+          "Content-Type": "application/json",
           "auth-token": localStorage.getItem("vendorToken"),
-          // DO NOT set "Content-Type" for FormData!
         },
-        body: formData
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) throw new Error("Failed to update the store.");
