@@ -2,7 +2,7 @@ import StepperControls from "../../../common/StepperControls";
 
 const PaymentStep = ({ modeOfPayment, setModeOfPayment, handlePayment, step, next, prev, loading }) => {
   return (
-    <form onSubmit={handlePayment} className="space-y-4">
+    <form className="space-y-4">
       <h2 className="text-xl font-bold">Payment</h2>
 
       {/* Payment options */}
@@ -25,6 +25,7 @@ const PaymentStep = ({ modeOfPayment, setModeOfPayment, handlePayment, step, nex
         showSubmit={!!modeOfPayment}
         loading={loading}
         submitButton={["Confirm Order", "Processing..."]}
+        onSubmitClick={handlePayment}
       />
     </form>
   );
