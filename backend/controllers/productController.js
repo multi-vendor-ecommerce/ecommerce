@@ -24,7 +24,14 @@ export const getAllProducts = async (req, res) => {
 
     // Limit fields for public or vendor
     if (!req.person || req.person.role !== "admin") {
-      baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
+      // Vendor can see status, customer/public cannot
+      if (req.person?.role === "vendor") {
+        baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes status");
+      } else {
+        baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
+        // Only show approved products to customers/public
+        query.status = "approved";
+      }
     }
 
     const [products, total] = await Promise.all([
@@ -203,8 +210,14 @@ export const addProduct = async (req, res) => {
     }
 
     // === Optional Field: Colors ===
-    if (colors && !Array.isArray(colors)) {
-      return res.status(400).json({ success: false, message: "Colors must be an array." });
+    if (colors) {
+      if (Array.isArray(colors)) {
+        colors = colors.map(c => c.trim().toLowerCase()).filter(Boolean);
+      } else if (typeof colors === "string") {
+        colors = colors.split(",").map(c => c.trim().toLowerCase()).filter(Boolean);
+      } else {
+        return res.status(400).json({ success: false, message: "Colors must be an array or string." });
+      }
     }
 
     // === Optional Field: Sizes ===

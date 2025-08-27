@@ -3,9 +3,8 @@ import ProductContext from "../../../../context/products/ProductContext";
 import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 import Button from "../../../common/Button";
-import { FaCheckCircle, FaStreetView } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
-import { FiEye } from "react-icons/fi";
+import { FiCheckCircle, FiEye } from "react-icons/fi";
 
 const ApproveProduct = () => {
   const { getAllProducts, approveProduct, loading } = useContext(ProductContext);
@@ -67,14 +66,14 @@ const ApproveProduct = () => {
                 {products.map(product => (
                   <li
                     key={product._id}
-                    className="flex items-center gap-6 mb-8 p-4 rounded-lg border border-gray-200 hover:shadow transition-shadow bg-gray-50"
+                    className={`flex flex-col md:flex-row items-center gap-6 p-4 rounded-lg border-[0.5px] border-gray-50 hover:shadow-sm hover:shadow-purple-500 transition duration-200 bg-gray-50 ${products.length === 1 ? "" : "mb-8"}`}
                   >
                     <img
                       src={product.images?.[0].url}
                       alt={product.title}
-                      className="w-20 h-20 object-cover rounded-lg border border-gray-300 shadow"
+                      className="w-30 h-30 object-cover rounded-lg border border-gray-300 shadow"
                     />
-                    <div className="flex-1">
+                    <div className="flex-1 text-center md:text-start">
                       <NavLink to={`/admin/product-details/${product._id}`}>
                         <div className="font-semibold text-lg text-gray-900">{product.title}</div>
                       </NavLink>
@@ -88,18 +87,29 @@ const ApproveProduct = () => {
                       </div>
                       <div className="text-gray-700 mt-1">
                         <span className="font-medium">Price:</span>{" "}
-                        <span className="text-green-600 font-bold">${product.price}</span>
+                        <span className="text-blue-600 font-bold">${product.price.toLocaleString()}</span>
                       </div>
                       <div className="text-gray-500 mt-2 text-sm line-clamp-2">{product.description}</div>
                     </div>
 
-                    <Button
-                      icon={FaCheckCircle}
-                      text="Approve"
-                      onClick={() => handleApprove(product._id)}
-                      className="py-2 border-green-600 text-green-600"
-                      color="green"
-                    />
+
+                    <div className="flex flex-row md:flex-col gap-3 md:gap-2 text-sm md:text-base">
+                      <NavLink to={`/admin/product-details/${product._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
+                        <FiEye size={20} />
+                        <div>
+                          <span>View</span>{" "}
+                        <span className="hidden md:inline-block">Product</span>
+                        </div>
+                      </NavLink>
+
+                      <Button
+                        icon={FiCheckCircle}
+                        text="Approve"
+                        onClick={() => handleApprove(product._id)}
+                        className="py-2 border-green-600 text-green-600"
+                        color="green"
+                      />
+                    </div>
                   </li>
                 ))}
               </ul>

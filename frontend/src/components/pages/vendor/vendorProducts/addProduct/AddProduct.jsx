@@ -116,7 +116,12 @@ const AddProduct = () => {
 
     // Only append colors if provided
     if (formData.colors && formData.colors.trim()) {
-      appendCommaSeparatedToFormData(submitData, "colors", formData.colors);
+      // If only one color (no comma), just append as single value
+      if (!formData.colors.includes(",")) {
+        submitData.append("colors", formData.colors.trim());
+      } else {
+        appendCommaSeparatedToFormData(submitData, "colors", formData.colors);
+      }
     }
 
     // Only append sizes if provided

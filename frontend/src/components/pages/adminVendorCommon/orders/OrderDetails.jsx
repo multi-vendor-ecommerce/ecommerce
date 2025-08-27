@@ -65,7 +65,7 @@ const OrderDetails = ({ role = "admin" }) => {
         {order.orderItems?.map((item) => (
           <div
             key={item._id}
-            className="flex justify-between items-center bg-gray-50 rounded-lg p-4 border border-gray-200 shadow-sm hover:shadow-purple-500 transition duration-150"
+            className="flex justify-between items-center bg-gray-50 rounded-lg p-4 border-[0.5px] border-gray-50 shadow-sm hover:shadow-purple-500 transition duration-150"
           >
             <div>
               <p className="font-semibold text-gray-800">{item.product?.title || "No Product Title"}</p>

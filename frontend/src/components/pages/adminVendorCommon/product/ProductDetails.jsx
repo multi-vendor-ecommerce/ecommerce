@@ -80,6 +80,9 @@ const ProductDetails = ({ role = "admin" }) => {
           <li>
             <strong>Created By:</strong> {product.createdBy?.name || "Unknown"}
             {product.createdBy?.role ? ` (${product.createdBy.role})` : ""}
+            <NavLink to={`/admin/vendor/profile/${product.createdBy?._id}`} className="text-blue-500 ml-2 hover:underline">
+              View Profile
+            </NavLink>
           </li>
         </ul>
       </div>

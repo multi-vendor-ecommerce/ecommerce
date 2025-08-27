@@ -5,6 +5,7 @@ import {
   FaWarehouse,
   FaStore,
   FaCheckCircle,
+  FaTimesCircle,
 } from "react-icons/fa";
 import { capitalize } from "../../../../../utils/capitalize";
 
@@ -24,7 +25,7 @@ export const getProfileCardData = (product) => [
     shadow: "hover:shadow-pink-500",
   },
   {
-    icon: FaCheckCircle,
+    icon: product.status === "approved" ? FaCheckCircle : FaTimesCircle,
     label: "Status",
     value: capitalize(product.status) || "N/A",
     bg: "bg-red-100",

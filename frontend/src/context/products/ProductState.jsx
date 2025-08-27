@@ -55,7 +55,13 @@ const ProductState = ({ children }) => {
 
     const params = new URLSearchParams({ page, limit });
     if (search.trim()) params.append("search", search);
-    if ((role === "admin" || role === "vendor") && status) params.append("status", status);
+
+    // Always show only approved products to customers/public
+    if (role === "customer") {
+      params.append("status", "approved");
+    } else if ((role === "admin" || role === "vendor") && status) {
+      params.append("status", status);
+    }
 
     let endpoint;
     if (role === "customer") endpoint = "/api/products";
@@ -139,7 +145,7 @@ const ProductState = ({ children }) => {
   const addProduct = async (formData) => {
     try {
       setLoading(true);
-      
+
       const response = await fetch(`${host}/api/products/add-product`, {
         method: "POST",
         headers: {
@@ -163,7 +169,7 @@ const ProductState = ({ children }) => {
   const approveProduct = async (id) => {
     try {
       setLoading(true);
-      
+
       const response = await fetch(`${host}/api/products/admin/${id}/approve`, {
         method: "PUT",
         headers: {
