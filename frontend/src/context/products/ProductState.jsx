@@ -159,6 +159,29 @@ const ProductState = ({ children }) => {
     }
   };
 
+  // Approve product (admin only)
+  const approveProduct = async (id) => {
+    try {
+      setLoading(true);
+      
+      const response = await fetch(`${host}/api/products/admin/${id}/approve`, {
+        method: "PUT",
+        headers: {
+          "auth-token": localStorage.getItem("adminToken"),
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || "Failed to approve product.");
+      return data;
+    } catch (error) {
+      console.error("Error approving product:", error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ProductContext.Provider
       value={{
@@ -170,6 +193,7 @@ const ProductState = ({ children }) => {
         getProductsByCategoryId,
         addProduct,
         getTopSellingProducts,
+        approveProduct
       }}
     >
       {children}

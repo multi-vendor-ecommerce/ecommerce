@@ -11,6 +11,7 @@ import {
   getProductsByCategoryId,
   addProduct,
   getTopSellingProducts,
+  approveProduct,
 } from "../controllers/productController.js";
 
 const router = express.Router();
@@ -52,24 +53,27 @@ router.get("/admin/top-products", verifyToken, authorizeRoles("admin"), getTopSe
 // Desc: Get product by ID (admin detail view)
 router.get("/admin/:id", verifyToken, authorizeRoles("admin"), getProductById);
 
+// ROUTE 8: PUT /api/products/admin/:id/approve
+// Desc: Approve product by ID (admin action)
+router.put("/admin/:id/approve", verifyToken, authorizeRoles("admin"), approveProduct);
 
 /* 
   🛒 VENDOR ROUTES (Auth + Role = vendor) 
 */
 
-// ROUTE 8: GET /api/products/vendor
+// ROUTE 9: GET /api/products/vendor
 // Desc: Get all products created by the vendor
 router.get("/vendor", verifyToken, authorizeRoles("vendor"), getAllProducts);
 
-// ROUTE 9: GET /api/products/vendor/top-products
+// ROUTE 10: GET /api/products/vendor/top-products
 // Desc: Get top-selling products for vendor
 router.get("/vendor/top-products", verifyToken, authorizeRoles("vendor"), getTopSellingProducts);
 
-// ROUTE 10: GET /api/products/vendor/:id
+// ROUTE 11: GET /api/products/vendor/:id
 // Desc: Get product by ID (vendor detail view)
 router.get("/vendor/:id", verifyToken, authorizeRoles("vendor"), getProductById);
 
-// ROUTE 10: POST /api/products/add-product
+// ROUTE 12: POST /api/products/add-product
 // Desc: Add a product (vendor only)
 router.post("/add-product", verifyToken, authorizeRoles("vendor"), uploadProduct.array("images", 7), multerErrorHandler, addProduct);
 

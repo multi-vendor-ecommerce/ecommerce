@@ -20,6 +20,7 @@ import OrderDetails from "../adminVendorCommon/orders/OrderDetails";
 import Profile from "../adminVendorCommon/settings/Profile";
 import Security from "../adminVendorCommon/settings/Security";
 import PersonContext from "../../../context/person/PersonContext";
+import ApproveProduct from "./adminProduct/ApproveProduct";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);
@@ -64,7 +65,7 @@ const Admin = () => {
             <Route path="all-products" element={<Products heading="All Products" role={role} />} />
             <Route path="product-details/:productId" element={<ProductDetails role={role} />} />
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" role={role} />} />
-            <Route path="product/edit-delete/:productId" element={<OrderDetails />} />
+            <Route path="approve-products" element={<ApproveProduct />} />
 
             <Route path="all-vendors" element={<VendorManagement heading="All Vendors" />} />
             <Route path="top-vendors" element={<VendorManagement heading="Top Vendors" />} />
