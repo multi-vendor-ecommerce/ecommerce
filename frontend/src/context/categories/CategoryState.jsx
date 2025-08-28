@@ -8,7 +8,7 @@ const CategoryState = (props) => {
   // const host = import.meta.env.VITE_BACKEND_URL;
   const host = "http://localhost:5000";
 
-  //  CREATE CATEGORY - Admin Only
+  //  CREATE CATEGORY - Admin 
   const createCategory = async ({ name, description = "", image = "", parent = null }) => {
     try {
       setLoading(true);
