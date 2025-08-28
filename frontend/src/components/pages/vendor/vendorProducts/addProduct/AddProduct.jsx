@@ -111,23 +111,17 @@ const AddProduct = () => {
       }
     });
 
-    // Handle tags (comma or single value)
-    appendCommaSeparatedToFormData(submitData, "tags", formData.tags);
-
-    // Only append colors if provided
-    if (formData.colors && formData.colors.trim()) {
-      // If only one color (no comma), just append as single value
-      if (!formData.colors.includes(",")) {
-        submitData.append("colors", formData.colors.trim());
-      } else {
-        appendCommaSeparatedToFormData(submitData, "colors", formData.colors);
-      }
-    }
-
-    // Only append sizes if provided
-    if (formData.size && formData.size.trim()) {
-      appendCommaSeparatedToFormData(submitData, "sizes", formData.size);
-    }
+    // Handle tags, colors, and sizes (comma or single value)
+    [
+      { key: "tags", formKey: "tags" },
+      { key: "colors", formKey: "colors" },
+      { key: "sizes", formKey: "size" }
+    ].forEach(({ key, formKey }) => {
+      const value = formData[formKey];
+      if (value && value.trim()) {
+        if (!value.includes(",")) submitData.append(key, value.trim());
+      } else appendCommaSeparatedToFormData(submitData, key, value);
+    });
 
     // Append images
     images.forEach((img) => submitData.append("images", img));
@@ -306,6 +300,7 @@ const AddProduct = () => {
             onNext={nextStep}
             onBack={prevStep}
             isLastStep={step === 4}
+            nextDisabled={step === 1 && !formData.category}
             showSubmit={
               step === 4 &&
               formData.description.trim() &&

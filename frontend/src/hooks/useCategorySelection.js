@@ -15,12 +15,13 @@ const useCategorySelection = (
     if (!newCategories || newCategories.length === 0) {
       setCategoryLevels((prev) => prev.slice(0, index + 1));
       setSelectedCategories((prev) => prev.slice(0, index + 1));
-      return;
+      return [];
     }
 
     const updatedLevels = [...categoryLevels.slice(0, index + 1), newCategories];
     setCategoryLevels(updatedLevels);
     setSelectedCategories((prev) => prev.slice(0, index + 1));
+    return newCategories;
   };
 
   const handleCategoryClick = async (categoryId, levelIndex) => {
@@ -34,11 +35,13 @@ const useCategorySelection = (
     // Fetch children of selected category
     const children = await categoriesByParentId(categoryId);
     if (children.length > 0) {
+      // Has subcategories → not final
       setCategoryLevels((prev) => [...newLevels, children]);
+      // 🚫 Don't call onCategoryFinalSelect yet
+    } else {
+      // ✅ Leaf node → final category
+      onCategoryFinalSelect(categoryId);
     }
-
-    // Update selected category in form
-    onCategoryFinalSelect(categoryId); // Notify parent
   };
 
   const getSelectedCategoryPath = () => {

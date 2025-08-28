@@ -18,7 +18,9 @@ const StepperControls = ({
           type="button"
           onClick={onBack}
           disabled={backDisabled}
-          className="w-full bg-gray-400 text-white py-3.5 rounded-xl hover:bg-gray-500 transition flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full bg-gray-400 text-white py-3.5 rounded-xl transition flex items-center justify-center gap-2
+                     hover:bg-gray-500
+                     disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-400"
         >
           Back
         </button>
@@ -27,11 +29,13 @@ const StepperControls = ({
       {isLastStep ? (
         showSubmit && (
           <button
-            type="button"                // 👈 not "submit" anymore
+            type="button"
             onClick={onSubmitClick}
             disabled={loading}
             id="add-product-btn"
-            className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full bg-blue-600 text-white py-3.5 rounded-xl transition flex items-center justify-center gap-2
+                       hover:bg-blue-700
+                       disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
           >
             {loading ? submitButton[1] : submitButton[0]}
           </button>
@@ -41,7 +45,9 @@ const StepperControls = ({
           type="button"
           onClick={onNext}
           disabled={nextDisabled}
-          className="w-full bg-blue-600 text-white py-3.5 rounded-xl hover:bg-blue-700 transition flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full bg-blue-600 text-white py-3.5 rounded-xl transition flex items-center justify-center gap-2
+                     hover:bg-blue-700
+                     disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
         >
           Next
         </button>

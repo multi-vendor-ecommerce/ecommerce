@@ -92,6 +92,13 @@ export const registerPerson = async (req, res) => {
       if (shopExists) {
         return res.status(400).json({ success: false, message: "Shop name already in use" });
       }
+
+      if (gstNumber) {
+        const gstExists = await Vendor.findOne({ gstNumber });
+        if (gstExists) {
+          return res.status(400).json({ success: false, message: "GST number already registered" });
+        }
+      }
     }
 
     const formattedAddress = {

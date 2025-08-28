@@ -118,7 +118,7 @@ const productSchema = new Schema(
     sizes: {
       type: [String],
       default: [],
-      enum: ["XS", "S", "M", "L", "XL", "XXL", "Free Size"],
+      enum: ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "XXXXL", "Free Size"],
     },
     visibility: {
       type: String,

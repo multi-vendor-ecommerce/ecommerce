@@ -220,11 +220,27 @@ export const addProduct = async (req, res) => {
       }
     }
 
+    // === Optional Field: Tags ===
+    if (tags) {
+      if (Array.isArray(tags)) {
+        tags = tags.map(tag => tag.trim().toLowerCase()).filter(Boolean);
+      } else if (typeof tags === "string") {
+        tags = tags.split(",").map(tag => tag.trim().toLowerCase()).filter(Boolean);
+      } else {
+        return res.status(400).json({ success: false, message: "Tags must be an array or string." });
+      }
+    }
+
     // === Optional Field: Sizes ===
-    const allowedSizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+    const allowedSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "XXXXL", "Free Size"];
+
     if (sizes) {
-      if (!Array.isArray(sizes)) {
-        return res.status(400).json({ success: false, message: "Sizes must be an array." });
+      if (Array.isArray(sizes)) {
+        sizes = sizes.map(s => toTitleCase(s.replace(/[-_]/g, " ").trim())).filter(Boolean);
+      } else if (typeof sizes === "string") {
+        sizes = sizes.split(",").map(s => toTitleCase(s.replace(/[-_]/g, " ").trim())).filter(Boolean);
+      } else {
+        return res.status(400).json({ success: false, message: "Sizes must be an array or string." });
       }
       const isValidSizes = sizes.every(size => allowedSizes.includes(size));
       if (!isValidSizes) {
@@ -249,7 +265,7 @@ export const addProduct = async (req, res) => {
       : [];
 
     sizes = Array.isArray(sizes)
-      ? [...new Set(sizes.map(s => s.trim().toUpperCase()).filter(Boolean))]
+      ? [...new Set(sizes.map(s => toTitleCase(s.replace(/[-_]/g, " ").trim())).filter(Boolean))]
       : [];
 
     if (typeof specifications === "string") {
