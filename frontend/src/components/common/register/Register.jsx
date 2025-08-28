@@ -177,6 +177,7 @@ const Register = ({ registerRole }) => {
             }
             loading={loading}
             submitButton={["Register", "Registering"]}
+             onSubmitClick={handleSubmit}
           />
 
           <div className="text-center mt-4">

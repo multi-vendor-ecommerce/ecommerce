@@ -68,7 +68,7 @@ const MyOrdersList = () => {
                     className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-lg bg-gray-50 p-3 hover:bg-gray-100 transition"
                   >
                     {/* Image */}
-                    <div className="w-full sm:w-30 h-30  flex-shrink-0 flex items-center justify-center bg-white  overflow-hidden">
+                    <div className="w-full sm:w-30 h-30  flex-shrink-0 flex items-center justify-center bg-gray  overflow-hidden">
                       <img
                         src={item?.product?.images?.[0]?.url || "/placeholder.png"}
                         alt={item?.product?.title || "Product"}
