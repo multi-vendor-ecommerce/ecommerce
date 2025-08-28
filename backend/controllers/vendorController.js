@@ -2,13 +2,14 @@ import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 
-// Public: Get all vendors (paginated)
+// ==========================
+// Get all vendors (paginated)
+// ==========================
 export const getAllVendors = async (req, res) => {
   try {
     const query = buildQuery(req.query, ["name", "email", "shopName", "status"]);
-
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit) || 10, 1);
     const skip = (page - 1) * limit;
 
     const [vendors, total] = await Promise.all([
@@ -21,35 +22,32 @@ export const getAllVendors = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Vendors fetched successfully.",
+      message: vendors.length > 0
+        ? "Vendor list loaded."
+        : "No vendors found.",
       vendors,
       total,
       page,
       limit,
     });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Server error.",
-      error: err.message,
-    });
+    res.status(500).json({ success: false, message: "Unable to load vendors.", error: err.message });
   }
 };
 
+// ==========================
+// Get top vendors (by revenue/sales)
+// ==========================
 export const getTopVendors = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 100;
+    const limit = Math.max(parseInt(req.query.limit) || 100, 1);
     const role = req.person?.role;
 
-    // Base filter
     let filter = { status: "active" };
-
-    // Vendors can only see their own stats
     if (role === "vendor") {
       filter._id = req.person.id;
     }
 
-    // Fetch top vendors sorted by totalRevenue, then totalSales
     const vendors = await Vendor.find(filter)
       .sort({ totalRevenue: -1, totalSales: -1 })
       .limit(limit)
@@ -58,19 +56,29 @@ export const getTopVendors = async (req, res) => {
       )
       .lean();
 
-    res.status(200).json({ success: true, message: "Top vendors fetched successfully.", vendors, total: vendors.length, limit });
+    res.status(200).json({
+      success: true,
+      message: vendors.length > 0
+        ? "Top vendors loaded."
+        : "No top vendors found.",
+      vendors,
+      total: vendors.length,
+      limit
+    });
   } catch (err) {
     console.error("Error fetching top vendors:", err);
-    res.status(500).json({ success: false, message: "Failed to fetch top vendors.", error: err.message });
+    res.status(500).json({ success: false, message: "Unable to load top vendors.", error: err.message });
   }
 };
 
+// ==========================
+// Edit vendor store info
+// ==========================
 export const editStore = async (req, res) => {
   try {
     const { shopName } = req.body;
     let shopLogo = req.body.shopLogo || "";
 
-    // Update only allowed fields
     const updatedVendor = await Vendor.findByIdAndUpdate(
       req.person.id,
       {
@@ -81,28 +89,38 @@ export const editStore = async (req, res) => {
     ).select("shopName shopLogo");
 
     if (!updatedVendor) {
-      return res.status(404).json({ success: false, message: "Vendor not found" });
+      return res.status(404).json({ success: false, message: "Vendor not found." });
     }
 
-    res.status(200).json({ success: true, message: "Store updated successfully", vendor: updatedVendor });
+    res.status(200).json({
+      success: true,
+      message: "Store updated.",
+      vendor: updatedVendor
+    });
   } catch (error) {
     console.error("Error updating store:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({ success: false, message: "Unable to update store.", error: error.message });
   }
 };
 
-// Public: Get a vendor by id
+// ==========================
+// Get a vendor by id (public)
+// ==========================
 export const getVendorById = async (req, res) => {
   try {
     const vendor = await Vendor.findById(req.params.id);
 
     if (!vendor) {
-      return res.status(404).json({ success: false, message: 'Vendor not found.' });
+      return res.status(404).json({ success: false, message: "Vendor not found." });
     }
 
-    res.status(200).json({ success: true, message: "Vendor fetched successfully.", vendor });
+    res.status(200).json({
+      success: true,
+      message: "Vendor details loaded.",
+      vendor
+    });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ success: false, message: "Internal Server Error.", error: err.message, });
+    console.error("getVendorById error:", error.message);
+    res.status(500).json({ success: false, message: "Unable to load vendor details.", error: error.message });
   }
-}
+};

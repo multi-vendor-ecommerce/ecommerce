@@ -20,7 +20,7 @@ import OrderDetails from "../adminVendorCommon/orders/OrderDetails";
 import Profile from "../adminVendorCommon/settings/Profile";
 import Security from "../adminVendorCommon/settings/Security";
 import PersonContext from "../../../context/person/PersonContext";
-import ApproveProduct from "./adminProduct/ApproveProduct";
+import ApproveProduct from "./adminProducts/ApproveProduct";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);

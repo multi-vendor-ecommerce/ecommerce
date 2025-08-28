@@ -4,50 +4,50 @@ dotenv.config();
 import connectToMongo from "./db.js";
 import express from "express";
 import cors from "cors";
-import fs from "fs";
 
 import authRoutes from "./routes/authRoutes.js";
 import personRoutes from "./routes/personRoutes.js";
-import productsRoutes from "./routes/productRoutes.js"; 
+import productsRoutes from "./routes/productRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import vendorRoutes from "./routes/vendorRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import CouponRoutes from "./routes/couponRoutes.js";
+import couponRoutes from "./routes/couponRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import shippingAddressRoutes from "./routes/shippingAddressRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
 
-// Create necessary folders for file uploads
-const folders = ["uploads/profiles", "uploads/shopLogos", "uploads/products"];
-folders.forEach(folder => {
-  if (!fs.existsSync(folder)) {
-    fs.mkdirSync(folder, { recursive: true });
-  }
-});
-
+// ==========================
+// Connect to Database
+// ==========================
 connectToMongo();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// ==========================
 // Middlewares
+// ==========================
 app.use(express.json());
-
 app.use(cors({
   origin: [
-    'http://localhost:5173',
-    'https://multi-vendor-e-commerce.netlify.app'
+    "http://localhost:5173",
+    "https://multi-vendor-e-commerce.netlify.app"
   ],
   // credentials: true
 }));
 
-app.get('/', (req, res) => {
-  res.send('Welcome to Mutli-Vendor Project Backend Side!');
+// ==========================
+// Health Check Route
+// ==========================
+app.get("/", (req, res) => {
+  res.send("Welcome to Multi-Vendor Project Backend Side!");
 });
 
-// Routes
+// ==========================
+// API Routes
+// ==========================
 const apiRoutes = [
   { path: "auth", route: authRoutes },
   { path: "person", route: personRoutes },
@@ -55,7 +55,7 @@ const apiRoutes = [
   { path: "categories", route: categoryRoutes },
   { path: "vendors", route: vendorRoutes },
   { path: "users", route: userRoutes },
-  { path: "coupons", route: CouponRoutes },
+  { path: "coupons", route: couponRoutes },
   { path: "cart", route: cartRoutes },
   { path: "orders", route: orderRoutes },
   { path: "payment", route: paymentRoutes },
@@ -63,8 +63,11 @@ const apiRoutes = [
   { path: "images", route: imageRoutes }
 ];
 
-apiRoutes.map(({ path, route }) => app.use(`/api/${path}`, route));
+apiRoutes.forEach(({ path, route }) => app.use(`/api/${path}`, route));
 
+// ==========================
+// Start Server
+// ==========================
 app.listen(PORT, () => {
   console.log(`Backend listening on port http://localhost:${PORT}`);
 });

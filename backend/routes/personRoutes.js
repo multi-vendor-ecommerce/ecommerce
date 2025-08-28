@@ -4,32 +4,24 @@ import { validate } from "../middleware/validateFields.js";
 import uploadProfile from "../middleware/multerProfile.js";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
-
-// Controllers
 import { getCurrentPerson, editPerson, deletePerson, changePassword } from "../controllers/personController.js";
 
 const router = express.Router();
 
 export const editPersonValidator = [
   body("name").optional().trim().escape().isLength({ min: 3 }).withMessage("Name must be at least 3 characters"),
-
   body("phone").optional().trim().isMobilePhone().withMessage("Phone must be valid"),
-
   body("address.line1").optional().isLength({ min: 3 }).withMessage("Address Line 1 must be at least 3 characters"),
-
   body("address.city").optional().notEmpty().withMessage("City is required"),
   body("address.state").optional().notEmpty().withMessage("State is required"),
-
   body("address.pincode")
     .optional()
     .matches(/^[1-9][0-9]{5}$/)
     .withMessage("Pincode must be a valid 6-digit number"),
-
   body("address.locality").optional().trim().escape(),
   body("address.line2").optional().trim().escape(),
   body("address.recipientName").optional().trim().escape(),
   body("address.recipientPhone").optional().isMobilePhone(),
-
   body("address.geoLocation.lat").optional().isFloat().withMessage("Latitude must be a valid number"),
   body("address.geoLocation.lng").optional().isFloat().withMessage("Longitude must be a valid number"),
 ];
@@ -39,7 +31,7 @@ export const changePasswordValidator = [
 ];
 
 // Common auth middleware
-const auth = [verifyToken, authorizeRoles("customer", "vendor", "admin")];
+const auth = [verifyToken, authorizeRoles("customer", "vendor", "admin")]
 
 // ROUTE 1: GET /api/person/me
 // Desc: Fetch single person details (by token)

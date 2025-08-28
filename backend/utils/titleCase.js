@@ -1,3 +1,6 @@
+// ==========================
+// Convert string to Title Case
+// ==========================
 export const toTitleCase = (str = "") =>
   str
     .toLowerCase()

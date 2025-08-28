@@ -62,11 +62,11 @@ const ApproveProduct = () => {
           : (
             <>
               {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-              <ul>
+              <ul className="flex flex-col gap-8">
                 {products.map(product => (
                   <li
                     key={product._id}
-                    className={`flex flex-col md:flex-row items-center gap-6 p-4 rounded-lg border-[0.5px] border-gray-50 hover:shadow-sm hover:shadow-purple-500 transition duration-200 bg-gray-50 ${products.length === 1 ? "" : "mb-8"}`}
+                    className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-lg border-[0.5px] border-gray-50 hover:shadow-sm hover:shadow-purple-500 transition duration-200 bg-gray-50"
                   >
                     <img
                       src={product.images?.[0].url}

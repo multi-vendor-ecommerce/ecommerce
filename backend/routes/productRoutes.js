@@ -3,22 +3,9 @@ import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 import uploadProduct from "../middleware/multerProduct.js";
 import multerErrorHandler from "../middleware/multerErrorHandler.js";
-
-// Controllers
-import {
-  getAllProducts,
-  getProductById,
-  getProductsByCategoryId,
-  addProduct,
-  getTopSellingProducts,
-  approveProduct,
-} from "../controllers/productController.js";
+import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts, approveProduct } from "../controllers/productController.js";
 
 const router = express.Router();
-
-/* 
- 📦 PUBLIC ROUTES (No auth required)
-*/
 
 // ROUTE 1: GET /api/products
 // Desc: Get all public products (home/shop pages)
@@ -36,15 +23,10 @@ router.get("/top-products", getTopSellingProducts);
 // Desc: Get products by category (public)
 router.get("/category/:id", getProductsByCategoryId);
 
-
-/* 
- 🔐 ADMIN ROUTES (Auth + Role = admin)
-*/
-
 // ROUTE 5: GET /api/products/admin
 // Desc: Get all products (admin dashboard)
 router.get("/admin", verifyToken, authorizeRoles("admin"), getAllProducts);
-
+ 
 // ROUTE 6: GET /api/products/admin/top-products
 // Desc: Get top-selling products for admin
 router.get("/admin/top-products", verifyToken, authorizeRoles("admin"), getTopSellingProducts);
@@ -56,10 +38,6 @@ router.get("/admin/:id", verifyToken, authorizeRoles("admin"), getProductById);
 // ROUTE 8: PUT /api/products/admin/:id/approve
 // Desc: Approve product by ID (admin action)
 router.put("/admin/:id/approve", verifyToken, authorizeRoles("admin"), approveProduct);
-
-/* 
-  🛒 VENDOR ROUTES (Auth + Role = vendor) 
-*/
 
 // ROUTE 9: GET /api/products/vendor
 // Desc: Get all products created by the vendor

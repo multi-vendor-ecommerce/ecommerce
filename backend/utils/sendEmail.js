@@ -1,3 +1,6 @@
+// ==========================
+// Send OTP Email Utility
+// ==========================
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
@@ -10,6 +13,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// ==========================
+// Send OTP Email
+// ==========================
 export const sendOtpMail = async ({ to, otp }) => {
   const mailOptions = {
     from: `"YourApp" <${process.env.EMAIL_USER}>`,

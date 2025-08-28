@@ -69,31 +69,4 @@ export const getUser = async (req, res) => {
     console.log(err.message);
     return res.status(500).json({ success: false, message: "Internal Server Error.", error: err.message });
   }
-}
-
-// Private: Update user
-export const updateUser = async (req, res) => {
-  // Check if there are any errors or not
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    // Return a bad request
-    return res.status(400).json({ success: false, errors: errors.array() });
-  }
-
-  const { name, address, phone } = req.body;
-
-  const updateFields = {};
-  if (name) {
-    updateFields.name = name.replace(/\b\w/g, char => char.toUpperCase());
-  }
-  if (address) updateFields.address = address;
-  if (phone) updateFields.phone = phone;
-
-  try {
-    const updatedUser = await User.findByIdAndUpdate(req.user.id, { $set: updateFields }, { new: true });
-    res.status(200).json({ success: true, message: "User updated successfully.", user: updatedUser });
-  } catch (err) {
-    console.log(err.message);
-    return res.status(500).json({ success: false, message: "Internal Server Error.", error: err.message });
-  }
-}
+};

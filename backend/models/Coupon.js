@@ -44,4 +44,4 @@ const couponSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Coupon", couponSchema)
+export default mongoose.model("Coupon", couponSchema);

@@ -1,3 +1,6 @@
+// ==========================
+// Build MongoDB Query from Parameters
+// ==========================
 const buildQuery = (params, searchFields = []) => {
   const { search, date, status } = params;
   const query = {};

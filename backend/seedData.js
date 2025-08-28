@@ -2,11 +2,16 @@ import Category from "./models/Category.js";
 import Person from "./models/Person.js";
 import bcrypt from "bcryptjs";
 import "./models/Admin.js";
-
 import { categoriesData } from "./data/seedCategories.js";
+
+// ==========================
+// Seed Database Utility
+// ==========================
 export const seedDatabase = async () => {
   try {
-    // Seed Categories
+    // ==========================
+    // Seed Categories (hierarchical)
+    // ==========================
     const categoryCount = await Category.countDocuments();
     if (categoryCount === 0) {
       const insertCategoriesRecursively = async (categories, parent = null, level = 1) => {
@@ -31,14 +36,21 @@ export const seedDatabase = async () => {
       console.log(`⏭️ Skipped category insertion — ${categoryCount} categories already exist.`);
     }
 
-    // Seed Admin (only one)
+    // ==========================
+    // Seed Admin User (only one)
+    // ==========================
     const adminEmail = process.env.ADMIN_EMAIL || "";
     const existingAdmin = await Person.findOne({ email: adminEmail });
 
     if (!existingAdmin) {
       const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
 
-      await Person.create({ name: "Site Admin", email: adminEmail, password: hashedPassword, role: "admin" });
+      await Person.create({
+        name: "Site Admin",
+        email: adminEmail,
+        password: hashedPassword,
+        role: "admin"
+      });
       console.log("✅ Admin user seeded successfully.");
     } else {
       console.log("⏭️ Admin already exists. Skipping admin seeding.");

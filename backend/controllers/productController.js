@@ -2,7 +2,9 @@ import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 
+// ==========================
 // Get all products - handles public, admin, and vendor
+// ==========================
 export const getAllProducts = async (req, res) => {
   try {
     const query = buildQuery(req.query, ["title"]);
@@ -10,7 +12,7 @@ export const getAllProducts = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    // If vendor, restrict to their own products
+    // Vendor: restrict to own products
     if (req.person?.role === "vendor") {
       query.createdBy = req.person.id;
     }
@@ -24,12 +26,10 @@ export const getAllProducts = async (req, res) => {
 
     // Limit fields for public or vendor
     if (!req.person || req.person.role !== "admin") {
-      // Vendor can see status, customer/public cannot
       if (req.person?.role === "vendor") {
         baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes status");
       } else {
         baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
-        // Only show approved products to customers/public
         query.status = "approved";
       }
     }
@@ -39,20 +39,28 @@ export const getAllProducts = async (req, res) => {
       Product.countDocuments(query),
     ]);
 
-    res.status(200).json({ success: true, message: "Products fetched successfully.", products, total, page, limit });
+    res.status(200).json({
+      success: true,
+      message: "Products loaded.",
+      products,
+      total,
+      page,
+      limit
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: "Server error.", details: err.message });
+    res.status(500).json({ success: false, message: "Unable to load products.", error: err.message });
   }
 };
 
+// ==========================
 // Get top selling products
+// ==========================
 export const getTopSellingProducts = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
     const role = req.person?.role;
 
     let filter = { status: "approved" };
-
     if (role === "vendor") {
       filter.createdBy = req.person.id;
     }
@@ -106,13 +114,22 @@ export const getTopSellingProducts = async (req, res) => {
         : 0,
     }));
 
-    res.status(200).json({ success: true, message: "Top selling products fetched successfully.", products, total, limit, categoryStats });
+    res.status(200).json({
+      success: true,
+      message: "Top selling products loaded.",
+      products,
+      total,
+      limit,
+      categoryStats
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to fetch top selling products.", error: err.message });
+    res.status(500).json({ success: false, message: "Unable to load top selling products.", error: err.message });
   }
 };
 
-// Public: Get a product by ID - supports public, admin, and vendor
+// ==========================
+// Get a product by ID - supports public, admin, and vendor
+// ==========================
 export const getProductById = async (req, res) => {
   try {
     const isAdmin = req.person?.role === "admin";
@@ -122,7 +139,6 @@ export const getProductById = async (req, res) => {
       .populate("category", "name")
       .populate("createdBy", "name email shopName role");
 
-    // Limit fields for public or vendor
     if (!isAdmin) {
       productQuery = productQuery.select(
         "title description images price discount category tags freeDelivery rating totalReviews colors sizes"
@@ -135,19 +151,24 @@ export const getProductById = async (req, res) => {
       return res.status(404).json({ success: false, message: "Product not found." });
     }
 
-    // If vendor, restrict to their own products
     if (isVendor && product.createdBy?._id?.toString() !== req.person.id) {
       return res.status(403).json({ success: false, message: "Access denied." });
     }
 
-    res.status(200).json({ success: true, message: "Product fetched successfully.", product });
+    res.status(200).json({
+      success: true,
+      message: "Product loaded.",
+      product
+    });
 
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error.", error: err.message });
+    res.status(500).json({ success: false, message: "Unable to load product.", error: err.message });
   }
 };
 
-// Public: Get products by category ID
+// ==========================
+// Get products by category ID
+// ==========================
 export const getProductsByCategoryId = async (req, res) => {
   try {
     const categoryId = req.params.id;
@@ -155,12 +176,19 @@ export const getProductsByCategoryId = async (req, res) => {
     if (!products || products.length === 0) {
       return res.status(404).json({ success: false, message: "No products found for this category." });
     }
-    res.status(200).json({ success: true, message: "Products by category fetched successfully.", products });
+    res.status(200).json({
+      success: true,
+      message: "Products for category loaded.",
+      products
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({ success: false, message: "Unable to load products for category.", error: error.message });
   }
 };
 
+// ==========================
+// Add Product
+// ==========================
 export const addProduct = async (req, res) => {
   try {
     let {
@@ -173,35 +201,35 @@ export const addProduct = async (req, res) => {
     if (!title || !brand || !category || !sku || !hsnCode || !gstRate || isNaN(price)) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields: title, brand, price, category, sku, hsnCode, gstRate",
+        message: "Missing required product fields.",
       });
     }
 
     if (price < 0) {
-      return res.status(400).json({ success: false, message: "Invalid price" });
+      return res.status(400).json({ success: false, message: "Invalid price value." });
     }
 
     if (discount && (isNaN(discount) || discount < 0 || discount > 100)) {
       return res.status(400).json({
         success: false,
-        message: "Discount percent must be a number between 0 and 100",
+        message: "Discount must be between 0 and 100.",
       });
     }
 
     if (stock && (isNaN(stock) || stock < 0)) {
-      return res.status(400).json({ success: false, message: "Invalid stock value" });
+      return res.status(400).json({ success: false, message: "Invalid stock value." });
     }
 
     const allowedGstRates = [0, 5, 12, 18, 28];
     if (!allowedGstRates.includes(Number(gstRate))) {
-      return res.status(400).json({ success: false, message: "Invalid GST rate. Allowed: 0, 5, 12, 18, 28" });
+      return res.status(400).json({ success: false, message: "Invalid GST rate." });
     }
 
     const skuRegex = /^[A-Za-z0-9_-]{4,20}$/;
     if (!skuRegex.test(sku.trim())) {
       return res.status(400).json({
         success: false,
-        message: "SKU must be 4-20 characters using letters, numbers, hyphens, or underscores only"
+        message: "SKU must be 4-20 characters using letters, numbers, hyphens, or underscores only."
       });
     }
 
@@ -233,7 +261,6 @@ export const addProduct = async (req, res) => {
 
     // === Optional Field: Sizes ===
     const allowedSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "XXXXL", "Free Size"];
-
     if (sizes) {
       if (Array.isArray(sizes)) {
         sizes = sizes.map(s => toTitleCase(s.replace(/[-_]/g, " ").trim())).filter(Boolean);
@@ -250,7 +277,7 @@ export const addProduct = async (req, res) => {
 
     const existing = await Product.findOne({ sku: sku.trim().toUpperCase() });
     if (existing) {
-      return res.status(400).json({ success: false, message: "SKU already exists. Please use a unique SKU." });
+      return res.status(400).json({ success: false, message: "SKU already exists. Use a unique SKU." });
     }
 
     // === Formatting ===
@@ -291,7 +318,7 @@ export const addProduct = async (req, res) => {
       title,
       brand,
       description,
-      images, // <-- use the array of objects
+      images,
       video: video || null,
       category,
       specifications: specifications || {},
@@ -308,14 +335,20 @@ export const addProduct = async (req, res) => {
       sizes,
     });
 
-    res.status(201).json({ success: true, message: "Product added successfully.", product: newProduct });
-
+    res.status(201).json({
+      success: true,
+      message: "Product added.",
+      product: newProduct
+    });
   } catch (err) {
     console.error("Add Product Error:", err);
-    res.status(500).json({ success: false, message: "Server error while adding product.", error: err.message });
+    res.status(500).json({ success: false, message: "Unable to add product.", error: err.message });
   }
 };
 
+// ==========================
+// Approve Product
+// ==========================
 export const approveProduct = async (req, res) => {
   try {
     let product = await Product.findById(req.params.id);
@@ -328,7 +361,11 @@ export const approveProduct = async (req, res) => {
       { status: "approved" },
       { new: true }
     );
-    res.status(200).json({ success: true, product, message: "Product approved successfully." });
+    res.status(200).json({
+      success: true,
+      product,
+      message: "Product approved."
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

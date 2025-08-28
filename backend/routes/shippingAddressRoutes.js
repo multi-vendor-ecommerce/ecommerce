@@ -8,7 +8,9 @@ import { addAddress, getAddresses, updateAddress, deleteAddress, setDefaultAddre
 
 const router = express.Router();
 
-// Common reusable field rules
+// ==========================
+// Address Field Validators
+// ==========================
 const recipientNameRule = body("recipientName")
   .trim()
   .isLength({ min: 3 })
@@ -43,7 +45,9 @@ const optionalFields = [
     .withMessage("Longitude must be a valid number between -180 and 180"),
 ];
 
+// ==========================
 // Validators
+// ==========================
 export const addAddressValidator = [
   body("recipientName").notEmpty().bail().customSanitizer(v => v.trim()),
   recipientNameRule,
@@ -67,12 +71,28 @@ export const updateAddressValidator = [
   ...optionalFields,
 ];
 
-// user must be logged in
+// ROUTE 1: POST /api/address/
+// Desc: Add a new shipping address (customer only)
 router.post("/", verifyToken, authorizeRoles("customer"), addAddressValidator, validate, addAddress);
+
+// ROUTE 2: GET /api/address/
+// Desc: Get all shipping addresses for logged-in customer
 router.get("/", verifyToken, authorizeRoles("customer"), getAddresses);
+
+// ROUTE 3: PUT /api/address/:id
+// Desc: Update a shipping address by ID (customer only)
 router.put("/:id", verifyToken, authorizeRoles("customer"), updateAddressValidator, validate, updateAddress);
+
+// ROUTE 4: DELETE /api/address/:id
+// Desc: Delete a shipping address by ID (customer only)
 router.delete("/:id", verifyToken, authorizeRoles("customer"), deleteAddress);
+
+// ROUTE 5: PUT /api/address/default/:id
+// Desc: Set default shipping address by ID (customer only)
 router.put("/default/:id", verifyToken, authorizeRoles("customer"), setDefaultAddress);
+
+// ROUTE 6: GET /api/address/:id
+// Desc: Get a single shipping address by ID (customer only)
 router.get("/:id", verifyToken, authorizeRoles("customer"), getAddressById);
 
 export default router;

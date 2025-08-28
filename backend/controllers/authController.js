@@ -35,72 +35,63 @@ export const registerPerson = async (req, res) => {
       geoLocation = {},
     } = address;
 
-    // ==========================
     // Regex Validations
-    // ==========================
     const phoneRegex = /^[6-9]\d{9}$/;
     const pincodeRegex = /^[1-9][0-9]{5}$/;
     const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
     if (!phoneRegex.test(phone)) {
-      return res.status(400).json({ success: false, message: "Invalid phone number format." });
+      return res.status(400).json({ success: false, message: "Invalid phone number." });
     }
-
-    const trimmedPincode = pincode?.toString().trim();
-    if (!pincodeRegex.test(trimmedPincode)) {
-      return res.status(400).json({ success: false, message: "Invalid pincode format." });
+    if (!pincodeRegex.test(pincode?.toString().trim())) {
+      return res.status(400).json({ success: false, message: "Invalid pincode." });
     }
-
     if (role === "vendor" && gstNumber && !gstRegex.test(gstNumber)) {
-      return res.status(400).json({ success: false, message: "Invalid GST number format." });
+      return res.status(400).json({ success: false, message: "Invalid GST number." });
     }
 
-    // ==========================
     // Password Validation
-    // ==========================
     if (password.length < 8) {
-      return res.status(400).json({ success: false, message: "Password must be at least 6 characters long." });
+      return res.status(400).json({ success: false, message: "Password too short." });
     }
-
     const strongPasswordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{6,}$/;
     if (!strongPasswordRegex.test(password)) {
       return res.status(400).json({
         success: false,
-        message: "Password must include letters, numbers, and at least one special character.",
+        message: "Password must include letters, numbers, and a special character.",
       });
     }
-
     if (password !== confirmPassword) {
-      return res.status(400).json({ success: false, message: "Passwords do not match" });
+      return res.status(400).json({ success: false, message: "Passwords do not match." });
     }
-
     if (role === "admin") {
-      return res.status(403).json({ success: false, message: "Admin registration is restricted" });
+      return res.status(403).json({ success: false, message: "Admin registration not allowed." });
     }
 
+    // Check for existing email
     const existing = await Person.findOne({ email });
     if (existing) {
-      return res.status(400).json({ success: false, message: "Email already registered" });
+      return res.status(400).json({ success: false, message: "Email already in use." });
     }
 
+    // Vendor-specific checks
     if (role === "vendor") {
       if (!shopName) {
-        return res.status(400).json({ success: false, message: "Shop name is required for vendors" });
+        return res.status(400).json({ success: false, message: "Shop name required." });
       }
-
       const shopExists = await Vendor.findOne({ shopName });
       if (shopExists) {
-        return res.status(400).json({ success: false, message: "Shop name already in use" });
+        return res.status(400).json({ success: false, message: "Shop name already in use." });
       }
-
       if (gstNumber) {
         const gstExists = await Vendor.findOne({ gstNumber });
         if (gstExists) {
-          return res.status(400).json({ success: false, message: "GST number already registered" });
+          return res.status(400).json({ success: false, message: "GST number already registered." });
         }
       }
     }
 
+    // Format address
     const formattedAddress = {
       name: toTitleCase(recipientName.trim()),
       phone: deliveryPhone.trim(),
@@ -117,9 +108,9 @@ export const registerPerson = async (req, res) => {
       },
     };
 
+    // Hash password and create user/vendor
     const hashedPassword = await bcrypt.hash(password, 10);
     let person;
-
     if (role === "vendor") {
       person = await Vendor.create({
         name,
@@ -140,24 +131,24 @@ export const registerPerson = async (req, res) => {
       });
     }
 
+    // JWT payload and token
     const payload = {
       person: {
         id: person._id,
         role: person.role,
       },
     };
-
     const expiresIn = person.role === "customer" ? "7d" : "6h";
     const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
+      message: `${toTitleCase(person.role)} registered.`,
       data: { authToken, role: person.role },
-      message: `${toTitleCase(person.role)} registered successfully`,
     });
   } catch (err) {
     console.error("Register Error:", err.message);
-    res.status(500).json({ success: false, message: "Internal server error", error: err.message });
+    return res.status(500).json({ success: false, message: "Registration failed.", error: err.message });
   }
 };
 
@@ -165,41 +156,41 @@ export const registerPerson = async (req, res) => {
 // Login Person (User/Vendor/Admin)
 // ==========================
 export const loginPerson = async (req, res) => {
-
   let { email, password } = req.body;
 
   try {
     email = email?.trim().toLowerCase();
     password = password?.trim();
 
+    // Find user by email
     const person = await Person.findOne({ email });
     if (!person) {
-      return res.status(400).json({ success: false, message: "Incorrect email or password. Please try again." });
+      return res.status(400).json({ success: false, message: "Invalid credentials." });
     }
 
+    // Check password
     const isMatch = await bcrypt.compare(password, person.password);
     if (!isMatch) {
-      return res.status(400).json({ success: false, message: "Incorrect email or password. Please try again." });
+      return res.status(400).json({ success: false, message: "Invalid credentials." });
     }
 
-    // Optional: restrict admin login here if needed
-    // if (person.role === "admin") {
-    //   return res.status(403).json({ success: false, error: "Admin login is restricted" });
-    // }
-
+    // JWT payload and token
     const payload = {
       person: {
         id: person._id,
         role: person.role,
       },
     };
-
     const expiresIn = person.role === "customer" ? "7d" : "6h";
     const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
-    res.json({ success: true, message: `${toTitleCase(person.role)} login successful`, data: { authToken, role: person.role } });
+    return res.status(200).json({
+      success: true,
+      message: `${toTitleCase(person.role)} login successful.`,
+      data: { authToken, role: person.role },
+    });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
+    console.error("Login Error:", err.message);
+    return res.status(500).json({ success: false, message: "Login failed.", error: err.message });
   }
 };

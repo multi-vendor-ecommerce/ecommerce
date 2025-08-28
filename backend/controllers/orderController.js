@@ -5,13 +5,21 @@ import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { getShippingInfoForOrder } from "../utils/getShippingInfo.js";
 
+// ==========================
+// Create or Update Draft Order
+// ==========================
 export const createOrUpdateDraftOrder = async (req, res) => {
   const userId = req.person.id;
   const { buyNow, productId, quantity = 1, color, size } = req.body;
 
   try {
+    // Validate productId if present
+    if (buyNow && (!productId || !mongoose.Types.ObjectId.isValid(productId))) {
+      return res.status(400).json({ success: false, message: "Invalid product information." });
+    }
+
     const user = await User.findById(userId).populate("cart.product").select("cart address name phone");
-    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    if (!user) return res.status(404).json({ success: false, message: "Unable to process order." });
 
     const shippingInfo = await getShippingInfoForOrder(user);
 
@@ -22,17 +30,20 @@ export const createOrUpdateDraftOrder = async (req, res) => {
     let draftOrder;
 
     if (buyNow) {
-      if (!productId) return res.status(400).json({ success: false, message: "Product ID required" });
       const product = await Product.findById(productId);
-      if (!product) return res.status(404).json({ success: false, message: "Product not found" });
+      if (!product) return res.status(404).json({ success: false, message: "Selected product is unavailable." });
 
       orderItems = [{ product: product._id, quantity, color, size }];
       itemPrice = product.price * quantity;
       tax = itemPrice * 0.18;
       shippingCharges = product.freeDelivery ? 0 : 50;
 
-      // Check existing draft for this product
-      draftOrder = await Order.findOne({ user: userId, orderStatus: "pending", source: "buyNow", "orderItems.product": productId });
+      draftOrder = await Order.findOne({
+        user: userId,
+        orderStatus: "pending",
+        source: "buyNow",
+        "orderItems.product": product._id
+      });
       if (draftOrder) {
         draftOrder.orderItems = orderItems;
         draftOrder.itemPrice = itemPrice;
@@ -56,8 +67,13 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       }
     } else {
       // Cart case
-      if (!user.cart.length) return res.status(400).json({ success: false, message: "Cart is empty" });
-      orderItems = user.cart.map(item => ({ product: item.product._id, quantity: item.quantity, color: item.color, size: item.size }));
+      if (!user.cart.length) return res.status(400).json({ success: false, message: "Your cart is empty." });
+      orderItems = user.cart.map(item => ({
+        product: item.product._id,
+        quantity: item.quantity,
+        color: item.color,
+        size: item.size
+      }));
       itemPrice = user.cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
       tax = itemPrice * 0.18;
       shippingCharges = user.cart.some(i => !i.product.freeDelivery) ? 50 : 0;
@@ -86,30 +102,35 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       }
     }
 
-    return res.status(201).json({ success: true, message: "Draft order created/updated", draftId: draftOrder._id });
+    return res.status(201).json({ success: true, message: "Draft order saved.", draftId: draftOrder._id });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: "Unable to save draft order.", error: err.message });
   }
 };
 
+// ==========================
+// Get All Orders (role-based access & pagination)
+// ==========================
 export const getAllOrders = async (req, res) => {
   try {
     const role = req.person.role;
     let query = {};
-    
+
+    // Validate vendorId if present
+    if (role === "admin" && req.query.vendorId && !mongoose.Types.ObjectId.isValid(req.query.vendorId)) {
+      return res.status(400).json({ success: false, message: "Invalid vendor information." });
+    }
+
     // Build query for status, paymentStatus, orderId for all roles
     query = buildQuery(req.query, ["status", "paymentStatus", "orderId"]);
 
     if (role === "customer") {
-      // Customers: only their own orders, but can filter by status/paymentStatus/orderId
       query.user = req.person.id;
     } else {
-      // Admin and vendor: build query from params
       if (role === "admin" && req.query.vendorId) {
         query["orderItems.product.createdBy"] = req.query.vendorId;
       } else if (role === "vendor") {
-        // Get all orders, then filter in JS after population
         const allOrders = await Order.find(query)
           .sort({ createdAt: -1 })
           .populate({
@@ -122,7 +143,6 @@ export const getAllOrders = async (req, res) => {
           })
           .populate({ path: "user", select: "name email address phone" });
 
-        // Only keep orders where at least one product was created by this vendor
         const vendorOrders = allOrders.filter(order =>
           order.orderItems.some(
             item =>
@@ -132,7 +152,6 @@ export const getAllOrders = async (req, res) => {
           )
         );
 
-        // Pagination
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
@@ -140,7 +159,7 @@ export const getAllOrders = async (req, res) => {
 
         return res.status(200).json({
           success: true,
-          message: "Orders fetched successfully.",
+          message: "Orders loaded.",
           orders: paginatedOrders,
           total: vendorOrders.length,
           page,
@@ -172,24 +191,27 @@ export const getAllOrders = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Orders fetched successfully.",
+      message: "Orders loaded.",
       orders,
       total,
       page,
       limit,
     });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: "Server Error",
-      error: err.message,
-    });
+    res.status(500).json({ success: false, message: "Unable to load orders.", error: err.message });
   }
 };
 
-// Get a single order by ID – supports admin and vendor access
+// ==========================
+// Get a Single Order by ID (admin & vendor access)
+// ==========================
 export const getOrderById = async (req, res) => {
   try {
+    // Validate order ID
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid order information." });
+    }
+
     const order = await Order.findById(req.params.id)
       .populate({
         path: "orderItems.product",
@@ -205,16 +227,16 @@ export const getOrderById = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found." });
     }
 
-    // 🔒 Access control: Customer can only access their own order
+    // Access control: Customer can only access their own order
     if (
       req.person.role === "customer" &&
       order.user &&
       order.user._id.toString() !== req.person.id.toString()
     ) {
-      return res.status(403).json({ success: false, message: "Access denied: Not your order." });
+      return res.status(403).json({ success: false, message: "You do not have permission to view this order." });
     }
 
-    // 🔒 Access control: Vendor can only access their own order
+    // Access control: Vendor can only access their own order
     if (
       req.person.role === "vendor" &&
       !order.orderItems.some(
@@ -225,34 +247,39 @@ export const getOrderById = async (req, res) => {
           item.product.createdBy._id.toString() === req.person.id.toString()
       )
     ) {
-      return res.status(403).json({ success: false, message: "Access denied: Not your order." });
+      return res.status(403).json({ success: false, message: "You do not have permission to view this order." });
     }
 
     res.status(200).send({
       success: true,
-      message: "Order fetched successfully.",
+      message: "Order loaded.",
       order,
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error.", error: err.message });
+    res.status(500).json({ success: false, message: "Unable to load order.", error: err.message });
   }
 };
 
-// Get a draft order for a user (for review)
+// ==========================
+// Get a Draft Order for a User
+// ==========================
 export const getUserDraftOrder = async (req, res) => {
   try {
-    const { id } = req.params; // draft order ID
-    const userId = req.person.id;
+    // Validate draft order ID
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid draft order information." });
+    }
 
-    const order = await Order.findOne({ _id: id, user: userId, orderStatus: "pending" })
+    const userId = req.person.id;
+    const order = await Order.findOne({ _id: req.params.id, user: userId, orderStatus: "pending" })
       .populate({ path: "orderItems.product", select: "title price images" });
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Draft order not found" });
+      return res.status(404).json({ success: false, message: "Draft order not found." });
     }
 
-    res.status(200).json({ success: true, order });
+    res.status(200).json({ success: true, message: "Draft order loaded.", order });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: "Unable to load draft order.", error: err.message });
   }
 };

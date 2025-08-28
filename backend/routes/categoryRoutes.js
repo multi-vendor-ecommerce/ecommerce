@@ -5,9 +5,12 @@ import { createCategory, getCategories } from "../controllers/categoryController
 
 const router = express.Router();
 
-// Use controller functions
+// ROUTE 1: POST /api/category/
+// Desc: Create a new category (admin only)
 router.post("/", verifyToken, authorizeRoles("admin"), createCategory);
-// router.get("/allCategory", getCategories);
+
+// ROUTE 2: GET /api/category/
+// Desc: Get all categories (public)
 router.get("/", getCategories);
 
 export default router;

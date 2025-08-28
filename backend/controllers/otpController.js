@@ -5,14 +5,23 @@ import Person from "../models/Person.js";
 import jwt from "jsonwebtoken";
 import { sendOtpMail } from "../utils/sendEmail.js";
 
-// 1. Request OTP
+// ==========================
+// Request OTP
+// ==========================
 export const sendOtp = async (req, res) => {
   const { email } = req.body;
 
-  if (!email) return res.status(400).json({ success: false, error: "Email is required." });
+  // Basic email validation
+  if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    return res.status(400).json({ success: false, message: "A valid email is required." });
+  }
 
-  const person = await Person.findOne({ email });
-  if (!person) return res.status(404).json({ success: false, error: "User not found." });
+  const sanitizedEmail = email.trim().toLowerCase();
+
+  const person = await Person.findOne({ email: sanitizedEmail });
+  if (!person) {
+    return res.status(404).json({ success: false, message: "No account found for this email." });
+  }
 
   const otp = otpGenerator.generate(6, {
     digits: true,
@@ -21,47 +30,66 @@ export const sendOtp = async (req, res) => {
     specialChars: false,
   });
 
-  await Otp.deleteMany({ email }); // remove existing OTPs
+  await Otp.deleteMany({ email: sanitizedEmail }); // Remove existing OTPs
 
-  await Otp.create({ email, otp, expiresAt: new Date(Date.now() + 5 * 60 * 1000) });
+  await Otp.create({ email: sanitizedEmail, otp, expiresAt: new Date(Date.now() + 5 * 60 * 1000) });
 
-  // ✅ Send email
   try {
-    await sendOtpMail({ to: email, otp });
-    return res.status(200).json({ success: true, message: "OTP sent to your email." });
+    await sendOtpMail({ to: sanitizedEmail, otp });
+    return res.status(200).json({ success: true, message: "OTP sent to your email address." });
   } catch (err) {
     console.error("Email send failed:", err);
-    return res.status(500).json({ success: false, message: "Failed to send OTP email.", error: err.message });
+    return res.status(500).json({ success: false, message: "Unable to send OTP email. Please try again.", error: err.message });
   }
 };
 
-// 2. Verify OTP
+// ==========================
+// Verify OTP
+// ==========================
 export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    if (!email || !otp) return res.status(400).json({ success: false, error: "Email and OTP are required." });
-
-    const otpRecord = await Otp.findOne({ email });
-
-    if (!otpRecord || otpRecord.otp !== otp || otpRecord.expiresAt < new Date()) {
-      return res.status(400).json({ success: false, error: "Invalid or expired OTP." });
+    // Basic validation
+    if (
+      !email ||
+      typeof email !== "string" ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ||
+      !otp ||
+      typeof otp !== "string" ||
+      !/^\d{6}$/.test(otp.trim())
+    ) {
+      return res.status(400).json({ success: false, message: "A valid email and OTP are required." });
     }
 
-    const person = await Person.findOne({ email });
-    if (!person) return res.status(404).json({ success: false, error: "User not found." });
+    const sanitizedEmail = email.trim().toLowerCase();
+    const sanitizedOtp = otp.trim();
+
+    const otpRecord = await Otp.findOne({ email: sanitizedEmail });
+
+    if (!otpRecord || otpRecord.otp !== sanitizedOtp || otpRecord.expiresAt < new Date()) {
+      return res.status(400).json({ success: false, message: "OTP is invalid or has expired." });
+    }
+
+    const person = await Person.findOne({ email: sanitizedEmail });
+    if (!person) {
+      return res.status(404).json({ success: false, message: "No account found for this email." });
+    }
 
     // Generate JWT
     const payload = { person: { id: person._id, role: person.role } };
-
     const expiresIn = person.role === "customer" ? "7d" : "6h";
     const authToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
-    await Otp.deleteMany({ email }); // clean up
+    await Otp.deleteMany({ email: sanitizedEmail }); // Clean up OTPs
 
-    return res.status(200).json({ success: true, message: "OTP verified. Login successful.", data: { authToken, role: person.role } });
-  } catch (error) {
-    console.error("Email send failed:", error);
-    return res.status(500).json({ success: false, message: "Failed to send OTP email.", error: err.message });
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified. You are now logged in.",
+      data: { authToken, role: person.role }
+    });
+  } catch (err) {
+    console.error("OTP verification failed:", err);
+    return res.status(500).json({ success: false, message: "Unable to verify OTP. Please try again.", error: err.message });
   }
 };

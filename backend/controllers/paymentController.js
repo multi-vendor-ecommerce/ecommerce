@@ -9,41 +9,64 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// 1. Create Razorpay order for Online Payment
+// ==========================
+// Create Razorpay order for Online Payment
+// ==========================
 export const createRazorpayOrder = async (req, res) => {
   const { orderId } = req.body;
 
+  // Validate orderId
+  if (!orderId || typeof orderId !== "string") {
+    return res.status(400).json({ success: false, message: "Invalid order information." });
+  }
+
   try {
     const order = await Order.findById(orderId);
-    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    if (!order) return res.status(404).json({ success: false, message: "Order not found. Please check your order." });
 
     if (order.orderStatus !== "pending") {
-      return res.status(400).json({ success: false, message: "Order already confirmed" });
+      return res.status(400).json({ success: false, message: "Order is already confirmed or processed." });
     }
 
     const options = {
-      amount: Math.round(order.totalAmount * 100), 
+      amount: Math.round(order.totalAmount * 100),
       currency: "INR",
       receipt: order._id.toString(),
     };
 
     const razorpayOrder = await razorpay.orders.create(options);
 
-    // Frontend should open Razorpay checkout using this info
     res.status(200).json({
       success: true,
+      message: "Razorpay order created. Proceed to payment.",
       razorpayOrder,
-      key: process.env.RAZORPAY_KEY_ID, // frontend needs this key
+      key: process.env.RAZORPAY_KEY_ID,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: "Failed to create Razorpay order" });
+    res.status(500).json({ success: false, message: "Unable to create payment order. Please try again.", error: err.message });
   }
 };
 
-// 2. Verify Razorpay payment signature
+// ==========================
+// Verify Razorpay payment signature
+// ==========================
 export const verifyRazorpayPayment = async (req, res) => {
   const { orderId, razorpayPaymentId, razorpayOrderId, razorpaySignature, shippingInfo } = req.body;
+
+  // Basic validation
+  if (
+    !orderId ||
+    typeof orderId !== "string" ||
+    !razorpayPaymentId ||
+    typeof razorpayPaymentId !== "string" ||
+    !razorpayOrderId ||
+    typeof razorpayOrderId !== "string" ||
+    !razorpaySignature ||
+    typeof razorpaySignature !== "string"
+  ) {
+    return res.status(400).json({ success: false, message: "Invalid payment information." });
+  }
 
   try {
     const body = razorpayOrderId + "|" + razorpayPaymentId;
@@ -53,13 +76,12 @@ export const verifyRazorpayPayment = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature !== razorpaySignature) {
-      return res.status(400).json({ success: false, message: "Invalid payment signature" });
+      return res.status(400).json({ success: false, message: "Payment verification failed. Signature mismatch." });
     }
 
     const order = await Order.findById(orderId);
-    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    if (!order) return res.status(404).json({ success: false, message: "Order not found. Please check your order." });
 
-    // Update order to mark it paid
     order.paymentMethod = "Online";
     order.paymentInfo = { id: razorpayPaymentId, status: "paid" };
     order.paidAt = new Date();
@@ -75,36 +97,40 @@ export const verifyRazorpayPayment = async (req, res) => {
 
     await order.save();
 
-    res.status(200).json({ success: true, message: "Payment verified successfully", order });
+    res.status(200).json({
+      success: true,
+      message: "Payment verified and order confirmed.",
+      order
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: "Payment verification failed" });
+    res.status(500).json({ success: false, message: "Unable to verify payment. Please try again.", error: err.message });
   }
 };
 
-// 3. Confirm COD Payment
+// ==========================
+// Confirm COD Payment
+// ==========================
 export const confirmCOD = async (req, res) => {
   const { orderId, shippingInfo } = req.body;
-  if (!shippingInfo) {
-    return res.status(400).json({ success: false, message: "shippingInfo is required for COD confirmation" });
+
+  // Validate orderId and shippingInfo
+  if (!orderId || typeof orderId !== "string" || !shippingInfo) {
+    return res.status(400).json({ success: false, message: "Order and shipping information required for COD confirmation." });
   }
 
   try {
     const order = await Order.findById(orderId);
-    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    if (!order) return res.status(404).json({ success: false, message: "Order not found. Please check your order." });
 
     if (order.paymentInfo?.status === "paid") {
-      return res.status(400).json({ success: false, message: "Order already paid" });
+      return res.status(400).json({ success: false, message: "Order is already paid." });
     }
 
-    // Update shippingInfo if provided
-    if (shippingInfo) {
-      order.shippingInfo = shippingInfo;
-    }
-
+    order.shippingInfo = shippingInfo;
     order.paymentMethod = "COD";
     order.paymentInfo = { id: null, status: "pending" };
-    order.orderStatus = "processing"; 
+    order.orderStatus = "processing";
 
     if (order.source === "cart") {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
@@ -112,9 +138,13 @@ export const confirmCOD = async (req, res) => {
 
     await order.save();
 
-    res.status(200).json({ success: true, message: "COD confirmed", order });
+    res.status(200).json({
+      success: true,
+      message: "COD confirmed and order is processing.",
+      order
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: "COD confirmation failed" });
+    res.status(500).json({ success: false, message: "Unable to confirm COD. Please try again.", error: err.message });
   }
 };

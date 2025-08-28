@@ -1,6 +1,9 @@
 import Category from "../models/Category.js";
 import mongoose from "mongoose";
 
+// ==========================
+// Create Category
+// ==========================
 export const createCategory = async (req, res) => {
   try {
     const { name, description = "", image = "", parent = null } = req.body;
@@ -9,7 +12,7 @@ export const createCategory = async (req, res) => {
     if (!name || !name.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Category name is required",
+        message: "Category name required.",
       });
     }
 
@@ -19,7 +22,7 @@ export const createCategory = async (req, res) => {
     if (parent && !mongoose.Types.ObjectId.isValid(parent)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid parent category ID",
+        message: "Invalid parent category.",
       });
     }
 
@@ -32,19 +35,18 @@ export const createCategory = async (req, res) => {
     if (existingCategory) {
       return res.status(409).json({
         success: false,
-        message: "Category with this name already exists under the same parent",
+        message: "Category already exists under this parent.",
       });
     }
 
     // Determine level
     let level = 1;
-
     if (parent) {
       const parentCategory = await Category.findById(parent);
       if (!parentCategory) {
         return res.status(400).json({
           success: false,
-          message: "Parent category not found",
+          message: "Parent category not found.",
         });
       }
       level = parentCategory.level + 1;
@@ -59,20 +61,23 @@ export const createCategory = async (req, res) => {
       level
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: "Category created successfully!",
+      message: "Category created.",
       category,
     });
   } catch (err) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Error creating category",
+      message: "Could not create category.",
       error: err.message,
     });
   }
 };
 
+// ==========================
+// Get Categories
+// ==========================
 export const getCategories = async (req, res) => {
   try {
     const parentId = req.query.parentId || null;
@@ -80,7 +85,7 @@ export const getCategories = async (req, res) => {
     if (parentId && !mongoose.Types.ObjectId.isValid(parentId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid parentId",
+        message: "Invalid parent category.",
       });
     }
 
@@ -93,15 +98,15 @@ export const getCategories = async (req, res) => {
 
     const categories = await Category.find({ parent: parentId });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: "Categories fetched successfully!",
+      message: "Categories fetched.",
       categories
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Failed to fetch categories",
+      message: "Could not fetch categories.",
       error: error.message
     });
   }

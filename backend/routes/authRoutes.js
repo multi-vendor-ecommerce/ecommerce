@@ -6,6 +6,9 @@ import { validate } from "../middleware/validateFields.js";
 
 const router = express.Router();
 
+// ==========================
+// Registration Validation
+// ==========================
 const registerValidator = [
   body("name", "Name must be at least 3 characters")
     .trim()
@@ -17,7 +20,7 @@ const registerValidator = [
     .isEmail()
     .normalizeEmail(),
 
-  body("password", "Password must be at least 6 characters")
+  body("password", "Password must be at least 8 characters")
     .trim()
     .isLength({ min: 8 }),
 
@@ -52,6 +55,9 @@ const registerValidator = [
     .isIn(["customer", "vendor"])
 ];
 
+// ==========================
+// Login Validation
+// ==========================
 const loginValidator = [
   body("email", "Enter a valid email")
     .trim()
@@ -63,10 +69,20 @@ const loginValidator = [
     .notEmpty()
 ];
 
+// ROUTE 1: POST /api/auth/register
+// Desc: Register a new person (customer or vendor)
 router.post("/register", registerValidator, validate, registerPerson);
+
+// ROUTE 2: POST /api/auth/login
+// Desc: Login a person (customer, vendor, or admin)
 router.post("/login", loginValidator, validate, loginPerson);
 
+// ROUTE 3: POST /api/auth/otp/request
+// Desc: Send OTP for login
 router.post("/otp/request", sendOtp);
+
+// ROUTE 4: POST /api/auth/otp/verify
+// Desc: Verify OTP for login
 router.post("/otp/verify", verifyOtp);
 
-export default router
+export default router;
