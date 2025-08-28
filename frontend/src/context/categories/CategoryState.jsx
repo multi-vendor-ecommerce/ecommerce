@@ -5,51 +5,51 @@ const CategoryState = (props) => {
   const [loading, setLoading] = useState(false);
   const [categoriesByLevel, setCategoriesByLevel] = useState({});
 
-  const host = import.meta.env.VITE_BACKEND_URL;
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
   //  CREATE CATEGORY - Admin Only
-  // const createCategory = async ({ name, description = "", image = "", parent = null }) => {
-  //   try {
-  //     setLoading(true);
-  //     const adminToken = localStorage.getItem("adminToken");
+  const createCategory = async ({ name, description = "", image = "", parent = null }) => {
+    try {
+      setLoading(true);
+      const adminToken = localStorage.getItem("adminToken");
 
-  //     const res = await fetch(`${host}/api/categories`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "auth-token": adminToken, 
-  //       },
-  //       body: JSON.stringify({
-  //         name,
-  //         description,
-  //         image,
-  //         parent,
-  //       }),
-  //     });
+      const res = await fetch(`${host}/api/categories`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": adminToken, 
+        },
+        body: JSON.stringify({
+          name,
+          description,
+          image,
+          parent,
+        }),
+      });
 
-  //     const data = await res.json();
+      const data = await res.json();
 
-  //     if (res.ok && data.success) {
-  //       // Invalidate cache
-  //       const cacheKey = `parent-${parent || "root"}`;
-  //       setCategoriesByLevel((prev) => {
-  //         const updated = { ...prev };
-  //         delete updated[cacheKey];
-  //         return updated;
-  //       });
+      if (res.ok && data.success) {
+        // Invalidate cache
+        const cacheKey = `parent-${parent || "root"}`;
+        setCategoriesByLevel((prev) => {
+          const updated = { ...prev };
+          delete updated[cacheKey];
+          return updated;
+        });
 
-  //       return { success: true, category: data.category };
-  //     } else {
-  //       return { success: false, message: data.message || "Failed to create category" };
-  //     }
-  //   } catch (error) {
-  //     console.error("Error creating category:", error);
-  //     return { success: false, message: "Something went wrong" };
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+        return { success: true, category: data.category };
+      } else {
+        return { success: false, message: data.message || "Failed to create category" };
+      }
+    } catch (error) {
+      console.error("Error creating category:", error);
+      return { success: false, message: "Something went wrong" };
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const categoriesByParentId = useCallback(async(parentId = null) => {
     const cacheKey = `parent-${parentId || "root"}`;
@@ -95,6 +95,7 @@ const CategoryState = (props) => {
     <CategoryContext.Provider
       value={{
         categoriesByParentId,
+        createCategory,
         loading,
       }}
     >

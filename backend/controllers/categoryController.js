@@ -96,7 +96,7 @@ export const getCategories = async (req, res) => {
       filter.parent = null;
     }
 
-    const categories = await Category.find({ parent: parentId });
+    const categories = await Category.find(filter);
 
     return res.status(200).json({
       success: true,
