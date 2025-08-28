@@ -4,20 +4,12 @@ import Stepper from "../../../../common/Stepper";
 import StepperControls from "../../../../common/StepperControls";
 import BackButton from "../../../../common/layout/BackButton";
 import CategorySelector from "./CategorySelector";
-import { FiExternalLink, FiPlusCircle, FiX } from "react-icons/fi";
-import CustomSelect from "../../../../common/layout/CustomSelect";
-import InputField from "../../../../common/InputField";
-import { addProductFields } from "../data/addProductFields";
-import * as Checkbox from "@radix-ui/react-checkbox";
-import { FaCheck } from "react-icons/fa";
 import { appendCommaSeparatedToFormData } from "../../../../../utils/appendCommaSeparatedToFormData";
+import UploadImages from "./UploadImages";
+import BasicInfo from "./BasicInfo";
+import ProductDetails from "./ProductDetails";
 
 const AddProduct = () => {
-  const visibilityOptions = [
-    { value: "public", label: "Public" },
-    { value: "private", label: "Private" }
-  ];
-
   const { addProduct, loading } = useContext(ProductContext);
 
   const [step, setStep] = useState(1);
@@ -163,12 +155,12 @@ const AddProduct = () => {
           stepLabels={["Select Category", "Upload Images", "Basic Info", "Product Details"]}
         />
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
+        <form className="space-y-4">
           {step === 1 && (
             <CategorySelector
+              step={step}
+              nextStep={nextStep}
+              prevStep={prevStep}
               selectedCategories={selectedCategories}
               setSelectedCategories={setSelectedCategories}
               formData={formData}
@@ -180,138 +172,38 @@ const AddProduct = () => {
           )}
 
           {step === 2 && (
-            <>
-              <div className="w-full min-h-[200px] mb-5 bg-gray-100 rounded-xl flex flex-col justify-center items-center hover:border-2 hover:border-blue-500 transition duration-200">
-                <div>
-                  <label htmlFor="images" className="flex flex-col font-medium text-gray-700 items-center gap-2 cursor-pointer" title="Upload at least one clear image">
-                    <FiPlusCircle size={50} className="text-blue-600" />
-                    <span className="text-base md:text-lg">Upload Product Images</span>
-                  </label>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    id="images"
-                  />
-                </div>
-                <p className="text-gray-600 text-center px-3 md:px-0 text-xs md:text-sm mt-3">Upload clear images of the product from multiple angles.</p>
-                <p className="text-yellow-600 text-xs md:text-sm">Image size should not exceed 5MB.</p>
-              </div>
-
-              <div>
-                <div className="text-lg md:text-xl font-semibold">Images:</div>
-                {images.length > 0 && (
-                  <div className="flex flex-wrap gap-3 my-3">
-                    {images.map((file, idx) => (
-                      <div key={idx} className="w-24 h-24 rounded-lg overflow-hidden relative">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={`preview-${idx}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-red-600/60 transition rounded-lg cursor-pointer"
-                          style={{ zIndex: 2 }}
-                          onClick={() => handleImageDelete(idx)}
-                          title="Delete image"
-                        >
-                          <FiX size={50} className="text-white select-none pointer-events-none" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="text-gray-600 text-sm">{images.length} image{images.length !== 1 ? 's' : ''} selected</div>
-              </div>
-            </>
+            <UploadImages
+              step={step}
+              nextStep={nextStep}
+              prevStep={prevStep}
+              handleImageChange={handleImageChange}
+              handleImageDelete={handleImageDelete}
+              images={images}
+            />
           )}
 
-          <div className="space-y-4">
-            {(addProductFields[step] || []).map((field, idx) => (
-              <div key={idx} className="col-span-2">
-                <InputField
-                  label={`${field.label}${field.required ? " *" : ""}`}
-                  name={field.name}
-                  type={field.type || "text"}
-                  placeholder={field.placeholder}
-                  title={field.title}
-                  required={field.required}
-                  value={formData[field.name]}
-                  onChange={handleInputChange}
-                />
-                {field.name === "hsnCode" && (
-                  <a
-                    href={field.link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="md:ml-1.5 text-blue-600 hover:text-blue-800 truncate"
-                  >
-                    <span className="inline-flex gap-1 mt-1 items-center text-sm md:text-base">
-                      <span className="hover:underline hover:decoration-dotted hover:font-medium">
-                        {field.link.text}
-                      </span>
-                      <FiExternalLink size={16} />
-                    </span>
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
+          {step === 3 && (
+            <BasicInfo
+            formData={formData}
+            step={step}
+            nextStep={nextStep}
+            prevStep={prevStep}
+            handleInputChange={handleInputChange}
+          />
+          )}
 
           {step === 4 && (
-            <>
-              {["isTaxable", "freeDelivery"].map((field) => (
-                <label key={field} className="flex items-center gap-2 cursor-pointer">
-                  <Checkbox.Root
-                    id={field}
-                    checked={formData[field]}
-                    onCheckedChange={(checked) =>
-                      setFormData((prev) => ({ ...prev, [field]: checked }))
-                    }
-                    className="w-5 h-5 bg-white border-2 border-gray-300 rounded flex items-center justify-center cursor-pointer"
-                  >
-                    <Checkbox.Indicator>
-                      <FaCheck size={14} className="text-blue-600" />
-                    </Checkbox.Indicator>
-                  </Checkbox.Root>
-                  <span className="text-gray-700">
-                    {field.replace(/([A-Z])/g, " $1")}
-                  </span>
-                </label>
-              ))}
-
-              <div className="space-y-2">
-                <label htmlFor="visibility" className="block font-medium text-gray-700">Visibility</label>
-                <CustomSelect
-                  options={visibilityOptions}
-                  value={formData.visibility}
-                  onChange={(value) => setFormData((prev) => ({ ...prev, visibility: value }))}
-                  menuPlacement="auto"
-                />
-              </div>
-            </>
+            <ProductDetails
+              formData={formData}
+              step={step}
+              nextStep={nextStep}
+              prevStep={prevStep}
+              handleInputChange={handleInputChange}
+              setFormData={setFormData}
+              loading={loading}
+              handleSubmit={handleSubmit}
+            />
           )}
-
-          <StepperControls
-            currentStep={step}
-            onNext={nextStep}
-            onBack={prevStep}
-            isLastStep={step === 4}
-            nextDisabled={step === 1 && !formData.category}
-            showSubmit={
-              step === 4 &&
-              formData.description.trim() &&
-              formData.price.trim() &&
-              formData.stock.trim() &&
-              formData.gstRate.trim()
-            }
-            submitButton={['Add Product', 'Adding']}
-            loading={loading}
-            onSubmitClick={handleSubmit}
-          />
         </form>
       </div>
     </section>

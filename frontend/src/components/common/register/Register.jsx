@@ -63,9 +63,17 @@ const Register = ({ registerRole }) => {
 
   const nextStep = () => {
     setErrorMsg("");
-    if (step === 1 && (!form.name.trim() || !form.email.trim())) {
-      setErrorMsg("Name and Email are required.");
-      return;
+    if (step === 1) {
+      if (!form.name.trim() || !form.email.trim()) {
+        setErrorMsg("Name and Email are required.");
+        return;
+      }
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email.trim())) {
+        setErrorMsg("Please enter a valid email address.");
+        return;
+      }
     }
     if (step === 2) {
       if (!form.password.trim() || !form.confirmPassword.trim()) {
@@ -115,6 +123,30 @@ const Register = ({ registerRole }) => {
     } else {
       setErrorMsg(result.error || "Registration failed.");
     }
+  };
+
+  const isNextDisabled = () => {
+    if (step === 1) {
+      return !form.name.trim() || !form.email.trim();
+    }
+    if (step === 2) {
+      return (
+        !form.password.trim() ||
+        !form.confirmPassword.trim() ||
+        form.password !== form.confirmPassword
+      );
+    }
+    if (step === 3) {
+      if (!form.phone.trim()) return true;
+      if (
+        registerRole === "vendor" &&
+        (!form.shopName.trim() || !form.gstNumber.trim())
+      ) {
+        return true;
+      }
+      return false;
+    }
+    return false;
   };
 
   return (
@@ -171,13 +203,14 @@ const Register = ({ registerRole }) => {
             onNext={nextStep}
             onBack={prevStep}
             isLastStep={step === 4}
+            nextDisabled={isNextDisabled()}
             showSubmit={
               form.phone.trim() &&
               (registerRole !== "vendor" || (form.shopName.trim() && form.gstNumber.trim()))
             }
             loading={loading}
             submitButton={["Register", "Registering"]}
-             onSubmitClick={handleSubmit}
+            onSubmitClick={handleSubmit}
           />
 
           <div className="text-center mt-4">
