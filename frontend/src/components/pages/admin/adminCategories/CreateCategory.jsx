@@ -1,12 +1,24 @@
-import React, { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import CategoryContext from "../../../../context/categories/CategoryContext";
 import InputField from "../../../common/InputField";
 import Button from "../../../common/Button";
 import BackButton from "../../../common/layout/BackButton";
-import { FiPlus } from "react-icons/fi";
+import { FiPlus, FiPlusCircle } from "react-icons/fi";
+import CustomSelect from "../../../common/layout/CustomSelect";
+import useCategorySelection from "../../../../hooks/useCategorySelection";
 
-const CreateCategory = ({ categories = [] }) => {
+const CreateCategory = () => {
   const { createCategory, loading } = useContext(CategoryContext);
+
+  // local state to work with useCategorySelection
+  const [selectedCategories, setSelectedCategories] = useState([""]);
+
+  const {
+    categoryLevels,
+    handleCategoryClick,
+    getSelectedCategoryPath,
+    loadCategories,
+  } = useCategorySelection(() => {}, setSelectedCategories, selectedCategories);
 
   // Form state
   const [form, setForm] = useState({
@@ -21,6 +33,10 @@ const CreateCategory = ({ categories = [] }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // ✅ Pick the last valid selected category (not "none")
+  const parentCategoryId =
+    [...selectedCategories].reverse().find((id) => id && id !== "none") || "";
+
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,19 +45,29 @@ const CreateCategory = ({ categories = [] }) => {
     const formData = new FormData();
     formData.append("name", form.name);
     formData.append("description", form.description);
-    if (form.parent) formData.append("parent", form.parent);
-    if (categoryImage) formData.append("categoryImage", categoryImage);
+    if (parentCategoryId) formData.append("parent", parentCategoryId);
+
+    // ✅ Only allow image if root-level category
+    if (!parentCategoryId && categoryImage) {
+      formData.append("categoryImage", categoryImage);
+    }
 
     const result = await createCategory(formData);
 
     if (result.success) {
-      alert("Category created!");
+      alert(result.message);
       setForm({ name: "", description: "", parent: "" });
       setCategoryImage(null);
+      setSelectedCategories(["none"]); // reset selection after submit
+      loadCategories(); // reload root categories
     } else {
       alert(result.message);
     }
   };
+
+  useEffect(() => {
+    loadCategories(); // Load root categories on mount
+  }, []);
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
@@ -51,10 +77,10 @@ const CreateCategory = ({ categories = [] }) => {
         <h2 className="text-xl md:text-2xl font-bold">Create Category</h2>
       </div>
 
-      <form className="flex flex-col gap-6">
+      <form className="flex flex-col gap-6 justify-start items-start">
         <div className="w-full bg-white p-6 rounded-lg hover:shadow-blue-500 shadow-md transition duration-200 space-y-4">
           <InputField
-            label="Category Name"
+            label="Category Name *"
             name="name"
             value={form.name}
             onChange={handleChange}
@@ -63,7 +89,7 @@ const CreateCategory = ({ categories = [] }) => {
           />
 
           <InputField
-            label="Description"
+            label="Description *"
             name="description"
             value={form.description}
             onChange={handleChange}
@@ -71,47 +97,75 @@ const CreateCategory = ({ categories = [] }) => {
           />
         </div>
 
-        {/* File Upload */}
-        <div className="w-full bg-white p-6 rounded-lg hover:shadow-blue-500 shadow-md transition duration-200">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Category Image
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setCategoryImage(e.target.files[0])}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"
-          />
-        </div>
+        {/* File Upload → only for root categories */}
+        {!parentCategoryId && (
+          <div className="w-full min-h-[200px] bg-white rounded-lg hover:shadow-blue-500 shadow-md transition duration-200 flex justify-center items-center p-6">
+            <div className="bg-gray-200 w-full p-6 rounded-lg flex flex-col justify-center items-center">
+              <div>
+                <label
+                  htmlFor="images"
+                  className="flex flex-col font-medium text-gray-700 items-center gap-2 cursor-pointer"
+                  title="Upload at least one clear image"
+                >
+                  <FiPlusCircle size={50} className="text-blue-600" />
+                  <span className="text-base md:text-lg mb-1">
+                    Upload Category Image
+                  </span>
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setCategoryImage(e.target.files[0])}
+                  className="hidden"
+                  id="images"
+                />
+              </div>
+              <p className="text-yellow-600 text-xs md:text-sm">
+                Image size should not exceed 2MB.
+              </p>
+            </div>
+          </div>
+        )}
 
-        {/* Parent Category Dropdown */}
+        {/* Multi-level Parent Category Selector */}
         <div className="w-full bg-white p-6 rounded-lg hover:shadow-blue-500 shadow-md transition duration-200">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Parent Category
-          </label>
-          <select
-            name="parent"
-            value={form.parent}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400"
-          >
-            <option value="">Root Category</option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
+          <label className="block font-medium mb-2">Parent Category</label>
+          <div className="flex flex-col gap-4">
+            {categoryLevels.map((level, idx) => (
+              <CustomSelect
+                key={idx}
+                options={[
+                  { value: "none", label: "None" },
+                  ...level.map((cat) => ({
+                    value: cat._id,
+                    label: cat.name,
+                  })),
+                ]}
+                value={selectedCategories[idx] || ""}
+                onChange={(value) => handleCategoryClick(value, idx)}
+                menuPlacement="auto"
+              />
             ))}
-          </select>
-        </div>
-      </form>
+          </div>
 
-      <Button
-        icon={FiPlus}
-        text={loading ? "Adding..." : "Add Category"}
-        disabled={loading || !form.name.trim() || !form.description.trim()}
-        onClick={handleSubmit}
-        className="mt-8 py-2"
-      />
+          {/* ✅ Always show clean path */}
+          <div className="mt-2 text-sm text-gray-500">
+            Selected Path:{" "}
+            {selectedCategories.includes("none")
+              ? "Parent Level"
+              : getSelectedCategoryPath() || "—"}
+          </div>
+        </div>
+
+        <Button
+          icon={FiPlus}
+          text={loading ? "Adding..." : "Add Category"}
+          disabled={loading || !form.name.trim() || !form.description.trim()}
+          type="submit"
+          onClick={handleSubmit}
+          className="py-2"
+        />
+      </form>
     </section>
   );
 };

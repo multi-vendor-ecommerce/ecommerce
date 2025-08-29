@@ -33,7 +33,7 @@ const CategoryState = (props) => {
           return updated;
         });
 
-        return { success: true, category: data.category };
+        return { success: true, category: data.category, message: data.message || "Category created successfully" };
       } else {
         return { success: false, message: data.message || "Failed to create category" };
       }

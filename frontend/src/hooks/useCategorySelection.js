@@ -3,7 +3,7 @@ import { useContext, useState } from "react";
 import CategoryContext from "../context/categories/CategoryContext";
 
 const useCategorySelection = (
-  onCategoryFinalSelect = () => {},
+  onCategoryFinalSelect = () => { },
   setSelectedCategories = null,
   selectedCategories = []
 ) => {
@@ -47,10 +47,13 @@ const useCategorySelection = (
   const getSelectedCategoryPath = () => {
     return selectedCategories
       .map((id, levelIndex) => {
+        if (id === "none") return "None"; // show root explicitly
+        if (!id) return ""; // skip empty
         const level = categoryLevels[levelIndex];
         const match = level?.find((cat) => cat._id === id);
         return match?.name || "";
       })
+      .filter(Boolean) // remove blanks
       .join(" / ");
   };
 
