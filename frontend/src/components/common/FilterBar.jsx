@@ -33,7 +33,7 @@ const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, onKey
                   value={value}
                   onChange={(val) => onChange(name, val)}
                   options={options}
-                  menuPlacement="bottom"
+                  menuPlacement="auto"
                 />
               </div>
             );

@@ -72,7 +72,7 @@ function UserHeader() {
 
   return (
     <header className="sticky top-0 bg-white/90 backdrop-blur-sm z-50">
-      <div className="py-3 lg:px-16">
+      <div className=" lg:px-16">
         <div className="container mx-auto px-4 flex items-center justify-between gap-4 flex-wrap">
           {/* Logo */}
           {/* <Link
@@ -86,7 +86,7 @@ function UserHeader() {
             to="/"
             className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap"
           >
-          <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-12 sm:h-17 rounded" />
+          <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-19 sm:h-17 rounded" />
           </Link> 
 
           {/* Desktop Search */}

@@ -6,31 +6,42 @@ import { encryptData } from "../../Utils/Encryption";
 import CategoryContext from "../../../../../context/categories/CategoryContext";
 
 // AccordionItem Component
-const AccordionItem = ({ category, levelIndex, handleCategoryClick, categoryLevels, categoriesByParentId }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const AccordionItem = ({
+  category,
+  levelIndex,
+  handleCategoryClick,
+  categoryLevels,
+  categoriesByParentId,
+  openIndexes,
+  setOpenIndexes,
+}) => {
   const navigate = useNavigate();
+  const isOpen = openIndexes[levelIndex] === category._id;
 
   const handleToggle = async (e) => {
     e.stopPropagation();
+    setOpenIndexes((prev) => ({
+      ...prev,
+      [levelIndex]: isOpen ? null : category._id,
+    }));
     if (!isOpen) {
       await handleCategoryClick(category._id, levelIndex);
     }
-    setIsOpen(!isOpen);
   };
 
   const handleNameClick = async (e) => {
     e.stopPropagation();
-
     await handleCategoryClick(category._id, levelIndex);
-
     const children = await categoriesByParentId(category._id);
     if (!children || children.length === 0) {
       const secretKey = import.meta.env.VITE_SECRET_KEY;
       const encryptedId = encryptData(category._id, secretKey);
-      console.log("Leaf category clicked:", category._id);
       navigate(`/category/${encryptedId}`);
     } else {
-      setIsOpen((prev) => !prev);
+      setOpenIndexes((prev) => ({
+        ...prev,
+        [levelIndex]: isOpen ? null : category._id,
+      }));
     }
   };
 
@@ -40,19 +51,14 @@ const AccordionItem = ({ category, levelIndex, handleCategoryClick, categoryLeve
         <span onClick={handleNameClick} title={category.name} className="flex-1">
           {category.name}
         </span>
-
         <span
-          onClick={(e) => {
-            e.stopPropagation();
-            handleToggle(e);
-          }}
+          onClick={handleToggle}
           className="text-xl select-none px-2 cursor-pointer"
           title={isOpen ? "Collapse" : "Expand"}
         >
           {isOpen ? "−" : "+"}
         </span>
       </div>
-
       {isOpen && categoryLevels[levelIndex + 1]?.length > 0 && (
         <div className="ml-4 border-l border-gray-300 pl-3">
           {categoryLevels[levelIndex + 1].map((sub) => (
@@ -63,6 +69,8 @@ const AccordionItem = ({ category, levelIndex, handleCategoryClick, categoryLeve
               handleCategoryClick={handleCategoryClick}
               categoryLevels={categoryLevels}
               categoriesByParentId={categoriesByParentId}
+              openIndexes={openIndexes}
+              setOpenIndexes={setOpenIndexes}
             />
           ))}
         </div>
@@ -73,18 +81,19 @@ const AccordionItem = ({ category, levelIndex, handleCategoryClick, categoryLeve
 
 const CategorySidebar = ({
   isOpen = false,
-  onClose = () => {},
+  onClose = () => { },
   showAsHorizontal = false,
   parentCircleSize = "normal",
 }) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [openIndexes, setOpenIndexes] = useState({});
   const { categoriesByParentId } = useContext(CategoryContext);
 
   const {
     categoryLevels,
     loadCategories,
     handleCategoryClick,
-  } = useCategorySelection(() => {}, setSelectedCategories, selectedCategories);
+  } = useCategorySelection(() => { }, setSelectedCategories, selectedCategories);
 
   useEffect(() => {
     loadCategories(null, 0);
@@ -109,9 +118,8 @@ const CategorySidebar = ({
               {cat.name.slice(0, 2).toUpperCase()}
             </div>
             <span
-              className={`mt-1 truncate ${
-                parentCircleSize === "large" ? "text-base" : "text-xs"
-              }`}
+              className={`mt-1 truncate ${parentCircleSize === "large" ? "text-base" : "text-xs"
+                }`}
               style={{ maxWidth: parentCircleSize === "large" ? "5rem" : "3.5rem" }}
             >
               {cat.name}
@@ -156,6 +164,8 @@ const CategorySidebar = ({
                   handleCategoryClick={handleCategoryClick}
                   categoryLevels={categoryLevels}
                   categoriesByParentId={categoriesByParentId}
+                  openIndexes={openIndexes}
+                  setOpenIndexes={setOpenIndexes}
                 />
               ))}
             </div>
