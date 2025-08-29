@@ -137,6 +137,15 @@ const Register = ({ registerRole }) => {
       );
     }
     if (step === 3) {
+      return (
+        !form.address.line1.trim() ||
+        !form.address.city.trim() ||
+        !form.address.state.trim() ||
+        !form.address.country.trim() ||
+        !form.address.pincode.trim()
+      );
+    }
+    if (step === 4) {
       if (!form.phone.trim()) return true;
       if (
         registerRole === "vendor" &&
@@ -205,6 +214,7 @@ const Register = ({ registerRole }) => {
             isLastStep={step === 4}
             nextDisabled={isNextDisabled()}
             showSubmit={
+              step === 4 &&
               form.phone.trim() &&
               (registerRole !== "vendor" || (form.shopName.trim() && form.gstNumber.trim()))
             }

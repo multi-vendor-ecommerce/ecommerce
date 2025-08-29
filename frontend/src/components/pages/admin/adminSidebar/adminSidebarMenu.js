@@ -125,7 +125,7 @@ export const adminSidebarMenu = [
         children: [
           { label: "Text Blocks", path: "/admin/theme/text-blocks" },
           { label: "Image Blocks", path: "/admin/theme/image-blocks" },
-          { label: "Category Creation", path: "/admin/theme/categories" },
+          { label: "Category Creation", path: "/admin/theme/add-category" },
           { label: "Blog CRUD", path: "/admin/theme/blog-crud" },
         ],
       },

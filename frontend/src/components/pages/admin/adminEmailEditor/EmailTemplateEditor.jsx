@@ -113,7 +113,12 @@ export default function EmailTemplateEditor() {
           </label>
         </div>
 
-        <Button text="Save Template" className="mt-6 py-3 border-blue-500 text-blue-600" onClick={handleSave} />
+        <Button
+          text="Save Template"
+          className="mt-6 py-3"
+          disabled={!form.subject.trim() || !form.body.trim()}
+          onClick={handleSave}
+        />
       </div>
     </section>
   );

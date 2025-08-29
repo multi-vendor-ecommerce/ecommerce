@@ -19,7 +19,7 @@ const ProfileActionButtons = ({
           text={cancelText}
           onClick={onCancel}
           disabled={isLoading}
-          className="py-2 border-red-600 text-red-600"
+          className="py-2"
           color="red"
         />
         <Button
@@ -27,7 +27,7 @@ const ProfileActionButtons = ({
           text={isLoading ? "Saving..." : saveText}
           onClick={onSave}
           disabled={isLoading}
-          className="py-2 border-green-600 text-green-600"
+          className="py-2"
           color="green"
         />
       </>
@@ -35,7 +35,7 @@ const ProfileActionButtons = ({
       <Button
         icon={FiEdit}
         text={editText}
-        className="py-2 border-blue-500 text-blue-600"
+        className="py-2"
         onClick={onEdit}
       />
     )}

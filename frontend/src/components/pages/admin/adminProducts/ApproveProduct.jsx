@@ -106,7 +106,7 @@ const ApproveProduct = () => {
                         icon={FiCheckCircle}
                         text="Approve"
                         onClick={() => handleApprove(product._id)}
-                        className="py-2 border-green-600 text-green-600"
+                        className="py-2"
                         color="green"
                       />
                     </div>

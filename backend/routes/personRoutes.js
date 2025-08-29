@@ -1,10 +1,10 @@
 import express from "express";
 import { body } from "express-validator";
 import { validate } from "../middleware/validateFields.js";
-import uploadProfile from "../middleware/multerProfile.js";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 import { getCurrentPerson, editPerson, deletePerson, changePassword } from "../controllers/personController.js";
+import upload from "../middleware/multer.js";
 
 const router = express.Router();
 
@@ -29,6 +29,9 @@ export const editPersonValidator = [
 export const changePasswordValidator = [
   body("newPassword", "Password must be at least 8 characters").trim().isLength({ min: 8 })
 ];
+
+// For profile images (single)
+const uploadProfile = upload({ folder: "profiles", prefix: "profile" });
 
 // Common auth middleware
 const auth = [verifyToken, authorizeRoles("customer", "vendor", "admin")]

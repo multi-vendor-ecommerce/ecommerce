@@ -12,10 +12,10 @@ const AddEditCoupon = ({ form, errors, handleChange, handleAddCoupon, isEditing 
       </h3>
 
       <div className="w-full grid md:grid-cols-4 gap-4">
-        {inputFields.map(({ id, label, type, placeholder, min, step, title }) => (
+        {inputFields.map(({ id, label, type, placeholder, min, step, title, required }) => (
           <div key={id} className="flex flex-col justify-center gap-1">
             {type === "checkbox" ? (
-              <div className="flex items-center gap-2 mt-8">
+              <div className="flex items-center gap-2 md:mt-8">
                 <Checkbox.Root
                   id={id}
                   checked={form[id] || false}
@@ -30,7 +30,7 @@ const AddEditCoupon = ({ form, errors, handleChange, handleAddCoupon, isEditing 
               </div>
             ) : (
               <InputField
-                label={label}
+                label={`${label}${required ? " *" : ""}`}
                 name={id}
                 type={type}
                 placeholder={type !== "text" ? placeholder : ""}
@@ -51,7 +51,8 @@ const AddEditCoupon = ({ form, errors, handleChange, handleAddCoupon, isEditing 
 
       <Button
         text={isEditing ? "Update Coupon" : "Add Coupon"}
-        className="mt-6 py-3 border-blue-500 text-blue-600"
+        className="mt-6 py-3"
+        disabled={!form.code.trim() || !form.discount || !form.minPurchase || !form.expiryDate || !form.usageLimit}
         onClick={handleAddCoupon}
       />
     </div>

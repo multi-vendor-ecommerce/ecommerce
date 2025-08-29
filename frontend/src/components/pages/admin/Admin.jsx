@@ -21,6 +21,7 @@ import Profile from "../adminVendorCommon/settings/Profile";
 import Security from "../adminVendorCommon/settings/Security";
 import PersonContext from "../../../context/person/PersonContext";
 import ApproveProduct from "./adminProducts/ApproveProduct";
+import CreateCategory from "./adminCategories/CreateCategory";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);
@@ -71,6 +72,11 @@ const Admin = () => {
             <Route path="top-vendors" element={<VendorManagement heading="Top Vendors" />} />
             <Route path="vendors/commission-overview" element={<CommissionOverview />} />
             <Route path="vendor/profile/:vendorId" element={<VendorProfile />} />
+
+            {/* Theme */}
+            <Route path="theme/">
+              <Route path="add-category" element={<CreateCategory />} />
+            </Route>
 
             {/* Settings */}
             <Route path="settings/">

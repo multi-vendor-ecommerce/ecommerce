@@ -70,6 +70,9 @@ export default function CouponsManager() {
 
     if (editingId && Object.keys(payload).length === 0) {
       alert("No changes made. Nothing to update.");
+      setForm({ code: "", discount: "", minPurchase: "", maxDiscount: "", expiryDate: "", usageLimit: "", isActive: true });
+      setEditingId(null);         // Switch to add mode
+      setOriginalForm(null);
       return; // Skip API call if nothing changed
     }
 

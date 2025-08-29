@@ -46,7 +46,7 @@ const AuthState = ({ children }) => {
         return { success: false, error: data.message || "Registration failed" };
       }
     } catch (err) {
-      return { success: false, error: "Something went wrong" };
+      return { success: false, error: err.message || "Something went wrong" };
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,7 @@ const AuthState = ({ children }) => {
       }
     } catch (err) {
       console.error("Login error:", err);
-      return { success: false, error: "Something went wrong" };
+      return { success: false, error: err.message || "Something went wrong" };
     } finally {
       setLoading(false);
     }

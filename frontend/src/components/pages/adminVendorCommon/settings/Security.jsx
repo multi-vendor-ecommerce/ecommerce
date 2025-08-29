@@ -75,7 +75,7 @@ const Security = () => {
           text={loading ? "Updating..." : "Update Password"}
           type="submit"
           disabled={!formValid || loading}
-          className="mt-8 py-3 border-blue-600 text-blue-600"
+          className="mt-8 py-3"
         />
       </form>
     </div>

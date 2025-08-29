@@ -4,6 +4,7 @@ export const inputFields = [
     label: "Code",
     placeholder: "COUPON2025",
     title: "Enter the coupon code",
+    required: true,
   },
   {
     id: "discount",
@@ -13,6 +14,7 @@ export const inputFields = [
     step: 1,
     placeholder: "Enter discount amount",
     title: "Discount amount in ₹",
+    required: true,
   },
   {
     id: "minPurchase",
@@ -22,6 +24,7 @@ export const inputFields = [
     step: 1,
     placeholder: "Minimum purchase required",
     title: "Minimum purchase to apply coupon",
+    required: true,
   },
   {
     id: "maxDiscount",
@@ -39,6 +42,7 @@ export const inputFields = [
     min: new Date().toISOString().split("T")[0],
     placeholder: "",
     title: "Select the expiry date of the coupon",
+    required: true,
   },
   {
     id: "usageLimit",
@@ -48,6 +52,7 @@ export const inputFields = [
     step: 1,
     placeholder: "Enter number of uses",
     title: "Maximum number of times coupon can be used",
+    required: true,
   },
   {
     id: "isActive",

@@ -9,29 +9,23 @@ const CategoryState = (props) => {
   const host = "http://localhost:5000";
 
   //  CREATE CATEGORY - Admin 
-  const createCategory = async ({ name, description = "", image = "", parent = null }) => {
+  const createCategory = async (formData) => {
     try {
       setLoading(true);
-      const adminToken = localStorage.getItem("adminToken");
 
       const res = await fetch(`${host}/api/categories`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "auth-token": adminToken, 
+          "auth-token": localStorage.getItem("adminToken"),
         },
-        body: JSON.stringify({
-          name,
-          description,
-          image,
-          parent,
-        }),
+        body: formData,
       });
 
       const data = await res.json();
 
       if (res.ok && data.success) {
-        // Invalidate cache
+        // Invalidate cache for parent (if included in formData)
+        const parent = formData.get("parent");
         const cacheKey = `parent-${parent || "root"}`;
         setCategoriesByLevel((prev) => {
           const updated = { ...prev };
@@ -51,7 +45,7 @@ const CategoryState = (props) => {
     }
   };
 
-  const categoriesByParentId = useCallback(async(parentId = null) => {
+  const categoriesByParentId = useCallback(async (parentId = null) => {
     const cacheKey = `parent-${parentId || "root"}`;
 
     if (categoriesByLevel[cacheKey]) {
@@ -77,9 +71,9 @@ const CategoryState = (props) => {
       if (response.ok && data.success) {
         setCategoriesByLevel((prev) => ({
           ...prev,
-          [cacheKey]: data.categories, 
+          [cacheKey]: data.categories,
         }));
-        return data.categories; 
+        return data.categories;
       } else {
         console.error("Error fetching categories:", data.message);
         return [];

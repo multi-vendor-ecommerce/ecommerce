@@ -1,11 +1,14 @@
 import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
-import uploadProduct from "../middleware/multerProduct.js";
 import multerErrorHandler from "../middleware/multerErrorHandler.js";
 import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts, approveProduct } from "../controllers/productController.js";
+import upload from "../middleware/multer.js";
 
 const router = express.Router();
+
+// For product images (multiple)
+const uploadProduct = upload({ folder: "products", prefix: "product", fileSize: 5 * 1024 * 1024 });
 
 // ROUTE 1: GET /api/products
 // Desc: Get all public products (home/shop pages)

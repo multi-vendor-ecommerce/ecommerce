@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 // ==========================
 export const createCategory = async (req, res) => {
   try {
-    const { name, description = "", image = "", parent = null } = req.body;
+    const { name, description = "", parent = null } = req.body;
 
     // Validate category name
     if (!name || !name.trim()) {
@@ -52,13 +52,23 @@ export const createCategory = async (req, res) => {
       level = parentCategory.level + 1;
     }
 
+    // Handle image uploaded from Multer + Cloudinary
+    let categoryImage = undefined;
+    let categoryImageId = undefined;
+
+    if (req.file) {
+      categoryImage = req.file.path;   // Cloudinary URL
+      categoryImageId = req.file.filename; // Cloudinary public_id
+    }
+
     // Create new category
     const category = await Category.create({
       name: trimmedName,
       description: description.trim(),
-      image: image.trim(),
+      categoryImage,
+      categoryImageId,
       parent: parent || null,
-      level
+      level,
     });
 
     return res.status(201).json({
