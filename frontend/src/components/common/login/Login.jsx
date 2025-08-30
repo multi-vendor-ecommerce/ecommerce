@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, NavLink } from "react-router-dom";
 import AuthContext from "../../../context/auth/AuthContext";
 import AuthSiderImg from "../../../assets/auth-side-bg.png";
 import InputField from "../InputField";
+import { toast } from "react-toastify";
 
 const Login = ({ loginRole }) => {
   const { login, loading, requestOtp, verifyOtp } = useContext(AuthContext);
@@ -11,7 +12,6 @@ const Login = ({ loginRole }) => {
 
   const redirectPath = searchParams.get("redirect") || "/";
   const [form, setForm] = useState({ email: "", password: "", otp: "" });
-  const [errorMsg, setErrorMsg] = useState("");
   const [isOtpLogin, setIsOtpLogin] = useState(false);
   const [otpRequested, setOtpRequested] = useState(false);
 
@@ -21,7 +21,7 @@ const Login = ({ loginRole }) => {
 
   const handleRoleAndNavigate = (role) => {
     if (loginRole !== role) {
-      setErrorMsg("Invalid role. Please login through the correct portal.");
+      toast.error("Invalid role. Please login through the correct portal.");
       return false;
     }
 
@@ -34,40 +34,45 @@ const Login = ({ loginRole }) => {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg("");
 
     const result = await login(form.email, form.password);
-    if (result.success) handleRoleAndNavigate(result.role);
-    else setErrorMsg(result.error || "Login failed");
+    if (result.success) {
+      toast.success(result.message || "Login successful!");
+      setTimeout(() => handleRoleAndNavigate(result.role), 500);
+    } else {
+      toast.error(result.error || "Login failed");
+    }
   };
 
   const handleRequestOtp = async () => {
-    setErrorMsg("");
     if (!form.email) {
-      setErrorMsg("Please enter your email to get OTP.");
+      toast.error("Please enter your email to get OTP.");
       return;
     }
 
     const result = await requestOtp(form.email);
     if (result.success) {
       setOtpRequested(true);
-      setErrorMsg("OTP sent! Check your email (expires in 5 minutes).");
+      toast.success(result.message || "OTP sent! Check your email (expires in 5 minutes).");
     } else {
-      setErrorMsg(result.error || "Failed to send OTP");
+      toast.error(result.error || result.message || "Failed to send OTP");
     }
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    setErrorMsg("");
     if (!form.otp) {
-      setErrorMsg("Please enter the OTP");
+      toast.error("Please enter the OTP");
       return;
     }
 
     const result = await verifyOtp(form.email, form.otp);
-    if (result.success) handleRoleAndNavigate(result.role);
-    else setErrorMsg(result.error || "OTP verification failed");
+    if (result.success) {
+      toast.success(result.message || "OTP verified! Logging you in...");
+      setTimeout(() => handleRoleAndNavigate(result.role), 500);
+    } else {
+      toast.error(result.error || result.message || "OTP verification failed");
+    }
   };
 
   const formValid = isOtpLogin
@@ -78,8 +83,8 @@ const Login = ({ loginRole }) => {
     <section className="w-full bg-white min-h-screen lg:min-h-[80vh] flex items-center justify-between gap-10">
       <div className="w-full h-full lg:w-[45%] px-4 flex flex-col lg:justify-center items-center gap-2 lg:gap-4">
         <div className="w-full max-w-lg p-6">
-          <h2 className="text-3xl lg:text-5xl font-bold">Welcome back!</h2>
-          <p className="text-medium lg:text-lg font-semibold mt-2">Please enter your credentials to login.</p>
+          <h2 className="text-2xl lg:text-4xl font-bold">Welcome back!</h2>
+          <p className="text-medium lg:text-lg font-semibold mt-3">Please enter your credentials to login.</p>
         </div>
 
         <div className="w-full max-w-lg">
@@ -87,9 +92,7 @@ const Login = ({ loginRole }) => {
             onSubmit={isOtpLogin ? handleVerifyOtp : handleLoginSubmit}
             className="w-full p-6 space-y-4"
           >
-            {errorMsg && (
-              <p className="text-red-600 text-sm text-center">{errorMsg}</p>
-            )}
+            {/* Toast notifications will show errors/success, so no errorMsg display needed */}
 
             <InputField
               name="email"
@@ -133,7 +136,7 @@ const Login = ({ loginRole }) => {
               <button
                 type="submit"
                 disabled={loading || !formValid}
-                className={`w-full bg-blue-600 text-white py-3.5 text-[16px] md:text-lg rounded-xl mt-5 transition ${(!formValid || loading) ? "opacity-60 cursor-not-allowed" : "hover:bg-blue-700 cursor-pointer"}`}
+                className={`w-full bg-blue-600 text-white py-2.5 text-base md:text-lg rounded-xl mt-5 transition ${(!formValid || loading) ? "opacity-60 cursor-not-allowed" : "hover:bg-blue-700 cursor-pointer"}`}
               >
                 {loading ? <div className="font-semibold">Logging in...</div> : <div className="font-semibold">Login</div>}
               </button>
@@ -144,7 +147,7 @@ const Login = ({ loginRole }) => {
                 type="button"
                 disabled={loading || !form.email.trim()}
                 onClick={handleRequestOtp}
-                className={`w-full bg-green-600 text-white py-3.5 rounded-xl mt-5 transition ${(!form.email.trim() || loading) ? "opacity-60 cursor-not-allowed" : "hover:bg-green-700 cursor-pointer"}`}
+                className={`w-full bg-green-600 text-white py-2.5 rounded-xl mt-5 transition ${(!form.email.trim() || loading) ? "opacity-60 cursor-not-allowed" : "hover:bg-green-700 cursor-pointer"}`}
               >
                 {loading ? <div className="font-semibold">Sending OTP...</div> : <div className="font-semibold">Send OTP</div>}
               </button>
@@ -154,7 +157,7 @@ const Login = ({ loginRole }) => {
               <button
                 type="submit"
                 disabled={loading || !formValid}
-                className={`w-full bg-blue-600 text-white py-3.5 rounded-xl mt-5 transition ${(!formValid || loading) ? "opacity-60 cursor-not-allowed" : "hover:bg-blue-700 cursor-pointer"}`}
+                className={`w-full bg-blue-600 text-white py-2.5 rounded-xl mt-5 transition ${(!formValid || loading) ? "opacity-60 cursor-not-allowed" : "hover:bg-blue-700 cursor-pointer"}`}
               >
                 {loading ? <div className="font-semibold">Verifying OTP...</div> : <div className="font-semibold">Verify OTP & Login</div>}
               </button>
@@ -172,7 +175,6 @@ const Login = ({ loginRole }) => {
                   type="button"
                   onClick={() => {
                     setIsOtpLogin(!isOtpLogin);
-                    setErrorMsg("");
                     setOtpRequested(false);
                     setForm({ email: "", password: "", otp: "" });
                   }}
@@ -204,7 +206,7 @@ const Login = ({ loginRole }) => {
         <img
           src={AuthSiderImg}
           alt="Login Illustration"
-          className="w-[840px] h-[740px] rounded-3xl"
+          className="w-[840px] h-[655px] rounded-3xl"
         />
       </div>
     </section>

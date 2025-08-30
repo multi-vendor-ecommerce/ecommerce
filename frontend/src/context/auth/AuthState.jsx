@@ -16,9 +16,10 @@ const AuthState = ({ children }) => {
 
   const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
+  // Register Function
   const register = async (formData) => {
     setLoading(true);
     try {
@@ -32,21 +33,33 @@ const AuthState = ({ children }) => {
 
       if (data.success && data.data.authToken) {
         const role = data.data.role;
-
         const updatedTokens = { ...authTokens, [role]: data.data.authToken };
         const updatedPeople = { ...people, [role]: { role } };
-
         setAuthTokens(updatedTokens);
         setPeople(updatedPeople);
-
         localStorage.setItem(`${role}Token`, data.data.authToken);
 
-        return { success: true, role };
+        return {
+          success: true,
+          role,
+          message: data.message || "Registration successful.",
+          error: null
+        };
       } else {
-        return { success: false, error: data.message || "Registration failed" };
+        return {
+          success: false,
+          role: null,
+          message: null,
+          error: data.message || "Registration failed."
+        };
       }
     } catch (err) {
-      return { success: false, error: err.message || "Something went wrong" };
+      return {
+        success: false,
+        role: null,
+        message: null,
+        error: err.message || "Something went wrong."
+      };
     } finally {
       setLoading(false);
     }
@@ -66,23 +79,28 @@ const AuthState = ({ children }) => {
 
       if (data.success && data.data.authToken) {
         const role = data.data.role;
-
         const updatedTokens = { ...authTokens, [role]: data.data.authToken };
         const updatedPeople = { ...people, [role]: { role } };
-
         setAuthTokens(updatedTokens);
         setPeople(updatedPeople);
-
         localStorage.setItem(`${role}Token`, data.data.authToken);
 
-        return { success: true, role };
-      }
-      else {
-        return { success: false, error: data.message || "Login failed" };
+        return {
+          success: true,
+          role,
+          message: data.message || "Login successful.",
+        };
+      } else {
+        return {
+          success: false,
+          error: data.message || "Login failed."
+        };
       }
     } catch (err) {
-      console.error("Login error:", err);
-      return { success: false, error: err.message || "Something went wrong" };
+      return {
+        success: false,
+        error: err.message || "Something went wrong."
+      };
     } finally {
       setLoading(false);
     }
@@ -100,9 +118,22 @@ const AuthState = ({ children }) => {
 
       const data = await res.json();
 
-      return data;
+      if (data.success) {
+        return {
+          success: true,
+          message: data.message || "OTP sent! (Only valid for 5 minutes)",
+        };
+      } else {
+        return {
+          success: false,
+          error: data.message || "Failed to send OTP"
+        };
+      }
     } catch (err) {
-      return { success: false, error: "Something went wrong" };
+      return {
+        success: false,
+        error: err.message || "Something went wrong."
+      };
     } finally {
       setLoading(false);
     }
@@ -122,22 +153,28 @@ const AuthState = ({ children }) => {
 
       if (data.success && data.data.authToken) {
         const role = data.data.role;
-
         const updatedTokens = { ...authTokens, [role]: data.data.authToken };
         const updatedPeople = { ...people, [role]: { role } };
-
         setAuthTokens(updatedTokens);
         setPeople(updatedPeople);
-
         localStorage.setItem(`${role}Token`, data.data.authToken);
 
-        return { success: true, role };
-      }
-      else {
-        return { success: false, error: data.error || "OTP verification failed" };
+        return {
+          success: true,
+          role,
+          message: data.message || "OTP verified and login successful.",
+        };
+      } else {
+        return {
+          success: false,
+          error: data.message || "OTP verification failed."
+        };
       }
     } catch (err) {
-      return { success: false, error: "Something went wrong" };
+      return {
+        success: false,
+        error: err.message || "Something went wrong."
+      };
     } finally {
       setLoading(false);
     }

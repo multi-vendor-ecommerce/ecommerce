@@ -113,10 +113,16 @@ const CouponState = (props) => {
       });
 
       const data = await response.json();
-      if (data.success) {
-        setCoupons(coupons.filter(coupon => coupon._id !== id));
-        // setCoupons((prev) => prev.filter((coupon) => coupon._id !== id));
+
+      if (!response.ok || !data.success) {
+        return {
+          success: data.success,
+          message: data.message || "Failed to delete coupon.",
+        };
       }
+
+      setCoupons(coupons.filter(coupon => coupon._id !== id));
+      return { success: data.success, message: data.message || "Coupon deleted." };
     } catch (error) {
       console.error("Error deleting coupon:", error);
     }

@@ -31,7 +31,7 @@ const Dashboard = ({ summaryData, role = "admin" }) => {
 
   return (
     <section aria-label="Admin Dashboard" className="p-6 min-h-screen bg-gray-50">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8 bg-gray-200 pl-4 pr-3 py-2.5 rounded-xl">
+      <h1 className="text-2xl font-bold text-gray-800 mb-8 bg-gray-200 pl-4 pr-3 py-2.5 rounded-xl">
         {role === "admin" ? "Admin Dashboard" : "Vendor Dashboard"}
       </h1>
 

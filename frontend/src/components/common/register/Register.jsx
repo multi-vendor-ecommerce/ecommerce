@@ -6,6 +6,7 @@ import Stepper from "../Stepper";
 import StepperControls from "../StepperControls";
 import InputField from "../InputField";
 import { registerFields } from "./data/registerFields";
+import { toast } from "react-toastify";
 
 const Register = ({ registerRole }) => {
   const { register, loading } = useContext(AuthContext);
@@ -65,23 +66,23 @@ const Register = ({ registerRole }) => {
     setErrorMsg("");
     if (step === 1) {
       if (!form.name.trim() || !form.email.trim()) {
-        setErrorMsg("Name and Email are required.");
+        toast.error("Name and Email are required.");
         return;
       }
       // Email format validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(form.email.trim())) {
-        setErrorMsg("Please enter a valid email address.");
+        toast.error("Please enter a valid email address.");
         return;
       }
     }
     if (step === 2) {
       if (!form.password.trim() || !form.confirmPassword.trim()) {
-        setErrorMsg("Please enter and confirm your password.");
+        toast.error("Please enter and confirm your password.");
         return;
       }
       if (form.password !== form.confirmPassword) {
-        setErrorMsg("Passwords do not match.");
+        toast.error("Passwords do not match.");
         return;
       }
     }
@@ -90,7 +91,19 @@ const Register = ({ registerRole }) => {
       const { line1, city, state, country, pincode } = form.address;
 
       if (!line1.trim() || !city.trim() || !state.trim() || !country.trim() || !pincode.trim()) {
-        setErrorMsg("Please fill in all required address fields.");
+        toast.error("Please fill in all required address fields.");
+        return;
+      }
+      // Pincode validation: 6 digits, numbers only
+      const pincodeRegex = /^[1-9][0-9]{5}$/;
+      if (!pincodeRegex.test(pincode.trim())) {
+        toast.error("Please enter a valid 6-digit pincode.");
+        return;
+      }
+
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (form.phone && !phoneRegex.test(form.phone?.trim())) {
+        toast.error("Please enter a valid 10-digit phone number.");
         return;
       }
     }
@@ -106,22 +119,23 @@ const Register = ({ registerRole }) => {
     const { line1, city, state, country, pincode } = form.address;
 
     if (!form.phone.trim() || !line1.trim() || !city.trim() || !state.trim() || !country.trim() || !pincode.trim()) {
-      setErrorMsg("Please fill in all required address fields.");
+      toast.error("Please fill in all required address fields.");
       return;
     }
 
     if (form.role === "vendor") {
       if (!form.shopName.trim() || !form.gstNumber.trim()) {
-        setErrorMsg("Shop Name and GST Number are required for vendors.");
+        toast.error("Shop Name and GST Number are required for vendors.");
         return;
       }
     }
 
     const result = await register(form);
     if (result.success) {
-      navigate(redirectPath, { replace: true });
+      toast.success(result.message || "Registration successful!");
+      setTimeout(() => navigate(redirectPath, { replace: true }), 500);
     } else {
-      setErrorMsg(result.error || "Registration failed.");
+      toast.error(result.error || "Registration failed.");
     }
   };
 
@@ -162,14 +176,14 @@ const Register = ({ registerRole }) => {
     <section className="w-full bg-white min-h-screen lg:min-h-[80vh] flex items-center justify-between gap-10">
       <div className="w-full h-full lg:w-[45%] px-4 flex flex-col lg:justify-center items-center gap-2 lg:gap-4">
         <div className="w-full max-w-lg p-6">
-          <h2 className="text-3xl lg:text-5xl font-bold">Register</h2>
-          <p className="text-medium lg:text-lg font-semibold mt-2">
+          <h2 className="text-2xl lg:text-4xl font-bold">Register</h2>
+          <p className="text-medium lg:text-lg font-semibold mt-3">
             Join us and discover exclusive deals tailored just for you.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="w-full max-w-lg p-6 space-y-4">
-          {errorMsg && <p className="text-red-600 text-sm text-center">{errorMsg}</p>}
+          {/* Toast notifications will show errors/success, so no errorMsg display needed */}
 
           <Stepper
             className="flex justify-between items-center text-sm font-medium text-gray-700 gap-3 md:gap-1 mb-4"
@@ -241,7 +255,7 @@ const Register = ({ registerRole }) => {
         <img
           src={AuthSiderImg}
           alt="Register Illustration"
-          className={`w-[840px] rounded-3xl ${step === 3 ? "h-[860px]" : "h-[740px]"}`}
+          className={`w-[840px] rounded-3xl ${step === 3 ? "h-[820px]" : "h-[655px]"}`}
         />
       </div>
     </section>

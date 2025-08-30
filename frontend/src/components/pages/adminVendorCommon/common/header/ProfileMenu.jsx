@@ -28,7 +28,7 @@ const ProfileMenu = ({ person }) => {
 
       <div className="w-[90%] mx-auto h-[1px] bg-gray-300"></div>
 
-      <ul className="py-2 w-full text-black text-[16px] md:text-lg">
+      <ul className="py-2 w-full text-black text-base">
         <li className="px-4 mx-2 pt-2 pb-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer">
           <NavLink to={`/${person.role}/settings/profile`} className="flex items-center gap-2 hover:scale-105 transition duration-300">
             <FiUser size={22} className="text-xl font-semibold" />

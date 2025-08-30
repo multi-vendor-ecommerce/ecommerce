@@ -1,5 +1,5 @@
-const InputField = ({ label, name, type = "text", placeholder, value, onChange, required = false, title = "", disabled = false, textarea = false, className = "" }) => {
-  const baseClasses = "w-full rounded-xl px-3 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition duration-150";
+const InputField = ({ label, name, type = "text", min = 0, placeholder, value, onChange, required = false, title = "", disabled = false, textarea = false, className = "" }) => {
+  const baseClasses = "w-full rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition duration-150";
 
   // If disabled, make it look obvious
   const disabledClasses = disabled ? "bg-gray-100 cursor-not-allowed text-gray-500" : "bg-gray-200";
@@ -28,6 +28,7 @@ const InputField = ({ label, name, type = "text", placeholder, value, onChange, 
           value={value}
           placeholder={placeholder}
           title={title}
+          min={min}
           onChange={onChange}
           disabled={disabled}
           className={`${baseClasses} ${disabledClasses} ${className}`}

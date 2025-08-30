@@ -39,9 +39,9 @@ const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", hom
       {/* Logo */}
       <div className="flex items-center gap-3 mb-6">
         <div className="bg-black text-white py-1 px-4 rounded-full">
-          <span className="font-bold text-xl">{panelLabel[0]}</span>
+          <span className="font-bold text-lg">{panelLabel[0]}</span>
         </div>
-        <NavLink to={homePath} className="text-lg md:text-xl font-bold">
+        <NavLink to={homePath} className="text-lg font-bold">
           {panelLabel}
         </NavLink>
       </div>
@@ -49,7 +49,7 @@ const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", hom
       {/* Menu Sections */}
       {menuData.map((section) => (
         <div key={section.section} className="mb-6">
-          <p className="text-base text-gray-500 font-medium mb-2">{section.section}</p>
+          <p className="text-sm text-gray-500 font-medium mb-2">{section.section}</p>
           <ul>
             {section.items.map((item) => {
               const Icon = item.icon;
@@ -64,7 +64,7 @@ const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", hom
                     >
                       <div className="flex items-center gap-4 text-gray-700 hover:text-black">
                         <Icon className="text-2xl" />
-                        <span className="text-base">{item.label}</span>
+                        <span className="text-sm">{item.label}</span>
                       </div>
                       <FaChevronDown
                         className={`text-xs transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -83,12 +83,12 @@ const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", hom
                       }
                     >
                       <Icon className="text-2xl" />
-                      <span className="text-base">{item.label}</span>
+                      <span className="text-sm">{item.label}</span>
                     </NavLink>
                   )}
 
                   {item.expandable && isOpen && (
-                    <ul className="ml-6 mt-2 text-sm text-gray-600 space-y-2">
+                    <ul className="ml-6 mt-2 text-xs text-gray-600 space-y-2">
                       {item.children.map((child) => (
                         <li key={child.label}>
                           <NavLink

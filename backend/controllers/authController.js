@@ -165,13 +165,13 @@ export const loginPerson = async (req, res) => {
     // Find user by email
     const person = await Person.findOne({ email });
     if (!person) {
-      return res.status(400).json({ success: false, message: "Invalid credentials." });
+      return res.status(400).json({ success: false, message: "Invalid email or password. Try again." });
     }
 
     // Check password
     const isMatch = await bcrypt.compare(password, person.password);
     if (!isMatch) {
-      return res.status(400).json({ success: false, message: "Invalid credentials." });
+      return res.status(400).json({ success: false, message: "Invalid email or password. Try again." });
     }
 
     // JWT payload and token
