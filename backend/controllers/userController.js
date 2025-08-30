@@ -1,6 +1,5 @@
 import User from "../models/User.js";
 import Order from "../models/Order.js";
-import { validationResult } from 'express-validator';
 import buildQuery from "../utils/queryBuilder.js";
 
 export const getAllCustomers = async (req, res) => {

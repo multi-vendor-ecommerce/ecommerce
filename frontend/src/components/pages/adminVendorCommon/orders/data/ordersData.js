@@ -8,7 +8,7 @@ import { capitalize } from "../../../../../utils/capitalize";
 export const orderFilterFields = [
   {
     name: "search",
-    label: "Search by customer or vendor",
+    label: "Search by payment method",
     type: "text"
   },
   {

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Product from "../models/Products.js";
+import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { getShippingInfoForOrder } from "../utils/getShippingInfo.js";
 
@@ -110,6 +111,30 @@ export const createOrUpdateDraftOrder = async (req, res) => {
 };
 
 // ==========================
+// Get a Draft Order for a User
+// ==========================
+export const getUserDraftOrder = async (req, res) => {
+  try {
+    // Validate draft order ID
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: "Invalid draft order information." });
+    }
+
+    const userId = req.person.id;
+    const order = await Order.findOne({ _id: req.params.id, user: userId, orderStatus: "pending" })
+      .populate({ path: "orderItems.product", select: "title price images" });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Draft order not found." });
+    }
+
+    res.status(200).json({ success: true, message: "Draft order loaded.", order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Unable to load draft order.", error: err.message });
+  }
+};
+
+// ==========================
 // Get All Orders (role-based access & pagination)
 // ==========================
 export const getAllOrders = async (req, res) => {
@@ -122,8 +147,8 @@ export const getAllOrders = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid vendor information." });
     }
 
-    // Build query for status, paymentStatus, orderId for all roles
-    query = buildQuery(req.query, ["status", "paymentStatus", "orderId"]);
+    // Build query for status and paymentMethod only
+    query = buildQuery(req.query, ["paymentMethod"], "orderStatus");
 
     if (role === "customer") {
       query.user = req.person.id;
@@ -257,29 +282,5 @@ export const getOrderById = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: "Unable to load order.", error: err.message });
-  }
-};
-
-// ==========================
-// Get a Draft Order for a User
-// ==========================
-export const getUserDraftOrder = async (req, res) => {
-  try {
-    // Validate draft order ID
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({ success: false, message: "Invalid draft order information." });
-    }
-
-    const userId = req.person.id;
-    const order = await Order.findOne({ _id: req.params.id, user: userId, orderStatus: "pending" })
-      .populate({ path: "orderItems.product", select: "title price images" });
-
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Draft order not found." });
-    }
-
-    res.status(200).json({ success: true, message: "Draft order loaded.", order });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Unable to load draft order.", error: err.message });
   }
 };

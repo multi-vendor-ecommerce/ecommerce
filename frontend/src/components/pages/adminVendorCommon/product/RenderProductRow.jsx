@@ -36,6 +36,14 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
         <NavLink to={`/${role}/product-details/${p._id}`}>#{p._id || "N/A"}</NavLink>
       </td>
 
+      {/* Brand */}
+      <td
+        className="px-6 py-4 min-w-[180px] hover:scale-105 transition duration-150"
+        title={p.brand || "Unbranded"}
+      >
+        {p.brand || "Unbranded"}
+      </td>
+
       {/* Category */}
       <td
         className="px-6 py-4 min-w-[180px] hover:scale-105 transition duration-150"

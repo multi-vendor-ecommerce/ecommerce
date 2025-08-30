@@ -1,16 +1,18 @@
 // ==========================
 // Build MongoDB Query from Parameters
 // ==========================
-const buildQuery = (params, searchFields = []) => {
+const buildQuery = (params, searchFields = [], statusField = "status") => {
   const { search, date, status } = params;
   const query = {};
 
-  // Generic Search
+  // Only apply $regex to string fields
   if (search && searchFields.length > 0) {
     const regex = new RegExp(search, "i");
-    query.$or = searchFields.map(field => ({
-      [field]: { $regex: regex }
-    }));
+    query.$or = searchFields
+      .filter(field => !field.includes(".") && !field.endsWith("Id")) // crude filter, adjust as needed
+      .map(field => ({
+        [field]: { $regex: regex }
+      }));
   }
 
   // Date filter
@@ -24,9 +26,9 @@ const buildQuery = (params, searchFields = []) => {
     query.createdAt = { $gte: start, $lte: end };
   }
 
-  // Handle both boolean-style "status" and string "status"
+  // Flexible status field
   if (status) {
-    query.status = status;
+    query[statusField] = status;
   }
 
   return query;

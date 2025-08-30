@@ -29,17 +29,17 @@ export default function Products({ heading, role = "admin" }) {
     }
   }, [page, itemsPerPage, isTopSellingPage]);
 
-  const fetchPaginatedProducts = async (pg = 1, limit = itemsPerPage) => {
-    const result = await getAllProducts({ ...filters, page: pg, limit });
+  const fetchPaginatedProducts = async (pg = 1, limit = itemsPerPage, customFilters = filters) => {
+    const result = await getAllProducts({ ...customFilters, page: pg, limit });
     if (result?.products) {
       setProducts(result.products);
       setTotalCount(result.total);
     }
   };
 
-  const fetchTopSelling = async (pg = 1, limit = itemsPerPage) => {
+  const fetchTopSelling = async (pg = 1, limit = itemsPerPage, customFilters = filters) => {
     const skip = (pg - 1) * limit;
-    const result = await getTopSellingProducts({ skip, limit });
+    const result = await getTopSellingProducts({ ...customFilters, skip, limit });
     if (result?.products) {
       setProducts(result.products);
       setTotalCount(result.total);
@@ -63,10 +63,11 @@ export default function Products({ heading, role = "admin" }) {
     const reset = { search: "", status: "" };
     setFilters(reset);
     setPage(1);
+
     if (isTopSellingPage) {
-      fetchTopSelling(1, itemsPerPage);
+      fetchTopSelling(1, itemsPerPage, reset);
     } else {
-      fetchPaginatedProducts(1, itemsPerPage);
+      fetchPaginatedProducts(1, itemsPerPage, reset);
     }
   };
 
@@ -80,7 +81,7 @@ export default function Products({ heading, role = "admin" }) {
   };
 
   const headers = [
-    "Product", "ID", "Category", "Price", "Units Sold",
+    "Product", "ID", "Brand", "Category", "Price", "Units Sold",
     "Revenue", "Approval Status", "Sales Progress", "Actions"
   ];
 
@@ -93,6 +94,11 @@ export default function Products({ heading, role = "admin" }) {
       </section>
     );
   }
+
+  // Filter out status field for top selling page
+  const filterFields = isTopSellingPage
+    ? productFilterFields.filter(f => f.name !== "status")
+    : productFilterFields;
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
@@ -112,7 +118,7 @@ export default function Products({ heading, role = "admin" }) {
       <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mt-4 mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800">{heading}</h2>
         <FilterBar
-          fields={productFilterFields}
+          fields={filterFields}
           values={filters}
           onChange={handleChange}
           onApply={handleApply}

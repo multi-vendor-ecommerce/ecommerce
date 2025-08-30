@@ -7,7 +7,7 @@ import { toTitleCase } from "../utils/titleCase.js";
 // ==========================
 export const getAllVendors = async (req, res) => {
   try {
-    const query = buildQuery(req.query, ["name", "email", "shopName", "status"]);
+    const query = buildQuery(req.query, ["name", "email", "shopName"]);
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.max(parseInt(req.query.limit) || 10, 1);
     const skip = (page - 1) * limit;

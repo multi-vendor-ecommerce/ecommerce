@@ -51,7 +51,7 @@ const TopProducts = () => {
           {/* Table of Products */}
           <TabularData
             headers={[
-              "Product", "ID", "Category", "Price", "Units Sold",
+              "Product", "ID", "Brand", "Category", "Price", "Units Sold",
               "Revenue", "Approval Status", "Sales Progress", "Actions"
             ]}
             data={productsToShow}

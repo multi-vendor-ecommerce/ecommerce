@@ -65,7 +65,7 @@ const OrderState = ({ children }) => {
   }, [host]);
 
   // Fetch All Orders (Admin/Vendor)
-  const getAllOrders = async ({ search = "", status = "", vendorId = "", page = 1, limit = 10 } = {}) => {
+  const getAllOrders = async ({ search = "", status = "", date = "", vendorId = "", page = 1, limit = 10 } = {}) => {
     setLoading(true);
     try {
       const { role } = getRoleInfo();
@@ -73,6 +73,7 @@ const OrderState = ({ children }) => {
       const params = new URLSearchParams({ page, limit });
       if (search.trim()) params.append("search", search);
       if (status) params.append("status", status);
+      if (date) params.append("date", date);
 
       if (role === "admin" && vendorId) params.append("vendorId", vendorId);
 

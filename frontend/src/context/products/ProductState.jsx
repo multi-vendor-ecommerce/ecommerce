@@ -79,10 +79,11 @@ const ProductState = ({ children }) => {
   };
 
   // Top Selling Products
-  const getTopSellingProducts = async ({ limit = 10, skip = 0 } = {}) => {
+  const getTopSellingProducts = async ({ search = "", limit = 10, skip = 0 } = {}) => {
     const { role } = getRoleInfo();
 
     const params = new URLSearchParams({ limit, skip });
+    if (search.trim()) params.append("search", search);
 
     let endpoint;
     if (role === "customer") endpoint = "/api/products/top-products";

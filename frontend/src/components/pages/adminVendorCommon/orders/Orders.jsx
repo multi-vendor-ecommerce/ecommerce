@@ -12,7 +12,7 @@ import FilterBar from "../../../common/FilterBar";
 export default function Orders({ role = "admin" }) {
   const { orders, getAllOrders, loading, totalCount, } = useContext(OrderContext);
 
-  const [filters, setFilters] = useState({ search: "", status: "" });
+  const [filters, setFilters] = useState({ search: "", status: "", date: "" });
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 

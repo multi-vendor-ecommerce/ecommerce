@@ -1,7 +1,7 @@
 export const productFilterFields = [
   {
     name: "search",
-    label: "Search by product name or category",
+    label: "Search by product name or brand",
     type: "text"
   },
   {

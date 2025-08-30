@@ -7,7 +7,7 @@ import { toTitleCase } from "../utils/titleCase.js";
 // ==========================
 export const getAllProducts = async (req, res) => {
   try {
-    const query = buildQuery(req.query, ["title"]);
+    const query = buildQuery(req.query, ["title", "brand"]);
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
@@ -57,29 +57,33 @@ export const getAllProducts = async (req, res) => {
 // ==========================
 export const getTopSellingProducts = async (req, res) => {
   try {
+    // Accept query params for search/filter
+    let query = buildQuery(req.query, ["title", "brand"]);
     const limit = parseInt(req.query.limit) || 100;
     const role = req.person?.role;
 
-    let filter = { status: "approved" };
+    // Always show only approved products
+    query.status = "approved";
     if (role === "vendor") {
-      filter.createdBy = req.person.id;
+      query.createdBy = req.person.id;
     }
 
-    let query = Product.find(filter)
+    let baseQuery = Product.find(query)
       .sort({ unitsSold: -1 })
       .limit(limit)
       .populate("category", "name")
       .populate("createdBy", "name email shopName role");
 
     if (role !== "admin") {
-      query = query.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
+      baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
     }
 
     const [products, total] = await Promise.all([
-      query,
-      Product.countDocuments(filter),
+      baseQuery,
+      Product.countDocuments(query),
     ]);
 
+    // Category stats calculation
     const categoryStatsMap = new Map();
 
     for (const product of products) {
@@ -135,17 +139,17 @@ export const getProductById = async (req, res) => {
     const isAdmin = req.person?.role === "admin";
     const isVendor = req.person?.role === "vendor";
 
-    let productQuery = Product.findById(req.params.id)
+    let baseQuery = Product.findById(req.params.id)
       .populate("category", "name")
       .populate("createdBy", "name email shopName role");
 
     if (!isAdmin) {
-      productQuery = productQuery.select(
+      baseQuery = baseQuery.select(
         "title description images price discount category tags freeDelivery rating totalReviews colors sizes"
       );
     }
 
-    const [product] = await Promise.all([productQuery]);
+    const [product] = await Promise.all([baseQuery]);
 
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found." });

@@ -4,15 +4,7 @@ import VendorContext from "../../../../context/vendors/VendorContext";
 import OrderContext from "../../../../context/orders/OrderContext";
 import TabularData from "../../../common/layout/TabularData";
 import { FiEdit } from "react-icons/fi";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import StatusChip from "../../../common/helperComponents/StatusChip";
 import { getVendorCardData } from "./data/vendorProfileCards";
 import { RenderOrderRow } from "../../adminVendorCommon/orders/RenderOrderRow";
@@ -40,7 +32,7 @@ const VendorProfile = () => {
   // 2. Fetch vendor orders *after* vendor state is set
   useEffect(() => {
     if (vendor?._id) {
-      getAllOrders({ vendorId: vendor._id });
+      getAllOrders({ vendorId: vendor?._id });
     }
   }, [vendor?._id]);
 
