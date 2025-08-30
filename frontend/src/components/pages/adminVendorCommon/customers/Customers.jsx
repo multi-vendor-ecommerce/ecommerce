@@ -31,10 +31,6 @@ const Customers = ({}) => {
     fetchPaginatedCustomers(1, itemsPerPage);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") handleApply();
-  };
-
   const handleClear = () => {
     const reset = { search: "", date: "" };
     setFilters(reset);
@@ -78,7 +74,6 @@ const Customers = ({}) => {
           onChange={handleChange}
           onApply={handleApply}
           onClear={handleClear}
-          onKeyDown={handleKeyDown}
         />
       </div>
 

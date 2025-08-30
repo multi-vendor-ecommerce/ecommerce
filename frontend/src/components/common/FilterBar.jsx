@@ -2,7 +2,11 @@ import { FiFilter } from "react-icons/fi";
 import { BsXCircle } from "react-icons/bs";
 import CustomSelect from "./layout/CustomSelect";
 
-const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, onKeyDown }) => {
+const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear }) => {
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") onApply();
+  };
+
   return (
     <div className="flex flex-wrap gap-4 items-center">
       <div className="flex flex-wrap gap-4 w-full md:w-auto">
@@ -19,7 +23,7 @@ const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, onKey
                   value={value}
                   placeholder={label}
                   onChange={(e) => onChange(name, e.target.value)}
-                  onKeyDown={onKeyDown}
+                  onKeyDown={handleKeyDown}
                   className="w-full h-full lg:min-w-[300px] bg-white px-3 py-2 border border-gray-300 rounded-xl shadow-sm text-sm md:text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 hover:border-blue-300 transition-all duration-150"
                 />
               </div>

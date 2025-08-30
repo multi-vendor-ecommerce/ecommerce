@@ -70,10 +70,6 @@ export default function Products({ heading, role = "admin" }) {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") handleApply();
-  };
-
   const handlePageChange = (pg) => {
     setPage(pg);
   };
@@ -121,7 +117,6 @@ export default function Products({ heading, role = "admin" }) {
           onChange={handleChange}
           onApply={handleApply}
           onClear={handleClear}
-          onKeyDown={handleKeyDown}
         />
       </div>
 

@@ -77,11 +77,7 @@ export const createCategory = async (req, res) => {
       category,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Could not create category.",
-      error: err.message,
-    });
+    return res.status(500).json({ success: false, message: "Could not create category.", error: err.message });
   }
 };
 
@@ -93,10 +89,7 @@ export const getCategories = async (req, res) => {
     const parentId = req.query.parentId || null;
 
     if (parentId && !mongoose.Types.ObjectId.isValid(parentId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid parent category.",
-      });
+      return res.status(400).json({ success: false, message: "Invalid parent category." });
     }
 
     const filter = {};
@@ -114,10 +107,6 @@ export const getCategories = async (req, res) => {
       categories
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Could not fetch categories.",
-      error: error.message
-    });
+    return res.status(500).json({ success: false, message: "Could not fetch categories.", error: error.message });
   }
 };

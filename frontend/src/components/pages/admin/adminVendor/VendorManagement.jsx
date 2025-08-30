@@ -54,10 +54,6 @@ const VendorManagement = ({ heading }) => {
     fetchPaginatedVendors(1, itemsPerPage);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") handleApply();
-  };
-
   const handlePageChange = (pg) => {
     fetchPaginatedVendors(pg, itemsPerPage);
   };
@@ -100,7 +96,6 @@ const VendorManagement = ({ heading }) => {
           onChange={handleChange}
           onApply={handleApply}
           onClear={handleClear}
-          onKeyDown={handleKeyDown}
         />
       </div>
 

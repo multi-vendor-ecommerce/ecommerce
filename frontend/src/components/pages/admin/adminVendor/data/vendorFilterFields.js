@@ -5,7 +5,7 @@ export const vendorFilterFields = [
     label: "Status",
     type: "select",
     options: [
-      { value: "", label: "All Statuses" },
+      { value: "", label: "All" },
       { value: "active", label: "Active" },
       { value: "suspended", label: "Suspended" },
       { value: "pending", label: "Pending" },

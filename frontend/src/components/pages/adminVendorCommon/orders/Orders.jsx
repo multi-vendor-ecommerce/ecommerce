@@ -36,12 +36,6 @@ export default function Orders({ role = "admin" }) {
     getAllOrders({ ...cleared, page: 1, limit: itemsPerPage });
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleApply();
-    }
-  };
-
   const handlePageChange = (pg) => {
     setPage(pg);
   };
@@ -78,7 +72,6 @@ export default function Orders({ role = "admin" }) {
             onChange={handleChange}
             onApply={handleApply}
             onClear={handleClear}
-            onKeyDown={handleKeyDown}
           />
         </div>
       </div>
