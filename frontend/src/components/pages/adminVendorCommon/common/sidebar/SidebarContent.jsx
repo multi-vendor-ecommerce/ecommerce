@@ -35,13 +35,13 @@ const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", hom
   if (!shouldShowSidebar) return null;
 
   return (
-    <aside className="w-full sticky top-0 h-full lg:h-screen overflow-y-auto bg-white p-5 shadow-md text-black border-r border-gray-200">
+    <aside className="w-full sticky top-0 h-full lg:h-screen overflow-y-auto bg-white pl-3 pr-1 py-5 shadow-md text-black border-r border-gray-200">
       {/* Logo */}
       <div className="flex items-center gap-3 mb-6">
         <div className="bg-black text-white py-1 px-4 rounded-full">
           <span className="font-bold text-xl">{panelLabel[0]}</span>
         </div>
-        <NavLink to={homePath} className="text-xl font-bold">
+        <NavLink to={homePath} className="text-lg md:text-xl font-bold">
           {panelLabel}
         </NavLink>
       </div>
@@ -49,7 +49,7 @@ const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", hom
       {/* Menu Sections */}
       {menuData.map((section) => (
         <div key={section.section} className="mb-6">
-          <p className="text-gray-500 font-medium mb-2">{section.section}</p>
+          <p className="text-base text-gray-500 font-medium mb-2">{section.section}</p>
           <ul>
             {section.items.map((item) => {
               const Icon = item.icon;
@@ -64,7 +64,7 @@ const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", hom
                     >
                       <div className="flex items-center gap-4 text-gray-700 hover:text-black">
                         <Icon className="text-2xl" />
-                        <span>{item.label}</span>
+                        <span className="text-base">{item.label}</span>
                       </div>
                       <FaChevronDown
                         className={`text-xs transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -83,7 +83,7 @@ const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", hom
                       }
                     >
                       <Icon className="text-2xl" />
-                      <span>{item.label}</span>
+                      <span className="text-base">{item.label}</span>
                     </NavLink>
                   )}
 
