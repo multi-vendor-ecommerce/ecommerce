@@ -6,7 +6,8 @@ const OrderState = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
 
-  const host = "http://localhost:5000";
+  const host = import.meta.env.VITE_BACKEND_URL;
+  // const host = "http://localhost:5000";
 
   // Utility to get role
   const getRoleInfo = () => {

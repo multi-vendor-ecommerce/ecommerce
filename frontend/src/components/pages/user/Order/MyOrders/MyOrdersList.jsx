@@ -11,7 +11,7 @@ const MyOrdersList = () => {
   const { orders, getAllOrders, loading } = useContext(OrderContext);
 
   //  Filters & Pagination
-  const [filters, setFilters] = useState({ status: "", date: "" });
+  const [filters, setFilters] = useState({ search: "", status: "", date: "" });
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -33,16 +33,10 @@ const MyOrdersList = () => {
   };
 
   const handleClear = () => {
-    const cleared = { status: "", date: "" };
+    const cleared = { search: "", status: "", date: "" };
     setFilters(cleared);
     setPage(1);
     getAllOrders({ ...cleared, page: 1, limit: itemsPerPage });
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleApply();
-    }
   };
 
   const goToDetails = (orderId) => {
@@ -65,7 +59,6 @@ const MyOrdersList = () => {
           onChange={handleChange}
           onApply={handleApply}
           onClear={handleClear}
-          onKeyDown={handleKeyDown}
         />
       </div>
 

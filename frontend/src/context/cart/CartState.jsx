@@ -5,8 +5,8 @@ const CartState = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // const host = import.meta.env.VITE_BACKEND_URL;
-  const host = "http://localhost:5000";
+  const host = import.meta.env.VITE_BACKEND_URL;
+  // const host = "http://localhost:5000";
 
   // Fetching cart items
   const getCart = async () => {
