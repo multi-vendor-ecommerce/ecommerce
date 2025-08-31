@@ -76,17 +76,9 @@ function UserHeader() {
       : "User";
 
   return (
-    <header className="sticky top-0 bg-white/90 backdrop-blur-sm z-50">
+    <header className="sticky top-0 bg-gradient-to-br from-green-50 via-white to-green-100 z-40 shadow-sm py-1">
       <div className=" lg:px-16">
         <div className="container mx-auto px-4 flex items-center justify-between gap-4 flex-wrap">
-          {/* Logo */}
-          {/* <Link
-            to="/"
-            className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap"
-          >
-            <span className="text-user-dark">NOAH</span>PLANET
-          </Link> */}
-
           <Link
             to="/"
             className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap"

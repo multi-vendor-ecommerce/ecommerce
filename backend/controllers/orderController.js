@@ -284,3 +284,30 @@ export const getOrderById = async (req, res) => {
     res.status(500).json({ success: false, message: "Unable to load order.", error: err.message });
   }
 };
+
+export const cancelOrder = async (req, res) => {
+  try {
+    const { id } = req.params; 
+    const userId = req.person.id;
+    
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+    if (order.user.toString() !== userId) {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+
+    // Only allow cancel if status is pending or processing
+    if (!["pending", "processing"].includes(order.orderStatus)) {
+      return res.status(400).json({ success: false, message: "Order cannot be cancelled at this stage" });
+    }
+
+    order.orderStatus = "cancelled";
+    await order.save();
+
+    res.json({ success: true, message: "Order cancelled successfully", order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};

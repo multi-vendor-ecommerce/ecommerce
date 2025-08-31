@@ -7,7 +7,7 @@ import HeroSlider from '../../../common/HeroSlider';
 
 export default function Home() {
   return (
-    <div className="bg-[#F9F7FC]">
+    <div className="bg-gradient-to-br from-green-50 via-white to-green-100">
       <CategorySection  />
       <HeroSlider banners={SliderData} />
       <ProductSection />

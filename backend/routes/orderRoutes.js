@@ -1,7 +1,7 @@
 import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
-import { createOrUpdateDraftOrder, getAllOrders, getOrderById, getUserDraftOrder } from "../controllers/orderController.js";
+import { createOrUpdateDraftOrder, getAllOrders, getOrderById, getUserDraftOrder, cancelOrder } from "../controllers/orderController.js";
 
 const router = express.Router();
 
@@ -29,6 +29,8 @@ router.get("/", verifyToken, authorizeRoles("customer"), getAllOrders);
 // Desc: Create or update draft order (customer only)
 router.post("/create-draft", verifyToken, authorizeRoles("customer"), createOrUpdateDraftOrder);
 
+router.patch("/cancel/:id", verifyToken, authorizeRoles("customer"), cancelOrder);
+
 // ROUTE 7: GET /api/orders/draft/:id
 // Desc: Get a draft order for the logged-in customer
 router.get("/draft/:id", verifyToken, authorizeRoles("customer"), getUserDraftOrder);
@@ -36,5 +38,7 @@ router.get("/draft/:id", verifyToken, authorizeRoles("customer"), getUserDraftOr
 // ROUTE 8: GET /api/orders/:id
 // Desc: Get specific order details by order ID (customer)
 router.get("/:id", verifyToken, authorizeRoles("customer"), getOrderById);
+
+
 
 export default router;

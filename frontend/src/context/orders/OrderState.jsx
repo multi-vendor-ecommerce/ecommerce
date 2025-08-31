@@ -119,10 +119,10 @@ const OrderState = ({ children }) => {
     const headers = {
       "Content-Type": "application/json",
       "auth-token": role === "customer"
-          ? localStorage.getItem("customerToken")
-          : role === "admin"
-            ? localStorage.getItem("adminToken")
-            : localStorage.getItem("vendorToken"),
+        ? localStorage.getItem("customerToken")
+        : role === "admin"
+          ? localStorage.getItem("adminToken")
+          : localStorage.getItem("vendorToken"),
     };
     try {
       const res = await fetch(`${host}${endpoint}`, {
@@ -138,6 +138,24 @@ const OrderState = ({ children }) => {
     }
   };
 
+  // Cancel Order (Customer)
+  const cancelOrder = async (orderId) => {
+    const token = localStorage.getItem("customerToken");
+    try {
+      const res = await fetch(`${host}/api/orders/cancel/${orderId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token,
+        },
+      });
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      return { success: false, message: error.message || "Failed to cancel order"};
+    }
+  };
+
   return (
     <OrderContext.Provider value={{
       loading,
@@ -147,6 +165,7 @@ const OrderState = ({ children }) => {
       getAllOrders,
       getOrderById,
       getUserDraftOrderById,
+      cancelOrder
     }}>
       {children}
     </OrderContext.Provider>

@@ -47,7 +47,7 @@ const AccordionItem = ({
 
   return (
     <div>
-      <div className="flex justify-between items-center py-2 px-3 hover:bg-gray-200 rounded cursor-pointer select-none">
+      <div className="flex justify-between items-center py-2 px-3 hover:bg-[#5BA50F]rounded cursor-pointer select-none">
         <span onClick={handleNameClick} title={category.name} className="flex-1">
           {category.name}
         </span>
@@ -134,7 +134,7 @@ const CategorySidebar = ({
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 z-60 bg-black/20"
+          className="fixed inset-0  z-[9999] bg-black/20"
           onClick={onClose}
           role="button"
           tabIndex={0}
