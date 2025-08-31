@@ -11,6 +11,7 @@ import PersonState from "./context/person/PersonState";
 import PaymentState from "./context/paymentContext/PaymentState";
 import AddressState from "./context/shippingAddress/AddressState";
 import ImageState from "./context/images/ImageState";
+import WishlistState from "./context/wishlist/WishlistState";
 
 // Person components
 import Admin from "./components/pages/admin/Admin";
@@ -31,29 +32,31 @@ function App() {
     <>
       <AuthState>
         <AddressState>
-          <ImageState>
-            <PersonState>
-              <OrderState>
-                <PaymentState>
-                  <CartState>
-                    <CouponState>
-                      <UserState>
-                        <CategoryState>
-                          <VendorState>
-                            <ProductState>
-                              <Router>
-                                <AppRoutes />
-                              </Router>
-                            </ProductState>
-                          </VendorState>
-                        </CategoryState>
-                      </UserState>
-                    </CouponState>
-                  </CartState>
-                </PaymentState>
-              </OrderState>
-            </PersonState>
-          </ImageState>
+          <WishlistState>
+            <ImageState>
+              <PersonState>
+                <OrderState>
+                  <PaymentState>
+                    <CartState>
+                      <CouponState>
+                        <UserState>
+                          <CategoryState>
+                            <VendorState>
+                              <ProductState>
+                                <Router>
+                                  <AppRoutes />
+                                </Router>
+                              </ProductState>
+                            </VendorState>
+                          </CategoryState>
+                        </UserState>
+                      </CouponState>
+                    </CartState>
+                  </PaymentState>
+                </OrderState>
+              </PersonState>
+            </ImageState>
+          </WishlistState>
         </AddressState>
       </AuthState>
     </>

@@ -3,10 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import React, { useState, useContext, useEffect, useRef } from "react";
 import CartContext from "../../../../context/cart/CartContext";
 import PersonContext from "../../../../context/person/PersonContext";
+import WishlistContext from "../../../../context/wishlist/WishlistContext"; import { FaHeart } from "react-icons/fa";
 
 function UserHeader() {
   const { cart } = useContext(CartContext);
   const { person, getCurrentPerson } = useContext(PersonContext);
+  const { wishlist, getWishlist } = useContext(WishlistContext);
 
   const [cartItemCount, setCartItemCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,7 +24,7 @@ function UserHeader() {
     }
   };
 
-  // ✅ Update token when storage changes
+  //  Update token when storage changes
   useEffect(() => {
     const onStorageChange = () => {
       setToken(localStorage.getItem("customerToken"));
@@ -31,12 +33,15 @@ function UserHeader() {
     return () => window.removeEventListener("storage", onStorageChange);
   }, []);
 
-  // ✅ Fetch current user when logged in
+  //  Fetch current user when logged in
   useEffect(() => {
-    if (token) getCurrentPerson();
+    if (token) {
+      getCurrentPerson();
+      getWishlist();
+    }
   }, [token]);
 
-  // ✅ Close dropdown on outside click
+  //  Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -47,7 +52,7 @@ function UserHeader() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ Count cart items
+  // Count cart items
   useEffect(() => {
     setCartItemCount(cart.reduce((count, item) => count + item.quantity, 0));
   }, [cart]);
@@ -86,8 +91,8 @@ function UserHeader() {
             to="/"
             className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap"
           >
-          <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-19 sm:h-17 rounded" />
-          </Link> 
+            <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-19 sm:h-17 rounded" />
+          </Link>
 
           {/* Desktop Search */}
           <div className="hidden lg:flex flex-1 max-w-xl">
@@ -121,7 +126,7 @@ function UserHeader() {
                 {/* Profile Icon */}
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 hover:text-user-primary focus:outline-none cursor-pointera"
+                  className="flex items-center gap-2 hover:text-user-primary focus:outline-none cursor-pointer"
                 >
                   <div className="bg-user-primary text-white rounded-full w-9 h-9 flex items-center justify-center shadow-md cursor-pointer">
                     {displayName[0].toUpperCase()}
@@ -160,9 +165,35 @@ function UserHeader() {
               </div>
             )}
 
+            {/* Wishlist */}
+            <Link
+              to={token ? "/wishlist" : "#"}
+              onClick={(e) => {
+                if (!token) {
+                  e.preventDefault();
+                  navigate("/login/user");
+                }
+              }}
+              className="relative bg-pink-100 p-3 rounded-full hover:bg-pink-200 transition-colors"
+              aria-label={`Wishlist with ${wishlist.length} items`}
+            >
+              <FaHeart className="text-2xl cursor-pointer hover:text-pink-600" />
+              {token && wishlist.length > 0 && (
+                <span className="absolute top-0 right-0 bg-red-600 text-white rounded-full text-xs px-1.5 py-0.5">
+                  {wishlist.length}
+                </span>
+              )}
+            </Link>
+
             {/* Cart */}
             <Link
-              to="/cart"
+              to={token ? "/cart" : "#"}
+              onClick={(e) => {
+                if (!token) {
+                  e.preventDefault();
+                  navigate("/login/user");
+                }
+              }}
               className="relative bg-purple-100 p-3 rounded-full hover:bg-purple-200 transition-colors"
               aria-label={`Cart with ${cartItemCount} items`}
             >
@@ -174,6 +205,7 @@ function UserHeader() {
               )}
             </Link>
           </div>
+
         </div>
 
         {/* Mobile Search */}

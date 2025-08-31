@@ -8,9 +8,9 @@ import BackButton from "../../../common/layout/BackButton";
 import ReadMoreLess from "../../../common/ReadMoreLess";
 import { validateAndAddToCart } from "../Utils/cartHelpers";
 import { getDecryptedProductIdFromURL } from "../Utils/urlUtils";
-import { encryptData } from "../Utils/Encryption";
 import { getFinalPrice } from "../Utils/priceUtils";
 import OrderContext from "../../../../context/orders/OrderContext";
+import WishlistButton from "../../../common/WishlistButton";
 
 const ProductDetails = () => {
   // Contexts
@@ -288,6 +288,7 @@ const ProductDetails = () => {
             >
               {isLoading ? "Adding..." : "Add to Cart"}
             </button>
+            <WishlistButton productId={productDetails._id} />
           </div>
 
           <BackButton />

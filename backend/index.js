@@ -17,6 +17,7 @@ import orderRoutes from "./routes/orderRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import shippingAddressRoutes from "./routes/shippingAddressRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
+import wishlistRoutes from "./routes/wishlistRoutes.js";
 
 // ==========================
 // Connect to Database
@@ -60,7 +61,8 @@ const apiRoutes = [
   { path: "orders", route: orderRoutes },
   { path: "payment", route: paymentRoutes },
   { path: "shipping-address", route: shippingAddressRoutes },
-  { path: "images", route: imageRoutes }
+  { path: "images", route: imageRoutes },
+  { path: "wishlist", route: wishlistRoutes }
 ];
 
 apiRoutes.forEach(({ path, route }) => app.use(`/api/${path}`, route));

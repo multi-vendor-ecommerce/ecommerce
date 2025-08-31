@@ -13,6 +13,7 @@ import ProtectedRoute from "../../common/ProtectedRoute";
 import OrderSummary from "./Order/OrderSummary";
 import MyOrdersList from "./Order/MyOrders/MyOrdersList";
 import MyOrderDetails from "./Order/MyOrders/MyOrderDetails";
+import WishlistPage from "./Wishlist/WishlistPage";
 
 export default function User() {
   return (
@@ -58,7 +59,7 @@ export default function User() {
           }
         />
 
-        <Route 
+        <Route
           path="/my-orders/:id"
           element={
             <ProtectedRoute>
@@ -66,6 +67,11 @@ export default function User() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/wishlist" element={
+          <ProtectedRoute>
+            <WishlistPage />
+          </ProtectedRoute>} />
       </Routes>
       {/* <UserFooter /> */}
     </>

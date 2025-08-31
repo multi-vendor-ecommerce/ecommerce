@@ -2,6 +2,7 @@ import { FaStar } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { encryptData } from "../Utils/Encryption";
 import { getFinalPrice } from "../Utils/priceUtils";
+import WishlistButton from "../../../common/WishlistButton";
 
 export default function ProductGrid({ products, secretKey }) {
   const navigateTo = useNavigate();
@@ -24,10 +25,10 @@ export default function ProductGrid({ products, secretKey }) {
       {products.map((product) => (
         <div
           key={product._id}
-          className="cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100 flex flex-col"
+          className="cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100 flex flex-col relative"
         >
           <div
-            className="aspect-square rounded-t-xl overflow-hidden bg-gray-50"
+            className="aspect-square rounded-t-xl overflow-hidden bg-gray-50 relative"
             onClick={() => handleProductClick(product._id)}
           >
             <img
@@ -36,8 +37,16 @@ export default function ProductGrid({ products, secretKey }) {
               className="w-full h-full object-cover"
               loading="lazy"
             />
+
+            <div
+              className="absolute top-2 right-2 z-10"
+              onClick={(e) => e.stopPropagation()} 
+            >
+              <WishlistButton productId={product._id} />
+            </div>
           </div>
 
+          {/* Product Content */}
           <div className="flex flex-col flex-grow p-4">
             <h3
               className="font-semibold text-base sm:text-lg text-gray-900 truncate cursor-pointer"
