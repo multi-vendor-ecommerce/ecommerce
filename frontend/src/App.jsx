@@ -12,6 +12,7 @@ import PaymentState from "./context/paymentContext/PaymentState";
 import AddressState from "./context/shippingAddress/AddressState";
 import ImageState from "./context/images/ImageState";
 import WishlistState from "./context/wishlist/WishlistState";
+import Toastify from "./components/common/Toastify";
 
 // Person components
 import Admin from "./components/pages/admin/Admin";
@@ -29,38 +30,45 @@ import VendorRegister from "./components/common/register/VendorRegister";
 
 function App() {
   return (
-    <>
-      <AuthState>
+    <AppProviders>
+      <Router>
+        <Toastify />
+        <AppRoutes />
+      </Router>
+    </AppProviders>
+  );
+}
+
+function AppProviders({ children }) {
+  return (
+    <AuthState>
+      <WishlistState>
         <AddressState>
-          <WishlistState>
-            <ImageState>
-              <PersonState>
-                <OrderState>
-                  <PaymentState>
-                    <CartState>
-                      <CouponState>
-                        <UserState>
-                          <CategoryState>
-                            <VendorState>
-                              <ProductState>
-                                <Router>
-                                  <AppRoutes />
-                                </Router>
-                              </ProductState>
-                            </VendorState>
-                          </CategoryState>
-                        </UserState>
-                      </CouponState>
-                    </CartState>
-                  </PaymentState>
-                </OrderState>
-              </PersonState>
-            </ImageState>
-          </WishlistState>
+          <ImageState>
+            <PersonState>
+              <OrderState>
+                <PaymentState>
+                  <CartState>
+                    <CouponState>
+                      <UserState>
+                        <CategoryState>
+                          <VendorState>
+                            <ProductState>
+                              {children}
+                            </ProductState>
+                          </VendorState>
+                        </CategoryState>
+                      </UserState>
+                    </CouponState>
+                  </CartState>
+                </PaymentState>
+              </OrderState>
+            </PersonState>
+          </ImageState>
         </AddressState>
-      </AuthState>
-    </>
-  )
+      </WishlistState>
+    </AuthState>
+  );
 }
 
 function AppRoutes() {

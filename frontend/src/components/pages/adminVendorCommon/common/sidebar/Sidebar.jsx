@@ -12,7 +12,7 @@ const Sidebar = ({ onClose, isOpen, menuData, panelLabel, homePath }) => {
         }`}
       >
         <div
-          className={`fixed top-0 left-0 z-80 w-64 md:w-70 h-full bg-white pt-2 pb-4 shadow-md border-r transition-transform duration-300 ${
+          className={`fixed top-0 left-0 z-80 w-64 h-full bg-white pt-2 pb-4 shadow-md border-r transition-transform duration-300 ${
             isOpen ? "translate-x-0" : "-translate-x-full"
           } lg:translate-x-0 lg:static lg:block`}
           onClick={(e) => e.stopPropagation()}
@@ -38,7 +38,7 @@ const Sidebar = ({ onClose, isOpen, menuData, panelLabel, homePath }) => {
       </div>
 
       {/* Permanent Sidebar for lg+ */}
-      <div className="w-[20%] hidden lg:block">
+      <div className="w-[18%] hidden lg:block">
         <SidebarContent
           menuData={menuData}
           panelLabel={panelLabel}

@@ -39,7 +39,7 @@ export const inputFields = [
     id: "expiryDate",
     label: "Expiry Date",
     type: "date",
-    min: new Date().toISOString().split("T")[0],
+    min: new Date().toISOString().split("T")[0], // Prevent selecting old dates
     placeholder: "",
     title: "Select the expiry date of the coupon",
     required: true,

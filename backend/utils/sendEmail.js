@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
 // ==========================
 export const sendOtpMail = async ({ to, otp }) => {
   const mailOptions = {
-    from: `"YourApp" <${process.env.EMAIL_USER}>`,
+    from: `"NoahPlanet" <${process.env.EMAIL_USER}>`,
     to,
     subject: "Your OTP Code",
     html: `

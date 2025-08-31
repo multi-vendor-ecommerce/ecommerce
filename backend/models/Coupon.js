@@ -28,11 +28,11 @@ const couponSchema = new mongoose.Schema(
     },
     usageLimit: {
       type: Number,
-      default: 1, // how many times a coupon can be used (global limit)
+      default: 1,
     },
     usedCount: {
       type: Number,
-      default: 0, // increment this on each usage
+      default: 0,
     },
     isActive: {
       type: Boolean,
@@ -43,5 +43,13 @@ const couponSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Automatically update isActive before saving
+couponSchema.pre("save", function (next) {
+  this.isActive =
+    Number(this.usageLimit) > 0 &&
+    new Date(this.expiryDate) >= new Date();
+  next();
+});
 
 export default mongoose.model("Coupon", couponSchema);

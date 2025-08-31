@@ -6,6 +6,7 @@ import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 import { RenderCouponRow } from "./RenderCouponRow";
 import TabularData from "../../../common/layout/TabularData";
+import { toast } from "react-toastify";
 
 export default function CouponsManager() {
   const { coupons, getAllCoupons, addCoupon, editCoupon, deleteCoupon, loading, totalCount } = useContext(CouponContext);
@@ -55,7 +56,10 @@ export default function CouponsManager() {
       newErrors.usageLimit = "Usage limit must be at least 1";
 
     setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
+    if (Object.keys(newErrors).length > 0) {
+      toast.error("Please fix the errors in the form before submitting.");
+      return;
+    }
 
     // Build payload only with non-empty and changed fields
     const payload = {};
@@ -69,7 +73,7 @@ export default function CouponsManager() {
     });
 
     if (editingId && Object.keys(payload).length === 0) {
-      alert("No changes made. Nothing to update.");
+      toast.info("No changes made. Nothing to update.");
       setForm({ code: "", discount: "", minPurchase: "", maxDiscount: "", expiryDate: "", usageLimit: "", isActive: true });
       setEditingId(null);         // Switch to add mode
       setOriginalForm(null);
@@ -81,19 +85,25 @@ export default function CouponsManager() {
     else result = await addCoupon(payload); // Add mode
 
     if (result.success) {
+      toast.success(result.message || (editingId ? "Coupon updated successfully!" : "Coupon added successfully!"));
       setForm({ code: "", discount: "", minPurchase: "", maxDiscount: "", expiryDate: "", usageLimit: "", isActive: true });
       setErrors({});
       setEditingId(null);
       setOriginalForm(null);
     } else {
-      alert(result.message);
+      toast.error(result.message || "Failed to save coupon.");
     }
   };
 
   const handleDelete = async (id) => {
     const confirmation = confirm("Are you sure?");
     if (confirmation) {
-      deleteCoupon(id); // Optimistic update
+      const result = await deleteCoupon(id);
+      if (result.success) {
+        toast.success(result.message || "Coupon deleted successfully!");
+      } else {
+        toast.error(result.message || "Failed to delete coupon.");
+      }
     }
   };
 

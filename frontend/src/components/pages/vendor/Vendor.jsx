@@ -39,7 +39,7 @@ const Vendor = () => {
       <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} menuData={vendorSidebarMenu} panelLabel="Vendor Panel" homePath="/vendor" />
 
       {/* Main Content Area */}
-      <div className="w-full lg:w-[80%] flex flex-col">
+      <div className="w-full lg:w-[82%] flex flex-col">
         {/* Header */}
         <Header onMenuToggle={toggleSidebar} />
 

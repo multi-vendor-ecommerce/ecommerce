@@ -63,7 +63,7 @@ const Header = ({ onMenuToggle }) => {
         )}
 
         <NavLink className="hover:text-black hover:scale-105 transition-all duration-300 cursor-pointer">
-          <IoGlobeOutline className="text-2xl md:text-3xl" title="Languages" />
+          <IoGlobeOutline className="text-xl md:text-2xl" title="Languages" />
         </NavLink>
 
         <button className="hover:text-black hover:scale-105 transition-all duration-300 relative cursor-pointer">
@@ -76,7 +76,7 @@ const Header = ({ onMenuToggle }) => {
         {person && (
           <button className="hover:text-black hover:scale-105 transition-all duration-300 cursor-pointer">
             <NavLink to={`/${person.role}/settings/profile`}>
-              <FiSettings className="text-2xl md:text-3xl" title="Settings" />
+              <FiSettings className="text-xl md:text-2xl" title="Settings" />
             </NavLink>
           </button>
         )}

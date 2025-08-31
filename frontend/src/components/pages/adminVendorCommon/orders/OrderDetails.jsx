@@ -83,7 +83,7 @@ const OrderDetails = ({ role = "admin" }) => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className={`grid ${role === "vendor" ? "grid-cols-1" : "md:grid-cols-2"} gap-6`}>
         {/* Customer Info */}
         <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
           <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">Customer Info</h3>
