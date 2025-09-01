@@ -40,10 +40,11 @@ const ProductState = ({ children }) => {
         products: data.products || [],
         total: data.total || 0,
         success: data.success,
+        message: data.message
       };
     } catch (err) {
       console.error("Product fetch error:", err);
-      return { products: [], total: 0, success: false, categoryStats: [] };
+      return { products: [], total: 0, success: false, message: err.message };
     } finally {
       setLoading(false);
     }

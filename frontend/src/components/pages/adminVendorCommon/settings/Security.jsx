@@ -5,6 +5,7 @@ import BackButton from "../../../common/layout/BackButton";
 import { changePasswordFields } from "./data/changePasswordFields";
 import Button from "../../../common/Button";
 import PersonContext from "../../../../context/person/PersonContext";
+import { toast } from "react-toastify";
 
 const Security = () => {
   const { changePassword, loading } = useContext(PersonContext);
@@ -15,24 +16,20 @@ const Security = () => {
     confirmPassword: "",
   });
 
-  const [errorMsg, setErrorMsg] = useState("");
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrorMsg("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMsg("");
 
     const { success, message } = await changePassword(formData);
 
     if (success) {
       setFormData({ currentPassword: "", newPassword: "", confirmPassword: "" });
-      alert("Password update successfully.");
+      toast.success(message || "Password updated successfully.");
     } else {
-      setErrorMsg(message || "Failed to update password.");
+      toast.error(message || "Failed to update password.");
     }
   };
 
@@ -49,12 +46,7 @@ const Security = () => {
         <h2 className="text-xl md:text-2xl font-bold">Change Password</h2>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500"
-      >
-        {errorMsg && <p className="text-red-600 text-sm mb-4 text-center">{errorMsg}</p>}
-
+      <form className="bg-white px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500">
         <div className="flex flex-col gap-8">
           {changePasswordFields.map((field, idx) => (
             <InputField
@@ -73,7 +65,7 @@ const Security = () => {
         <Button
           icon={FiEdit}
           text={loading ? "Updating..." : "Update Password"}
-          type="submit"
+          onClick={handleSubmit}
           disabled={!formValid || loading}
           className="mt-8 py-3"
         />

@@ -42,12 +42,14 @@ const BasicInfo = ({ formData, step = 3, nextStep, prevStep, handleInputChange }
         currentStep={step}
         onNext={nextStep}
         onBack={prevStep}
-        nextDisabled={step === 3 &&
-          !formData.brand.trim() &&
-          !formData.tags.trim() &&
-          !formData.description.trim() &&
-          !formData.sku.trim() &&
-          !formData.hsnCode.trim()
+        nextDisabled={
+          step === 3 &&
+          [ formData.brand,
+            formData.title,
+            formData.tags,
+            formData.sku,
+            formData.hsnCode
+          ].some(val => !val.trim())
         }
       />
     </>

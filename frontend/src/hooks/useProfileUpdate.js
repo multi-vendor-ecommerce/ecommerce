@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
   const [form, setForm] = useState(null);
@@ -35,7 +36,7 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
     // Check if anything has changed
     const isChanged = JSON.stringify(form) !== JSON.stringify(person);
     if (!isChanged) {
-      alert("No changes to save.");
+      toast.info("No changes to save.");
       setEditing(false);
       return;
     }
@@ -49,14 +50,14 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
     try {
       const res = await editPerson(formCopy);
       if (res.success) {
-        alert(res.message || "Profile updated successfully.");
+        toast.success(res.message || "Profile updated successfully.");
         if (getCurrentPerson) getCurrentPerson();
       } else {
-        alert(res.message || "Failed to update profile.");
+        toast.error(res.message || "Failed to update profile.");
       }
     } catch (error) {
       console.error("Profile update failed:", error);
-      alert("An unexpected error occurred while updating profile.");
+      toast.error("An unexpected error occurred while updating profile.");
     } finally {
       setIsLoading(false);
       setEditing(false);

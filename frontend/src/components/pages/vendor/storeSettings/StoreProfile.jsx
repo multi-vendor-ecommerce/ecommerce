@@ -5,8 +5,9 @@ import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 import InputField from "../../../common/InputField";
 import useProfileUpdate from "../../../../hooks/useProfileUpdate";
-import ProfileActionButtons from "../../adminVendorCommon/settings/ProfileActionButtons";
 import ImageEditor from "../../../common/ImageEditor";
+import { toast } from "react-toastify";
+import ActionButtons from "../../../common/ActionButtons";
 
 const StoreProfile = () => {
   const { person, getCurrentPerson } = useContext(PersonContext);
@@ -37,6 +38,16 @@ const StoreProfile = () => {
     _id: person?._id,
   };
 
+  // Wrap handleSave to show toast
+  const handleSaveWithToast = async () => {
+    const result = await handleSave();
+    if (result?.success) {
+      toast.success(result.message || "Store profile updated successfully.");
+    } else if (result?.message) {
+      toast.error(result.message);
+    }
+  };
+
   return (
     <div className="p-6 min-h-screen bg-gray-50">
       <BackButton />
@@ -57,7 +68,7 @@ const StoreProfile = () => {
         />
       </div>
 
-      <ProfileActionButtons
+      <ActionButtons
         editing={editing}
         isLoading={isLoading}
         onEdit={() => setEditing(true)}
@@ -65,7 +76,7 @@ const StoreProfile = () => {
           setForm(JSON.parse(JSON.stringify(person)));
           setEditing(false);
         }}
-        onSave={handleSave}
+        onSave={handleSaveWithToast}
       />
 
       {/* Shop Name */}

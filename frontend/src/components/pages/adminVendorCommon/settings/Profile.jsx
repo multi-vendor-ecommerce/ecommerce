@@ -9,8 +9,9 @@ import Loader from "../../../common/Loader";
 import useProfileUpdate from "../../../../hooks/useProfileUpdate";
 import Button from "../../../common/Button";
 import { capitalize } from "../../../../utils/capitalize";
-import ProfileActionButtons from "./ProfileActionButtons";
 import ImageEditor from "../../../common/ImageEditor";
+import { toast } from "react-toastify";
+import ActionButtons from "../../../common/ActionButtons";
 
 const Profile = () => {
   const { person, editPerson, getCurrentPerson, deletePerson } = useContext(PersonContext);
@@ -36,14 +37,15 @@ const Profile = () => {
   const showDelete = person?.role !== "admin";
 
   const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      const res = await deletePerson();
-      if (res.success) {
-        alert(res.message);
-        navigate(`/login/${person?.role}`, { replace: true });
-      } else {
-        alert(res.message);
-      }
+    toast.info("Are you sure you want to delete your account? This action cannot be undone.");
+    // If you want a custom confirmation modal, implement it here.
+    // For now, just proceed as before:
+    const res = await deletePerson();
+    if (res.success) {
+      toast.success(res.message || "Account deleted successfully.");
+      navigate(`/login/${person?.role}`, { replace: true });
+    } else {
+      toast.error(res.message || "Failed to delete account.");
     }
   };
 
@@ -68,7 +70,7 @@ const Profile = () => {
         />
       </div>
 
-      <ProfileActionButtons
+      <ActionButtons
         editing={editing}
         isLoading={isLoading}
         onEdit={() => setEditing(true)}
@@ -76,7 +78,14 @@ const Profile = () => {
           setForm(JSON.parse(JSON.stringify(person)));
           setEditing(false);
         }}
-        onSave={handleSave}
+        onSave={async () => {
+          const result = await handleSave();
+          if (result?.success) {
+            toast.success(result.message || "Profile updated successfully.");
+          } else if (result?.message) {
+            toast.error(result.message);
+          }
+        }}
       />
 
       {/* Basic Info */}
