@@ -1,6 +1,7 @@
 import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
+import { sendProductAddedMail, sendProductAddedAdminMail, sendApproveProductMail } from "../services/email/sender.js";
 
 // ==========================
 // Get all products - handles public, admin, and vendor
@@ -339,6 +340,26 @@ export const addProduct = async (req, res) => {
       sizes,
     });
 
+    // Send email to vendor and admin after product is added
+    try {
+      // Email to vendor
+      await sendProductAddedMail({
+        to: req.person.email,
+        productName: newProduct.title,
+      });
+
+      // Email to admin (replace with your admin email or fetch from config/db)
+      await sendProductAddedAdminMail({
+        to: process.env.ADMIN_EMAIL, // <-- put your admin email here
+        vendorName: req.person.name,
+        vendorEmail: req.person.email,
+        productName: newProduct.title,
+      });
+    } catch (emailErr) {
+      console.error("Product added email failed:", emailErr);
+      // You can choose to ignore this error or log it only
+    }
+
     res.status(201).json({
       success: true,
       message: "Product added.",
@@ -365,6 +386,18 @@ export const approveProduct = async (req, res) => {
       { status: "approved" },
       { new: true }
     );
+
+    // Send email to vendor and admin after product is approved
+    try {
+      await sendApproveProductMail({
+        to: req.person.email,
+        product,
+      });
+    } catch (emailErr) {
+      console.error("Product approved email failed:", emailErr);
+      // You can choose to ignore this error or log it only
+    }
+    
     res.status(200).json({
       success: true,
       product,

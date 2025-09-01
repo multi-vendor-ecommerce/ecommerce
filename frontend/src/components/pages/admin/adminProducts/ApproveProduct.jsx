@@ -88,7 +88,7 @@ const ApproveProduct = () => {
                       </div>
                       <div className="text-gray-700 mt-1">
                         <span className="font-medium">Price:</span>{" "}
-                        <span className="text-blue-600 font-bold">${product.price.toLocaleString()}</span>
+                        <span className="text-blue-600 font-bold">₹{product.price.toLocaleString()}</span>
                       </div>
                       <div className="text-gray-500 mt-2 text-sm line-clamp-2">{product.description}</div>
                     </div>

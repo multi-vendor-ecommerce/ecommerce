@@ -1,6 +1,7 @@
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
+import { sendApproveVendorMail } from "../services/email/sender.js";
 
 // ==========================
 // Get all vendors (paginated)
@@ -140,12 +141,24 @@ export const approveVendor = async (req, res) => {
       { status: "approved" },
       { new: true }
     );
+
+    // Send approval email to vendor
+    try {
+      await sendApproveVendorMail({
+        to: vendor.email,
+        vendorName: vendor.name || vendor.shopName || "Vendor"
+      });
+    } catch (emailErr) {
+      console.error("Vendor approval email failed:", emailErr);
+      // Optionally log or ignore
+    }
+
     res.status(200).json({
       success: true,
       vendor,
       message: "Vendor approved."
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Unable to approve vendor.", error:error.message });
+    res.status(500).json({ success: false, message: "Unable to approve vendor.", error: error.message });
   }
 };
