@@ -107,6 +107,7 @@ export const adminSidebarMenu = [
           { label: "All Vendors", path: "/admin/all-vendors" },
           { label: "Top Vendors", path: "/admin/top-vendors" },
           { label: "Commissions Overview", path: "/admin/vendors/commission-overview" },
+          { label: "Approve Vendors", path: "/admin/approve-vendors" },
         ],
       },
     ],

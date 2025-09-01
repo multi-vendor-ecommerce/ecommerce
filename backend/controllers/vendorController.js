@@ -124,3 +124,28 @@ export const getVendorById = async (req, res) => {
     res.status(500).json({ success: false, message: "Unable to load vendor details.", error: error.message });
   }
 };
+
+// ==========================
+// Approve vendor
+// ==========================
+export const approveVendor = async (req, res) => {
+  try {
+    let vendor = await Vendor.findById(req.params.id);
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: "Vendor not found." });
+    }
+
+    vendor = await Vendor.findByIdAndUpdate(
+      req.params.id,
+      { status: "approved" },
+      { new: true }
+    );
+    res.status(200).json({
+      success: true,
+      vendor,
+      message: "Vendor approved."
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Unable to approve vendor.", error:error.message });
+  }
+};

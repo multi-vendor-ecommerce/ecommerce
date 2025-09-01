@@ -5,6 +5,7 @@ import BackButton from "../../../common/layout/BackButton";
 import Button from "../../../common/Button";
 import { NavLink } from "react-router-dom";
 import { FiCheckCircle, FiEye } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 const ApproveProduct = () => {
   const { getAllProducts, approveProduct, loading } = useContext(ProductContext);
@@ -22,13 +23,13 @@ const ApproveProduct = () => {
     fetchProducts();
   }, []);
 
-
   const handleApprove = async (id) => {
     const data = await approveProduct(id);
     if (data.success) {
       setProducts(products.filter(product => product._id !== id));
+      toast.success(data.message || "Product approved successfully!");
     } else {
-      setError(data.message);
+      toast.error(data.message || "Failed to approve product.");
     }
   }
 
@@ -52,7 +53,7 @@ const ApproveProduct = () => {
             <p>No products to approve</p>
             <NavLink
               to="/admin/all-products"
-              className=" flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-blue-600 font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
+              className="flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-blue-600 font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
             >
               <FiEye className="text-lg md:text-2xl" />
               <span className="hidden md:inline-block">View All Products</span>
@@ -92,7 +93,6 @@ const ApproveProduct = () => {
                       <div className="text-gray-500 mt-2 text-sm line-clamp-2">{product.description}</div>
                     </div>
 
-
                     <div className="flex flex-row md:flex-col gap-3 md:gap-2 text-sm md:text-base">
                       <NavLink to={`/admin/product-details/${product._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
                         <FiEye size={20} />
@@ -120,4 +120,4 @@ const ApproveProduct = () => {
   )
 }
 
-export default ApproveProduct
+export default ApproveProduct;

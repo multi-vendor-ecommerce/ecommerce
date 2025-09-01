@@ -191,7 +191,7 @@ export const getProductsByCategoryId = async (req, res) => {
 };
 
 // ==========================
-// Add Product
+// Add product
 // ==========================
 export const addProduct = async (req, res) => {
   try {
@@ -351,7 +351,7 @@ export const addProduct = async (req, res) => {
 };
 
 // ==========================
-// Approve Product
+// Approve product
 // ==========================
 export const approveProduct = async (req, res) => {
   try {
@@ -371,6 +371,6 @@ export const approveProduct = async (req, res) => {
       message: "Product approved."
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: "Unable to approve product.", error:error.message });
   }
 };

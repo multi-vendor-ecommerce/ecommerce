@@ -1,7 +1,7 @@
 import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
-import { getAllVendors, getTopVendors, editStore, getVendorById } from "../controllers/vendorController.js";
+import { getAllVendors, getTopVendors, editStore, getVendorById, approveVendor } from "../controllers/vendorController.js";
 import { body } from "express-validator";
 import { validate } from "../middleware/validateFields.js";
 import upload from "../middleware/multer.js";
@@ -23,11 +23,15 @@ router.get("/", verifyToken, authorizeRoles("admin"), getAllVendors);
 // Desc: Get top vendors by revenue/sales (admin only)
 router.get("/top", verifyToken, authorizeRoles("admin"), getTopVendors);
 
-// ROUTE 3: PUT /api/vendors/edit/store
+// ROUTE 3: PUT /api/vendors/:id/approve
+// Desc: Approve vendor (admin only)
+router.put("/:id/approve", verifyToken, authorizeRoles("admin"), approveVendor);
+
+// ROUTE 4: PUT /api/vendors/edit/store
 // Desc: Edit vendor store info (vendor only)
 router.put("/edit/store", verifyToken, authorizeRoles("vendor"), uploadShopLogo.single("shopLogo"), editStoreValidator, validate, editStore);
 
-// ROUTE 4: GET /api/vendors/:id
+// ROUTE 5: GET /api/vendors/:id
 // Desc: Get single vendor details (admin only)
 router.get("/:id", verifyToken, authorizeRoles("admin"), getVendorById);
 

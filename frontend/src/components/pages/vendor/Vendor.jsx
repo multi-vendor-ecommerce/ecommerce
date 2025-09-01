@@ -17,18 +17,31 @@ import Profile from "../adminVendorCommon/settings/Profile";
 import Security from "../adminVendorCommon/settings/Security";
 import StoreProfile from "./storeSettings/StoreProfile";
 import PersonContext from "../../../context/person/PersonContext";
+import PendingApproval from "./PendingApproval";
+import Loader from "../../common/Loader";
 
 const Vendor = () => {
   const { authTokens } = useContext(AuthContext);
-  const { person } = useContext(PersonContext);
+  const { person, loading } = useContext(PersonContext); // Make sure you have a loading state in your context
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const role = person?.role || "vendor";
-
   const token = localStorage.getItem("vendorToken") || authTokens?.vendor;
+
   if (!token) {
     return <Navigate to="/login/vendor" replace />;
   }
+
+  // Show loader while person is loading
+  if (loading && !person) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (person?.status === "pending") return <PendingApproval />;
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const closeSidebar = () => setIsSidebarOpen(false);

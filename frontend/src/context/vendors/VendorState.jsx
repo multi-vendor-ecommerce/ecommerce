@@ -130,8 +130,33 @@ const VendorState = (props) => {
     }
   }, [host]);
 
+  // Approve vendor (admin only)
+  const approveVendor = async (id) => {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${host}/api/vendors/${id}/approve`, {
+        method: "PUT",
+        headers: {
+          "auth-token": localStorage.getItem("adminToken"),
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || "Failed to approve vendor.");
+
+      setVendors(vendors.filter(vendor => vendor._id !== id));
+      return data;
+    } catch (error) {
+      console.error("Error approving vendor:", error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById }}>
+    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById, approveVendor }}>
       {props.children}
     </VendorContext.Provider>
   )
