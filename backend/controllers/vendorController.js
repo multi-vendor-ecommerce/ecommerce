@@ -148,7 +148,7 @@ export const updateVendorStatus = async (req, res) => {
     try {
       await sendVendorStatusMail({
         to: vendor.email,
-        vendorStatus: status,
+        vendorStatus: status === "active" ? "approved" : "rejected",
         vendorName: vendor.name,
         vendorShop: vendor.shopName,
       });
@@ -160,7 +160,7 @@ export const updateVendorStatus = async (req, res) => {
     res.status(200).json({
       success: true,
       vendor,
-      message: `Vendor ${toTitleCase(status)}.`
+      message: `Vendor ${toTitleCase(status === "active" ? "approved" : "rejected")}.`
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Unable to update vendor status.", error: error.message });

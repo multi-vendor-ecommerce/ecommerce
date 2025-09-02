@@ -110,15 +110,7 @@ const ApproveProduct = () => {
                       <div className="text-gray-500 mt-2 text-sm line-clamp-2">{product.description}</div>
                     </div>
 
-                    <div className="flex flex-row md:flex-col gap-3 md:gap-2 text-sm md:text-base">
-                      <NavLink to={`/admin/product-details/${product._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
-                        <FiEye size={20} />
-                        <div>
-                          <span>View</span>{" "}
-                          <span className="hidden md:inline-block">Product</span>
-                        </div>
-                      </NavLink>
-
+                    <div className="flex flex-row flex-wrap justify-center md:flex-col gap-3 md:gap-2 text-sm lg:text-base">
                       <Button
                         icon={FiCheckCircle}
                         text={updatingId === product._id && updatingAction === "approved" ? <span className="animate-pulse">Approving...</span> : "Approve"}
@@ -136,6 +128,11 @@ const ApproveProduct = () => {
                         color="red"
                         disabled={updatingId === product._id}
                       />
+
+                      <NavLink to={`/admin/product-details/${product._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
+                        <FiEye size={20} />
+                        <span>View Product</span>
+                      </NavLink>
                     </div>
                   </li>
                 ))}
