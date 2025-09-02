@@ -4,11 +4,11 @@ import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 import Button from "../../../common/Button";
 import { NavLink } from "react-router-dom";
-import { FiCheckCircle, FiEye } from "react-icons/fi";
+import { FiCheckCircle, FiEye, FiXCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 const ApproveProduct = () => {
-  const { getAllProducts, approveProduct, loading } = useContext(ProductContext);
+  const { getAllProducts, updateProductStatus, loading } = useContext(ProductContext);
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
 
@@ -23,15 +23,23 @@ const ApproveProduct = () => {
     fetchProducts();
   }, []);
 
-  const handleApprove = async (id) => {
-    const data = await approveProduct(id);
+  const handleStatusChange = async (id, status) => {
+    const data = await updateProductStatus(id, status);
     if (data.success) {
       setProducts(products.filter(product => product._id !== id));
-      toast.success(data.message || "Product approved successfully!");
+      toast.success(data.message || `Product ${status} successfully!`);
     } else {
-      toast.error(data.message || "Failed to approve product.");
+      toast.error(data.message || "Failed to update product status.");
     }
-  }
+  };
+
+  const handleApprove = (id) => {
+    handleStatusChange(id, "approved");
+  };
+
+  const handleReject = (id) => {
+    handleStatusChange(id, "rejected");
+  };
 
   if (loading && products.length === 0) {
     return (
@@ -108,6 +116,14 @@ const ApproveProduct = () => {
                         onClick={() => handleApprove(product._id)}
                         className="py-2"
                         color="green"
+                      />
+
+                      <Button
+                        icon={FiXCircle}
+                        text="Reject"
+                        onClick={() => handleReject(product._id)}
+                        className="py-2"
+                        color="red"
                       />
                     </div>
                   </li>

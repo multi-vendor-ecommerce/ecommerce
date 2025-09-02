@@ -1,10 +1,12 @@
+import { toTitleCase } from "../../utils/titleCase.js";
 import { sendMail } from "./sendMail.js";
 import { 
   otpTemplate, 
   productAddedTemplate, 
   productAddedAdminTemplate, 
   approveVendorTemplate, 
-  approveProductTemplate 
+  approveProductTemplate,
+  disapproveProductTemplate
 } from "./templates.js";
 
 export const sendOtpMail = async ({ to, otp }) => {
@@ -39,10 +41,12 @@ export async function sendApproveVendorMail({ to, vendorName, vendorShop }) {
   });
 }
 
-export async function sendApproveProductMail({ to, productName, productId }) {
+export async function sendProductStatusMail({ to, productStatus, productName, productId }) {
   await sendMail({
     to,
-    subject: "Your Product Approved",
-    html: approveProductTemplate(productName, productId),
+    subject: `Your Product ${toTitleCase(productStatus)}`,
+    html: productStatus === "approved"
+      ? approveProductTemplate(productName, productId)
+      : disapproveProductTemplate(productName, productId),
   });
 }

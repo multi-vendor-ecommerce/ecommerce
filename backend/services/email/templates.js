@@ -79,3 +79,23 @@ export const approveProductTemplate = (productName, productId) => baseMail(`
     Go to Dashboard
   </a>
 `);
+
+// Vendor Product Rejection Notification Email Template
+export const disapproveProductTemplate = (productName, productId) => baseMail(`
+  <h2 style="color: #333; margin-bottom: 20px;">❌ Product Rejected</h2>
+  <p style="font-size: 16px; color: #555;">
+    We're sorry to inform you that your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) 
+    has been rejected.
+  </p>
+  <p style="font-size: 14px; color: #555; margin: 15px 0;">
+    Reasons: <strong>Product does not meet the quality standards.</strong>
+  </p>
+  <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
+    You can edit your product details and resubmit it for approval.
+  </p>
+  <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor" 
+     style="display: inline-block; padding: 10px 20px; background-color: #28a745; 
+            color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
+    Go to Dashboard
+  </a>
+`);
