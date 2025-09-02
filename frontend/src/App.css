@@ -1,29 +1,18 @@
-/* Hide horizontal scrollbar */
-.scrollbar-hide {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-/* Horizontal & vertical dono ke liye smooth slim scrollbar */
+/* Custom small scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
-  height: 8px;  /* horizontal scrollbar ki height */
-  width: 8px;   /* vertical scrollbar ki width */
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;  /* track transparent */
+  height: 6px;  /* horizontal scrollbar height */
+  width: 6px;   /* vertical scrollbar width */
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #aaa;   /* thumb ka color */
+  background-color: #a3a3a3; /* grey */
   border-radius: 9999px;    /* fully rounded */
-  border: 2px solid transparent; /* thoda gap */
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #666;   /* hover effect */
+  background-color: #525252; /* darker grey on hover */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* transparent track */
 }

@@ -13,7 +13,7 @@ const CategorySection = () => {
   };
 
   return (
-    <div className="sticky z-5 bg-green-50 px-6 py-3">
+    <div className="sticky z-5 bg-[#F0FDF4] px-6 py-3">
       <div className="max-w-screen-xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:gap-6">
           {/* All Categories Button */}
@@ -22,7 +22,7 @@ const CategorySection = () => {
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === "Enter" && setSidebarOpen(true)}
-            className="flex items-center gap-3 px-5 py-3 bg-[#76CC13] hover:bg-[#5BA50F] text-white rounded-full shadow-lg cursor-pointer transition duration-200"
+            className="flex items-center gap-3 px-5 py-3 bg-[#2E7D32] hover:bg-[#43A047] text-white rounded-full shadow-lg cursor-pointer transition duration-200"
           >
             <FaCaretDown className="text-white text-xl" />
             <span className="text-base font-semibold">All Categories</span> 

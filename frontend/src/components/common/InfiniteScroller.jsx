@@ -55,7 +55,7 @@ const InfiniteScroller = ({
                     display: "flex",
                     flexDirection: orientation === "horizontal" ? "row" : "column"
                 }}
-                 className="custom-scrollbar"
+                className="custom-scrollbar"
             >
                 {data.map((item, index) => (
                     <div key={item._id || index} style={{ margin: 10 }}>

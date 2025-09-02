@@ -3,6 +3,7 @@ import Razorpay from "razorpay";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import crypto from "crypto";
+import Products from "../models/Products.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -91,6 +92,13 @@ export const verifyRazorpayPayment = async (req, res) => {
       order.shippingInfo = shippingInfo;
     }
 
+    for (const item of order.orderItems) {
+      await Products.findByIdAndUpdate(
+        item.product,
+        { $inc: { stock: -item.quantity, unitsSold: item.quantity } }
+      );
+    }
+
     if (order.source === "cart") {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
     }
@@ -131,6 +139,13 @@ export const confirmCOD = async (req, res) => {
     order.paymentMethod = "COD";
     order.paymentInfo = { id: null, status: "pending" };
     order.orderStatus = "processing";
+
+    for (const item of order.orderItems) {
+      await Products.findByIdAndUpdate(
+        item.product,
+        { $inc: { stock: -item.quantity, unitsSold: item.quantity } }
+      );
+    }
 
     if (order.source === "cart") {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });

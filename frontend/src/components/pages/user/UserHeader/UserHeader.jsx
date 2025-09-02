@@ -76,7 +76,7 @@ function UserHeader() {
       : "User";
 
   return (
-    <header className="sticky top-0 bg-gradient-to-br from-green-50 via-white to-green-100 z-40 shadow-sm py-1">
+    <header className="sticky top-0 bg-[#E8F5E9] z-40 shadow-sm py-1">
       <div className=" lg:px-16">
         <div className="container mx-auto px-4 flex items-center justify-between gap-4 flex-wrap">
           <Link
@@ -91,7 +91,7 @@ function UserHeader() {
             <input
               type="text"
               placeholder="Search products here..."
-              className="w-full px-3 py-2 border border-user-primary rounded-l-md focus:outline-none text-user-dark"
+              className="w-full px-3 py-2 border border-[#2E7D32] rounded-l-md focus:outline-none text-user-dark"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -100,7 +100,7 @@ function UserHeader() {
             <button
               type="button"
               onClick={handleSearch}
-              className="bg-user-primary px-3 text-white font-semibold rounded-r-md"
+              className="bg-[#2E7D32] px-3 text-white font-semibold rounded-r-md"
               aria-label="Search"
             >
               <FaSearch />
@@ -120,7 +120,7 @@ function UserHeader() {
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center gap-2 hover:text-user-primary focus:outline-none cursor-pointer"
                 >
-                  <div className="bg-user-primary text-white rounded-full w-9 h-9 flex items-center justify-center shadow-md cursor-pointer">
+                  <div className="bg-[#2E7D32] text-white rounded-full w-9 h-9 flex items-center justify-center shadow-md cursor-pointer">
                     {displayName[0].toUpperCase()}
                   </div>
                   <div className="hidden sm:flex flex-col cursor-pointer">
@@ -166,12 +166,12 @@ function UserHeader() {
                   navigate("/login/user");
                 }
               }}
-              className="relative bg-pink-100 p-3 rounded-full hover:bg-pink-200 transition-colors"
+              className="relative bg-[#E8F5E9] p-3 rounded-full hover:bg-pink-200 transition-colors"
               aria-label={`Wishlist with ${wishlist.length} items`}
             >
-              <FaHeart className="text-2xl cursor-pointer hover:text-pink-600" />
+              <FaHeart className="text-2xl cursor-pointer hover:text-[pink-600]" />
               {token && wishlist.length > 0 && (
-                <span className="absolute top-0 right-0 bg-red-600 text-white rounded-full text-xs px-1.5 py-0.5">
+                <span className="absolute top-0 right-0 bg-[#2E7D32] text-white rounded-full text-xs px-1.5 py-0.5">
                   {wishlist.length}
                 </span>
               )}
@@ -206,7 +206,7 @@ function UserHeader() {
             <input
               type="text"
               placeholder="Search products here..."
-              className="w-full px-3 py-2 border border-user-primary rounded-l-md focus:outline-none text-user-dark"
+              className="w-full px-3 py-2 border border-[#2E7D32] rounded-l-md focus:outline-none text-user-dark"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -215,7 +215,7 @@ function UserHeader() {
             <button
               type="button"
               onClick={handleSearch}
-              className="bg-user-primary px-3 text-white font-semibold rounded-r-md"
+              className="bg-[#2E7D32] px-3 text-white font-semibold rounded-r-md"
               aria-label="Search"
             >
               <FaSearch />
