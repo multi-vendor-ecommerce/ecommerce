@@ -4,10 +4,11 @@ import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 import Button from "../../../common/Button";
 import { NavLink } from "react-router-dom";
-import { FiCheckCircle, FiEye } from "react-icons/fi";
+import { FiCheckCircle, FiEye, FiXCircle } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 const ApproveProduct = () => {
-  const { getAllProducts, approveProduct, loading } = useContext(ProductContext);
+  const { getAllProducts, updateProductStatus, loading } = useContext(ProductContext);
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
 
@@ -22,15 +23,23 @@ const ApproveProduct = () => {
     fetchProducts();
   }, []);
 
-
-  const handleApprove = async (id) => {
-    const data = await approveProduct(id);
+  const handleStatusChange = async (id, status) => {
+    const data = await updateProductStatus(id, status);
     if (data.success) {
       setProducts(products.filter(product => product._id !== id));
+      toast.success(data.message || `Product ${status} successfully!`);
     } else {
-      setError(data.message);
+      toast.error(data.message || "Failed to update product status.");
     }
-  }
+  };
+
+  const handleApprove = (id) => {
+    handleStatusChange(id, "approved");
+  };
+
+  const handleReject = (id) => {
+    handleStatusChange(id, "rejected");
+  };
 
   if (loading && products.length === 0) {
     return (
@@ -52,7 +61,7 @@ const ApproveProduct = () => {
             <p>No products to approve</p>
             <NavLink
               to="/admin/all-products"
-              className=" flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-blue-600 font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
+              className="flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-blue-600 font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
             >
               <FiEye className="text-lg md:text-2xl" />
               <span className="hidden md:inline-block">View All Products</span>
@@ -87,11 +96,10 @@ const ApproveProduct = () => {
                       </div>
                       <div className="text-gray-700 mt-1">
                         <span className="font-medium">Price:</span>{" "}
-                        <span className="text-blue-600 font-bold">${product.price.toLocaleString()}</span>
+                        <span className="text-blue-600 font-bold">₹{product.price.toLocaleString()}</span>
                       </div>
                       <div className="text-gray-500 mt-2 text-sm line-clamp-2">{product.description}</div>
                     </div>
-
 
                     <div className="flex flex-row md:flex-col gap-3 md:gap-2 text-sm md:text-base">
                       <NavLink to={`/admin/product-details/${product._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
@@ -109,6 +117,14 @@ const ApproveProduct = () => {
                         className="py-2"
                         color="green"
                       />
+
+                      <Button
+                        icon={FiXCircle}
+                        text="Reject"
+                        onClick={() => handleReject(product._id)}
+                        className="py-2"
+                        color="red"
+                      />
                     </div>
                   </li>
                 ))}
@@ -120,4 +136,4 @@ const ApproveProduct = () => {
   )
 }
 
-export default ApproveProduct
+export default ApproveProduct;

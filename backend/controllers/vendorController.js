@@ -1,6 +1,7 @@
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
+import { sendApproveVendorMail } from "../services/email/sender.js";
 
 // ==========================
 // Get all vendors (paginated)
@@ -122,5 +123,43 @@ export const getVendorById = async (req, res) => {
   } catch (error) {
     console.error("getVendorById error:", error.message);
     res.status(500).json({ success: false, message: "Unable to load vendor details.", error: error.message });
+  }
+};
+
+// ==========================
+// Approve vendor
+// ==========================
+export const approveVendor = async (req, res) => {
+  try {
+    let vendor = await Vendor.findById(req.params.id);
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: "Vendor not found." });
+    }
+
+    vendor = await Vendor.findByIdAndUpdate(
+      req.params.id,
+      { status: "approved" },
+      { new: true }
+    );
+
+    // Send approval email to vendor
+    try {
+      await sendApproveVendorMail({
+        to: vendor.email,
+        vendorName: vendor.name,
+        vendorShop: vendor.shopName
+      });
+    } catch (emailErr) {
+      console.error("Vendor approval email failed:", emailErr);
+      // Optionally log or ignore
+    }
+
+    res.status(200).json({
+      success: true,
+      vendor,
+      message: "Vendor approved."
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Unable to approve vendor.", error: error.message });
   }
 };

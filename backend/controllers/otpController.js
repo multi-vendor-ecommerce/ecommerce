@@ -3,7 +3,7 @@ import otpGenerator from "otp-generator";
 import Otp from "../models/Otp.js";
 import Person from "../models/Person.js";
 import jwt from "jsonwebtoken";
-import { sendOtpMail } from "../utils/sendEmail.js";
+import { sendOtpMail } from "../services/email/sender.js";
 
 // ==========================
 // Request OTP

@@ -1,7 +1,7 @@
 import { FiEdit, FiCheck, FiX } from "react-icons/fi";
-import Button from "../../../common/Button";
+import Button from "./Button";
 
-const ProfileActionButtons = ({
+const ActionButtons = ({
   editing,
   isLoading,
   onEdit,
@@ -42,4 +42,4 @@ const ProfileActionButtons = ({
   </div>
 );
 
-export default ProfileActionButtons;
+export default ActionButtons;

@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { FiTrash2, FiUpload } from "react-icons/fi";
 import ImageContext from "../../context/images/ImageContext";
 import Button from "./Button";
+import { toast } from "react-toastify";
 
 const ImageEditor = ({ heading, person, getCurrentPerson, type = "profile" }) => {
   const [loading, setLoading] = useState(false);
@@ -21,7 +22,12 @@ const ImageEditor = ({ heading, person, getCurrentPerson, type = "profile" }) =>
     setLoading(false);
 
     e.target.value = "";
-    if (res.ok) getCurrentPerson();
+    if (res.ok) {
+      toast.success(`${heading} updated successfully!`);
+      getCurrentPerson();
+    } else {
+      toast.error(res.message || `Failed to update ${heading}.`);
+    }
   };
 
   const handleRemove = async () => {
@@ -32,7 +38,12 @@ const ImageEditor = ({ heading, person, getCurrentPerson, type = "profile" }) =>
       type,
     });
     setLoading(false);
-    if (res.ok) getCurrentPerson();
+    if (res.ok) {
+      toast.success(`${heading} removed successfully!`);
+      getCurrentPerson();
+    } else {
+      toast.error(res.message || `Failed to remove ${heading}.`);
+    }
   };
 
   return (

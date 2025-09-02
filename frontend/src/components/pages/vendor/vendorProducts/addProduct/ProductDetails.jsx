@@ -65,10 +65,7 @@ const ProductDetails = ({ formData, handleInputChange, step = 4, nextStep, prevS
         isLastStep={step === 4}
         showSubmit={
           step === 4 &&
-          formData.description.trim() &&
-          formData.price.trim() &&
-          formData.stock.trim() &&
-          formData.gstRate.trim()
+          !["description", "price", "stock", "gstRate"].some(field => !formData[field]?.trim())
         }
         submitButton={['Add Product', 'Adding']}
         loading={loading}

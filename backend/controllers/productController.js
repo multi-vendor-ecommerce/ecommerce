@@ -1,6 +1,7 @@
 import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
+import { sendProductAddedMail, sendProductAddedAdminMail, sendProductStatusMail } from "../services/email/sender.js";
 
 // ==========================
 // Get all products - handles public, admin, and vendor
@@ -59,7 +60,9 @@ export const getTopSellingProducts = async (req, res) => {
   try {
     // Accept query params for search/filter
     let query = buildQuery(req.query, ["title", "brand"]);
+    const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 100;
+    const skip = (page - 1) * limit;
     const role = req.person?.role;
 
     // Always show only approved products
@@ -70,6 +73,7 @@ export const getTopSellingProducts = async (req, res) => {
 
     let baseQuery = Product.find(query)
       .sort({ unitsSold: -1 })
+      .skip(skip)
       .limit(limit)
       .populate("category", "name")
       .populate("createdBy", "name email shopName role");
@@ -191,7 +195,7 @@ export const getProductsByCategoryId = async (req, res) => {
 };
 
 // ==========================
-// Add Product
+// Add product
 // ==========================
 export const addProduct = async (req, res) => {
   try {
@@ -339,6 +343,28 @@ export const addProduct = async (req, res) => {
       sizes,
     });
 
+    // Send email to vendor and admin after product is added
+    try {
+      // Email to vendor
+      await sendProductAddedMail({
+        to: req.person.email,
+        productName: newProduct.title,
+        productId: newProduct._id
+      });
+
+      // Email to admin (replace with your admin email or fetch from config/db)
+      await sendProductAddedAdminMail({
+        to: process.env.ADMIN_EMAIL, // <-- put your admin email here
+        vendorName: req.person.name,
+        vendorShop: req.person.ShopName,
+        vendorEmail: req.person.email,
+        productName: newProduct.title,
+      });
+    } catch (emailErr) {
+      console.error("Product added email failed:", emailErr);
+      // You can choose to ignore this error or log it only
+    }
+
     res.status(201).json({
       success: true,
       message: "Product added.",
@@ -350,11 +376,13 @@ export const addProduct = async (req, res) => {
   }
 };
 
+
 // ==========================
-// Approve Product
+// Update product status (approve/reject)
 // ==========================
-export const approveProduct = async (req, res) => {
+export const updateProductStatus = async (req, res) => {
   try {
+    const { status } = req.body; // "approved" or "rejected"
     let product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found." });
@@ -362,15 +390,28 @@ export const approveProduct = async (req, res) => {
 
     product = await Product.findByIdAndUpdate(
       req.params.id,
-      { status: "approved" },
+      { status },
       { new: true }
-    );
+    ).populate("createdBy", "email name shopName");
+
+    // Send email to vendor based on status
+    try {
+      await sendProductStatusMail({
+        to: product.createdBy.email,
+        productStatus: status,
+        productName: product.title,
+        productId: product._id
+      });
+    } catch (emailErr) {
+      console.error("Product status email failed:", emailErr);
+    }
+
     res.status(200).json({
       success: true,
       product,
-      message: "Product approved."
+      message: `Product ${toTitleCase(status)}.`
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: `Unable to update product status to ${req.body.status}.`, error: error.message });
   }
 };

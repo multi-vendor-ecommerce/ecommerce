@@ -6,8 +6,8 @@ const ProductState = ({ children }) => {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
   // Role + Token utility
   const getRoleInfo = () => {
@@ -40,10 +40,11 @@ const ProductState = ({ children }) => {
         products: data.products || [],
         total: data.total || 0,
         success: data.success,
+        message: data.message
       };
     } catch (err) {
       console.error("Product fetch error:", err);
-      return { products: [], total: 0, success: false, categoryStats: [] };
+      return { products: [], total: 0, success: false, message: err.message };
     } finally {
       setLoading(false);
     }
@@ -79,10 +80,10 @@ const ProductState = ({ children }) => {
   };
 
   // Top Selling Products
-  const getTopSellingProducts = async ({ search = "", limit = 10, skip = 0 } = {}) => {
+  const getTopSellingProducts = async ({ search = "", page = 1, limit = 10 } = {}) => {
     const { role } = getRoleInfo();
 
-    const params = new URLSearchParams({ limit, skip });
+    const params = new URLSearchParams({ page, limit });
     if (search.trim()) params.append("search", search);
 
     let endpoint;
@@ -166,23 +167,25 @@ const ProductState = ({ children }) => {
     }
   };
 
-  // Approve product (admin only)
-  const approveProduct = async (id) => {
+  // Update product status (admin only)
+  const updateProductStatus = async (id, status) => {
     try {
       setLoading(true);
 
-      const response = await fetch(`${host}/api/products/admin/${id}/approve`, {
+      const response = await fetch(`${host}/api/products/admin/${id}/status`, {
         method: "PUT",
         headers: {
+          "Content-Type": "application/json",
           "auth-token": localStorage.getItem("adminToken"),
         },
+        body: JSON.stringify({ status }),
       });
 
       const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.message || "Failed to approve product.");
+      if (!response.ok || !data.success) throw new Error(data.message || "Failed to update product status.");
       return data;
     } catch (error) {
-      console.error("Error approving product:", error.message);
+      console.error("Error updating product status:", error.message);
       throw error;
     } finally {
       setLoading(false);
@@ -200,7 +203,7 @@ const ProductState = ({ children }) => {
         getProductsByCategoryId,
         addProduct,
         getTopSellingProducts,
-        approveProduct
+        updateProductStatus
       }}
     >
       {children}

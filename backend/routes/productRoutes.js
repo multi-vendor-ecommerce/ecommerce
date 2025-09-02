@@ -2,7 +2,7 @@ import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 import multerErrorHandler from "../middleware/multerErrorHandler.js";
-import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts, approveProduct } from "../controllers/productController.js";
+import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts, updateProductStatus } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 
 const router = express.Router();
@@ -38,9 +38,9 @@ router.get("/admin/top-products", verifyToken, authorizeRoles("admin"), getTopSe
 // Desc: Get product by ID (admin detail view)
 router.get("/admin/:id", verifyToken, authorizeRoles("admin"), getProductById);
 
-// ROUTE 8: PUT /api/products/admin/:id/approve
-// Desc: Approve product by ID (admin action)
-router.put("/admin/:id/approve", verifyToken, authorizeRoles("admin"), approveProduct);
+// ROUTE 8: PUT /api/products/admin/:id/status
+// Desc: Update product status by ID (admin action)
+router.put("/admin/:id/status", verifyToken, authorizeRoles("admin"), updateProductStatus);
 
 // ROUTE 9: GET /api/products/vendor
 // Desc: Get all products created by the vendor

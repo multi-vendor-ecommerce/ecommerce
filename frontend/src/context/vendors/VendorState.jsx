@@ -7,8 +7,8 @@ const VendorState = (props) => {
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
   const getAllVendors = async ({ search = "", status = "", page = 1, limit = 10 } = {}) => {
     try {
@@ -95,13 +95,13 @@ const VendorState = (props) => {
       // Always return the updated vendor object from backend
       if (data.success && data.vendor) {
         // This vendor object should have the new shopLogo URL
-        return { success: true, vendor: data.vendor, message: data.message };
+        return { success: true, vendor: data.vendor, message: data.message || "Store updated successfully." };
       } else {
         return { success: false, message: data.message || "Failed to update store." };
       }
     } catch (error) {
       console.error("Error updating store:", error);
-      return { success: false, message: "Error updating store." };
+      return { success: false, message: error.message || "Failed to update store." };
     } finally {
       setLoading(false);
     }
@@ -130,8 +130,33 @@ const VendorState = (props) => {
     }
   }, [host]);
 
+  // Approve vendor (admin only)
+  const approveVendor = async (id) => {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${host}/api/vendors/${id}/approve`, {
+        method: "PUT",
+        headers: {
+          "auth-token": localStorage.getItem("adminToken"),
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || "Failed to approve vendor.");
+
+      setVendors(vendors.filter(vendor => vendor._id !== id));
+      return data;
+    } catch (error) {
+      console.error("Error approving vendor:", error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById }}>
+    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById, approveVendor }}>
       {props.children}
     </VendorContext.Provider>
   )

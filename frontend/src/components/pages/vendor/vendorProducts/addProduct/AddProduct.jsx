@@ -1,19 +1,18 @@
 import { useState, useContext } from "react";
 import ProductContext from "../../../../../context/products/ProductContext";
 import Stepper from "../../../../common/Stepper";
-import StepperControls from "../../../../common/StepperControls";
 import BackButton from "../../../../common/layout/BackButton";
 import CategorySelector from "./CategorySelector";
 import { appendCommaSeparatedToFormData } from "../../../../../utils/appendCommaSeparatedToFormData";
 import UploadImages from "./UploadImages";
 import BasicInfo from "./BasicInfo";
 import ProductDetails from "./ProductDetails";
+import { toast } from "react-toastify";
 
 const AddProduct = () => {
   const { addProduct, loading } = useContext(ProductContext);
 
   const [step, setStep] = useState(1);
-  const [errorMsg, setErrorMsg] = useState("");
   const [images, setImages] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
@@ -32,12 +31,11 @@ const AddProduct = () => {
   const handleImageChange = (e) => {
     const newFiles = Array.from(e.target.files);
     setImages((prev) => {
-      // Filter out files that are already present (by name and size)
       const existing = prev.map(f => f.name + f.size);
       const filtered = newFiles.filter(f => !existing.includes(f.name + f.size));
       return [...prev, ...filtered];
     });
-    e.target.value = ""; // Reset input so same file can be re-added
+    e.target.value = "";
   };
 
   const handleImageDelete = (idx) => {
@@ -45,7 +43,6 @@ const AddProduct = () => {
   };
 
   const nextStep = () => {
-    setErrorMsg("");
     const skuRegex = /^[A-Za-z0-9_-]{4,20}$/;
     const hsnRegex = /^\d{4,8}$/;
 
@@ -53,14 +50,14 @@ const AddProduct = () => {
       const lastSelected = selectedCategories[selectedCategories.length - 1];
       const isLastLevel = lastSelected && formData.category === lastSelected;
       if (!isLastLevel) {
-        setErrorMsg("Please select the final subcategory before proceeding.");
+        toast.error("Please select the final subcategory before proceeding.");
         return;
       }
     }
 
     if (step === 2) {
       if (images && images.length === 0) {
-        setErrorMsg("Please upload at least one product image.");
+        toast.error("Please upload at least one product image.");
         return;
       }
     }
@@ -68,15 +65,15 @@ const AddProduct = () => {
     if (step === 3) {
       const { title, sku, hsnCode } = formData;
       if (!title.trim() || !sku.trim() || !hsnCode.trim()) {
-        setErrorMsg("Please fill all required fields.");
+        toast.error("Please fill all required fields.");
         return;
       }
       if (!skuRegex.test(sku.trim())) {
-        setErrorMsg("SKU must be 4-20 characters using only letters, numbers, hyphens, or underscores.");
+        toast.error("SKU must be 4-20 characters using only letters, numbers, hyphens, or underscores.");
         return;
       }
       if (!hsnRegex.test(hsnCode.trim())) {
-        setErrorMsg("HSN Code must be 4 to 8 digits.");
+        toast.error("HSN Code must be 4 to 8 digits.");
         return;
       }
     }
@@ -85,25 +82,20 @@ const AddProduct = () => {
   };
 
   const prevStep = () => {
-    setErrorMsg("");
     setStep((prev) => Math.max(prev - 1, 1));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setErrorMsg("");
-
     const submitData = new FormData();
 
-    // Append non-array fields
     Object.entries(formData).forEach(([key, value]) => {
       if (!["tags", "colors", "size"].includes(key)) {
         submitData.append(key, value);
       }
     });
 
-    // Handle tags, colors, and sizes (comma or single value)
     [
       { key: "tags", formKey: "tags" },
       { key: "colors", formKey: "colors" },
@@ -115,14 +107,13 @@ const AddProduct = () => {
       } else appendCommaSeparatedToFormData(submitData, key, value);
     });
 
-    // Append images
     images.forEach((img) => submitData.append("images", img));
 
     try {
-      const success = await addProduct(submitData);
+      const { success, message } = await addProduct(submitData);
 
       if (success) {
-        alert("Product added successfully!");
+        toast.success(message || "Product added successfully.");
         setFormData({
           title: "", brand: "", tags: "", colors: "", size: "", sku: "",
           hsnCode: "", gstRate: "", description: "", price: "", discount: "",
@@ -133,10 +124,10 @@ const AddProduct = () => {
         setSelectedCategories([]);
         setStep(1);
       } else {
-        setErrorMsg("Failed to add product.");
+        toast.error(message || "Failed to add product.");
       }
     } catch (err) {
-      setErrorMsg(err.message || "Failed to add product.");
+      toast.error(err.message || "Failed to add product.");
     }
   };
 
@@ -146,8 +137,6 @@ const AddProduct = () => {
       <h2 className="text-xl md:text-2xl font-bold text-gray-800 mt-4 mb-6">Add New Product</h2>
 
       <div className="rounded-xl border border-gray-200 shadow-md shadow-blue-500 bg-white overflow-hidden p-4">
-        {errorMsg && <p className="text-red-600 text-sm md:text-[16px] text-center mb-4">{errorMsg}</p>}
-
         <Stepper
           className="w-full flex justify-between items-center text-sm md:text-lg font-medium text-gray-700 gap-3 md:gap-1 mb-6"
           currentStep={step}
@@ -184,12 +173,12 @@ const AddProduct = () => {
 
           {step === 3 && (
             <BasicInfo
-            formData={formData}
-            step={step}
-            nextStep={nextStep}
-            prevStep={prevStep}
-            handleInputChange={handleInputChange}
-          />
+              formData={formData}
+              step={step}
+              nextStep={nextStep}
+              prevStep={prevStep}
+              handleInputChange={handleInputChange}
+            />
           )}
 
           {step === 4 && (

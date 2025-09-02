@@ -14,7 +14,7 @@ const TopProducts = () => {
 
   useEffect(() => {
     const fetchTopSelling = async () => {
-      const result = await getTopSellingProducts(100);
+      const result = await getTopSellingProducts({ limit: 100 });
       if (result?.products) {
         setProducts(result.products);
         setCategoryStats(result.categoryStats || []);

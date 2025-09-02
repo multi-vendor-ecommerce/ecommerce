@@ -38,8 +38,7 @@ export default function Products({ heading, role = "admin" }) {
   };
 
   const fetchTopSelling = async (pg = 1, limit = itemsPerPage, customFilters = filters) => {
-    const skip = (pg - 1) * limit;
-    const result = await getTopSellingProducts({ ...customFilters, skip, limit });
+    const result = await getTopSellingProducts({ ...customFilters, page: pg, limit });
     if (result?.products) {
       setProducts(result.products);
       setTotalCount(result.total);

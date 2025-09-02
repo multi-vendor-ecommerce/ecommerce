@@ -6,6 +6,7 @@ import BackButton from "../../../common/layout/BackButton";
 import { FiPlus, FiPlusCircle } from "react-icons/fi";
 import CustomSelect from "../../../common/layout/CustomSelect";
 import useCategorySelection from "../../../../hooks/useCategorySelection";
+import { toast } from "react-toastify";
 
 const CreateCategory = () => {
   const { createCategory, loading } = useContext(CategoryContext);
@@ -55,13 +56,13 @@ const CreateCategory = () => {
     const result = await createCategory(formData);
 
     if (result.success) {
-      alert(result.message);
+      toast.success(result.message || "Category created successfully!");
       setForm({ name: "", description: "", parent: "" });
       setCategoryImage(null);
       setSelectedCategories(["none"]); // reset selection after submit
       loadCategories(); // reload root categories
     } else {
-      alert(result.message);
+      toast.error(result.message || "Failed to create category.");
     }
   };
 
