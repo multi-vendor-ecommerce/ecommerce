@@ -11,6 +11,8 @@ const ApproveProduct = () => {
   const { getAllProducts, updateProductStatus, loading } = useContext(ProductContext);
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [updatingAction, setUpdatingAction] = useState(""); // "approve" or "reject"
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -24,7 +26,14 @@ const ApproveProduct = () => {
   }, []);
 
   const handleStatusChange = async (id, status) => {
+    setUpdatingId(id);
+    setUpdatingAction(status);
+
     const data = await updateProductStatus(id, status);
+
+    setUpdatingId(null);
+    setUpdatingAction("");
+
     if (data.success) {
       setProducts(products.filter(product => product._id !== id));
       toast.success(data.message || `Product ${status} successfully!`);
@@ -101,30 +110,29 @@ const ApproveProduct = () => {
                       <div className="text-gray-500 mt-2 text-sm line-clamp-2">{product.description}</div>
                     </div>
 
-                    <div className="flex flex-row md:flex-col gap-3 md:gap-2 text-sm md:text-base">
-                      <NavLink to={`/admin/product-details/${product._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
-                        <FiEye size={20} />
-                        <div>
-                          <span>View</span>{" "}
-                        <span className="hidden md:inline-block">Product</span>
-                        </div>
-                      </NavLink>
-
+                    <div className="flex flex-row flex-wrap justify-center md:flex-col gap-3 md:gap-2 text-sm lg:text-base">
                       <Button
                         icon={FiCheckCircle}
-                        text="Approve"
+                        text={updatingId === product._id && updatingAction === "approved" ? <span className="animate-pulse">Approving...</span> : "Approve"}
                         onClick={() => handleApprove(product._id)}
                         className="py-2"
                         color="green"
+                        disabled={updatingId === product._id}
                       />
 
                       <Button
                         icon={FiXCircle}
-                        text="Reject"
+                        text={updatingId === product._id && updatingAction === "rejected" ? <span className="animate-pulse">Rejecting...</span> : "Reject"}
                         onClick={() => handleReject(product._id)}
                         className="py-2"
                         color="red"
+                        disabled={updatingId === product._id}
                       />
+
+                      <NavLink to={`/admin/product-details/${product._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
+                        <FiEye size={20} />
+                        <span>View Product</span>
+                      </NavLink>
                     </div>
                   </li>
                 ))}

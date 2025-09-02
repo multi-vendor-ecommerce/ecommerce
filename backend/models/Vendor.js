@@ -26,7 +26,7 @@ const Vendor = Person.discriminator("vendor", new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["active", "suspended", "pending", "inactive"],
+    enum: ["active", "suspended", "pending", "inactive", "rejected"],
     default: "pending"
   },
   productQuantity: { type: Number, default: 0 },

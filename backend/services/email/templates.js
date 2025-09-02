@@ -54,7 +54,7 @@ export const approveVendorTemplate = (vendorName, vendorShop) => baseMail(`
     Shop Name: <strong>${vendorShop}</strong>
   </p>
   <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
-  You can now start adding products to the marketplace.
+    You can now start adding products to the marketplace.
   </p>
   <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor" 
      style="display: inline-block; padding: 10px 20px; background-color: #1a73e8; 
@@ -63,12 +63,30 @@ export const approveVendorTemplate = (vendorName, vendorShop) => baseMail(`
   </a>
 `);
 
+// Vendor Account Disapproval Email Template
+export const disapproveVendorTemplate = (vendorName, vendorShop) => baseMail(`
+  <h2 style="color: #333; margin-bottom: 20px;">❌ Vendor Account Disapproved</h2>
+  <p style="font-size: 16px; color: #555;">
+    Hello, <strong>${vendorName}</strong>. We're sorry to inform you that your vendor account has been disapproved.
+  </p>
+  <p style="font-size: 14px; color: #555; margin: 15px 0;">
+    Shop Name: <strong>${vendorShop}</strong>
+  </p>
+  <p style="font-size: 14px; color: #555; margin: 15px 0;">
+    Reasons: <strong>Shop does not meet the quality standards.</strong>
+  </p>
+  <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
+    You can contact our support team for more information,
+    <a href="mailto:support@noahplanet.com" style="color: #1a73e8; text-decoration: underline;">here</a>.
+  </p>
+`);
+
 // Vendor Product Approval Notification Email Template
-export const approveProductTemplate = (productName, productId) => baseMail(`
+export const approveProductTemplate = (productName, productId, vendorName, vendorShop) => baseMail(`
   <h2 style="color: #333; margin-bottom: 20px;">🎉 Product Approved</h2>
   <p style="font-size: 16px; color: #555;">
-    Great news! Your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) 
-    has been approved.
+    Great news! Hello <strong>${vendorName}</strong>, Your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) 
+    has been approved under <strong>${vendorShop}</strong>.
   </p>
   <p style="font-size: 14px; color: #555; margin: 15px 0;">
     You can now start selling it on the marketplace.
@@ -81,11 +99,11 @@ export const approveProductTemplate = (productName, productId) => baseMail(`
 `);
 
 // Vendor Product Rejection Notification Email Template
-export const disapproveProductTemplate = (productName, productId) => baseMail(`
+export const disapproveProductTemplate = (productName, productId, vendorName, vendorShop) => baseMail(`
   <h2 style="color: #333; margin-bottom: 20px;">❌ Product Rejected</h2>
   <p style="font-size: 16px; color: #555;">
-    We're sorry to inform you that your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) 
-    has been rejected.
+    Hello <strong>${vendorName}</strong>, We're sorry to inform you that your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) 
+    has been rejected under <strong>${vendorShop}</strong>.
   </p>
   <p style="font-size: 14px; color: #555; margin: 15px 0;">
     Reasons: <strong>Product does not meet the quality standards.</strong>

@@ -4,23 +4,40 @@ import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 import Button from "../../../common/Button";
 import { NavLink } from "react-router-dom";
-import { FiCheckCircle, FiEye } from "react-icons/fi";
+import { FiCheckCircle, FiEye, FiXCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 const ApproveVendor = () => {
-  const { vendors, getAllVendors, approveVendor, loading } = useContext(VendorContext);
+  const { vendors, getAllVendors, updateVendorStatus, loading } = useContext(VendorContext);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [updatingAction, setUpdatingAction] = useState(""); // "approve" or "reject"
 
   useEffect(() => {
     getAllVendors({ status: "pending" });
   }, []);
 
-  const handleApprove = async (id) => {
-    const data = await approveVendor(id);
+  const handleStatusChange = async (id, status) => {
+    setUpdatingId(id);
+    setUpdatingAction(status); // Track which action is happening
+
+    const data = await updateVendorStatus(id, status);
+
+    setUpdatingId(null);
+    setUpdatingAction("");
+
     if (data.success) {
-      toast.success(data.message || "Vendor approved successfully!");
+      toast.success(data.message || `Vendor ${status} successfully!`);
     } else {
-      toast.error(data.message || "Failed to approve vendor.");
+      toast.error(data.message || "Failed to update vendor status.");
     }
+  };
+
+  const handleApprove = (id) => {
+    handleStatusChange(id, "active");
+  };
+
+  const handleReject = (id) => {
+    handleStatusChange(id, "rejected");
   };
 
   if (loading && vendors.length === 0) {
@@ -57,7 +74,10 @@ const ApproveVendor = () => {
                 className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-lg border-[0.5px] border-gray-50 hover:shadow-sm hover:shadow-purple-500 transition duration-200 bg-gray-50"
               >
                 <img
-                  src={vendor.shopLogo || "/default-shop-logo.png"}
+                  src={
+                    vendor.shopLogo ||
+                    `https://api.dicebear.com/7.x/initials/svg?seed=${vendor.shopName || "V"}`
+                  }
                   alt={vendor.shopName}
                   className="w-32 h-32 object-cover rounded-lg border border-gray-300 shadow"
                 />
@@ -93,19 +113,29 @@ const ApproveVendor = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-row md:flex-col gap-3 md:gap-2 text-sm md:text-base">
+                <div className="flex flex-row flex-wrap justify-center md:flex-col gap-3 md:gap-2 text-sm lg:text-base">
+                  <Button
+                    icon={FiCheckCircle}
+                    text={updatingId === vendor._id && updatingAction === "active" ? <span className="animate-pulse">Approving...</span> : "Approve"}
+                    onClick={() => handleApprove(vendor._id)}
+                    className="py-2"
+                    color="green"
+                    disabled={updatingId === vendor._id}
+                  />
+
+                  <Button
+                    icon={FiXCircle}
+                    text={updatingId === vendor._id && updatingAction === "rejected" ? <span className="animate-pulse">Rejecting...</span> : "Reject"}
+                    onClick={() => handleReject(vendor._id)}
+                    className="py-2"
+                    color="red"
+                    disabled={updatingId === vendor._id}
+                  />
+
                   <NavLink to={`/admin/vendor/profile/${vendor._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
                     <FiEye size={20} />
                     <span>View Vendor</span>
                   </NavLink>
-
-                  <Button
-                    icon={FiCheckCircle}
-                    text="Approve"
-                    onClick={() => handleApprove(vendor._id)}
-                    className="py-2"
-                    color="green"
-                  />
                 </div>
               </li>
             ))}
