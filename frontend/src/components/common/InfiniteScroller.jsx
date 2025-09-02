@@ -1,70 +1,70 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 const InfiniteScroller = ({
-  fetchData,       // function: API call ya data fetch karne ka
-  orientation,     // "horizontal" | "vertical"
-  renderItem,      // function: har item ko kaise render karna hai
-  pageSize = 10,   // ek call me kitne items
-  initialData = [] // starting data agar available ho
+    fetchData,
+    orientation,
+    renderItem,
+    pageSize = 10,
+    initialData = []
 }) => {
-  const [data, setData] = useState(initialData);
-  const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(0);
+    const [data, setData] = useState(initialData);
+    const [hasMore, setHasMore] = useState(true);
+    const [page, setPage] = useState(initialData.length > 0 ? 2 : 1);
+    const loadingRef = useRef(false);
 
-  console.log("Orientation:", orientation);
-  console.log("Data length:", data.length);
-  console.log("Has more:", hasMore);
-  console.log("data:", data);
+    // Only fetch on mount if no initialData
+    useEffect(() => {
+        if (initialData.length === 0) {
+            loadMore();
+        }
+    }, []);
 
-  // first load
-  useEffect(() => {
-    if (initialData.length === 0) loadMore();
-    // eslint-disable-next-line
-  }, []);
+    const loadMore = async () => {
+        if (loadingRef.current) return; // Prevent concurrent loads
+        loadingRef.current = true;
+        try {
+            const newData = await fetchData(page, pageSize);
+            if (!newData || newData.length === 0) {
+                setHasMore(false);
+            } else {
+                setData(prev => [...prev, ...newData]);
+                setPage(prev => prev + 1);
+            }
+        } catch (err) {
+            console.error("Error loading data:", err);
+            setHasMore(false);
+        } finally {
+            loadingRef.current = false;
+        }
+    };
 
-  const loadMore = async () => {
-    try {
-      const newData = await fetchData(page, pageSize);
-      if (!newData || newData.length === 0) {
-        setHasMore(false);
-        return;
-      }
-      setData(prev => [...prev, ...newData]);
-      setPage(prev => prev + 1);
-    } catch (err) {
-      console.error("Error loading data:", err);
-      setHasMore(false);
-    }
-  };
-
-  return (
-    <div
-      id="scrollableDiv"
-      style={{
-        height: orientation === "vertical" ? "80vh" : "auto",
-        overflow: "auto",
-        display: "flex",
-        flexDirection: orientation === "horizontal" ? "row" : "column"
-      }}
-    >
-      <InfiniteScroll
-        dataLength={data.length}
-        next={loadMore}
-        hasMore={hasMore}
-        loader={<p style={{ textAlign: "center" }}>Loading...</p>}
-        endMessage={<p style={{ textAlign: "center" }}>No more data </p>}
-        scrollableTarget="scrollableDiv"
-        style={{ display: "flex", flexDirection: orientation === "horizontal" ? "row" : "column" }}
-      >
-        {data.map((item, index) => (
-          <div key={index} style={{ margin: 10 }}>
-            {renderItem(item)}
-          </div>
-        ))}
-      </InfiniteScroll>
-    </div>
-  );
+    return (
+        <div
+            id="scrollableDiv"
+            className={`custom-scrollbar w-full flex ${orientation === "horizontal" ? "flex-row overflow-x-auto" : "flex-col overflow-y-auto"}`}
+        >
+            <InfiniteScroll
+                dataLength={data.length}
+                next={loadMore}
+                hasMore={hasMore}
+                loader={<p style={{ textAlign: "center" }}>Loading...</p>}
+                endMessage={<div className="flex justify-center items-center w-40">No more data </div>}
+                scrollableTarget="scrollableDiv"
+                style={{
+                    display: "flex",
+                    flexDirection: orientation === "horizontal" ? "row" : "column"
+                }}
+                 className="custom-scrollbar"
+            >
+                {data.map((item, index) => (
+                    <div key={item._id || index} style={{ margin: 10 }}>
+                        {renderItem(item)}
+                    </div>
+                ))}
+            </InfiniteScroll>
+        </div>
+    );
 };
 
 export default InfiniteScroller;

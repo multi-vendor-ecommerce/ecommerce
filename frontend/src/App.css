@@ -7,3 +7,23 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
+
+/* Horizontal & vertical dono ke liye smooth slim scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px;  /* horizontal scrollbar ki height */
+  width: 8px;   /* vertical scrollbar ki width */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;  /* track transparent */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #aaa;   /* thumb ka color */
+  border-radius: 9999px;    /* fully rounded */
+  border: 2px solid transparent; /* thoda gap */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #666;   /* hover effect */
+}
