@@ -381,8 +381,9 @@ export const addProduct = async (req, res) => {
 // Update product status (approve/reject)
 // ==========================
 export const updateProductStatus = async (req, res) => {
+  const { status } = req.body;
+  
   try {
-    const { status } = req.body; // "approved" or "rejected"
     let product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found." });
@@ -400,7 +401,9 @@ export const updateProductStatus = async (req, res) => {
         to: product.createdBy.email,
         productStatus: status,
         productName: product.title,
-        productId: product._id
+        productId: product._id,
+        vendorName: product.createdBy.name,
+        vendorShop: product.createdBy.shopName
       });
     } catch (emailErr) {
       console.error("Product status email failed:", emailErr);
@@ -412,6 +415,6 @@ export const updateProductStatus = async (req, res) => {
       message: `Product ${toTitleCase(status)}.`
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: `Unable to update product status to ${req.body.status}.`, error: error.message });
+    res.status(500).json({ success: false, message: `Unable to update product status`, error: error.message });
   }
 };

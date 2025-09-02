@@ -5,6 +5,7 @@ import {
   productAddedTemplate, 
   productAddedAdminTemplate, 
   approveVendorTemplate, 
+  disapproveVendorTemplate,
   approveProductTemplate,
   disapproveProductTemplate
 } from "./templates.js";
@@ -33,20 +34,22 @@ export async function sendProductAddedAdminMail({ to, vendorName, vendorEmail, p
   });
 }
 
-export async function sendApproveVendorMail({ to, vendorName, vendorShop }) {
+export async function sendVendorStatusMail({ to, vendorStatus, vendorName, vendorShop }) {
   await sendMail({
     to,
-    subject: "Your Vendor Account Approved",
-    html: approveVendorTemplate(vendorName, vendorShop),
+    subject: `Your Vendor Account Status Update: ${toTitleCase(vendorStatus)}`,
+    html: vendorStatus === "approved"
+      ? approveVendorTemplate(vendorName, vendorShop)
+      : disapproveVendorTemplate(vendorName, vendorShop),
   });
 }
 
-export async function sendProductStatusMail({ to, productStatus, productName, productId }) {
+export async function sendProductStatusMail({ to, productStatus, productName, productId, vendorName, vendorShop }) {
   await sendMail({
     to,
-    subject: `Your Product ${toTitleCase(productStatus)}`,
+    subject: `Your Product Status Update: ${toTitleCase(productStatus)}`,
     html: productStatus === "approved"
-      ? approveProductTemplate(productName, productId)
-      : disapproveProductTemplate(productName, productId),
+      ? approveProductTemplate(productName, productId, vendorName, vendorShop)
+      : disapproveProductTemplate(productName, productId, vendorName, vendorShop),
   });
 }

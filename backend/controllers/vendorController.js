@@ -1,7 +1,7 @@
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
-import { sendApproveVendorMail } from "../services/email/sender.js";
+import { sendVendorStatusMail } from "../services/email/sender.js";
 
 // ==========================
 // Get all vendors (paginated)
@@ -127,9 +127,11 @@ export const getVendorById = async (req, res) => {
 };
 
 // ==========================
-// Approve vendor
+// Update vendor status
 // ==========================
-export const approveVendor = async (req, res) => {
+export const updateVendorStatus = async (req, res) => {
+  const { status } = req.body;
+
   try {
     let vendor = await Vendor.findById(req.params.id);
     if (!vendor) {
@@ -138,28 +140,29 @@ export const approveVendor = async (req, res) => {
 
     vendor = await Vendor.findByIdAndUpdate(
       req.params.id,
-      { status: "approved" },
+      { status },
       { new: true }
     );
 
-    // Send approval email to vendor
+    // Send status email to vendor
     try {
-      await sendApproveVendorMail({
+      await sendVendorStatusMail({
         to: vendor.email,
+        vendorStatus: status,
         vendorName: vendor.name,
-        vendorShop: vendor.shopName
+        vendorShop: vendor.shopName,
       });
     } catch (emailErr) {
-      console.error("Vendor approval email failed:", emailErr);
+      console.error("Vendor status email failed:", emailErr);
       // Optionally log or ignore
     }
 
     res.status(200).json({
       success: true,
       vendor,
-      message: "Vendor approved."
+      message: `Vendor ${toTitleCase(status)}.`
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Unable to approve vendor.", error: error.message });
+    res.status(500).json({ success: false, message: "Unable to update vendor status.", error: error.message });
   }
 };

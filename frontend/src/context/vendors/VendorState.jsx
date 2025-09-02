@@ -131,24 +131,26 @@ const VendorState = (props) => {
   }, [host]);
 
   // Approve vendor (admin only)
-  const approveVendor = async (id) => {
+  const updateVendorStatus = async (id, status) => {
     try {
       setLoading(true);
 
-      const response = await fetch(`${host}/api/vendors/${id}/approve`, {
+      const response = await fetch(`${host}/api/vendors/${id}/status`, {
         method: "PUT",
         headers: {
+          "Content-Type": "application/json",
           "auth-token": localStorage.getItem("adminToken"),
         },
+        body: JSON.stringify({ status }),
       });
 
       const data = await response.json();
-      if (!response.ok || !data.success) throw new Error(data.message || "Failed to approve vendor.");
+      if (!response.ok || !data.success) throw new Error(data.message || "Failed to update vendor status.");
 
       setVendors(vendors.filter(vendor => vendor._id !== id));
       return data;
     } catch (error) {
-      console.error("Error approving vendor:", error.message);
+      console.error("Error updating vendor status:", error.message);
       throw error;
     } finally {
       setLoading(false);
@@ -156,7 +158,7 @@ const VendorState = (props) => {
   };
 
   return (
-    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById, approveVendor }}>
+    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus }}>
       {props.children}
     </VendorContext.Provider>
   )

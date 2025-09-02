@@ -4,23 +4,40 @@ import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 import Button from "../../../common/Button";
 import { NavLink } from "react-router-dom";
-import { FiCheckCircle, FiEye } from "react-icons/fi";
+import { FiCheckCircle, FiEye, FiXCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 const ApproveVendor = () => {
-  const { vendors, getAllVendors, approveVendor, loading } = useContext(VendorContext);
+  const { vendors, getAllVendors, updateVendorStatus, loading } = useContext(VendorContext);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [updatingAction, setUpdatingAction] = useState(""); // "approve" or "reject"
 
   useEffect(() => {
     getAllVendors({ status: "pending" });
   }, []);
 
-  const handleApprove = async (id) => {
-    const data = await approveVendor(id);
+  const handleStatusChange = async (id, status) => {
+    setUpdatingId(id);
+    setUpdatingAction(status); // Track which action is happening
+
+    const data = await updateVendorStatus(id, status);
+
+    setUpdatingId(null);
+    setUpdatingAction("");
+    
     if (data.success) {
-      toast.success(data.message || "Vendor approved successfully!");
+      toast.success(data.message || `Vendor ${status} successfully!`);
     } else {
-      toast.error(data.message || "Failed to approve vendor.");
+      toast.error(data.message || "Failed to update vendor status.");
     }
+  };
+
+  const handleApprove = (id) => {
+    handleStatusChange(id, "approved");
+  };
+
+  const handleReject = (id) => {
+    handleStatusChange(id, "rejected");
   };
 
   if (loading && vendors.length === 0) {
@@ -101,10 +118,20 @@ const ApproveVendor = () => {
 
                   <Button
                     icon={FiCheckCircle}
-                    text="Approve"
+                    text={updatingId === vendor._id && updatingAction === "approved" ? <span className="animate-pulse">Approving...</span> : "Approve"}
                     onClick={() => handleApprove(vendor._id)}
                     className="py-2"
                     color="green"
+                    disabled={updatingId === vendor._id}
+                  />
+                  
+                  <Button
+                    icon={FiXCircle}
+                    text={updatingId === vendor._id && updatingAction === "rejected" ? <span className="animate-pulse">Rejecting...</span> : "Reject"}
+                    onClick={() => handleReject(vendor._id)}
+                    className="py-2"
+                    color="red"
+                    disabled={updatingId === vendor._id}
                   />
                 </div>
               </li>
