@@ -69,9 +69,19 @@ export const registerPerson = async (req, res) => {
     }
 
     // Check for existing email
-    const existing = await Person.findOne({ email });
+    let existing = await Person.findOne({ email });
+
+    // Vendor logic: allow new entry if previous vendor is rejected/disapproved
     if (existing) {
-      return res.status(400).json({ success: false, message: "Email already in use." });
+      if (role === "vendor") {
+        if (["pending", "approved"].includes(existing.status)) {
+          return res.status(400).json({ success: false, message: "Email already in use." });
+        }
+        // If rejected/disapproved, allow new entry (don't block)
+      } else {
+        // For users/customers, always block
+        return res.status(400).json({ success: false, message: "Email already in use." });
+      }
     }
 
     // Vendor-specific checks

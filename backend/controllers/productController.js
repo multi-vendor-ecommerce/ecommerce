@@ -60,7 +60,9 @@ export const getTopSellingProducts = async (req, res) => {
   try {
     // Accept query params for search/filter
     let query = buildQuery(req.query, ["title", "brand"]);
+    const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 100;
+    const skip = (page - 1) * limit;
     const role = req.person?.role;
 
     // Always show only approved products
@@ -71,6 +73,7 @@ export const getTopSellingProducts = async (req, res) => {
 
     let baseQuery = Product.find(query)
       .sort({ unitsSold: -1 })
+      .skip(skip)
       .limit(limit)
       .populate("category", "name")
       .populate("createdBy", "name email shopName role");
