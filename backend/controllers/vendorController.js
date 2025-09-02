@@ -146,7 +146,8 @@ export const approveVendor = async (req, res) => {
     try {
       await sendApproveVendorMail({
         to: vendor.email,
-        vendorName: vendor.name || vendor.shopName || "Vendor"
+        vendorName: vendor.name,
+        vendorShop: vendor.shopName
       });
     } catch (emailErr) {
       console.error("Vendor approval email failed:", emailErr);

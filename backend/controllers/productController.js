@@ -346,12 +346,14 @@ export const addProduct = async (req, res) => {
       await sendProductAddedMail({
         to: req.person.email,
         productName: newProduct.title,
+        productId: newProduct._id
       });
 
       // Email to admin (replace with your admin email or fetch from config/db)
       await sendProductAddedAdminMail({
         to: process.env.ADMIN_EMAIL, // <-- put your admin email here
         vendorName: req.person.name,
+        vendorShop: req.person.ShopName,
         vendorEmail: req.person.email,
         productName: newProduct.title,
       });
@@ -391,7 +393,8 @@ export const approveProduct = async (req, res) => {
     try {
       await sendApproveProductMail({
         to: req.person.email,
-        product,
+        productName: product.title,
+        productId: product._id
       });
     } catch (emailErr) {
       console.error("Product approved email failed:", emailErr);
