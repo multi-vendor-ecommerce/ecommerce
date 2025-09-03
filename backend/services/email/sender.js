@@ -7,7 +7,8 @@ import {
   approveVendorTemplate, 
   disapproveVendorTemplate,
   approveProductTemplate,
-  disapproveProductTemplate
+  disapproveProductTemplate,
+  vendorProfileUpdatedTemplate
 } from "./templates.js";
 
 export const sendOtpMail = async ({ to, otp }) => {
@@ -51,5 +52,13 @@ export async function sendProductStatusMail({ to, productStatus, productName, pr
     html: productStatus === "approved"
       ? approveProductTemplate(productName, productId, vendorName, vendorShop)
       : disapproveProductTemplate(productName, productId, vendorName, vendorShop),
+  });
+}
+
+export async function sendVendorProfileUpdatedMail({ to, vendorName, vendorShop, changes, data }) {
+  await sendMail({
+    to,
+    subject: `Your Vendor Profile Has Been Updated by Admin`,
+    html: vendorProfileUpdatedTemplate(to, vendorName, vendorShop, changes, data),
   });
 }

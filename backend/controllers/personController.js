@@ -7,7 +7,7 @@ import { deleteImage } from "./imageController.js";
 // ==========================
 export const getCurrentPerson = async (req, res) => {
   try {
-    const person = await Person.findById(req.person.id).select("-password");
+    const person = await Person.findById(req.person.id).select("-password -__v");
     if (!person) {
       return res.status(404).json({ success: false, message: "Profile not found." });
     }
@@ -29,17 +29,9 @@ export const editPerson = async (req, res) => {
       return res.status(404).json({ success: false, message: "Profile not found." });
     }
 
-    const allowedFields = [
-      "name", "phone",
-      "address.line1", "address.line2", "address.city",
-      "address.state", "address.country", "address.pincode",
-      "address.locality", "address.recipientName", "address.recipientPhone",
-      "address.geoLocation.lat", "address.geoLocation.lng"
-    ];
-
     const update = {};
 
-    // Handle nested fields
+    // Helper to set nested fields
     const setNestedValue = (obj, path, value) => {
       const keys = path.split(".");
       let current = obj;
@@ -50,19 +42,22 @@ export const editPerson = async (req, res) => {
       current[keys[keys.length - 1]] = value;
     };
 
-    for (const field of allowedFields) {
-      const keys = field.split(".");
-      let value = req.body;
-      for (const key of keys) {
-        value = value?.[key];
-        if (value === undefined) break;
+    // Iterate over req.body keys and set them in update object
+    const traverse = (obj, prefix = "") => {
+      for (const key in obj) {
+        const path = prefix ? `${prefix}.${key}` : key;
+        if (obj[key] !== null && typeof obj[key] === "object" && !Array.isArray(obj[key])) {
+          traverse(obj[key], path);
+        } else {
+          setNestedValue(update, path, obj[key]);
+        }
       }
-      if (value === undefined && req.body[field] !== undefined) {
-        value = req.body[field];
-      }
-      if (value !== undefined) {
-        setNestedValue(update, field, value);
-      }
+    };
+
+    traverse(req.body);
+
+    if (Object.keys(update).length === 0) {
+      return res.status(400).json({ success: false, message: "No valid fields to update." });
     }
 
     const updatedPerson = await Person.findByIdAndUpdate(
@@ -74,7 +69,7 @@ export const editPerson = async (req, res) => {
     res.status(200).json({
       success: true,
       updatedPerson,
-      message: "Profile updated.",
+      message: "Profile updated successfully.",
     });
 
   } catch (err) {

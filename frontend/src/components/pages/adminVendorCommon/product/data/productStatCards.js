@@ -11,6 +11,13 @@ import { capitalize } from "../../../../../utils/capitalize";
 
 export const getProfileCardData = (product) => [
   {
+    icon: FaStore,
+    label: "Product",
+    value: product.title || "Unknown",
+    bg: "bg-blue-100",
+    shadow: "hover:shadow-blue-500",
+  },
+  {
     icon: FaTag,
     label: "Price",
     value: `₹${product.price ? (product.price).toLocaleString() : "N/A"}`,
@@ -44,13 +51,6 @@ export const getProfileCardData = (product) => [
     value: `₹${(product.unitsSold * product.price).toLocaleString()}`,
     bg: "bg-green-100",
     shadow: "hover:shadow-green-500",
-  },
-  {
-    icon: FaStore,
-    label: "Product",
-    value: product.title || "Unknown",
-    bg: "bg-blue-100",
-    shadow: "hover:shadow-blue-500",
   },
   {
     icon: FaTag,

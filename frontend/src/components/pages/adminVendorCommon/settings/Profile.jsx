@@ -70,23 +70,25 @@ const Profile = () => {
         />
       </div>
 
-      <ActionButtons
-        editing={editing}
-        isLoading={isLoading}
-        onEdit={() => setEditing(true)}
-        onCancel={() => {
-          setForm(JSON.parse(JSON.stringify(person)));
-          setEditing(false);
-        }}
-        onSave={async () => {
-          const result = await handleSave();
-          if (result?.success) {
-            toast.success(result.message || "Profile updated successfully.");
-          } else if (result?.message) {
-            toast.error(result.message);
-          }
-        }}
-      />
+      <div className="mb-4">
+        <ActionButtons
+          editing={editing}
+          isLoading={isLoading}
+          onEdit={() => setEditing(true)}
+          onCancel={() => {
+            setForm(JSON.parse(JSON.stringify(person)));
+            setEditing(false);
+          }}
+          onSave={async () => {
+            const result = await handleSave();
+            if (result?.success) {
+              toast.success(result.message || "Profile updated successfully.");
+            } else if (result?.message) {
+              toast.error(result.message);
+            }
+          }}
+        />
+      </div>
 
       {/* Basic Info */}
       <div className="bg-white px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500 flex flex-col md:flex-row gap-8 mb-8">
@@ -134,7 +136,13 @@ const Profile = () => {
 
       {/* Delete Account Button */}
       {showDelete && (
-        <Button icon={FiTrash2} text="Delete Account" className="mt-8 py-3 border-red-600 text-red-600 hover:bg-red-600" onClick={handleDelete} />
+        <Button
+          icon={FiTrash2}
+          text="Delete Account"
+          className="mt-6 py-3"
+          color="red"
+          onClick={handleDelete}
+        />
       )}
     </div>
   );

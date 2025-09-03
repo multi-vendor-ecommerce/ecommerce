@@ -1,7 +1,7 @@
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
-import { sendVendorStatusMail } from "../services/email/sender.js";
+import { sendVendorStatusMail, sendVendorProfileUpdatedMail } from "../services/email/sender.js";
 
 // ==========================
 // Get all vendors (paginated)
@@ -18,7 +18,7 @@ export const getAllVendors = async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
-      Vendor.countDocuments(query),
+      Vendor.countDocuments(query).select("-password"),
     ]);
 
     res.status(200).json({
@@ -41,19 +41,23 @@ export const getAllVendors = async (req, res) => {
 // ==========================
 export const getTopVendors = async (req, res) => {
   try {
+    let query = buildQuery(req.query, ["name", "email", "shopName"]);
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.max(parseInt(req.query.limit) || 100, 1);
+    const skip = (page - 1) * limit;
     const role = req.person?.role;
 
-    let filter = { status: "active" };
-    if (role === "vendor") {
-      filter._id = req.person.id;
+    query.status = "active";
+    if (role === "vendor" && req.person?.id) {
+      query._id = req.person.id;
     }
 
-    const vendors = await Vendor.find(filter)
+    const vendors = await Vendor.find(query)
       .sort({ totalRevenue: -1, totalSales: -1 })
+      .skip(skip)
       .limit(limit)
       .select(
-        "name email shopName shopLogo gstNumber status totalSales totalRevenue commissionRate registeredAt"
+        "name email phone shopName shopLogo gstNumber status totalSales totalRevenue commissionRate registeredAt"
       )
       .lean();
 
@@ -64,7 +68,8 @@ export const getTopVendors = async (req, res) => {
         : "No top vendors found.",
       vendors,
       total: vendors.length,
-      limit
+      limit,
+      page
     });
   } catch (err) {
     console.error("Error fetching top vendors:", err);
@@ -87,7 +92,7 @@ export const editStore = async (req, res) => {
         ...(shopLogo ? { shopLogo } : {}),
       },
       { new: true, runValidators: true }
-    ).select("shopName shopLogo");
+    ).select("name shopName shopLogo");
 
     if (!updatedVendor) {
       return res.status(404).json({ success: false, message: "Vendor not found." });
@@ -109,7 +114,7 @@ export const editStore = async (req, res) => {
 // ==========================
 export const getVendorById = async (req, res) => {
   try {
-    const vendor = await Vendor.findById(req.params.id);
+    const vendor = await Vendor.findById(req.params.id).select("-password");
 
     if (!vendor) {
       return res.status(404).json({ success: false, message: "Vendor not found." });
@@ -138,31 +143,120 @@ export const updateVendorStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: "Vendor not found." });
     }
 
+    // 🚨 Prevent setting back to "pending"
+    if ((status === "pending" || status === "") && vendor.status !== "pending") {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot revert a vendor back to 'pending' once reviewed."
+      });
+    }
+
     vendor = await Vendor.findByIdAndUpdate(
       req.params.id,
       { status },
       { new: true }
-    );
+    ).select("name email phone shopName status");
 
-    // Send status email to vendor
+    // Send status email to vendor (only for active/rejected)
     try {
-      await sendVendorStatusMail({
-        to: vendor.email,
-        vendorStatus: status === "active" ? "approved" : "rejected",
-        vendorName: vendor.name,
-        vendorShop: vendor.shopName,
-      });
+      // Send email for any status except "pending"
+      if (status !== "pending" && status !== "") {
+        await sendVendorStatusMail({
+          to: vendor.email,
+          vendorStatus: status === "active" ? "approved" : status,
+          vendorName: vendor.name,
+          vendorShop: vendor.shopName,
+          reason: req.body.reason || "", // Pass reason if provided
+        });
+      }
     } catch (emailErr) {
       console.error("Vendor status email failed:", emailErr);
-      // Optionally log or ignore
     }
 
     res.status(200).json({
       success: true,
       vendor,
-      message: `Vendor ${toTitleCase(status === "active" ? "approved" : "rejected")}.`
+      message: `Vendor status updated to ${status}.`
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Unable to update vendor status.", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Unable to update vendor status.",
+      error: error.message
+    });
+  }
+};
+
+// ==========================
+// Admin Edit Vendor
+// ==========================
+export const adminEditVendor = async (req, res) => {
+  const { commissionRate, gstNumber } = req.body;
+  try {
+    let vendor = await Vendor.findById(req.params.id);
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: "Vendor not found." });
+    }
+
+    // Build update object only with provided fields
+    const update = {};
+    if (commissionRate !== undefined) {
+      if (commissionRate < 0 || commissionRate > 100) {
+        return res.status(400).json({
+          success: false,
+          message: "Commission rate must be between 0 and 100.",
+        });
+      }
+      update.commissionRate = commissionRate;
+    }
+    if (gstNumber !== undefined) {
+      const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstRegex.test(gstNumber)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid GST number format.",
+        });
+      }
+      update.gstNumber = gstNumber;
+    }
+    if (Object.keys(update).length === 0) {
+      return res.status(400).json({ success: false, message: "No fields to update." });
+    }
+
+    vendor = await Vendor.findByIdAndUpdate(
+      req.params.id,
+      { $set: update },
+      { new: true, runValidators: true }
+    ).select("name email phone shopName commissionRate gstNumber status");
+
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: "Vendor not found." });
+    }
+
+    // Try sending notification email (non-blocking)
+    try {
+      await sendVendorProfileUpdatedMail({
+        to: vendor.email,
+        vendorName: vendor.name,
+        vendorShop: vendor.shopName,
+        changes: Object.keys(update),
+        data: update,
+      });
+    } catch (emailErr) {
+      console.error("Vendor profile updated email failed:", emailErr);
+    }
+
+    res.status(200).json({
+      success: true,
+      vendor,
+      message: "Vendor details updated successfully.",
+    });
+  } catch (error) {
+    console.error("Admin Edit Vendor Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Unable to update vendor details.",
+      error: error.message,
+    });
   }
 };

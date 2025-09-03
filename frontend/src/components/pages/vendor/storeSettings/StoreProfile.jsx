@@ -80,7 +80,7 @@ const StoreProfile = () => {
       />
 
       {/* Shop Name */}
-      <div className="bg-white mt-8 px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500 flex flex-col justify-center gap-5">
+      <div className="bg-white mt-4 px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500 flex flex-col justify-center gap-5">
         <div className="flex-1 space-y-4 w-full">
           <InputField
             label="Shop Name *"

@@ -157,8 +157,40 @@ const VendorState = (props) => {
     }
   };
 
+  // Admin edit vendor details
+  const adminEditVendor = async (id, formData) => {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${host}/api/vendors/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("adminToken"),
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error("Failed to update vendor.");
+
+      const data = await response.json();
+      if (data.success) {
+        // Update the vendor in the state
+        setVendors(vendors.map(vendor => vendor._id === id ? data.vendor : vendor));
+        return { success: true, vendor: data.vendor, message: data.message || "Vendor updated successfully." };
+      } else {
+        return { success: false, message: data.message || "Failed to update vendor." };
+      }
+    } catch (error) {
+      console.error("Error updating vendor:", error);
+      return { success: false, message: error.message || "Failed to update vendor." };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus }}>
+    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor }}>
       {props.children}
     </VendorContext.Provider>
   )

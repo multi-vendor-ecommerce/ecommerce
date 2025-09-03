@@ -7,11 +7,12 @@ const ActionButtons = ({
   onEdit,
   onCancel,
   onSave,
+  disableSave, // renamed from hasChanges for clarity
   cancelText = "Cancel",
   saveText = "Save",
   editText = "Edit Details"
 }) => (
-  <div className="flex gap-4 mb-4">
+  <div className="flex gap-4 items-center">
     {editing ? (
       <>
         <Button
@@ -26,7 +27,7 @@ const ActionButtons = ({
           icon={FiCheck}
           text={isLoading ? "Saving..." : saveText}
           onClick={onSave}
-          disabled={isLoading}
+          disabled={disableSave || isLoading}
           className="py-2"
           color="green"
         />

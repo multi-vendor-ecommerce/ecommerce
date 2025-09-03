@@ -63,6 +63,11 @@ const VendorManagement = ({ heading }) => {
     fetchPaginatedVendors(1, limit);
   };
 
+  // Filter out status field for top selling page
+  const filterFields = isTopVendorPage
+    ? vendorFilterFields.filter(f => f.name !== "status")
+    : vendorFilterFields;
+
   const headers = [
     "Vendor",
     "Email",
@@ -91,7 +96,7 @@ const VendorManagement = ({ heading }) => {
         <h2 className="text-xl md:text-2xl font-bold text-gray-800">{heading}</h2>
 
         <FilterBar
-          fields={vendorFilterFields}
+          fields={filterFields}
           values={filters}
           onChange={handleChange}
           onApply={handleApply}

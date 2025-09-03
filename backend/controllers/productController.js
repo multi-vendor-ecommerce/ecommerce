@@ -2,6 +2,7 @@ import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 import { sendProductAddedMail, sendProductAddedAdminMail, sendProductStatusMail } from "../services/email/sender.js";
+import Vendor from "../models/Vendor.js";
 
 // ==========================
 // Get all products - handles public, admin, and vendor
@@ -28,7 +29,7 @@ export const getAllProducts = async (req, res) => {
     // Limit fields for public or vendor
     if (!req.person || req.person.role !== "admin") {
       if (req.person?.role === "vendor") {
-        baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes status");
+        baseQuery = baseQuery.select("title description brand images price category discount tags freeDelivery rating totalReviews colors sizes status");
       } else {
         baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
         query.status = "approved";
@@ -79,7 +80,11 @@ export const getTopSellingProducts = async (req, res) => {
       .populate("createdBy", "name email shopName role");
 
     if (role !== "admin") {
-      baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
+      if (role === "vendor") {
+        baseQuery = baseQuery.select("title brand description images price category discount tags freeDelivery rating totalReviews colors sizes");
+      } else {
+        baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
+      }
     }
 
     const [products, total] = await Promise.all([
@@ -343,6 +348,12 @@ export const addProduct = async (req, res) => {
       sizes,
     });
 
+    // Update vendor's productQuantity
+    await Vendor.findByIdAndUpdate(
+      req.person.id,
+      { $inc: { productQuantity: 1 } }
+    );
+
     // Send email to vendor and admin after product is added
     try {
       // Email to vendor
@@ -382,7 +393,7 @@ export const addProduct = async (req, res) => {
 // ==========================
 export const updateProductStatus = async (req, res) => {
   const { status } = req.body;
-  
+
   try {
     let product = await Product.findById(req.params.id);
     if (!product) {

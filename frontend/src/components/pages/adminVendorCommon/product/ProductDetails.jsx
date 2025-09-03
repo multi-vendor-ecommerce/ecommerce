@@ -53,14 +53,14 @@ const ProductDetails = ({ role = "admin" }) => {
 
       <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{product.title} - Overview</h2>
 
-      <div className="w-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 mb-8 overflow-hidden">
+      <div className="w-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-200 mb-8 overflow-hidden">
         <div className="flex items-center flex-nowrap overflow-x-auto overflow-y-hidden rounded-xl gap-4 md:gap-x-8 px-6 md:px-15 py-6">
           {product.images?.map((img, index) => (
             <div key={index} className="min-w-[120px]">
               <img
                 src={img.url}
                 alt={`${product.title} - ${index + 1}`}
-                className="w-30 h-30 object-cover rounded-xl shadow-md shadow-purple-400 hover:shadow-purple-500 transition duration-150"
+                className="w-30 h-30 object-cover rounded-xl shadow-md shadow-purple-400 hover:shadow-purple-500 transition duration-200"
               />
             </div>
           ))}
@@ -68,27 +68,36 @@ const ProductDetails = ({ role = "admin" }) => {
       </div>
 
       {/* Stat Cards */}
-      <div className="w-full h-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 px-4 py-6">
+      <div className="w-full h-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-200 px-4 py-6">
         <StatGrid cards={getProfileCardData(product)} />
       </div>
 
       {/* Extra Info */}
-      <div className="bg-white p-5 mt-8 rounded-xl shadow-md border border-gray-200">
+      <div className="bg-white p-5 mt-8 rounded-xl shadow-md border border-gray-200 hover:shadow-blue-500 transition duration-200">
         <h3 className="text-lg font-semibold mb-2 text-gray-700">Details</h3>
-        <ul className="text-gray-600 space-y-1">
-          <li><strong>Category:</strong> {product.category?.name || "N/A"}</li>
+        <ul className="text-gray-600 space-y-2">
+          <li><strong>SKU:</strong> {product.sku || "N/A"}</li>
+          <li><strong>GST Rate:</strong> {product.gstRate || "N/A"}</li>
+          <li><strong>Tags:</strong>{" "}
+            {product.tags?.length > 0 ? (
+              product.tags.map((tag, index) => (
+                <span key={index} className="inline-block bg-gray-200 rounded-lg px-2 py-0.5 mr-2">{tag}</span>
+              ))
+            ) : (
+              "No tags available"
+            )}
+          </li>
           <li>
-            <strong>Created By:</strong> {product.createdBy?.name || "Unknown"}
-            {product.createdBy?.role ? ` (${product.createdBy.role})` : ""}
+            <strong>Created By:</strong>
             <NavLink to={`/admin/vendor/profile/${product.createdBy?._id}`} className="text-blue-500 ml-2 hover:underline">
-              View Profile
+              {product.createdBy?.name || "Unknown"} ({product.createdBy?.shopName || "Unknown"})
             </NavLink>
           </li>
         </ul>
       </div>
 
       {/* Description */}
-      <div className="bg-white p-5 mt-8 rounded-xl shadow-md border border-gray-200">
+      <div className="bg-white p-5 mt-8 rounded-xl shadow-md border border-gray-200 hover:shadow-blue-500 transition duration-200">
         <h3 className="text-lg font-semibold mb-2 text-gray-700">
           Product Description
         </h3>

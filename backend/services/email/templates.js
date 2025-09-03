@@ -1,5 +1,6 @@
 // services/email/otpEmail.js
 import { baseMail } from "./baseMail.js";
+import { toTitleCase } from "../../utils/titleCase.js";
 
 // OTP Verification Email Template
 export const otpTemplate = (otp) => baseMail(`
@@ -116,4 +117,33 @@ export const disapproveProductTemplate = (productName, productId, vendorName, ve
             color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
     Go to Dashboard
   </a>
+`);
+
+// Vendor Profile Updated Notification Email Template (uses <div> and <p> for changes)
+export const vendorProfileUpdatedTemplate = (to, vendorName, vendorShop, changes, data) => baseMail(`
+  <h2 style="color: #333; margin-bottom: 20px;">🛠️ Vendor Profile Updated</h2>
+  <p style="font-size: 16px; color: #555;">
+    Hello <strong>${vendorName}</strong>, your vendor profile for <strong>${vendorShop}</strong> has been updated by <strong>Admin</strong>.
+  </p>
+  <p style="font-size: 14px; color: #555; margin: 5px 0;">
+    <strong>Changes made:</strong>
+  </p>
+  <div style="margin-bottom: 20px;">
+    ${changes.map(change => `
+      <div style="margin-bottom: 10px; font-size: 14px; color: #555; background: #f9f9f9; padding: 10px; border-radius: 5px;">
+        <span>${toTitleCase(change)}:</span> <strong>${data[change]}</strong>
+      </div>
+    `).join("")}
+  </div>
+  <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
+    Check your profile for the latest updates.
+  </p>
+  <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor" 
+    style="display: inline-block; padding: 10px 20px; background-color: #28a745; 
+          color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
+    Go to Dashboard
+  </a>
+  <p style="font-size: 14px; color: #555; margin-top: 20px;">
+    Thank you for being a valued vendor! We appreciate your partnership.
+  </p>
 `);

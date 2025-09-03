@@ -10,6 +10,7 @@ export const vendorFilterFields = [
       { value: "suspended", label: "Suspended" },
       { value: "pending", label: "Pending" },
       { value: "inactive", label: "Inactive" },
+      { value: "rejected", label: "Rejected" },
     ],
   },
 ];
