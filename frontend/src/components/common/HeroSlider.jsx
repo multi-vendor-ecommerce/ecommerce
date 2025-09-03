@@ -8,14 +8,14 @@ const HeroSlider = ({ banners = [] }) => {
   if (!Array.isArray(banners) || banners.length === 0) return null;
 
   return (
-    <div className="max-w-9xl bg-green-50 py-4 lg:py-5">
+    <div className="max-w-8xl bg-green-50 py-4">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <Swiper
           modules={[Autoplay, Pagination]}
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
           loop={true}
-          className="rounded-xl overflow-hidden shadow-sm"
+          className="rounded-xl overflow-hidden "
         >
           {banners.map((banner, index) => (
             <SwiperSlide key={banner.id || index}>

@@ -1,4 +1,4 @@
-import { useContext} from "react";
+import { useContext } from "react";
 import ProductContext from "../../../../context/products/ProductContext";
 import InfiniteScroller from "../../../common/InfiniteScroller";
 import { encryptData } from "../Utils/Encryption";
@@ -21,8 +21,8 @@ const TopSellingProducts = () => {
     };
 
     return (
-        <section className="px-7 py-6 max-w-7xl mx-auto bg-[#F0FDF4] ">
-            <h2 className="text-2xl font-bold mb-4">Top Selling Products</h2>
+        <section className="px-7 py-4 max-w-9xl mx-auto bg-[#F0FDF4] ">
+            <h2 className="text-2xl font-semibold text-gray-800 text-start">Top Selling Products</h2>
 
             <InfiniteScroller
                 fetchData={fetchTopProducts}
@@ -37,8 +37,7 @@ const TopSellingProducts = () => {
                         <img
                             src={product.images?.[0]?.url}
                             alt={product.name}
-                            className="w-full h-40 object-center rounded"
-
+                            className="w-full h-40  bg-green-50 rounded object-cover"
                         />
                     </div>
                 )}

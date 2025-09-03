@@ -17,15 +17,15 @@ export default function ProductGrid({ products, secretKey }) {
       <p className="text-lg text-gray-500 col-span-full text-center mt-10">
         No products found.
       </p>
-    );
+    );F
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
       {products.map((product) => (
         <div
           key={product._id}
-          className="cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100 flex flex-col relative"
+          className="cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-green-500 flex flex-col relative"
         >
           <div
             className="aspect-square rounded-t-xl overflow-hidden bg-gray-50 relative"

@@ -11,8 +11,8 @@ export default function Home() {
     <div className="bg-gradient-to-br from-green-50 via-white to-green-100">
       <CategorySection />
       <TopSellingProducts />
-      <ProductSection />
       <HeroSlider banners={SliderData} />
+      <ProductSection />
 
       {/* <ProductByCategory /> */}
     </div>

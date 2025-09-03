@@ -47,7 +47,7 @@ const AccordionItem = ({
 
   return (
     <div>
-      <div className="flex justify-between items-center py-2 px-3 hover:bg-[#5BA50F]rounded cursor-pointer select-none">
+      <div className="flex justify-between items-center py-2 px-3 hover:bg-[#5BA50F]rounded cursor-pointer select-none ">
         <span onClick={handleNameClick} title={category.name} className="flex-1">
           {category.name}
         </span>
@@ -104,7 +104,7 @@ const CategorySidebar = ({
     const rootCategories = categoryLevels[0] || [];
 
     return (
-      <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+      <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 ">
         {rootCategories.map((cat) => (
           <div
             key={cat._id}
