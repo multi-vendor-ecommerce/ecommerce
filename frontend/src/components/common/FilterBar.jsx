@@ -2,7 +2,7 @@ import { FiFilter } from "react-icons/fi";
 import { BsXCircle } from "react-icons/bs";
 import CustomSelect from "./layout/CustomSelect";
 
-const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear }) => {
+const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, max }) => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") onApply();
   };
@@ -24,11 +24,11 @@ const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear }) => 
                   type={type}
                   value={value}
                   placeholder={label}
+                  max={type === "date" ? field.max : undefined}
                   onChange={(e) => onChange(name, e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className={`${
-                    type === "date" ? "lg:w-55" : "lg:min-w-[300px]"
-                  } w-full h-full bg-white px-3 py-2 border border-gray-300 rounded-xl shadow-sm text-sm md:text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 hover:border-blue-300 transition-all duration-150`}
+                  className={`${type === "date" ? "lg:w-55" : "lg:min-w-[300px]"
+                    } w-full h-full bg-white px-3 py-2 border border-gray-300 rounded-xl shadow-sm text-sm md:text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 hover:border-blue-300 transition-all duration-150`}
                 />
               </div>
             );

@@ -17,8 +17,8 @@ import Profile from "../adminVendorCommon/settings/Profile";
 import Security from "../adminVendorCommon/settings/Security";
 import StoreProfile from "./storeSettings/StoreProfile";
 import PersonContext from "../../../context/person/PersonContext";
-import PendingApproval from "./PendingApproval";
 import Loader from "../../common/Loader";
+import VendorStatus from "./vendorStatus/VendorStatus";
 
 const Vendor = () => {
   const { authTokens } = useContext(AuthContext);
@@ -41,7 +41,10 @@ const Vendor = () => {
     );
   }
 
-  if (person?.status === "pending") return <PendingApproval />;
+  const statuses = ["pending", "suspended", "rejected", "inactive"];
+  if (person && statuses.includes(person.status)) {
+    return <VendorStatus status={person.status} />;
+  }
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const closeSidebar = () => setIsSidebarOpen(false);

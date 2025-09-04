@@ -4,11 +4,10 @@ import {
   otpTemplate, 
   productAddedTemplate, 
   productAddedAdminTemplate, 
-  approveVendorTemplate, 
-  disapproveVendorTemplate,
-  approveProductTemplate,
-  disapproveProductTemplate,
-  vendorProfileUpdatedTemplate
+  vendorStatusTemplate,
+  productStatusTemplate,
+  vendorProfileUpdatedTemplate,
+  vendorStatusChangeAdminTemplate
 } from "./templates.js";
 
 export const sendOtpMail = async ({ to, otp }) => {
@@ -35,23 +34,27 @@ export async function sendProductAddedAdminMail({ to, vendorName, vendorEmail, p
   });
 }
 
-export async function sendVendorStatusMail({ to, vendorStatus, vendorName, vendorShop }) {
-  await sendMail({
-    to,
-    subject: `Your Vendor Account Status Update: ${toTitleCase(vendorStatus)}`,
-    html: vendorStatus === "approved"
-      ? approveVendorTemplate(vendorName, vendorShop)
-      : disapproveVendorTemplate(vendorName, vendorShop),
-  });
-}
-
 export async function sendProductStatusMail({ to, productStatus, productName, productId, vendorName, vendorShop }) {
   await sendMail({
     to,
     subject: `Your Product Status Update: ${toTitleCase(productStatus)}`,
-    html: productStatus === "approved"
-      ? approveProductTemplate(productName, productId, vendorName, vendorShop)
-      : disapproveProductTemplate(productName, productId, vendorName, vendorShop),
+    html: productStatusTemplate(productStatus, productName, productId, vendorName, vendorShop),
+  });
+}
+
+export async function sendVendorStatusMail({ to, vendorName, vendorShop, vendorEmail }) {
+  await sendMail({
+    to,
+    subject: `Vendor Status Approval`,
+    html: vendorStatusChangeAdminTemplate(vendorName, vendorShop, vendorEmail, "approved"),
+  });
+}
+
+export async function sendVendorApprovalStatusMail({ to, vendorStatus, vendorName, vendorShop, reason = "" }) {
+  await sendMail({
+    to,
+    subject: `Your Vendor Account Status Update: ${toTitleCase(vendorStatus)}`,
+    html: vendorStatusTemplate(vendorName, vendorShop, vendorStatus, reason),
   });
 }
 
@@ -59,6 +62,6 @@ export async function sendVendorProfileUpdatedMail({ to, vendorName, vendorShop,
   await sendMail({
     to,
     subject: `Your Vendor Profile Has Been Updated by Admin`,
-    html: vendorProfileUpdatedTemplate(to, vendorName, vendorShop, changes, data),
+    html: vendorProfileUpdatedTemplate(vendorName, vendorShop, changes, data),
   });
 }

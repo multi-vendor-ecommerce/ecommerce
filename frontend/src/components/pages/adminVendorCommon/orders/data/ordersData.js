@@ -28,7 +28,8 @@ export const orderFilterFields = [
   {
     name: "date",
     label: "Order Date",
-    type: "date"
+    type: "date",
+    max: new Date().toISOString().split("T")[0],
   }
 ];
 

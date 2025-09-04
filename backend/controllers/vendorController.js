@@ -1,7 +1,7 @@
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
-import { sendVendorStatusMail, sendVendorProfileUpdatedMail } from "../services/email/sender.js";
+import { sendVendorStatusMail, sendVendorApprovalStatusMail, sendVendorProfileUpdatedMail } from "../services/email/sender.js";
 
 // ==========================
 // Get all vendors (paginated)
@@ -41,23 +41,32 @@ export const getAllVendors = async (req, res) => {
 // ==========================
 export const getTopVendors = async (req, res) => {
   try {
+    // Use buildQuery for flexible searching
     let query = buildQuery(req.query, ["name", "email", "shopName"]);
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.max(parseInt(req.query.limit) || 100, 1);
     const skip = (page - 1) * limit;
     const role = req.person?.role;
 
+    // Only active vendors
     query.status = "active";
+
+    // Optionally, set minimum sales/revenue thresholds for "top" vendors
+    query.totalSales = { $gte: 10 };      // e.g., at least 10 sales
+    query.totalRevenue = { $gte: 1000 };  // e.g., at least $1000 revenue
+
+    // If vendor is viewing, restrict to their own profile
     if (role === "vendor" && req.person?.id) {
       query._id = req.person.id;
     }
 
+    // Sort by revenue, then sales, then product quantity
     const vendors = await Vendor.find(query)
-      .sort({ totalRevenue: -1, totalSales: -1 })
+      .sort({ totalRevenue: -1, totalSales: -1, productQuantity: -1 })
       .skip(skip)
       .limit(limit)
       .select(
-        "name email phone shopName shopLogo gstNumber status totalSales totalRevenue commissionRate registeredAt"
+        "name email phone shopName shopLogo gstNumber status totalSales totalRevenue commissionRate productQuantity registeredAt"
       )
       .lean();
 
@@ -157,13 +166,13 @@ export const updateVendorStatus = async (req, res) => {
       { new: true }
     ).select("name email phone shopName status");
 
-    // Send status email to vendor (only for active/rejected)
+    // Send status email to vendor
     try {
       // Send email for any status except "pending"
       if (status !== "pending" && status !== "") {
-        await sendVendorStatusMail({
+        await sendVendorApprovalStatusMail({
           to: vendor.email,
-          vendorStatus: status === "active" ? "approved" : status,
+          vendorStatus: status === "active" ? "approved" : status === "inactive" ? "disabled" : status,
           vendorName: vendor.name,
           vendorShop: vendor.shopName,
           reason: req.body.reason || "", // Pass reason if provided
@@ -258,5 +267,43 @@ export const adminEditVendor = async (req, res) => {
       message: "Unable to update vendor details.",
       error: error.message,
     });
+  }
+};
+
+// ==========================
+// Vendor Reactivate Account
+// =========================
+export const reactivateVendorAccount = async (req, res) => {
+  try {
+    let vendor = await Vendor.findById(req.person.id);
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: "Vendor not found." });
+    }
+
+    if (vendor.status !== "inactive") {
+      return res.status(400).json({ success: false, message: "Only inactive vendors can reactivate their accounts." });
+    }
+
+    vendor = await Vendor.findByIdAndUpdate(
+      req.person.id,
+      { status: "pending" },
+      { new: true }
+    ).select("name email phone shopName status");
+
+    try {
+      await sendVendorStatusMail({
+        to: process.env.ADMIN_EMAIL,
+        vendorName: vendor.name,
+        vendorShop: vendor.shopName,
+        vendorEmail: vendor.email,
+      });
+    } catch (emailErr) {
+      console.error("Vendor status email failed:", emailErr);
+    }
+
+    res.status(200).json({ success: true, vendor, message: "Account reactivation requested. Awaiting admin approval." });
+  } catch (error) {
+    console.error("Reactivate Vendor Account Error:", error);
+    res.status(500).json({ success: false, message: "Unable to request account reactivation.", error: error.message });
   }
 };

@@ -11,7 +11,7 @@ import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 const VendorManagement = ({ heading }) => {
   const { vendors, topVendors, getAllVendors, getTopVendors, totalCount, loading } = useContext(VendorContext);
 
-  const [filters, setFilters] = useState({ search: "", status: "" });
+  const [filters, setFilters] = useState({ search: "", status: "", date: "" });
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -49,7 +49,7 @@ const VendorManagement = ({ heading }) => {
   };
 
   const handleClear = () => {
-    const reset = { search: "", status: "" };
+    const reset = { search: "", status: "", date: "" };
     setFilters(reset);
     fetchPaginatedVendors(1, itemsPerPage);
   };

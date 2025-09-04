@@ -1,7 +1,7 @@
 import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
-import { getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor } from "../controllers/vendorController.js";
+import { getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor, reactivateVendorAccount } from "../controllers/vendorController.js";
 import { body } from "express-validator";
 import { validate } from "../middleware/validateFields.js";
 import upload from "../middleware/multer.js";
@@ -31,12 +31,17 @@ router.put("/:id/status", verifyToken, authorizeRoles("admin"), updateVendorStat
 // Desc: Edit vendor store info (vendor only)
 router.put("/edit/store", verifyToken, authorizeRoles("vendor"), uploadShopLogo.single("shopLogo"), editStoreValidator, validate, editStore);
 
-// ROUTE 5: GET /api/vendors/:id
+// ROUTE 5: PUT /api/vendors/reactivate
+// Desc: Reactivate vendor account (vendor only)
+router.put("/reactivate", verifyToken, authorizeRoles("vendor"), reactivateVendorAccount);
+
+// ROUTE 6: GET /api/vendors/:id
 // Desc: Get single vendor details (admin only)
 router.get("/:id", verifyToken, authorizeRoles("admin"), getVendorById);
 
-// ROUTE 6: PUT /api/vendors/:id
+// ROUTE 7: PUT /api/vendors/:id
 // Desc: Admin edit vendor details (admin only)
 router.put("/:id", verifyToken, authorizeRoles("admin"), adminEditVendor);
+
 
 export default router;

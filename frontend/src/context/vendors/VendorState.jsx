@@ -10,13 +10,14 @@ const VendorState = (props) => {
   // const host = import.meta.env.VITE_BACKEND_URL;
   const host = "http://localhost:5000";
 
-  const getAllVendors = async ({ search = "", status = "", page = 1, limit = 10 } = {}) => {
+  const getAllVendors = async ({ search = "", status = "", date = "", page = 1, limit = 10 } = {}) => {
     try {
       setLoading(true);
 
       const params = new URLSearchParams();
       if (search?.trim()) params.append("search", search);
       if (status) params.append("status", status);
+      if (date) params.append("date", date);
       params.append("page", page);
       params.append("limit", limit);
 
@@ -43,13 +44,14 @@ const VendorState = (props) => {
   };
 
   // Top Selling Products
-  const getTopVendors = async ({ search = "", status = "", page = 1, limit = 10 } = {}) => {
+  const getTopVendors = async ({ search = "", status = "", date = "", page = 1, limit = 10 } = {}) => {
     try {
       setLoading(true);
 
       const params = new URLSearchParams();
       if (search?.trim()) params.append("search", search);
       if (status) params.append("status", status);
+      if (date) params.append("date", date);
       params.append("page", page);
       params.append("limit", limit);
 
@@ -189,8 +191,34 @@ const VendorState = (props) => {
     }
   };
 
+  // Reactivate vendor account
+  const reactivateVendorAccount = async () => {
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${host}/api/vendors/reactivate`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("vendorToken"),
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || "Failed to reactivate vendor.");
+
+      setVendors(vendors.map(vendor => vendor._id === id ? data.vendor : vendor));
+      return { success: true, vendor: data.vendor, message: data.message || "Account reactivation requested. Awaiting admin approval." };
+    } catch (error) {
+      console.error("Error reactivating vendor:", error);
+      return { success: false, message: error.message || "Failed to reactivate vendor." };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor }}>
+    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor, reactivateVendorAccount }}>
       {props.children}
     </VendorContext.Provider>
   )

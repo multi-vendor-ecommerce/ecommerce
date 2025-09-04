@@ -196,8 +196,11 @@ export const loginPerson = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: `${toTitleCase(person.role)} login successful.`,
-      data: { authToken, role: person.role },
+      message: person.status === "inactive" ? "Your account is inactive. Request for activation."
+      : person.status === "pending" ? "Your account is pending approval. Please wait."
+      : person.status === "rejected" || person.status === "suspended" ? `Your account registration was ${person.status}. Contact support.`
+      : `${toTitleCase(person.role)} login successful.`,
+      data: { authToken, role: person.role, status: person.status },
     });
   } catch (err) {
     console.error("Login Error:", err.message);
