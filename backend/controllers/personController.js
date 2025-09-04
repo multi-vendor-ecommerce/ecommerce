@@ -1,6 +1,7 @@
 import Person from "../models/Person.js";
 import bcrypt from "bcryptjs";
 import { deleteImage } from "./imageController.js";
+import Vendor from "../models/Vendor.js";
 
 // ==========================
 // Get Current Person
@@ -92,12 +93,18 @@ export const deletePerson = async (req, res) => {
       return res.status(404).json({ success: false, message: "Profile not found or already deleted." });
     }
 
+    // Vendor: set status to inactive instead of deleting
+    if (req.person.role === "vendor") {
+      const vendor = await Vendor.findByIdAndUpdate(req.person.id, { status: "inactive" }, { new: true });
+      return res.status(200).json({ success: true, vendor, message: "Vendor account disabled (inactive)." });
+    }
+
+    // Customer: delete account
     // Delete profile image if exists
     if (person.profileImageId) {
       req.body.publicId = person.profileImageId;
       req.body.type = "profile";
       req.body.targetId = req.person.id;
-      
       await deleteImage(req, res);
     }
 

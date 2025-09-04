@@ -12,6 +12,7 @@ import { capitalize } from "../../../../utils/capitalize";
 import ImageEditor from "../../../common/ImageEditor";
 import { toast } from "react-toastify";
 import ActionButtons from "../../../common/ActionButtons";
+import { MdBlock } from "react-icons/md";
 
 const Profile = () => {
   const { person, editPerson, getCurrentPerson, deletePerson } = useContext(PersonContext);
@@ -37,7 +38,9 @@ const Profile = () => {
   const showDelete = person?.role !== "admin";
 
   const handleDelete = async () => {
-    toast.info("Are you sure you want to delete your account? This action cannot be undone.");
+    const confirmed = confirm("Are you sure you want to delete your account? This action cannot be undone.");
+    if (!confirmed) return;
+
     // If you want a custom confirmation modal, implement it here.
     // For now, just proceed as before:
     const res = await deletePerson();
@@ -137,8 +140,8 @@ const Profile = () => {
       {/* Delete Account Button */}
       {showDelete && (
         <Button
-          icon={FiTrash2}
-          text="Delete Account"
+          icon={person.role === "vendor" ? MdBlock : FiTrash2}
+          text={person.role === "vendor" ? "Disable Account" : "Delete Account"}
           className="mt-6 py-3"
           color="red"
           onClick={handleDelete}
