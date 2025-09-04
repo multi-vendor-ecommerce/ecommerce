@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Spinner from "./Spinner";
 
 const InfiniteScroller = ({
     fetchData,
@@ -21,7 +22,7 @@ const InfiniteScroller = ({
     }, []);
 
     const loadMore = async () => {
-        if (loadingRef.current) return; // Prevent concurrent loads
+        if (loadingRef.current) return; 
         loadingRef.current = true;
         try {
             const newData = await fetchData(page, pageSize);
@@ -48,7 +49,7 @@ const InfiniteScroller = ({
                 dataLength={data.length}
                 next={loadMore}
                 hasMore={hasMore}
-                loader={<p style={{ textAlign: "center" }}>Loading...</p>}
+                loader={<div className="w-full h-64 flex justify-center items-center"><Spinner /></div>}
                 endMessage={<div className="flex justify-center items-center w-40">No more data </div>}
                 scrollableTarget="scrollableDiv"
                 style={{

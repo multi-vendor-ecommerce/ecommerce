@@ -76,7 +76,7 @@ function UserHeader() {
       : "User";
 
   return (
-    <header className="sticky top-0 bg-[#E8F5E9] z-40 shadow-sm py-1">
+    <header className="sticky top-0 bg-[#E8F5E9] z-20 shadow-sm py-1">
       <div className=" lg:px-16">
         <div className="container mx-auto px-4 flex items-center justify-between gap-4 flex-wrap">
           <Link

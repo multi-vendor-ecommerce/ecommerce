@@ -42,7 +42,7 @@ const WishlistButton = ({ productId }) => {
       disabled={loading}
       style={{
         background: "none",
-        border: "none",
+        border: "none", 
         cursor: "pointer",
         fontSize: "1.5rem",
       }}

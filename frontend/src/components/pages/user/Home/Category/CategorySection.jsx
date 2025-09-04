@@ -1,42 +1,43 @@
 import React, { useState } from "react";
 import { FaCaretDown } from "react-icons/fa";
-import CategorySidebar from "./CategorySideBar";
+import CategorySidebar from "./CategorySidebar";
 import Spinner from "../../../../common/Spinner";
 
 const CategorySection = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const handleParentClick = (categoryId) => {
-    setSidebarOpen(true);
-    setSelectedCategories([categoryId]);
-    loadCategories(categoryId, 0);
-  };
+  const [highlightedCategory, setHighlightedCategory] = useState(null);
 
   return (
-    <div className="sticky z-5 bg-[#F0FDF4] px-6 py-3">
+    <div className="sticky  z-20 bg-[#F0FDF4] px-6 py-3">
       <div className="max-w-screen-xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:gap-6">
           {/* All Categories Button */}
           <div
-            onClick={() => setSidebarOpen(true)}
+            onClick={() => {
+              setSidebarOpen(true)
+              setHighlightedCategory(null)
+            }}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === "Enter" && setSidebarOpen(true)}
             className="flex items-center gap-3 px-5 py-3 bg-[#2E7D32] hover:bg-[#43A047] text-white rounded-full shadow-lg cursor-pointer transition duration-200"
           >
             <FaCaretDown className="text-white text-xl" />
-            <span className="text-base font-semibold">All Categories</span> 
+            <span className="text-base font-semibold">All Categories</span>
           </div>
 
           {/* Parent Categories Horizontal Scroll */}
           <div className="mt-3 md:mt-0 overflow-x-auto no-scrollbar flex-1">
-            <CategorySidebar showAsHorizontal parentCircleSize="large" />
+            <CategorySidebar showAsHorizontal parentCircleSize="large" onParentClick={(catId) => {    
+              setSidebarOpen(true);
+              setHighlightedCategory(catId);
+            }} />
           </div>
         </div>
       </div>
 
       {/* Sidebar */}
-      <CategorySidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <CategorySidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} highlightedCategory={highlightedCategory} />
     </div>
   );
 };

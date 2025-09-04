@@ -69,3 +69,23 @@ html {
 .btn-primary {
   @apply bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition;
 }
+
+/* Custom small scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 7px;  /* horizontal scrollbar height */
+  width: 2px;   /* vertical scrollbar width */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #a3a3a3;
+  border-radius: 9999px;
+  min-width: 20px;   /* horizontal scrollbar min thumb length */
+  min-height: 20px;  /* vertical scrollbar min thumb length */
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #525252; /* darker grey on hover */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* transparent track */
+}

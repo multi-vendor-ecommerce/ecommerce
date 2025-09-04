@@ -1,9 +1,17 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import useCategorySelection from "../../../../../hooks/useCategorySelection";
 import { encryptData } from "../../Utils/Encryption";
 import CategoryContext from "../../../../../context/categories/CategoryContext";
+
+// Import Swiper React components
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/navigation";
 
 // AccordionItem Component
 const AccordionItem = ({
@@ -47,8 +55,17 @@ const AccordionItem = ({
 
   return (
     <div>
-      <div className="flex justify-between items-center py-2 px-3 hover:bg-[#5BA50F]rounded cursor-pointer select-none ">
-        <span onClick={handleNameClick} title={category.name} className="flex-1">
+      <div
+        className={`flex justify-between items-center py-2 px-3 rounded cursor-pointer select-none ${isOpen
+            ? "bg-[#E8F5E9] font-semibold text-[#2E7D32]"
+            : "hover:bg-[#F1F8E9]"
+          }`}
+      >
+        <span
+          onClick={handleNameClick}
+          title={category.name}
+          className="flex-1"
+        >
           {category.name}
         </span>
         <span
@@ -84,48 +101,77 @@ const CategorySidebar = ({
   onClose = () => { },
   showAsHorizontal = false,
   parentCircleSize = "normal",
+  highlightedCategory = null,
+  onParentClick,
 }) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [openIndexes, setOpenIndexes] = useState({});
   const { categoriesByParentId } = useContext(CategoryContext);
 
-  const {
-    categoryLevels,
-    loadCategories,
-    handleCategoryClick,
-  } = useCategorySelection(() => { }, setSelectedCategories, selectedCategories);
+  const { categoryLevels, loadCategories, handleCategoryClick } =
+    useCategorySelection(() => { }, setSelectedCategories, selectedCategories);
 
   useEffect(() => {
     loadCategories(null, 0);
   }, []);
 
+  useEffect(() => {
+    if (highlightedCategory && isOpen) {
+      setSelectedCategories([highlightedCategory]);
+      setOpenIndexes({ 0: highlightedCategory });
+      loadCategories(highlightedCategory, 0);
+    }
+  }, [highlightedCategory, isOpen]);
+
   if (showAsHorizontal) {
-    const sizeClass = parentCircleSize === "large" ? "w-20 h-20 text-sm" : "w-14 h-14 text-xs";
+    const sizeClass =
+      parentCircleSize === "large" ? "w-20 h-20 text-sm" : "w-14 h-14 text-xs";
     const rootCategories = categoryLevels[0] || [];
 
     return (
-      <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 ">
-        {rootCategories.map((cat) => (
-          <div
-            key={cat._id}
-            className="flex flex-col items-center text-gray-700 cursor-pointer select-none"
-            title={cat.name}
-            onClick={() => console.log("Navigate to:", cat._id)}
-          >
-            <div
-              className={`bg-gray-100 rounded-full flex items-center justify-center shadow-sm ${sizeClass} font-semibold`}
+      <div className="w-full">
+        <Swiper
+          modules={[Navigation]}
+          spaceBetween={16}
+          slidesPerView="auto"
+          navigation
+          grabCursor
+        >
+          {rootCategories.map((cat) => (
+            <SwiperSlide
+              key={cat._id}
+              className="!w-auto flex flex-col items-center text-gray-700 cursor-pointer select-none"
+              onClick={() => {
+                if (typeof onParentClick === "function") {
+                  onParentClick(cat._id);
+                }
+              }}
             >
-              {cat.name.slice(0, 2).toUpperCase()}
-            </div>
-            <span
-              className={`mt-1 truncate ${parentCircleSize === "large" ? "text-base" : "text-xs"
-                }`}
-              style={{ maxWidth: parentCircleSize === "large" ? "5rem" : "3.5rem" }}
-            >
-              {cat.name}
-            </span>
-          </div>
-        ))}
+              <div
+                className={`bg-gray-100 rounded-full flex items-center justify-center shadow-sm overflow-hidden ${sizeClass} font-semibold`}
+              >
+                {cat.categoryImage ? (
+                  <img
+                    src={cat.categoryImage}
+                    alt={cat.name}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <span>{cat.name.slice(0, 2).toUpperCase()}</span>
+                )}
+              </div>
+              <span
+                className={`mt-1 text-center block overflow-hidden text-ellipsis whitespace-nowrap ${parentCircleSize === "large" ? "text-base" : "text-xs"
+                  }`}
+                style={{
+                  maxWidth: parentCircleSize === "large" ? "5rem" : "3.5rem",
+                }}
+              >
+                {cat.name}
+              </span>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     );
   }
@@ -134,7 +180,7 @@ const CategorySidebar = ({
     <>
       {isOpen && (
         <div
-          className="fixed inset-0  z-[9999] bg-black/20"
+          className="fixed inset-0 z-[9999] bg-black/20"
           onClick={onClose}
           role="button"
           tabIndex={0}

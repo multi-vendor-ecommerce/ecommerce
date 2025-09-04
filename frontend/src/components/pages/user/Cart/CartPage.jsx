@@ -97,7 +97,7 @@ const CartPage = () => {
   }
 
   return (
-    <div className="bg-[#F3F0FA] min-h-screen">
+    <div className="bg-green-50 min-h-screen">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl">
         <h2 className="text-xl sm:text-2xl font-semibold text-[#7F55B1] mb-4 ">
           Your Shopping Cart
