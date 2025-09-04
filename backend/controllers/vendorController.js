@@ -1,7 +1,7 @@
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
-import { sendVendorStatusMail, sendVendorProfileUpdatedMail } from "../services/email/sender.js";
+import { sendVendorStatusMail, sendVendorApprovalStatusMail, sendVendorProfileUpdatedMail } from "../services/email/sender.js";
 
 // ==========================
 // Get all vendors (paginated)
@@ -157,13 +157,13 @@ export const updateVendorStatus = async (req, res) => {
       { new: true }
     ).select("name email phone shopName status");
 
-    // Send status email to vendor (only for active/rejected)
+    // Send status email to vendor
     try {
       // Send email for any status except "pending"
       if (status !== "pending" && status !== "") {
-        await sendVendorStatusMail({
+        await sendVendorApprovalStatusMail({
           to: vendor.email,
-          vendorStatus: status === "active" ? "approved" : status,
+          vendorStatus: status === "active" ? "approved" : status === "inactive" ? "disabled" : status,
           vendorName: vendor.name,
           vendorShop: vendor.shopName,
           reason: req.body.reason || "", // Pass reason if provided
@@ -258,5 +258,43 @@ export const adminEditVendor = async (req, res) => {
       message: "Unable to update vendor details.",
       error: error.message,
     });
+  }
+};
+
+// ==========================
+// Vendor Reactivate Account
+// =========================
+export const reactivateVendorAccount = async (req, res) => {
+  try {
+    let vendor = await Vendor.findById(req.person.id);
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: "Vendor not found." });
+    }
+
+    if (vendor.status !== "inactive") {
+      return res.status(400).json({ success: false, message: "Only inactive vendors can reactivate their accounts." });
+    }
+
+    vendor = await Vendor.findByIdAndUpdate(
+      req.person.id,
+      { status: "pending" },
+      { new: true }
+    ).select("name email phone shopName status");
+
+    try {
+      await sendVendorStatusMail({
+        to: process.env.ADMIN_EMAIL,
+        vendorName: vendor.name,
+        vendorShop: vendor.shopName,
+        vendorEmail: vendor.email,
+      });
+    } catch (emailErr) {
+      console.error("Vendor status email failed:", emailErr);
+    }
+
+    res.status(200).json({ success: true, vendor, message: "Account reactivation requested. Awaiting admin approval." });
+  } catch (error) {
+    console.error("Reactivate Vendor Account Error:", error);
+    res.status(500).json({ success: false, message: "Unable to request account reactivation.", error: error.message });
   }
 };

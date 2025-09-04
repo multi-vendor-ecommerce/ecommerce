@@ -16,7 +16,7 @@ export const otpTemplate = (otp) => baseMail(`
   </p>
   <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
   <p style="font-size: 12px; color: #aaa;">
-    If you didn’t request this code, please ignore this email.
+    If you didn't request this code, please ignore this email.
   </p>
 `);
 
@@ -45,72 +45,61 @@ export const productAddedAdminTemplate = (productName, vendorName, vendorShop, v
   </div>
 `);
 
-// Vendor Account Approval Email Template
-export const approveVendorTemplate = (vendorName, vendorShop) => baseMail(`
-  <h2 style="color: #333; margin-bottom: 20px;">✅ Vendor Account Approved</h2>
+// Admin Notification for Vendor Status Change Email Template
+export const vendorStatusChangeAdminTemplate = (vendorName, vendorShop, vendorEmail, newStatus="approved") => baseMail(`
+  <h2 style="color: #333; margin-bottom: 20px;">🏷️ Vendor Status Updated</h2>
   <p style="font-size: 16px; color: #555;">
-    Congratulations <strong>${vendorName}</strong>, your vendor account has been approved!
+    Vendor <strong>${vendorName}</strong> has been inactive and has requested to change their status to <strong>${newStatus}</strong>.
   </p>
-  <p style="font-size: 14px; color: #555; margin: 15px 0;">
-    Shop Name: <strong>${vendorShop}</strong>
-  </p>
-  <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
-    You can now start adding products to the marketplace.
-  </p>
-  <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor" 
-     style="display: inline-block; padding: 10px 20px; background-color: #1a73e8; 
-            color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
-    Login to Your Dashboard
-  </a>
+  <div style="font-size: 14px; color: #888; margin-top: 10px;">
+    <span style="display: block; margin-bottom: 6px;">Vendor Details:</span>
+    <span style="display: block; margin-bottom: 6px;">Shop name: <strong>${vendorShop}</strong></span>
+    <span style="display: block;">Email: <strong>${vendorEmail}</strong></span>
+  </div>
 `);
 
-// Vendor Account Disapproval Email Template
-export const disapproveVendorTemplate = (vendorName, vendorShop) => baseMail(`
-  <h2 style="color: #333; margin-bottom: 20px;">❌ Vendor Account Disapproved</h2>
+// Vendor Account Status Change Notification Email Template
+export const vendorStatusTemplate = (vendorName, vendorShop, vendorStatus, reason = "") => baseMail(`
+  <h2 style="color: #333; margin-bottom: 20px;">🏷️ Account Status Updated</h2>
   <p style="font-size: 16px; color: #555;">
-    Hello, <strong>${vendorName}</strong>. We're sorry to inform you that your vendor account has been disapproved.
+    Hello <strong>${vendorName}</strong>, your vendor account for <strong>${vendorShop}</strong> has had its status changed to <strong>${vendorStatus}</strong> by <strong>Admin</strong>.
   </p>
-  <p style="font-size: 14px; color: #555; margin: 15px 0;">
-    Shop Name: <strong>${vendorShop}</strong>
-  </p>
-  <p style="font-size: 14px; color: #555; margin: 15px 0;">
-    Reasons: <strong>Shop does not meet the quality standards.</strong>
-  </p>
+  ${vendorStatus !== "active" && reason ? `<p style="font-size: 14px; color: #555; margin: 15px 0;">
+    <strong>Reason:</strong> ${reason}
+  </p>` : ""}
   <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
-    You can contact our support team for more information,
-    <a href="mailto:support@noahplanet.com" style="color: #1a73e8; text-decoration: underline;">here</a>.
+    ${vendorStatus === "active" ?
+      "You can now log in and start managing your products."
+      :
+      "If you have questions about this change, please contact support."
+    }
   </p>
-`);
-
-// Vendor Product Approval Notification Email Template
-export const approveProductTemplate = (productName, productId, vendorName, vendorShop) => baseMail(`
-  <h2 style="color: #333; margin-bottom: 20px;">🎉 Product Approved</h2>
-  <p style="font-size: 16px; color: #555;">
-    Great news! Hello <strong>${vendorName}</strong>, Your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) 
-    has been approved under <strong>${vendorShop}</strong>.
-  </p>
-  <p style="font-size: 14px; color: #555; margin: 15px 0;">
-    You can now start selling it on the marketplace.
-  </p>
-  <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor" 
-     style="display: inline-block; padding: 10px 20px; background-color: #28a745; 
-            color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
+  <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor"
+      style="display: inline-block; padding: 10px 20px; background-color: #28a745;
+              color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
     Go to Dashboard
   </a>
+  <p style="font-size: 14px; color: #555; margin-top: 20px;">
+    Thank you for being a valued vendor! We appreciate your partnership.
+  </p>
 `);
 
-// Vendor Product Rejection Notification Email Template
-export const disapproveProductTemplate = (productName, productId, vendorName, vendorShop) => baseMail(`
-  <h2 style="color: #333; margin-bottom: 20px;">❌ Product Rejected</h2>
+// Vendor Product Approval/Disapproval Notification Email Template
+export const productStatusTemplate = (productStatus, productName, productId, vendorName, vendorShop) => baseMail(`
+  < h2 style = "color: #333; margin-bottom: 20px;" > Product ${ toTitleCase(productStatus) } !</ >
   <p style="font-size: 16px; color: #555;">
-    Hello <strong>${vendorName}</strong>, We're sorry to inform you that your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) 
-    has been rejected under <strong>${vendorShop}</strong>.
+    Hello <strong>${vendorName}</strong>, your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) 
+    under <strong>${vendorShop}</strong> has been <strong>${productStatus}</strong>.
   </p>
   <p style="font-size: 14px; color: #555; margin: 15px 0;">
-    Reasons: <strong>Product does not meet the quality standards.</strong>
+    ${productStatus === "approved" ?
+      "You can now start selling this product on the marketplace."
+      :
+      "Please review the product details and make necessary adjustments."
+    }
   </p>
   <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
-    You can edit your product details and resubmit it for approval.
+    Thank you for being a valued vendor! We appreciate your partnership.
   </p>
   <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor" 
      style="display: inline-block; padding: 10px 20px; background-color: #28a745; 
@@ -120,7 +109,7 @@ export const disapproveProductTemplate = (productName, productId, vendorName, ve
 `);
 
 // Vendor Profile Updated Notification Email Template (uses <div> and <p> for changes)
-export const vendorProfileUpdatedTemplate = (to, vendorName, vendorShop, changes, data) => baseMail(`
+export const vendorProfileUpdatedTemplate = (vendorName, vendorShop, changes, data) => baseMail(`
   <h2 style="color: #333; margin-bottom: 20px;">🛠️ Vendor Profile Updated</h2>
   <p style="font-size: 16px; color: #555;">
     Hello <strong>${vendorName}</strong>, your vendor profile for <strong>${vendorShop}</strong> has been updated by <strong>Admin</strong>.

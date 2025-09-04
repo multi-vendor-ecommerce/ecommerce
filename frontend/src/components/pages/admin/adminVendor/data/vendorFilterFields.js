@@ -13,4 +13,10 @@ export const vendorFilterFields = [
       { value: "rejected", label: "Rejected" },
     ],
   },
+  {
+    name: "date",
+    label: "Registered Date",
+    type: "date",
+    max: new Date().toISOString().split("T")[0],                 // prevent picking a future date
+  }
 ];

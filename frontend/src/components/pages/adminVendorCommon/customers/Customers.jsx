@@ -48,7 +48,7 @@ const Customers = ({}) => {
 
   const customerFilterFields = [
     { name: "search", label: "Search by name, email, or location", type: "text" },
-    { name: "date", label: "Date", type: "date" },
+    { name: "date", label: "Date", type: "date", max: new Date().toISOString().split("T")[0], },
   ];
 
   const headers = ["Customer", "Email", "Phone", "Location", "Total Orders", "Total Value", "Registered On"];

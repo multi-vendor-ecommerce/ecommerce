@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiCheckCircle, FiTrash2 } from "react-icons/fi";
+import { FiCheckCircle, FiTrash2, FiUnlock } from "react-icons/fi";
 
 import CustomSelect from "../../../common/layout/CustomSelect";
 import { vendorFilterFields } from "./data/vendorFilterFields";
@@ -13,6 +13,7 @@ import InputField from "../../../common/InputField";
 import ActionButtons from "../../../common/ActionButtons";
 import useProfileUpdate from "../../../../hooks/useProfileUpdate";
 import Loader from "../../../common/Loader";
+import { MdBlock } from "react-icons/md";
 
 const EditVendor = () => {
   const { vendorId } = useParams();
@@ -62,7 +63,7 @@ const EditVendor = () => {
   };
 
   const filterFields = vendorFilterFields[1].options.filter(
-    (field) => field.value !== "pending" && field.value !== ""
+    (field) => field.value !== "pending" && field.value !== "" && field.value !== "inactive"
   );
 
   const handleSaveButton = async () => {
@@ -86,9 +87,24 @@ const EditVendor = () => {
     }
   };
 
-  const handleDelete = () => {
-    toast.success("Deleted");
-    navigate("/admin/all-vendors");
+  const handleDisable = async () => {
+    const res = await updateVendorStatus(vendorId, "inactive");
+    if (res?.success) {
+      toast.success(res.message || "Account disabled.");
+      navigate("/admin/all-vendors");
+    } else {
+      toast.error(res?.message || "Failed to disable account.");
+    }
+  };
+
+  const handleEnable = async () => {
+    const res = await updateVendorStatus(vendorId, "active");
+    if (res?.success) {
+      toast.success(res.message || "Account enabled.");
+      navigate("/admin/all-vendors");
+    } else {
+      toast.error(res?.message || "Failed to enable account.");
+    }
   };
 
   if (!form) {
@@ -169,14 +185,14 @@ const EditVendor = () => {
           disableSave={!hasChanges || hasEmptyRequired} // <-- updated here
         />
 
-        {/* Delete Account Button */}
+        {/* Disable Account Button */}
         <Button
-          icon={FiTrash2}
-          text="Delete Account"
+          icon={vendor.status === "inactive" ? FiUnlock : MdBlock}
+          text={vendor.status === "inactive" ? "Enable Account" : "Disable Account"}
           className="py-2"
-          color="red"
+          color={vendor.status === "inactive" ? "green" : "red"}
           disabled={editing}
-          onClick={handleDelete}
+          onClick={vendor.status === "inactive" ? handleEnable : handleDisable}
         />
       </div>
     </section>
