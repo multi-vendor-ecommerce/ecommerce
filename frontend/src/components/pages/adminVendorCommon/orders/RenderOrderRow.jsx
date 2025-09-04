@@ -10,7 +10,7 @@ import { getFormatDate } from "../../../../utils/formatDate";
  * @param {function} StatusChip - A component that renders the order status visually.
  */
 
-export const RenderOrderRow = (order, index, StatusChip, role = "admin") => (
+export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorId="") => (
   <tr
     key={index}
     className={`hover:bg-blue-50 hover:shadow-sm transition ${index !== 0 ? "border-t border-gray-200" : ""}`}
@@ -31,7 +31,7 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin") => (
     </td>
 
     {/* Vendor Name */}
-    {role === "admin" && (
+    {role === "admin" && !vendorId && (
       <td className="px-6 py-3 min-w-[180px] hover:scale-105 hover:underline hover:font-semibold transition duration-150">
         <NavLink
           to={`/admin/vendor/profile/${order.orderItems?.[0]?.product?.createdBy?._id || ""}`}

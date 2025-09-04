@@ -1,8 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FiCheckCircle, FiTrash2, FiUnlock } from "react-icons/fi";
-
+import { FiCheckCircle, FiUnlock } from "react-icons/fi";
 import CustomSelect from "../../../common/layout/CustomSelect";
 import { vendorFilterFields } from "./data/vendorFilterFields";
 import VendorContext from "../../../../context/vendors/VendorContext";
@@ -14,6 +13,7 @@ import ActionButtons from "../../../common/ActionButtons";
 import useProfileUpdate from "../../../../hooks/useProfileUpdate";
 import Loader from "../../../common/Loader";
 import { MdBlock } from "react-icons/md";
+import { updateVendorFields } from "./data/updateVendorFields";
 
 const EditVendor = () => {
   const { vendorId } = useParams();
@@ -148,27 +148,19 @@ const EditVendor = () => {
 
       {/* Editable Fields */}
       <div className="flex flex-col mt-8 gap-3 bg-white shadow-md rounded-xl p-6">
-        <InputField
-          name="commissionRate"
-          label="Commission Rate"
-          type="number"
-          placeholder="10"
-          title="Enter commission rate"
-          value={form?.commissionRate || ""}
-          onChange={handleChange}
-          disabled={!editing}
-        />
-
-        <InputField
-          name="gstNumber"
-          label="GST Number"
-          type="text"
-          placeholder="Enter GST Number"
-          title="Enter GST Number"
-          value={form?.gstNumber || ""}
-          onChange={handleChange}
-          disabled={!editing}
-        />
+        {updateVendorFields.map((field) => (
+          <InputField
+            key={field.name}
+            name={field.name}
+            label={field.label}
+            type={field.type}
+            placeholder={field.placeholder}
+            title={field.title}
+            value={form.name}
+            onChange={handleChange}
+            disabled={!editing}
+          />
+        ))}
       </div>
 
       {/* Action Buttons */}

@@ -1,4 +1,4 @@
-export function getFormatDate(date = new Date(), short = false) {
+export function getFormatDate(date = new Date(), short = true) {
   const dateObj = new Date(date);
   if (isNaN(dateObj)) return "Invalid date";
 

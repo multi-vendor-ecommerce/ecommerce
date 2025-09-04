@@ -154,7 +154,12 @@ export const getAllOrders = async (req, res) => {
       query.user = req.person.id;
     } else {
       if (role === "admin" && req.query.vendorId) {
-        query["orderItems.product.createdBy"] = req.query.vendorId;
+        const vendorProducts = await Product.find({ createdBy: req.query.vendorId }).select("_id");
+        const productIds = vendorProducts.map(p => p._id);
+
+        const testOrders = await Order.find({ "orderItems.product": { $in: productIds } });
+
+        query["orderItems.product"] = { $in: productIds };
       } else if (role === "vendor") {
         const allOrders = await Order.find(query)
           .sort({ createdAt: -1 })

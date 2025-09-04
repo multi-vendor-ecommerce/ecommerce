@@ -73,6 +73,9 @@ const VendorProfile = () => {
     return <div className="text-center mt-10 text-red-600">Vendor not found.</div>;
   }
 
+  const headers = 
+  ["Order ID", "Customer", "Total", "Mode", "Date", "Status", "Amount", "Actions"];
+
   return (
     <section className="p-6 w-full bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-3">
@@ -126,9 +129,9 @@ const VendorProfile = () => {
       <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Orders</h3>
       <div className="overflow-hidden bg-white shadow-md hover:shadow-blue-500 transition duration-200 rounded-xl border border-gray-200">
         <TabularData
-          headers={["Order ID", "Customer", "Vendor", "Total", "Mode", "Date", "Status", "Actions"]}
+          headers={headers}
           data={orders}
-          renderRow={(o, i) => RenderOrderRow(o, i, StatusChip)}
+          renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, vendorId)}
           emptyMessage="No orders found."
           widthClass="w-full"
         />

@@ -41,23 +41,32 @@ export const getAllVendors = async (req, res) => {
 // ==========================
 export const getTopVendors = async (req, res) => {
   try {
+    // Use buildQuery for flexible searching
     let query = buildQuery(req.query, ["name", "email", "shopName"]);
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.max(parseInt(req.query.limit) || 100, 1);
     const skip = (page - 1) * limit;
     const role = req.person?.role;
 
+    // Only active vendors
     query.status = "active";
+
+    // Optionally, set minimum sales/revenue thresholds for "top" vendors
+    query.totalSales = { $gte: 10 };      // e.g., at least 10 sales
+    query.totalRevenue = { $gte: 1000 };  // e.g., at least $1000 revenue
+
+    // If vendor is viewing, restrict to their own profile
     if (role === "vendor" && req.person?.id) {
       query._id = req.person.id;
     }
 
+    // Sort by revenue, then sales, then product quantity
     const vendors = await Vendor.find(query)
-      .sort({ totalRevenue: -1, totalSales: -1 })
+      .sort({ totalRevenue: -1, totalSales: -1, productQuantity: -1 })
       .skip(skip)
       .limit(limit)
       .select(
-        "name email phone shopName shopLogo gstNumber status totalSales totalRevenue commissionRate registeredAt"
+        "name email phone shopName shopLogo gstNumber status totalSales totalRevenue commissionRate productQuantity registeredAt"
       )
       .lean();
 
