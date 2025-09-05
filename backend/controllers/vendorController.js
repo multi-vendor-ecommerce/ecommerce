@@ -1,4 +1,5 @@
 import Vendor from "../models/Vendor.js";
+import Product from "../models/Products.js"; // Add this import at the top
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 import { sendVendorStatusMail, sendVendorApprovalStatusMail, sendVendorProfileUpdatedMail } from "../services/email/sender.js";
@@ -166,16 +167,21 @@ export const updateVendorStatus = async (req, res) => {
       { new: true }
     ).select("name email phone shopName status");
 
+    // Update all products for this vendor
+    await Product.updateMany(
+      { createdBy: vendor._id },
+      { status: status === "active" ? "approved" : "inactive" }
+    );
+
     // Send status email to vendor
     try {
-      // Send email for any status except "pending"
       if (status !== "pending" && status !== "") {
         await sendVendorApprovalStatusMail({
           to: vendor.email,
           vendorStatus: status === "active" ? "approved" : status === "inactive" ? "disabled" : status,
           vendorName: vendor.name,
           vendorShop: vendor.shopName,
-          reason: req.body.reason || "", // Pass reason if provided
+          reason: req.body.reason || "",
         });
       }
     } catch (emailErr) {
@@ -185,7 +191,7 @@ export const updateVendorStatus = async (req, res) => {
     res.status(200).json({
       success: true,
       vendor,
-      message: `Vendor status updated to ${status}.`
+      message: `Vendor status updated to ${status}. Products updated as well.`
     });
   } catch (error) {
     res.status(500).json({

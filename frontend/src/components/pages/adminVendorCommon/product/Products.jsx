@@ -81,7 +81,7 @@ export default function Products({ heading, role = "admin" }) {
 
   const headers = [
     "Product", "ID", "Brand", "Category", "Price", "Units Sold",
-    "Revenue", "Approval Status", "Sales Progress", "Actions"
+    "Revenue", "Status", "Sales Progress", "Actions"
   ];
 
   const maxUnitsSold = Math.max(...(products?.map(p => p.unitsSold || 0) || [0]));

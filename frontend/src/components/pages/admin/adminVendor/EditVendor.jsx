@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FiCheckCircle, FiUnlock } from "react-icons/fi";
 import CustomSelect from "../../../common/layout/CustomSelect";
@@ -62,9 +62,23 @@ const EditVendor = () => {
     }
   };
 
-  const filterFields = vendorFilterFields[1].options.filter(
-    (field) => field.value !== "pending" && field.value !== "" && field.value !== "inactive"
-  );
+  const filterFields = vendorFilterFields[1].options.filter((field) => {
+    if (vendor?.status === "active") {
+      return field.value === "suspended";
+    }
+    if (vendor?.status === "pending") {
+      return field.value === "active" || field.value === "rejected";
+    }
+    if (
+      vendor?.status === "suspended" ||
+      vendor?.status === "rejected" ||
+      
+      vendor?.status === "inactive"
+    ) {
+      return field.value === "active";
+    }
+    return false;
+  });
 
   const handleSaveButton = async () => {
     if (!hasChanges) {
@@ -126,7 +140,8 @@ const EditVendor = () => {
         <div className="flex gap-2 justify-between items-center">
           <h3 className="inline font-semibold">Vendor Status</h3>
           <span className="flex gap-2 items-center">
-            Current <StatusChip status={vendor?.status} />
+            <span className="hidden md:inline">Current</span>
+            <StatusChip status={vendor?.status} />
           </span>
         </div>
 
@@ -135,17 +150,26 @@ const EditVendor = () => {
           value={status}
           onChange={(newValue) => setStatus(newValue)}
           menuPlacement="auto"
+          placeholder="Select new status"
+          isClearable
         />
+
+        <p className="text-xs md:text-sm text-gray-500">
+          To approve or disapprove vendors, please visit the
+          <NavLink to="/admin/approve-vendors" className="text-blue-600 hover:text-blue-700 hover:underline mx-1">
+            Vendor Approval
+          </NavLink>
+          page.
+        </p>
       </div>
 
       <Button
         icon={FiCheckCircle}
-        text={"Update Status"}
+        text={updatingId === vendorId ? "Updating..." : "Update Status"}
         onClick={() => handleStatusChange(vendorId)}
         className="mt-4 py-2"
         disabled={!status || status === vendor?.status || updatingId === vendorId}
       />
-
       {/* Editable Fields */}
       <div className="flex flex-col mt-8 gap-3 bg-white shadow-md rounded-xl p-6">
         {updateVendorFields.map((field) => (

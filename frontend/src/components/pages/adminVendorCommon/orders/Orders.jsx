@@ -4,12 +4,12 @@ import { orderFilterFields } from "./data/ordersData";
 import { RenderOrderRow } from "./RenderOrderRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
-import BackButton from "../../../common/layout/BackButton";
 import OrderContext from "../../../../context/orders/OrderContext";
 import Loader from "../../../common/Loader";
 import FilterBar from "../../../common/FilterBar";
+import BackButton from "../../../common/layout/BackButton";
 
-export default function Orders({ role = "admin" }) {
+export default function Orders({ role = "admin", vendorId = null }) {
   const { orders, getAllOrders, loading, totalCount } = useContext(OrderContext);
 
   const [filters, setFilters] = useState({ search: "", status: "", date: "" });
@@ -17,8 +17,9 @@ export default function Orders({ role = "admin" }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
-    getAllOrders({ ...filters, page, limit: itemsPerPage });
-  }, [page, itemsPerPage]);
+    getAllOrders({ ...filters, vendorId, page, limit: itemsPerPage });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vendorId, page, itemsPerPage, filters]);
 
   const handleChange = (name, value) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
@@ -26,14 +27,14 @@ export default function Orders({ role = "admin" }) {
 
   const handleApply = () => {
     setPage(1);
-    getAllOrders({ ...filters, page: 1, limit: itemsPerPage });
+    getAllOrders({ ...filters, vendorId, page: 1, limit: itemsPerPage });
   };
 
   const handleClear = () => {
-    const cleared = { search: "", status: "" };
+    const cleared = { search: "", status: "", date: "" };
     setFilters(cleared);
     setPage(1);
-    getAllOrders({ ...cleared, page: 1, limit: itemsPerPage });
+    getAllOrders({ ...cleared, vendorId, page: 1, limit: itemsPerPage });
   };
 
   const handlePageChange = (pg) => {
@@ -48,7 +49,7 @@ export default function Orders({ role = "admin" }) {
   const headers = [
     "Order ID",
     "Customer",
-    ...(role === "admin" ? ["Vendor"] : []),
+    ...(role === "admin" && !vendorId ? ["Vendor"] : []),
     "Total",
     "Mode",
     "Date",
@@ -57,13 +58,25 @@ export default function Orders({ role = "admin" }) {
     "Actions"
   ];
 
+  if (loading && orders.length === 0) {
+    return (
+      <section className="bg-gray-100 min-h-screen flex items-center justify-center">
+        <Loader />
+      </section>
+    );
+  }
+
   return (
-    <section className="bg-gray-100 min-h-screen p-6 shadow-md">
-      <BackButton />
+    <section className={`min-h-screen ${!vendorId && "bg-gray-100 p-6 shadow-md"}`}>
+      {!vendorId && <BackButton />}
 
       {/* Header + Filters */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mt-4 mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800">All Orders</h2>
+        {!vendorId && (
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+            All Orders
+          </h2>
+        )}
 
         <div>
           <FilterBar
@@ -76,31 +89,24 @@ export default function Orders({ role = "admin" }) {
         </div>
       </div>
 
-      {/* Table + Pagination */}
-      {loading ? (
-        <div className="flex justify-center items-center min-h-[300px]">
-          <Loader />
-        </div>
-      ) : (
-        <PaginatedLayout
-          totalItems={totalCount}
-          currentPage={page}
-          itemsPerPage={itemsPerPage}
-          onPageChange={handlePageChange}
-          onItemsPerPageChange={handleItemsPerPageChange}
-        >
-          {() => (
-            <div className="overflow-hidden bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
-              <TabularData
-                headers={headers}
-                data={orders}
-                renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, role)}
-                emptyMessage="No orders found."
-              />
-            </div>
-          )}
-        </PaginatedLayout>
-      )}
+      <PaginatedLayout
+        totalItems={totalCount}
+        currentPage={page}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+        onItemsPerPageChange={handleItemsPerPageChange}
+      >
+        {() => (
+          <div className="overflow-hidden bg-white shadow-md shadow-blue-500 rounded-xl border border-gray-200">
+            <TabularData
+              headers={headers}
+              data={orders}
+              renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, role, vendorId)}
+              emptyMessage="No orders found."
+            />
+          </div>
+        )}
+      </PaginatedLayout>
     </section>
   );
 }

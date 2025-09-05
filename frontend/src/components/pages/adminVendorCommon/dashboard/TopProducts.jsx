@@ -52,7 +52,7 @@ const TopProducts = () => {
           <TabularData
             headers={[
               "Product", "ID", "Brand", "Category", "Price", "Units Sold",
-              "Revenue", "Approval Status", "Sales Progress", "Actions"
+              "Revenue", "Status", "Sales Progress", "Actions"
             ]}
             data={productsToShow}
             renderRow={(p, i) => RenderProductRow(p, i, maxUnitsSold, true)}

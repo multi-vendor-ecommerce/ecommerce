@@ -1,47 +1,34 @@
 import { useParams, NavLink } from "react-router-dom";
 import { useContext, useState, useEffect, useMemo } from "react";
 import VendorContext from "../../../../context/vendors/VendorContext";
-import OrderContext from "../../../../context/orders/OrderContext";
-import TabularData from "../../../common/layout/TabularData";
 import { FiEdit } from "react-icons/fi";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import StatusChip from "../../../common/helperComponents/StatusChip";
 import { getVendorCardData } from "./data/vendorProfileCards";
-import { RenderOrderRow } from "../../adminVendorCommon/orders/RenderOrderRow";
 import StatGrid from "../../../common/helperComponents/StatGrid";
 import { getFormatDate } from "../../../../utils/formatDate";
 import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
+import Orders from "../../adminVendorCommon/orders/Orders";
 
 const VendorProfile = () => {
   const { vendorId } = useParams();
   const { getVendorById, loading } = useContext(VendorContext);
-  const { orders, getAllOrders } = useContext(OrderContext);
   const [vendor, setVendor] = useState(null);
 
-  // 1. Fetch vendor
+  // Fetch vendor
   useEffect(() => {
     const fetchVendor = async () => {
       const result = await getVendorById(vendorId);
       setVendor(result);
     };
-    
     fetchVendor();
   }, [vendorId, getVendorById]);
 
-  // 2. Fetch vendor orders *after* vendor state is set
-  useEffect(() => {
-    if (vendor?._id) {
-      getAllOrders({ vendorId: vendor?._id });
-    }
-  }, [vendor?._id]);
-
-  // ... rest remains the same
+  // Monthly sales data (optional, can be enhanced to use paginated orders from Orders component)
   const monthlyData = useMemo(() => {
-    if (!orders.length) return [];
-
+    if (!vendor?.orders?.length) return [];
     const map = {};
-    orders.forEach((o) => {
+    vendor.orders.forEach((o) => {
       const d = new Date(o.date);
       const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
       const orderTotal = (Array.isArray(o.products) ? o.products : []).reduce(
@@ -50,7 +37,6 @@ const VendorProfile = () => {
       );
       map[key] = (map[key] || 0) + orderTotal;
     });
-
     return Object.entries(map)
       .sort((a, b) => new Date(a[0]) - new Date(b[0]))
       .slice(-6)
@@ -59,7 +45,7 @@ const VendorProfile = () => {
         const formattedMonth = getFormatDate(`${year}-${month}-01`).split(" ").slice(1).join(" ");
         return { month: formattedMonth, Sales: v };
       });
-  }, [orders]);
+  }, [vendor]);
 
   if (loading) {
     return (
@@ -73,14 +59,10 @@ const VendorProfile = () => {
     return <div className="text-center mt-10 text-red-600">Vendor not found.</div>;
   }
 
-  const headers = 
-  ["Order ID", "Customer", "Total", "Mode", "Date", "Status", "Amount", "Actions"];
-
   return (
     <section className="p-6 w-full bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-3">
         <BackButton />
-
         <NavLink
           to={`/admin/vendor/edit-delete/${vendor._id}`}
           className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-black font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
@@ -127,15 +109,8 @@ const VendorProfile = () => {
       </div>
 
       <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Orders</h3>
-      <div className="overflow-hidden bg-white shadow-md hover:shadow-blue-500 transition duration-200 rounded-xl border border-gray-200">
-        <TabularData
-          headers={headers}
-          data={orders}
-          renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, vendorId)}
-          emptyMessage="No orders found."
-          widthClass="w-full"
-        />
-      </div>
+      {/* Use Orders component for paginated vendor orders */}
+      <Orders role="admin" vendorId={vendor._id} />
     </section>
   );
 };
