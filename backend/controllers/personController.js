@@ -57,6 +57,11 @@ export const editPerson = async (req, res) => {
 
     traverse(req.body);
 
+    const forbiddenFields = ["_id", "role", "email", "createdAt"];
+    for (const field of forbiddenFields) {
+      delete update[field];
+    }
+
     if (Object.keys(update).length === 0) {
       return res.status(400).json({ success: false, message: "No valid fields to update." });
     }

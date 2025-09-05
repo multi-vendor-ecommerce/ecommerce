@@ -24,6 +24,7 @@ import ApproveProduct from "./adminProducts/ApproveProduct";
 import CreateCategory from "./adminCategories/CreateCategory";
 import ApproveVendor from "./adminVendor/ApproveVendor";
 import EditVendor from "./adminVendor/EditVendor";
+import EditProduct from "../adminVendorCommon/product/EditProduct";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);
@@ -69,6 +70,7 @@ const Admin = () => {
             <Route path="product-details/:productId" element={<ProductDetails role={role} />} />
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" role={role} />} />
             <Route path="approve-products" element={<ApproveProduct />} />
+            <Route path="product/edit-delete/:productId" element={<EditProduct />} />
 
             <Route path="all-vendors" element={<VendorManagement heading="All Vendors" />} />
             <Route path="top-vendors" element={<VendorManagement heading="Top Vendors" />} />

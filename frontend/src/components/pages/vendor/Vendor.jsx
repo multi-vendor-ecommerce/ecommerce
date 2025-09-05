@@ -76,6 +76,7 @@ const Vendor = () => {
             <Route path="product-details/:productId" element={<ProductDetails role={role} />} />
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" role={role} />} />
             <Route path="add-product" element={<AddProduct />} />
+            <Route path="product/edit-delete/:productId" element={<EditProduct />} />
 
             {/* Settings */}
             <Route path="store/">

@@ -238,6 +238,11 @@ export const adminEditVendor = async (req, res) => {
       return res.status(400).json({ success: false, message: "No fields to update." });
     }
 
+    const forbiddenFields = ["_id", "email", "registeredAt", "totalSales", "totalRevenue"];
+    for (const field of forbiddenFields) {
+      delete update[field];
+    }
+
     vendor = await Vendor.findByIdAndUpdate(
       req.params.id,
       { $set: update },

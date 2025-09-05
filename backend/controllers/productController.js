@@ -387,7 +387,6 @@ export const addProduct = async (req, res) => {
   }
 };
 
-
 // ==========================
 // Update product status (approve/reject)
 // ==========================
@@ -427,5 +426,64 @@ export const updateProductStatus = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: `Unable to update product status`, error: error.message });
+  }
+};
+
+// ==========================
+// Edit product (admin & vendor)
+// ==========================
+export const editProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const isAdmin = req.person?.role === "admin";
+    const isVendor = req.person?.role === "vendor";
+
+    let product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found." });
+    }
+
+    // Vendor can only edit their own products
+    if (isVendor && !product.createdBy.equals(req.person.id)) {
+      return res.status(403).json({ success: false, message: "Access denied." });
+    }
+
+    // Allowed fields for vendor
+    const allowedVendorFields = [
+      "title", "brand", "description", "images", "video",
+      "price", "discount", "stock", "sku", "hsnCode", "gstRate", "isTaxable",
+      "freeDelivery", "tags", "colors", "sizes", "category"
+    ];
+
+    // Build update object
+    const update = {};
+    Object.keys(req.body).forEach((key) => {
+      // Restrict hsnCode, sku, gstRate, and category if product is approved
+      if (
+        (key === "hsnCode" || key === "sku" || key === "gstRate" || key === "category") &&
+        product.status === "approved"
+      ) {
+        // Do not allow editing
+        return;
+      }
+      if (isAdmin || allowedVendorFields.includes(key)) {
+        update[key] = req.body[key];
+      }
+    });
+
+    const forbiddenFields = ["createdBy", "_id", "unitsSold", "totalRevenue", "rating", "totalReviews", "status", "reviews", "createdAt", "updatedAt"];
+    for (const field of forbiddenFields) {
+      delete update[field];
+    }
+
+    product = await Product.findByIdAndUpdate(productId, update, { new: true, runValidators: true });
+
+    res.status(200).json({
+      success: true,
+      product,
+      message: "Product updated successfully."
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Unable to update product.", error: error.message });
   }
 };

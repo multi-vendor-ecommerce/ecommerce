@@ -167,6 +167,34 @@ const ProductState = ({ children }) => {
     }
   };
 
+  // Add product (admin/vendor only)
+  const editProduct = async (id, formData) => {
+    const { role } = getRoleInfo();
+
+    try {
+      setLoading(true);
+
+      const headers = {};
+      if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
+      else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
+
+      const response = await fetch(`${host}/api/products/edit/${id}`, {
+        method: "PUT",
+        headers,
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to edit product.");
+      return data;
+    } catch (error) {
+      console.error("Error editing product:", error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Update product status (admin only)
   const updateProductStatus = async (id, status) => {
     try {
@@ -203,6 +231,7 @@ const ProductState = ({ children }) => {
         getProductsByCategoryId,
         addProduct,
         getTopSellingProducts,
+        editProduct,
         updateProductStatus
       }}
     >
