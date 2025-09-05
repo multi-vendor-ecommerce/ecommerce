@@ -6,16 +6,11 @@ import Spinner from "../../../common/Spinner";
 
 const WishlistPage = () => {
     const { wishlist, getWishlist, removeFromWishlist, loading } = useContext(WishlistContext);
-    const [wishlistCount, setWishlistCount] = useState(0)
     const navigate = useNavigate();
 
     useEffect(() => {
         getWishlist();
     }, []);
-
-    useEffect(() => {
-        setWishlistCount(wishlist.length)
-    }, [wishlist])
 
     const handleProductClick = (productId) => {
         const secretKey = import.meta.env.VITE_SECRET_KEY;
@@ -37,7 +32,7 @@ const WishlistPage = () => {
 
     return (
         <div className="w-full mx-auto py-8 px-4 bg-green-50 min-h-screen">
-            <h2 className="text-2xl font-bold mb-6 text-green-700">My Wishlist</h2> {wishlistCount}
+            <h2 className="text-2xl font-bold mb-6 text-green-700">My Wishlist</h2> 
 
             {wishlist.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 px-6 text-center space-y-4 bg-white max-w-md mx-auto rounded-lg shadow-md">

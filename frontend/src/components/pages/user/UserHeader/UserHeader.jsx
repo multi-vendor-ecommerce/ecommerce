@@ -1,9 +1,11 @@
-import { FaShoppingCart, FaSearch, FaUser } from "react-icons/fa";
+import { FaShoppingCart, FaSearch, FaHeart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import React, { useState, useContext, useEffect, useRef } from "react";
 import CartContext from "../../../../context/cart/CartContext";
 import PersonContext from "../../../../context/person/PersonContext";
-import WishlistContext from "../../../../context/wishlist/WishlistContext"; import { FaHeart } from "react-icons/fa";
+import WishlistContext from "../../../../context/wishlist/WishlistContext";
+import ProfileMenu from "../../adminVendorCommon/common/header/ProfileMenu";
+import ProfileImage from "../../adminVendorCommon/common/header/ProfileImage";
 
 function UserHeader() {
   const { cart } = useContext(CartContext);
@@ -24,16 +26,14 @@ function UserHeader() {
     }
   };
 
-  //  Update token when storage changes
+  // Update token on localStorage changes
   useEffect(() => {
-    const onStorageChange = () => {
-      setToken(localStorage.getItem("customerToken"));
-    };
+    const onStorageChange = () => setToken(localStorage.getItem("customerToken"));
     window.addEventListener("storage", onStorageChange);
     return () => window.removeEventListener("storage", onStorageChange);
   }, []);
 
-  //  Fetch current user when logged in
+  // Fetch user & wishlist if logged in
   useEffect(() => {
     if (token) {
       getCurrentPerson();
@@ -41,7 +41,7 @@ function UserHeader() {
     }
   }, [token]);
 
-  //  Close dropdown on outside click
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -61,14 +61,6 @@ function UserHeader() {
     if (e.key === "Enter") handleSearch();
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("customerToken");
-    setToken(null);
-    setDropdownOpen(false);
-    navigate("/");
-  };
-
-  // Get first name or email prefix for display
   const displayName = person?.name
     ? person.name.split(" ")[0]
     : person?.email
@@ -76,13 +68,12 @@ function UserHeader() {
       : "User";
 
   return (
-    <header className="sticky top-0 bg-[#E8F5E9] z-20 shadow-sm py-1">
-      <div className=" lg:px-16">
+    <header className="sticky top-0 bg-[#E8F5E9] z-30 shadow-sm py-1">
+      <div className="lg:px-16">
         <div className="container mx-auto px-4 flex items-center justify-between gap-4 flex-wrap">
-          <Link
-            to="/"
-            className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap"
-          >
+
+          {/* Logo */}
+          <Link to="/" className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap">
             <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-19 sm:h-17 rounded" />
           </Link>
 
@@ -95,13 +86,11 @@ function UserHeader() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleKeyDown}
-              aria-label="Search products"
             />
             <button
               type="button"
               onClick={handleSearch}
               className="bg-[#2E7D32] px-3 text-white font-semibold rounded-r-md"
-              aria-label="Search"
             >
               <FaSearch />
             </button>
@@ -113,49 +102,22 @@ function UserHeader() {
               <Link to="/login/user" className="hover:text-user-primary text-md">
                 Sign In
               </Link>
-            ) : (
+            ) : person ? (
               <div className="relative" ref={dropdownRef}>
-                {/* Profile Icon */}
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center gap-2 hover:text-user-primary focus:outline-none cursor-pointer"
                 >
-                  <div className="bg-[#2E7D32] text-white rounded-full w-9 h-9 flex items-center justify-center shadow-md cursor-pointer">
-                    {displayName[0].toUpperCase()}
-                  </div>
+                  <ProfileImage person={person} />
                   <div className="hidden sm:flex flex-col cursor-pointer">
                     <span className="text-sm font-semibold">Hi, {displayName}</span>
                     <span className="text-xs text-gray-400">Welcome back!</span>
                   </div>
                 </button>
 
-                {/* Dropdown */}
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      My Profile
-                    </Link>
-                    <Link
-                      to="/my-orders"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      My Orders
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+                {dropdownOpen && <ProfileMenu person={person} />}
+              </div>) : null
+            }
 
             {/* Wishlist */}
             <Link
@@ -167,7 +129,6 @@ function UserHeader() {
                 }
               }}
               className="relative bg-[#E8F5E9] p-3 rounded-full hover:bg-pink-200 transition-colors"
-              aria-label={`Wishlist with ${wishlist.length} items`}
             >
               <FaHeart className="text-2xl cursor-pointer hover:text-[pink-600]" />
               {token && wishlist.length > 0 && (
@@ -187,7 +148,6 @@ function UserHeader() {
                 }
               }}
               className="relative bg-purple-100 p-3 rounded-full hover:bg-purple-200 transition-colors"
-              aria-label={`Cart with ${cartItemCount} items`}
             >
               <FaShoppingCart className="text-2xl cursor-pointer hover:text-purple-800" />
               {token && cartItemCount > 0 && (
@@ -197,7 +157,6 @@ function UserHeader() {
               )}
             </Link>
           </div>
-
         </div>
 
         {/* Mobile Search */}
@@ -210,13 +169,11 @@ function UserHeader() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleKeyDown}
-              aria-label="Search products"
             />
             <button
               type="button"
               onClick={handleSearch}
               className="bg-[#2E7D32] px-3 text-white font-semibold rounded-r-md"
-              aria-label="Search"
             >
               <FaSearch />
             </button>

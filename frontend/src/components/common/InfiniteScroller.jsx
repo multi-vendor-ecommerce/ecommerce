@@ -50,7 +50,6 @@ const InfiniteScroller = ({
                 next={loadMore}
                 hasMore={hasMore}
                 loader={<div className="w-full h-64 flex justify-center items-center"><Spinner /></div>}
-                endMessage={<div className="flex justify-center items-center w-40">No more data </div>}
                 scrollableTarget="scrollableDiv"
                 style={{
                     display: "flex",

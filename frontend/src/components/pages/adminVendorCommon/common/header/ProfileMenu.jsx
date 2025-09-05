@@ -43,7 +43,7 @@ const ProfileMenu = ({ person }) => {
         </li>
         {person.role === "customer" && (
           <li className="px-4 mx-2 pt-2 pb-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer">
-            <NavLink to={`/orders`} className="flex items-center gap-2 hover:scale-105 transition duration-300">
+            <NavLink to={`/my-orders`} className="flex items-center gap-2 hover:scale-105 transition duration-300">
               <FiShoppingBag size={22} className="text-xl font-semibold" />
               <span>My Orders</span>
             </NavLink>

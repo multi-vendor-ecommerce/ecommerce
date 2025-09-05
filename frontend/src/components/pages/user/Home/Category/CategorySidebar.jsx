@@ -187,7 +187,7 @@ const CategorySidebar = ({
           onKeyDown={(e) => e.key === "Escape" && onClose()}
         >
           <div
-            className="absolute top-0 left-0 w-72 max-w-full h-full bg-white shadow-md overflow-y-auto p-4"
+             className="absolute top-0 left-0 w-72 max-w-full h-full bg-white shadow-md p-4 z-[10000] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
@@ -201,7 +201,7 @@ const CategorySidebar = ({
               </button>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 relative z-[10001]">
               {(categoryLevels[0] || []).map((cat) => (
                 <AccordionItem
                   key={cat._id}

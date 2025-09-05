@@ -72,7 +72,7 @@ const CartPage = () => {
 
   const handleCartCheckout = async () => {
     const res = await createOrderDraft({
-      buyNow: false 
+      buyNow: false
     });
 
     if (res.success) {
@@ -84,11 +84,11 @@ const CartPage = () => {
 
   if (!cart.length) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 px-6 text-center space-y-4 bg-white max-w-md mx-auto">
-        <p className="text-xl font-semibold text-gray-700">Your cart is empty</p>
+      <div className="flex flex-col items-center justify-center px-6 text-center space-y-4 bg-green-50 min-h-screen">
+        <p className="text-xl font-semibold text-green-700">Your cart is empty</p>
         <NavLink
           to="/"
-          className="inline-block px-6 py-3 bg-[#7F55B1] text-white font-medium rounded-md  transition-colors duration-300 "
+          className="inline-block px-6 py-3 bg-green-900 text-white font-medium rounded-md  transition-colors duration-300 "
         >
           Shop Now
         </NavLink>
@@ -99,7 +99,7 @@ const CartPage = () => {
   return (
     <div className="bg-green-50 min-h-screen">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl">
-        <h2 className="text-xl sm:text-2xl font-semibold text-[#7F55B1] mb-4 ">
+        <h2 className="text-xl sm:text-2xl font-semibold text-green-700 mb-4 ">
           Your Shopping Cart
         </h2>
 
@@ -112,7 +112,7 @@ const CartPage = () => {
           {cart.filter(item => item.product).map(({ _id, color, size, product, quantity }) => (
             <div
               key={_id || `${product._id}-${color || 'default'}-${size || 'default'}`}
-              className="flex flex-col md:flex-row md:items-center bg-white border border-[#E0D6F2] p-4 rounded-xl shadow-sm gap-4"
+              className="flex flex-col md:flex-row md:items-center bg-white border border-green-500 p-4 rounded-xl shadow-sm gap-4"
             >
               <img
                 src={product.image?.url || null}
@@ -194,11 +194,42 @@ const CartPage = () => {
 
                 <button
                   onClick={() => handleRemove(_id)}
-                  className="text-red-600 hover:underline text-sm"
                   disabled={removingId === _id}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all
+                    ${removingId === _id
+                      ? "bg-red-300 text-white cursor-not-allowed"
+                      : "bg-red-100 text-red-600 hover:bg-red-600 hover:text-white shadow-sm"
+                    }`}
                 >
-                  {removingId === _id ? "Removing..." : "Remove"}
+                  {removingId === _id ? (
+                    <span className="flex items-center gap-2">
+                      <svg
+                        className="animate-spin h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                        ></path>
+                      </svg>
+                      Removing...
+                    </span>
+                  ) : (
+                    "Remove"
+                  )}
                 </button>
+
 
               </div>
             </div>
@@ -211,7 +242,7 @@ const CartPage = () => {
           </span>
           <button
             onClick={handleCartCheckout}
-            className="bg-[#7F55B1] hover:bg-[#6b3fa5] text-white px-6 py-2 rounded-lg shadow cursor-pointer"
+            className="bg-green-900 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow cursor-pointer"
           >
             Proceed to Checkout
           </button>

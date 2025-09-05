@@ -1,5 +1,6 @@
 // WishlistButton.jsx
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
 import WishlistContext from "../../context/wishlist/WishlistContext";
 
@@ -10,6 +11,8 @@ const WishlistButton = ({ productId }) => {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
+
   // Check on mount/update if product is already in wishlist
   useEffect(() => {
     if (wishlist && productId) {
@@ -18,6 +21,11 @@ const WishlistButton = ({ productId }) => {
   }, [wishlist, productId]);
 
   const handleClick = async () => {
+    const token = localStorage.getItem("customerToken");
+    if (!token) {
+      navigate(`/login/user?redirect=${encodeURIComponent(location.pathname)}`, { replace: true });
+      return;
+    }
     if (loading) return;
     setLoading(true);
 
@@ -42,7 +50,7 @@ const WishlistButton = ({ productId }) => {
       disabled={loading}
       style={{
         background: "none",
-        border: "none", 
+        border: "none",
         cursor: "pointer",
         fontSize: "1.5rem",
       }}

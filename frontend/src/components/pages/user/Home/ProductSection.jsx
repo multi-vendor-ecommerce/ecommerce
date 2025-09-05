@@ -62,11 +62,6 @@ export default function ProductSection({ title }) {
                 <Spinner />
               </div>
             }
-            endMessage={
-              <p className="text-center py-6 text-gray-500">
-                No more products to show.
-              </p>
-            }
           >
             <ProductGrid products={products} secretKey={secretKey} />
           </InfiniteScroll>

@@ -35,7 +35,7 @@ export default function User() {
           }
         />
         <Route
-          path="/profile"
+          path="/customer/settings/profile"
           element={
             <ProtectedRoute>
               <Profile />
@@ -60,7 +60,7 @@ export default function User() {
         />
 
         <Route
-          path="/my-orders/:id"
+          path="/my-orders/:orderId"
           element={
             <ProtectedRoute>
               <MyOrderDetails />

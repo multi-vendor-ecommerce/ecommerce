@@ -93,6 +93,11 @@ const ProductDetails = () => {
   };
 
   const handleBuyNow = async () => {
+    const token = localStorage.getItem("customerToken");
+    if (!token) {
+      navigate(`/login/user?redirect=${encodeURIComponent(location.pathname)}`, { replace: true });
+      return;
+    }
     if (!productDetails?._id) return;
 
     const res = await createOrderDraft({
