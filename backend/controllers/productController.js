@@ -33,7 +33,7 @@ export const getAllProducts = async (req, res) => {
         baseQuery = baseQuery.select("title description brand images price category discount tags freeDelivery rating totalReviews colors sizes status");
       } else {
         baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
-        query.status = toLowerCase("approved");
+        query.status = "approved";
       }
     }
 
@@ -68,7 +68,7 @@ export const getTopSellingProducts = async (req, res) => {
     const role = req.person?.role;
 
     // Always show only approved products
-    query.status = toLowerCase("approved");
+    query.status = "approved";
     if (role === "vendor") {
       query.createdBy = req.person.id;
     }
@@ -351,7 +351,7 @@ export const editProduct = async (req, res) => {
     Object.keys(req.body).forEach((key) => {
       if (
         (key === "hsnCode" || key === "sku" || key === "gstRate" || key === "category") &&
-        product.status === toLowerCase("approved")
+        product.status === "approved"
       ) {
         return;
       }
@@ -413,7 +413,8 @@ export const editProduct = async (req, res) => {
 // Update product status (approve/reject)
 // ==========================
 export const updateProductStatus = async (req, res) => {
-  const { status } = req.body;
+  let { status } = req.body;
+  status = status.toLowerCase();
 
   try {
     let product = await Product.findById(req.params.id);

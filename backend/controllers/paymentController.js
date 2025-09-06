@@ -137,8 +137,8 @@ export const confirmCOD = async (req, res) => {
 
     order.shippingInfo = shippingInfo;
     order.paymentMethod = "COD";
-    order.paymentInfo = { id: null, status: toLowerCase("pending") };
-    order.orderStatus = toLowerCase("processing");
+    order.paymentInfo = { id: null, status: "pending" };
+    order.orderStatus = "processing";
 
     for (const item of order.orderItems) {
       await Products.findByIdAndUpdate(

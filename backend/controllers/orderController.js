@@ -41,7 +41,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
 
       draftOrder = await Order.findOne({
         user: userId,
-        orderStatus: toLowerCase("pending"),
+        orderStatus: "pending",
         source: "buyNow",
         "orderItems.product": product._id
       });
@@ -62,7 +62,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           tax,
           shippingCharges,
           totalAmount: itemPrice + tax + shippingCharges,
-          orderStatus: toLowerCase("pending"),
+          orderStatus: "pending",
           source: "buyNow",
         });
       }
@@ -79,7 +79,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       tax = itemPrice * 0.18;
       shippingCharges = user.cart.some(i => !i.product.freeDelivery) ? 50 : 0;
 
-      draftOrder = await Order.findOne({ user: userId, orderStatus: toLowerCase("pending"), source: "cart" });
+      draftOrder = await Order.findOne({ user: userId, orderStatus: "pending", source: "cart" });
       if (draftOrder) {
         draftOrder.orderItems = orderItems;
         draftOrder.itemPrice = itemPrice;
@@ -97,7 +97,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           tax,
           shippingCharges,
           totalAmount: itemPrice + tax + shippingCharges,
-          orderStatus: toLowerCase("pending"),
+          orderStatus: "pending",
           source: "cart",
         });
       }
