@@ -52,7 +52,7 @@ const ProductDetails = () => {
       }
     };
     fetchProduct();
-  }, [decryptedProductId, getProductById]);
+  }, [decryptedProductId]);
 
   // Update active image when selectedColor changes (if image url includes color name)
   useEffect(() => {

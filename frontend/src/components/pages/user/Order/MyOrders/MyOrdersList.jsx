@@ -88,7 +88,7 @@ const MyOrdersList = () => {
                 {order.orderItems.map((item) => (
                   <div
                     key={item._id}
-                    className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-lg bg-gray-50 p-3 hover:bg-gray-100 transition"
+                    className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-lg bg-gray-50  hover:bg-gray-100 transition"
                   >
                     <div className="w-full sm:w-30 h-30 flex-shrink-0 flex items-center justify-center overflow-hidden">
                       <img
@@ -114,8 +114,7 @@ const MyOrdersList = () => {
                 ))}
               </div>
 
-              {/* Footer */}
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-4 border-t border-gray-100">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-2 border-t border-gray-100">
                 <p className="font-semibold text-gray-800 text-sm sm:text-base">
                   Total: ₹{order.totalAmount}
                 </p>

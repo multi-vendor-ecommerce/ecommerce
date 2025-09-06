@@ -80,6 +80,16 @@ export const verifyRazorpayPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: "Payment verification failed. Signature mismatch." });
     }
 
+    const payment = await razorpay.payments.fetch(razorpayPaymentId);
+
+    if (payment.status !== "captured") {
+      return res.status(400).json({ success: false, message: "Payment not completed. Please try again." });
+    }
+
+    if (payment.amount !== Math.round(payment.amount / 100) * 100) {
+      return res.status(400).json({ success: false, message: "Payment amount mismatch. Please contact support." });
+    }
+
     const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ success: false, message: "Order not found. Please check your order." });
 
@@ -103,6 +113,10 @@ export const verifyRazorpayPayment = async (req, res) => {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
     }
 
+    if (order.user.toString() !== req.person.id) {
+      return res.status(403).json({ success: false, message: "Not authorized for this order." });
+    }
+
     await order.save();
 
     res.status(200).json({
@@ -112,7 +126,7 @@ export const verifyRazorpayPayment = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: "Unable to verify payment. Please try again.", error: err.message });
+    res.status(500).json({ success: false, message: "Unable to verify payment. Please try again." });
   }
 };
 
