@@ -1,9 +1,17 @@
 import { FiExternalLink } from "react-icons/fi";
 import InputField from "../../../../common/InputField";
-import { addProductFields } from "../data/addProductFields";
+import { addProductFields } from "../../../vendor/vendorProducts/data/addProductFields";
 import StepperControls from "../../../../common/StepperControls";
 
-const BasicInfo = ({ formData, step = 3, nextStep, prevStep, handleInputChange }) => {
+const BasicInfo = ({
+  formData,
+  step = 3,
+  nextStep,
+  prevStep,
+  handleInputChange,
+  isEditing,
+  showStepper = true,
+}) => {
   return (
     <>
       <div className="space-y-4">
@@ -16,8 +24,9 @@ const BasicInfo = ({ formData, step = 3, nextStep, prevStep, handleInputChange }
               placeholder={field.placeholder}
               title={field.title}
               required={field.required}
-              value={formData[field.name]}
+              value={formData[field.name] || ""}
               onChange={handleInputChange}
+              disabled={!isEditing} // <-- use isEditing to control editability
             />
             {field.name === "hsnCode" && (
               <a
@@ -38,20 +47,22 @@ const BasicInfo = ({ formData, step = 3, nextStep, prevStep, handleInputChange }
         ))}
       </div>
 
-      <StepperControls
-        currentStep={step}
-        onNext={nextStep}
-        onBack={prevStep}
-        nextDisabled={
-          step === 3 &&
-          [ formData.brand,
+      {!isEditing && showStepper && (
+        <StepperControls
+          currentStep={step}
+          onNext={nextStep}
+          onBack={prevStep}
+          nextDisabled={
+            step === 3 &&
+            [formData.brand,
             formData.title,
             formData.tags,
             formData.sku,
             formData.hsnCode
-          ].some(val => !val.trim())
-        }
-      />
+            ].some(val => !String(val || "").trim())
+          }
+        />
+      )}
     </>
   )
 }

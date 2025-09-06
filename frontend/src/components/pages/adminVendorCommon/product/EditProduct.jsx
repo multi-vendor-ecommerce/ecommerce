@@ -1,174 +1,173 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import Loader from "../../../common/Loader";
-import Button from "../../../common/Button";
 import ProductContext from "../../../../context/products/ProductContext";
-import CategorySelector from "../../../pages/vendor/vendorProducts/addProduct/CategorySelector";
-import UploadImages from "../../../pages/vendor/vendorProducts/addProduct/UploadImages";
-import BasicInfo from "../../../pages/vendor/vendorProducts/addProduct/BasicInfo";
-import ProductDetails from "../../../pages/vendor/vendorProducts/addProduct/ProductDetails";
+import CategorySelector from "./addEditCommon/CategorySelector";
+import UploadImages from "./addEditCommon/UploadImages";
+import BasicInfo from "./addEditCommon/BasicInfo";
+import ProductDetails from "./addEditCommon/ProductDetails";
+import useProductUpdate from "../../../../hooks/useProductUpdate";
+import ActionButtons from "../../../common/ActionButtons";
+import { toast } from "react-toastify";
+import BackButton from "../../../common/layout/BackButton";
 
 const EditProduct = () => {
-  const { id } = useParams();
+  const { productId } = useParams();
   const navigate = useNavigate();
   const { getProductById, editProduct, loading } = useContext(ProductContext);
 
-  const [formData, setFormData] = useState({
-    title: "", brand: "", tags: "", colors: "", size: "", sku: "",
-    hsnCode: "", gstRate: "", description: "", price: "", discount: "",
-    stock: "", isTaxable: true, freeDelivery: false,
-    visibility: "public", category: ""
-  });
-  const [images, setImages] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [productStatus, setProductStatus] = useState("");
+  const [product, setProduct] = useState(null);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
+    if (!productId) return;
     const fetchProduct = async () => {
-      const product = await getProductById(id);
-      if (product) {
-        setFormData({
-          title: product.title || "",
-          brand: product.brand || "",
-          tags: product.tags?.join(",") || "",
-          colors: product.colors?.join(",") || "",
-          size: product.sizes?.join(",") || "",
-          sku: product.sku || "",
-          hsnCode: product.hsnCode || "",
-          gstRate: product.gstRate || "",
-          description: product.description || "",
-          price: product.price || "",
-          discount: product.discount || "",
-          stock: product.stock || "",
-          isTaxable: product.isTaxable ?? true,
-          freeDelivery: product.freeDelivery ?? false,
-          visibility: product.visibility || "public",
-          category: product.category || ""
-        });
-        setImages(product.images || []);
-        setSelectedCategories([product.category]);
-        setProductStatus(product.status || "");
-      }
+      const prod = await getProductById(productId);
+      setProduct(prod);
     };
     fetchProduct();
-  }, [id, getProductById]);
+  }, [productId]);
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
+  const {
+    form,
+    setForm,
+    handleChange,
+    handleSave,
+    isLoading,
+    hasChanges,
+  } = useProductUpdate(product, editProduct, setEditing, getProductById);
+
+  // Image handlers
+  const [images, setImages] = useState([]);
+  useEffect(() => {
+    if (form && form.images) setImages(form.images);
+  }, [form]);
 
   const handleImageChange = (e) => {
     const newFiles = Array.from(e.target.files);
     const existing = images.map(f => f.name + f.size);
     const filtered = newFiles.filter(f => !existing.includes(f.name + f.size));
-    setImages([...images, ...filtered]);
+    setImages((prev) => [...prev, ...filtered]);
+    setForm((prev) => ({ ...prev, images: [...images, ...filtered] }));
     e.target.value = "";
   };
 
   const handleImageDelete = (idx) => {
-    setImages(images.filter((_, i) => i !== idx));
+    const updatedImages = images.filter((_, i) => i !== idx);
+    setImages(updatedImages);
+    setForm((prev) => ({ ...prev, images: updatedImages }));
   };
 
+  // Category selector logic
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  useEffect(() => {
+    if (form && form.category) setSelectedCategories([form.category]);
+  }, [form]);
+
   const handleCategoryFinalSelect = (id) => {
-    setFormData((prev) => ({ ...prev, category: id }));
+    setForm((prev) => ({ ...prev, category: id }));
     setSelectedCategories([id]);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const submitData = new FormData();
-
-    Object.entries(formData).forEach(([key, value]) => {
-      if (!["tags", "colors", "size"].includes(key)) {
-        submitData.append(key, value);
-      }
-    });
-
-    [
-      { key: "tags", formKey: "tags" },
-      { key: "colors", formKey: "colors" },
-      { key: "sizes", formKey: "size" }
-    ].forEach(({ key, formKey }) => {
-      const value = formData[formKey];
-      if (value && value.trim()) {
-        if (!value.includes(",")) submitData.append(key, value.trim());
-        else value.split(",").forEach(v => submitData.append(key, v.trim()));
-      }
-    });
-
-    images.forEach((img) => submitData.append("images", img));
-
-    try {
-      const { success, message } = await editProduct(id, submitData);
-      if (success) {
-        toast.success(message || "Product updated successfully.");
-        navigate("/products");
-      } else {
-        toast.error(message || "Failed to update product.");
-      }
-    } catch (err) {
-      toast.error(err.message || "Failed to update product.");
+  const handleSaveFunction = async () => {
+    if (!hasChanges) {
+      toast.info("No changes to save.");
+      setEditing(false);
+      return;
     }
-  };
 
-  if (loading) return <Loader />;
+    const result = await handleSave();
+    if (result?.success) {
+      toast.success(result.message || "Product updated successfully.");
+      setEditing(false);
+      navigate("/products");
+    } else if (result?.message) {
+      toast.error(result.message);
+    }
+  }
+
+  if (loading || !form) {
+    return (
+      <section className="bg-gray-100 min-h-screen flex items-center justify-center">
+        <Loader />
+      </section>
+    );
+  }
 
   return (
-    <section className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
-      <h2 className="text-2xl font-bold mb-4">Edit Product</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        {/* Category Selector (only if product is rejected) */}
-        {productStatus === "rejected" && (
-          <CategorySelector
-            step={1}
-            nextStep={() => {}}
-            prevStep={() => {}}
-            selectedCategories={selectedCategories}
-            setSelectedCategories={setSelectedCategories}
-            formData={formData}
-            setFormData={setFormData}
-            onCategoryFinalSelect={handleCategoryFinalSelect}
+    <section className="p-6 min-h-screen bg-gray-50">
+      <BackButton />
+
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800">Edit Product</h2>
+
+        <div className="mb-4">
+          <ActionButtons
+            editing={editing}
+            isLoading={isLoading}
+            onEdit={() => setEditing(true)}
+            onCancel={() => {
+              setForm(JSON.parse(JSON.stringify(product)));
+              setEditing(false);
+            }}
+            onSave={handleSaveFunction}
           />
-        )}
+        </div>
+      </div>
 
-        {/* Upload Images */}
-        <UploadImages
-          step={2}
-          nextStep={() => {}}
-          prevStep={() => {}}
-          handleImageChange={handleImageChange}
-          handleImageDelete={handleImageDelete}
-          images={images}
-        />
+      <div>
+        <form className="flex flex-col gap-6">
+          {/* Category Selector (only if product is rejected) */}
+          {form?.status === "rejected" && (
+            <div className="rounded-xl border border-gray-200 shadow-md shadow-blue-500 bg-white overflow-hidden p-4">
+              <h2 className="text-lg font-semibold mb-4">Please select a category</h2>
+              <CategorySelector
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
+                formData={form}
+                setFormData={setForm}
+                onCategoryFinalSelect={handleCategoryFinalSelect}
+                isEditing={editing}
+                showStepper={false}
+              />
+            </div>
+          )}
 
-        {/* Basic Info */}
-        <BasicInfo
-          formData={formData}
-          step={3}
-          nextStep={() => {}}
-          prevStep={() => {}}
-          handleInputChange={handleInputChange}
-        />
+          {/* Upload Images */}
+          <div className="rounded-xl border border-gray-200 shadow-md shadow-blue-500 bg-white overflow-hidden p-4">
+            <h2 className="text-lg font-semibold mb-4">Upload Images</h2>
+            <UploadImages
+              handleImageChange={handleImageChange}
+              handleImageDelete={handleImageDelete}
+              images={images}
+              isEditing={editing}
+              showStepper={false}
+            />
+          </div>
 
-        {/* Product Details */}
-        <ProductDetails
-          formData={formData}
-          step={4}
-          nextStep={() => {}}
-          prevStep={() => {}}
-          handleInputChange={handleInputChange}
-          setFormData={setFormData}
-          loading={loading}
-          handleSubmit={handleSubmit}
-        />
+          {/* Basic Info */}
+          <div className="rounded-xl border border-gray-200 shadow-md shadow-blue-500 bg-white overflow-hidden p-4 space-y-4">
+            <h2 className="text-lg font-semibold">Product Details</h2>
+            <BasicInfo
+              formData={form}
+              handleInputChange={handleChange}
+              isEditing={editing}
+              showStepper={false}
+            />
 
-        <Button text="Update Product" type="submit" color="blue" />
-      </form>
+            {/* Product Details */}
+            <ProductDetails
+              formData={form}
+              handleInputChange={handleChange}
+              setFormData={setForm}
+              loading={isLoading}
+              handleSubmit={handleSave}
+              isEditing={editing}
+              showStepper={false}
+            />
+          </div>
+        </form>
+      </div>
     </section>
   );
 };

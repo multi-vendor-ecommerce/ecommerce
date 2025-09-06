@@ -2,6 +2,8 @@ import { NavLink } from "react-router-dom";
 import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import classNames from "classnames";
 import StatusChip from "../../../common/helperComponents/StatusChip";
+import { getFinalPrice } from "../../user/Utils/priceUtils";
+import { formatNumber } from "../../../../utils/formatNumber";
 
 export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, role = "admin") => {
   const isHighSales = (p.unitsSold || 0) >= maxUnitsSold * 0.6;
@@ -52,39 +54,48 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
         {p.category?.name || "Uncategorized"}
       </td>
 
-      {/* Price */}
+      {/* Actual Price */}
       <td
         className="px-6 py-4 min-w-[120px] font-medium hover:scale-105 transition duration-150"
         title={`₹${p.price?.toLocaleString() || "0"}`}
       >
-        ₹{p.price > 0 ? p.price.toLocaleString() : "0"}
+        ₹{formatNumber(p.price) || "0"}
+      </td>
+
+      {/* Discount Price */}
+      <td
+        className="px-6 py-4 min-w-[200px] font-medium hover:scale-105 transition duration-150"
+        title={`₹${getFinalPrice(p.price, p.discount)?.toLocaleString() || "0"}`}
+      >
+        <span>₹{formatNumber(getFinalPrice(p.price, p.discount)) || "0"}</span>{" "}
+        <span className="text-sm text-gray-500">({p.discount ? `${p.discount}%` : "Nil"})</span>
       </td>
 
       {/* Units sold */}
       <td
-        className="px-6 py-4 min-w-[120px] font-medium hover:scale-105 transition duration-150"
+        className="px-6 py-4 min-w-[90px] font-medium hover:scale-105 transition duration-150"
         title={`${p.unitsSold ?? 0} units`}
       >
-        {p.unitsSold ?? 0}
+        {formatNumber(p.unitsSold) || 0}
       </td>
 
       {/* Revenue */}
       <td
-        className="px-6 py-4 min-w-[140px] font-bold hover:scale-105 transition duration-150"
+        className="px-6 py-4 min-w-[90px] font-bold hover:scale-105 transition duration-150"
         title={`₹${p.totalRevenue?.toLocaleString() || "0"}`}
       >
-        ₹{p.totalRevenue?.toLocaleString() || "0"}
+        ₹{formatNumber(p.totalRevenue) || "0"}
       </td>
 
       {/* Approval Status */}
-      <td className="px-6 py-3 min-w-[200px]">
+      <td className="px-6 py-3 min-w-[120px]">
         <StatusChip
           status={p.status || (isTopSellingPage ? "approved" : "Unknown")}
         />
       </td>
 
       {/* Sales progress bar */}
-      <td className="px-6 py-4 min-w-[220px] hover:scale-105 transition duration-150 relative">
+      <td className="px-6 py-4 min-w-[180px] hover:scale-105 transition duration-150 relative">
         <p
           className={classNames("text-sm mb-1 font-semibold", {
             "text-green-600": isHighSales,
@@ -108,7 +119,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
       </td>
 
       {/* Actions */}
-      <td className="px-6 py-4 min-w-[100px] hover:scale-105 transition duration-150">
+      <td className="px-6 py-4 min-w-[120px] hover:scale-105 transition duration-150">
         <div className="flex items-center gap-3">
           <NavLink
             to={`/${role}/product-details/${p._id}`}

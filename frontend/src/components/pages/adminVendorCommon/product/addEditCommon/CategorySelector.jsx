@@ -11,6 +11,8 @@ const CategorySelector = ({
   selectedCategories,
   setSelectedCategories,
   onCategoryFinalSelect,
+  isEditing,
+  showStepper = true,
 }) => {
   const {
     categoryLevels,
@@ -59,12 +61,14 @@ const CategorySelector = ({
         )}
       </div>
 
-      <StepperControls
+      {isEditing && showStepper && (
+        <StepperControls
         currentStep={step}
         onNext={nextStep}
         onBack={prevStep}
         nextDisabled={step === 1 && !formData.category}
       />
+      )}
     </>
   );
 };

@@ -105,6 +105,7 @@ const ProductState = ({ children }) => {
   const getProductById = async (id) => {
     try {
       const { role } = getRoleInfo();
+      setLoading(true);
 
       let endpoint;
       if (role === "customer") endpoint = `/api/products/product/${id}`;
@@ -125,6 +126,8 @@ const ProductState = ({ children }) => {
     } catch (error) {
       console.error("Error fetching product:", error);
       return null;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -178,7 +181,7 @@ const ProductState = ({ children }) => {
       if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
       else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
 
-      const response = await fetch(`${host}/api/products/edit/${id}`, {
+      const response = await fetch(`${host}/api/products/${role}/edit/${id}`, {
         method: "PUT",
         headers,
         body: formData,

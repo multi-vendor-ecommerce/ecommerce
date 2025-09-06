@@ -3,6 +3,7 @@ import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 import { sendProductAddedMail, sendProductAddedAdminMail, sendProductStatusMail } from "../services/email/sender.js";
 import Vendor from "../models/Vendor.js";
+import { validateProductFields } from "../utils/validateProductFields.js";
 
 // ==========================
 // Get all products - handles public, admin, and vendor
@@ -32,7 +33,7 @@ export const getAllProducts = async (req, res) => {
         baseQuery = baseQuery.select("title description brand images price category discount tags freeDelivery rating totalReviews colors sizes status");
       } else {
         baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
-        query.status = "approved";
+        query.status = toLowerCase("approved");
       }
     }
 
@@ -67,7 +68,7 @@ export const getTopSellingProducts = async (req, res) => {
     const role = req.person?.role;
 
     // Always show only approved products
-    query.status = "approved";
+    query.status = toLowerCase("approved");
     if (role === "vendor") {
       query.createdBy = req.person.id;
     }
@@ -210,87 +211,25 @@ export const addProduct = async (req, res) => {
       freeDelivery, tags, video, colors, sizes
     } = req.body;
 
-    // === Basic Required Checks ===
-    if (!title || !brand || !category || !sku || !hsnCode || !gstRate || isNaN(price)) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing required product fields.",
-      });
-    }
+    // === Enhanced Validation ===
+    const productFields = {
+      title, brand, description, category, specifications, price,
+      discount, stock, sku, hsnCode, gstRate, isTaxable,
+      freeDelivery, tags, video, colors, sizes
+    };
 
-    if (price < 0) {
-      return res.status(400).json({ success: false, message: "Invalid price value." });
-    }
+    // Images handling (if using file uploads)
+    const images =
+      req.files?.map(file => ({
+        url: file.path,
+        public_id: file.filename || file.public_id
+      })) || [];
 
-    if (discount && (isNaN(discount) || discount < 0 || discount > 100)) {
-      return res.status(400).json({
-        success: false,
-        message: "Discount must be between 0 and 100.",
-      });
-    }
+    productFields.images = images;
 
-    if (stock && (isNaN(stock) || stock < 0)) {
-      return res.status(400).json({ success: false, message: "Invalid stock value." });
-    }
-
-    const allowedGstRates = [0, 5, 12, 18, 28];
-    if (!allowedGstRates.includes(Number(gstRate))) {
-      return res.status(400).json({ success: false, message: "Invalid GST rate." });
-    }
-
-    const skuRegex = /^[A-Za-z0-9_-]{4,20}$/;
-    if (!skuRegex.test(sku.trim())) {
-      return res.status(400).json({
-        success: false,
-        message: "SKU must be 4-20 characters using letters, numbers, hyphens, or underscores only."
-      });
-    }
-
-    if (!/^\d{4,8}$/.test(hsnCode.trim())) {
-      return res.status(400).json({ success: false, message: "HSN Code must be 4 to 8 digits." });
-    }
-
-    // === Optional Field: Colors ===
-    if (colors) {
-      if (Array.isArray(colors)) {
-        colors = colors.map(c => c.trim().toLowerCase()).filter(Boolean);
-      } else if (typeof colors === "string") {
-        colors = colors.split(",").map(c => c.trim().toLowerCase()).filter(Boolean);
-      } else {
-        return res.status(400).json({ success: false, message: "Colors must be an array or string." });
-      }
-    }
-
-    // === Optional Field: Tags ===
-    if (tags) {
-      if (Array.isArray(tags)) {
-        tags = tags.map(tag => tag.trim().toLowerCase()).filter(Boolean);
-      } else if (typeof tags === "string") {
-        tags = tags.split(",").map(tag => tag.trim().toLowerCase()).filter(Boolean);
-      } else {
-        return res.status(400).json({ success: false, message: "Tags must be an array or string." });
-      }
-    }
-
-    // === Optional Field: Sizes ===
-    const allowedSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "XXXXL", "Free Size"];
-    if (sizes) {
-      if (Array.isArray(sizes)) {
-        sizes = sizes.map(s => toTitleCase(s.replace(/[-_]/g, " ").trim())).filter(Boolean);
-      } else if (typeof sizes === "string") {
-        sizes = sizes.split(",").map(s => toTitleCase(s.replace(/[-_]/g, " ").trim())).filter(Boolean);
-      } else {
-        return res.status(400).json({ success: false, message: "Sizes must be an array or string." });
-      }
-      const isValidSizes = sizes.every(size => allowedSizes.includes(size));
-      if (!isValidSizes) {
-        return res.status(400).json({ success: false, message: "Invalid size(s) provided." });
-      }
-    }
-
-    const existing = await Product.findOne({ sku: sku.trim().toUpperCase() });
-    if (existing) {
-      return res.status(400).json({ success: false, message: "SKU already exists. Use a unique SKU." });
+    const errors = validateProductFields(productFields, false);
+    if (errors.length > 0) {
+      return res.status(400).json({ success: false, message: errors.join(" ") });
     }
 
     // === Formatting ===
@@ -320,11 +259,10 @@ export const addProduct = async (req, res) => {
       tags = [...new Set(tags.map(tag => tag.trim().toLowerCase()).filter(Boolean))];
     }
 
-    const images =
-      req.files?.map(file => ({
-        url: file.path,
-        public_id: file.filename || file.public_id
-      })) || [];
+    const existing = await Product.findOne({ sku: sku.trim().toUpperCase() });
+    if (existing) {
+      return res.status(400).json({ success: false, message: "SKU already exists. Use a unique SKU." });
+    }
 
     const newProduct = await Product.create({
       createdBy: req.person.id,
@@ -356,16 +294,14 @@ export const addProduct = async (req, res) => {
 
     // Send email to vendor and admin after product is added
     try {
-      // Email to vendor
       await sendProductAddedMail({
         to: req.person.email,
         productName: newProduct.title,
         productId: newProduct._id
       });
 
-      // Email to admin (replace with your admin email or fetch from config/db)
       await sendProductAddedAdminMail({
-        to: process.env.ADMIN_EMAIL, // <-- put your admin email here
+        to: process.env.ADMIN_EMAIL,
         vendorName: req.person.name,
         vendorShop: req.person.ShopName,
         vendorEmail: req.person.email,
@@ -373,7 +309,6 @@ export const addProduct = async (req, res) => {
       });
     } catch (emailErr) {
       console.error("Product added email failed:", emailErr);
-      // You can choose to ignore this error or log it only
     }
 
     res.status(201).json({
@@ -384,6 +319,93 @@ export const addProduct = async (req, res) => {
   } catch (err) {
     console.error("Add Product Error:", err);
     res.status(500).json({ success: false, message: "Unable to add product.", error: err.message });
+  }
+};
+
+// ==========================
+// Edit product (admin & vendor)
+// ==========================
+export const editProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const isAdmin = req.person?.role === "admin";
+    const isVendor = req.person?.role === "vendor";
+
+    let product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found." });
+    }
+
+    if (isVendor && !product.createdBy.equals(req.person.id)) {
+      return res.status(403).json({ success: false, message: "Access denied." });
+    }
+
+    const allowedVendorFields = [
+      "title", "brand", "description", "images", "video",
+      "price", "discount", "stock", "sku", "hsnCode", "gstRate", "isTaxable",
+      "freeDelivery", "tags", "colors", "sizes", "category"
+    ];
+
+    // Build update object
+    const update = {};
+    Object.keys(req.body).forEach((key) => {
+      if (
+        (key === "hsnCode" || key === "sku" || key === "gstRate" || key === "category") &&
+        product.status === toLowerCase("approved")
+      ) {
+        return;
+      }
+      if (isAdmin || allowedVendorFields.includes(key)) {
+        update[key] = req.body[key];
+      }
+    });
+
+    // Images handling (if using file uploads)
+    if (req.files && req.files.length > 0) {
+      update.images = req.files.map(file => ({
+        url: file.path,
+        public_id: file.filename || file.public_id
+      }));
+    }
+
+    // Remove forbidden fields
+    const forbiddenFields = ["createdBy", "_id", "unitsSold", "totalRevenue", "rating", "totalReviews", "status", "reviews", "createdAt", "updatedAt"];
+    for (const field of forbiddenFields) {
+      delete update[field];
+    }
+
+    // Enhanced validation
+    const errors = validateProductFields(update, true);
+    if (errors.length > 0) {
+      return res.status(400).json({ success: false, message: errors.join(" ") });
+    }
+
+    // Formatting (optional, similar to addProduct)
+    if (update.title) update.title = update.title.trim();
+    if (update.brand) update.brand = update.brand.trim();
+    if (update.sku) update.sku = update.sku.trim().toUpperCase();
+    if (update.hsnCode) update.hsnCode = update.hsnCode.trim();
+    if (update.description) update.description = update.description.trim();
+
+    if (Array.isArray(update.colors)) {
+      update.colors = [...new Set(update.colors.map(c => c.trim().toLowerCase()).filter(Boolean))];
+    }
+    if (Array.isArray(update.sizes)) {
+      update.sizes = [...new Set(update.sizes.map(s => s.replace(/[-_]/g, " ").trim()).filter(Boolean))];
+    }
+    if (Array.isArray(update.tags)) {
+      update.tags = [...new Set(update.tags.map(tag => tag.trim().toLowerCase()).filter(Boolean))];
+    }
+
+    product = await Product.findByIdAndUpdate(productId, update, { new: true, runValidators: true });
+
+    res.status(200).json({
+      success: true,
+      product,
+      message: "Product updated successfully."
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Unable to update product.", error: error.message });
   }
 };
 
@@ -426,64 +448,5 @@ export const updateProductStatus = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: `Unable to update product status`, error: error.message });
-  }
-};
-
-// ==========================
-// Edit product (admin & vendor)
-// ==========================
-export const editProduct = async (req, res) => {
-  try {
-    const productId = req.params.id;
-    const isAdmin = req.person?.role === "admin";
-    const isVendor = req.person?.role === "vendor";
-
-    let product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found." });
-    }
-
-    // Vendor can only edit their own products
-    if (isVendor && !product.createdBy.equals(req.person.id)) {
-      return res.status(403).json({ success: false, message: "Access denied." });
-    }
-
-    // Allowed fields for vendor
-    const allowedVendorFields = [
-      "title", "brand", "description", "images", "video",
-      "price", "discount", "stock", "sku", "hsnCode", "gstRate", "isTaxable",
-      "freeDelivery", "tags", "colors", "sizes", "category"
-    ];
-
-    // Build update object
-    const update = {};
-    Object.keys(req.body).forEach((key) => {
-      // Restrict hsnCode, sku, gstRate, and category if product is approved
-      if (
-        (key === "hsnCode" || key === "sku" || key === "gstRate" || key === "category") &&
-        product.status === "approved"
-      ) {
-        // Do not allow editing
-        return;
-      }
-      if (isAdmin || allowedVendorFields.includes(key)) {
-        update[key] = req.body[key];
-      }
-    });
-
-    const forbiddenFields = ["createdBy", "_id", "unitsSold", "totalRevenue", "rating", "totalReviews", "status", "reviews", "createdAt", "updatedAt"];
-    for (const field of forbiddenFields) {
-      delete update[field];
-    }
-
-    product = await Product.findByIdAndUpdate(productId, update, { new: true, runValidators: true });
-
-    res.status(200).json({
-      success: true,
-      product,
-      message: "Product updated successfully."
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Unable to update product.", error: error.message });
   }
 };

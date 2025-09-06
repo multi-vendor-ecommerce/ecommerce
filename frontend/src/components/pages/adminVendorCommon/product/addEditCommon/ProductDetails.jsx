@@ -1,11 +1,11 @@
 import InputField from "../../../../common/InputField";
-import { addProductFields } from "../data/addProductFields";
+import { addProductFields } from "../../../vendor/vendorProducts/data/addProductFields";
 import CustomSelect from "../../../../common/layout/CustomSelect";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { FaCheck } from "react-icons/fa";
 import StepperControls from "../../../../common/StepperControls";
 
-const ProductDetails = ({ formData, handleInputChange, step = 4, nextStep, prevStep, setFormData, loading, handleSubmit }) => {
+const ProductDetails = ({ formData, handleInputChange, step = 4, nextStep, prevStep, setFormData, loading, handleSubmit, isEditing, showStepper = true }) => {
   return (
     <>
       <div className="space-y-4">
@@ -18,8 +18,9 @@ const ProductDetails = ({ formData, handleInputChange, step = 4, nextStep, prevS
               placeholder={field.placeholder}
               title={field.title}
               required={field.required}
-              value={formData[field.name]}
+              value={formData[field.name] || ""}
               onChange={handleInputChange}
+              disabled={!isEditing} // <-- use isEditing
             />
           </div>
         ))}
@@ -33,7 +34,8 @@ const ProductDetails = ({ formData, handleInputChange, step = 4, nextStep, prevS
             onCheckedChange={(checked) =>
               setFormData((prev) => ({ ...prev, [field]: checked }))
             }
-            className="w-5 h-5 bg-white border-2 border-gray-300 rounded flex items-center justify-center cursor-pointer"
+            className={`w-5 h-5 bg-white border-2 border-gray-300 rounded flex items-center justify-center cursor-pointer ${isEditing ? "pointer-events-none opacity-60" : ""}`}
+            disabled={!isEditing}
           >
             <Checkbox.Indicator>
               <FaCheck size={14} className="text-blue-600" />
@@ -55,22 +57,27 @@ const ProductDetails = ({ formData, handleInputChange, step = 4, nextStep, prevS
           value={formData.visibility}
           onChange={(value) => setFormData((prev) => ({ ...prev, visibility: value }))}
           menuPlacement="auto"
+          isDisabled={!isEditing}
         />
       </div>
 
-      <StepperControls
-        currentStep={step}
-        onNext={nextStep}
-        onBack={prevStep}
-        isLastStep={step === 4}
-        showSubmit={
-          step === 4 &&
-          !["description", "price", "stock", "gstRate"].some(field => !formData[field]?.trim())
-        }
-        submitButton={['Add Product', 'Adding']}
-        loading={loading}
-        onSubmitClick={handleSubmit}
-      />
+      {!isEditing && showStepper && (
+        <StepperControls
+          currentStep={step}
+          onNext={nextStep}
+          onBack={prevStep}
+          isLastStep={step === 4}
+          showSubmit={
+            step === 4 &&
+            !["description", "price", "stock", "gstRate"].some(
+              field => !String(formData[field] ?? "").trim()
+            )
+          }
+          submitButton={['Add Product', 'Adding']}
+          loading={loading}
+          onSubmitClick={handleSubmit}
+        />
+      )}
     </>
   )
 }

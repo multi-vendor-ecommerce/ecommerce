@@ -9,22 +9,19 @@ import BackButton from "../../../common/layout/BackButton";
 
 const ProductDetails = ({ role = "admin" }) => {
   const { productId } = useParams();
-  const { getProductById } = useContext(ProductContext);
+  const { getProductById, loading } = useContext(ProductContext);
   const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProduct = async () => {
-      setLoading(true);
       const data = await getProductById(productId);
       setProduct(data);
-      setLoading(false);
     };
 
     fetchProduct();
-  }, [productId, getProductById]);
+  }, [productId]);
 
-  if (loading) {
+  if (loading || !product) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
         <Loader />

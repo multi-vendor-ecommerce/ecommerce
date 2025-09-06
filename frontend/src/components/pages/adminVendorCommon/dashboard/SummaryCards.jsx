@@ -23,7 +23,7 @@ export default function SummaryCards({ summaryData }) {
 
   // Calculate values
   const totalRevenue = products?.reduce(
-    (sum, p) => sum + (p.revenue || p.price * p.unitsSold || 0),
+    (sum, p) => sum + (p.totalRevenue || p.price * p.unitsSold || 0),
     0
   );
   const totalOrders = orders?.length || 0;

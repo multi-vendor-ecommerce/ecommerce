@@ -80,7 +80,7 @@ export default function Products({ heading, role = "admin" }) {
   };
 
   const headers = [
-    "Product", "ID", "Brand", "Category", "Price", "Units Sold",
+    "Product", "ID", "Brand", "Category", "Actual Price", "Discount Price", "Units Sold",
     "Revenue", "Status", "Sales Progress", "Actions"
   ];
 

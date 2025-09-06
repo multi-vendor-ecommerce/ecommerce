@@ -2,11 +2,11 @@ import { useState, useContext } from "react";
 import ProductContext from "../../../../../context/products/ProductContext";
 import Stepper from "../../../../common/Stepper";
 import BackButton from "../../../../common/layout/BackButton";
-import CategorySelector from "./CategorySelector";
 import { appendCommaSeparatedToFormData } from "../../../../../utils/appendCommaSeparatedToFormData";
-import UploadImages from "./UploadImages";
-import BasicInfo from "./BasicInfo";
-import ProductDetails from "./ProductDetails";
+import CategorySelector from "../../../adminVendorCommon/product/addEditCommon/CategorySelector";
+import UploadImages from "../../../adminVendorCommon/product/addEditCommon/UploadImages";
+import BasicInfo from "../../../adminVendorCommon/product/addEditCommon/BasicInfo";
+import ProductDetails from "../../../adminVendorCommon/product/addEditCommon/ProductDetails";
 import { toast } from "react-toastify";
 
 const AddProduct = () => {

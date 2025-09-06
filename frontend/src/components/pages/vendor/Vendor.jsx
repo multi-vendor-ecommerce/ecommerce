@@ -19,6 +19,7 @@ import StoreProfile from "./storeSettings/StoreProfile";
 import PersonContext from "../../../context/person/PersonContext";
 import Loader from "../../common/Loader";
 import VendorStatus from "./vendorStatus/VendorStatus";
+import EditProduct from "../adminVendorCommon/product/EditProduct";
 
 const Vendor = () => {
   const { authTokens } = useContext(AuthContext);

@@ -50,7 +50,7 @@ export const getTopVendors = async (req, res) => {
     const role = req.person?.role;
 
     // Only active vendors
-    query.status = "active";
+    query.status = toLowerCase("active");
 
     // Optionally, set minimum sales/revenue thresholds for "top" vendors
     query.totalSales = { $gte: 10 };      // e.g., at least 10 sales
@@ -145,7 +145,8 @@ export const getVendorById = async (req, res) => {
 // Update vendor status
 // ==========================
 export const updateVendorStatus = async (req, res) => {
-  const { status } = req.body;
+  let { status } = req.body;
+  status = toLowerCase(status);
 
   try {
     let vendor = await Vendor.findById(req.params.id);
@@ -291,13 +292,13 @@ export const reactivateVendorAccount = async (req, res) => {
       return res.status(404).json({ success: false, message: "Vendor not found." });
     }
 
-    if (vendor.status !== "inactive") {
+    if (vendor.status !== toLowerCase("inactive")) {
       return res.status(400).json({ success: false, message: "Only inactive vendors can reactivate their accounts." });
     }
 
     vendor = await Vendor.findByIdAndUpdate(
       req.person.id,
-      { status: "pending" },
+      { status: toLowerCase("pending") },
       { new: true }
     ).select("name email phone shopName status");
 
