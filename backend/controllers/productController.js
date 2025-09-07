@@ -4,6 +4,7 @@ import { toTitleCase } from "../utils/titleCase.js";
 import { sendProductAddedMail, sendProductAddedAdminMail, sendProductStatusMail } from "../services/email/sender.js";
 import Vendor from "../models/Vendor.js";
 import { validateProductFields } from "../utils/validateProductFields.js";
+import { mergeImages } from "../utils/mergeImages.js";
 
 // ==========================
 // Get all products - handles public, admin, and vendor
@@ -340,6 +341,23 @@ export const editProduct = async (req, res) => {
       return res.status(403).json({ success: false, message: "Access denied." });
     }
 
+    // 🔑 Normalize values from req.body (parse JSON if needed)
+    const parseIfJson = (val) => {
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return val;
+        }
+      }
+      return val;
+    };
+
+    req.body.category = parseIfJson(req.body.category);
+    req.body.colors = parseIfJson(req.body.colors);
+    req.body.sizes = parseIfJson(req.body.sizes);
+    req.body.tags = parseIfJson(req.body.tags);
+
     const allowedVendorFields = [
       "title", "brand", "description", "images", "video",
       "price", "discount", "stock", "sku", "hsnCode", "gstRate", "isTaxable",
@@ -348,28 +366,32 @@ export const editProduct = async (req, res) => {
 
     // Build update object
     const update = {};
-    Object.keys(req.body).forEach((key) => {
-      if (
-        (key === "hsnCode" || key === "sku" || key === "gstRate" || key === "category") &&
-        product.status === "approved"
-      ) {
-        return;
-      }
-      if (isAdmin || allowedVendorFields.includes(key)) {
-        update[key] = req.body[key];
-      }
-    });
+    if (req.body && typeof req.body === "object") {
+      Object.keys(req.body).forEach((key) => {
+        if (
+          ["hsnCode", "sku", "gstRate", "category"].includes(key) &&
+          product.status === "approved"
+        ) {
+          return;
+        }
+        if (isAdmin || allowedVendorFields.includes(key)) {
+          update[key] = req.body[key];
+        }
+      });
+    }
 
-    // Images handling (if using file uploads)
-    if (req.files && req.files.length > 0) {
-      update.images = req.files.map(file => ({
-        url: file.path,
-        public_id: file.filename || file.public_id
-      }));
+    // Images handling (merge old + new)
+    const images = mergeImages(req);
+    if (images.length > 0) {
+      update.images = images;
     }
 
     // Remove forbidden fields
-    const forbiddenFields = ["createdBy", "_id", "unitsSold", "totalRevenue", "rating", "totalReviews", "status", "reviews", "createdAt", "updatedAt"];
+    const forbiddenFields = [
+      "createdBy", "_id", "unitsSold", "totalRevenue",
+      "rating", "totalReviews", "status", "reviews",
+      "createdAt", "updatedAt"
+    ];
     for (const field of forbiddenFields) {
       delete update[field];
     }
@@ -380,7 +402,7 @@ export const editProduct = async (req, res) => {
       return res.status(400).json({ success: false, message: errors.join(" ") });
     }
 
-    // Formatting (optional, similar to addProduct)
+    // Formatting
     if (update.title) update.title = update.title.trim();
     if (update.brand) update.brand = update.brand.trim();
     if (update.sku) update.sku = update.sku.trim().toUpperCase();
@@ -397,7 +419,11 @@ export const editProduct = async (req, res) => {
       update.tags = [...new Set(update.tags.map(tag => tag.trim().toLowerCase()).filter(Boolean))];
     }
 
-    product = await Product.findByIdAndUpdate(productId, update, { new: true, runValidators: true });
+    product = await Product.findByIdAndUpdate(
+      productId,
+      update,
+      { new: true, runValidators: true }
+    );
 
     res.status(200).json({
       success: true,
@@ -405,7 +431,11 @@ export const editProduct = async (req, res) => {
       message: "Product updated successfully."
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Unable to update product.", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Unable to update product.",
+      error: error.message
+    });
   }
 };
 

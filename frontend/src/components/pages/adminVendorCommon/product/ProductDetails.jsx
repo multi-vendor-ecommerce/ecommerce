@@ -84,6 +84,15 @@ const ProductDetails = ({ role = "admin" }) => {
               "No tags available"
             )}
           </li>
+          <li><strong>Colors:</strong>{" "}
+            {product.colors?.length > 0 ? (
+              product.colors.map((color, index) => (
+                <span key={index} className="inline-block bg-gray-200 rounded-lg px-2 py-0.5 mr-2">{color}</span>
+              ))
+            ) : (
+              "No colors available"
+            )}
+          </li>
           <li>
             <strong>Created By:</strong>
             <NavLink to={`/admin/vendor/profile/${product.createdBy?._id}`} className="text-blue-500 ml-2 hover:underline">

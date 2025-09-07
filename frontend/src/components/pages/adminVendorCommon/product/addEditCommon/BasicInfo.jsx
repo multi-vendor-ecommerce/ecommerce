@@ -24,7 +24,11 @@ const BasicInfo = ({
               placeholder={field.placeholder}
               title={field.title}
               required={field.required}
-              value={formData[field.name] || ""}
+              value={
+                Array.isArray(formData[field.name])
+                  ? formData[field.name].join(", ")
+                  : formData[field.name] || ""
+              }
               onChange={handleInputChange}
               disabled={!isEditing} // <-- use isEditing to control editability
             />

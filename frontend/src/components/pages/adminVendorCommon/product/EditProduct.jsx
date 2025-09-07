@@ -23,7 +23,17 @@ const EditProduct = () => {
     if (!productId) return;
     const fetchProduct = async () => {
       const prod = await getProductById(productId);
-      setProduct(prod);
+
+      // ✅ Normalize images to { url, public_id }
+      const normalized = {
+        ...prod,
+        images:
+          prod.images?.map((img) =>
+            typeof img === "string" ? { url: img } : img
+          ) || [],
+      };
+
+      setProduct(normalized);
     };
     fetchProduct();
   }, [productId]);
@@ -37,31 +47,27 @@ const EditProduct = () => {
     hasChanges,
   } = useProductUpdate(product, editProduct, setEditing, getProductById);
 
-  // Image handlers
-  const [images, setImages] = useState([]);
-  useEffect(() => {
-    if (form && form.images) setImages(form.images);
-  }, [form]);
-
+  // === Image Handlers (form.images is single source of truth) ===
   const handleImageChange = (e) => {
     const newFiles = Array.from(e.target.files);
-    const existing = images.map(f => f.name + f.size);
-    const filtered = newFiles.filter(f => !existing.includes(f.name + f.size));
-    setImages((prev) => [...prev, ...filtered]);
-    setForm((prev) => ({ ...prev, images: [...images, ...filtered] }));
+    setForm((prev) => ({
+      ...prev,
+      images: [...(prev.images || []), ...newFiles],
+    }));
     e.target.value = "";
   };
 
   const handleImageDelete = (idx) => {
-    const updatedImages = images.filter((_, i) => i !== idx);
-    setImages(updatedImages);
-    setForm((prev) => ({ ...prev, images: updatedImages }));
+    setForm((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== idx),
+    }));
   };
 
-  // Category selector logic
+  // === Category Handling ===
   const [selectedCategories, setSelectedCategories] = useState([]);
   useEffect(() => {
-    if (form && form.category) setSelectedCategories([form.category]);
+    if (form?.category) setSelectedCategories([form.category]);
   }, [form]);
 
   const handleCategoryFinalSelect = (id) => {
@@ -69,6 +75,7 @@ const EditProduct = () => {
     setSelectedCategories([id]);
   };
 
+  // === Save Handler ===
   const handleSaveFunction = async () => {
     if (!hasChanges) {
       toast.info("No changes to save.");
@@ -78,13 +85,12 @@ const EditProduct = () => {
 
     const result = await handleSave();
     if (result?.success) {
-      toast.success(result.message || "Product updated successfully.");
       setEditing(false);
-      navigate("/products");
+      navigate("/admin/all-products"); // ✅ absolute path
     } else if (result?.message) {
       toast.error(result.message);
     }
-  }
+  };
 
   if (loading || !form) {
     return (
@@ -99,7 +105,9 @@ const EditProduct = () => {
       <BackButton />
 
       <div className="flex justify-between items-center mb-3">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800">Edit Product</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+          Edit Product
+        </h2>
 
         <div className="mb-4">
           <ActionButtons
@@ -107,6 +115,7 @@ const EditProduct = () => {
             isLoading={isLoading}
             onEdit={() => setEditing(true)}
             onCancel={() => {
+              // Reset form back to original product data
               setForm(JSON.parse(JSON.stringify(product)));
               setEditing(false);
             }}
@@ -117,10 +126,12 @@ const EditProduct = () => {
 
       <div>
         <form className="flex flex-col gap-6">
-          {/* Category Selector (only if product is rejected) */}
+          {/* Category Selector (only if rejected) */}
           {form?.status === "rejected" && (
             <div className="rounded-xl border border-gray-200 shadow-md shadow-blue-500 bg-white overflow-hidden p-4">
-              <h2 className="text-lg font-semibold mb-4">Please select a category</h2>
+              <h2 className="text-lg font-semibold mb-4">
+                Please select a category
+              </h2>
               <CategorySelector
                 selectedCategories={selectedCategories}
                 setSelectedCategories={setSelectedCategories}
@@ -139,13 +150,13 @@ const EditProduct = () => {
             <UploadImages
               handleImageChange={handleImageChange}
               handleImageDelete={handleImageDelete}
-              images={images}
+              images={form.images || []}
               isEditing={editing}
               showStepper={false}
             />
           </div>
 
-          {/* Basic Info */}
+          {/* Basic Info & Product Details */}
           <div className="rounded-xl border border-gray-200 shadow-md shadow-blue-500 bg-white overflow-hidden p-4 space-y-4">
             <h2 className="text-lg font-semibold">Product Details</h2>
             <BasicInfo
@@ -155,7 +166,6 @@ const EditProduct = () => {
               showStepper={false}
             />
 
-            {/* Product Details */}
             <ProductDetails
               formData={form}
               handleInputChange={handleChange}

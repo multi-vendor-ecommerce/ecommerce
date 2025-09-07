@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { appendCommaSeparatedToFormData } from "../utils/appendCommaSeparatedToFormData";
 
 const useProductUpdate = (product, editProduct, setEditing, getProductById) => {
   const [form, setForm] = useState(null);
@@ -8,11 +9,9 @@ const useProductUpdate = (product, editProduct, setEditing, getProductById) => {
   // Track changes
   const hasChanges = form && JSON.stringify(form) !== JSON.stringify(product);
 
-  // Required fields for product
-  const requiredFields = ["title", "price", "stock", "sku", "hsnCode", "category"];
-
   useEffect(() => {
     if (product) {
+      // Deep clone so we don't mutate original
       setForm(JSON.parse(JSON.stringify(product)));
     }
   }, [product]);
@@ -32,7 +31,7 @@ const useProductUpdate = (product, editProduct, setEditing, getProductById) => {
       return;
     }
 
-    // Only include changed fields
+    // Build diff object (only changed fields)
     const diff = {};
     Object.keys(form).forEach((key) => {
       if (form[key] !== product[key]) {
@@ -40,27 +39,48 @@ const useProductUpdate = (product, editProduct, setEditing, getProductById) => {
       }
     });
 
-    // Only check required fields that are being updated
-    const hasEmptyRequired = requiredFields.some(
-      (field) => field in diff && (!diff[field] || diff[field].toString().trim() === "")
-    );
+    // Remove specs if not needed
+    delete diff.specifications;
 
-    if (hasEmptyRequired) {
-      toast.error("Please fill all required fields.");
-      return;
-    }
+    // === Always use FormData ===
+    const payload = new FormData();
+
+    Object.entries(diff).forEach(([key, value]) => {
+      if (value === undefined || value === null) return;
+
+      if (key === "images") {
+        value.forEach((img) => {
+          if (img instanceof File) {
+            payload.append("images", img); // new uploads
+          } else if (img.url && img.public_id) {
+            payload.append(
+              "existingImages",
+              JSON.stringify({ url: img.url, public_id: img.public_id })
+            );
+          }
+        });
+      } else if (["tags", "colors", "sizes"].includes(key) && typeof value === "string") {
+        // Use utility to append comma-separated values
+        appendCommaSeparatedToFormData(payload, key, value);
+      } else if (Array.isArray(value) || typeof value === "object") {
+        // stringify arrays/objects (colors, sizes, tags, category, etc.)
+        payload.append(key, JSON.stringify(value));
+      } else {
+        payload.append(key, value);
+      }
+    });
 
     setIsLoading(true);
 
     try {
-      const res = await editProduct(product._id, diff);
-
+      const res = await editProduct(product._id, payload);
       if (res.success) {
         toast.success(res.message || "Product updated successfully.");
         if (getProductById) getProductById(product._id);
       } else {
         toast.error(res.message || "Failed to update product.");
       }
+      return res;
     } catch (error) {
       console.error("Product update failed:", error);
       toast.error("An unexpected error occurred while updating product.");
