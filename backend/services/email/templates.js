@@ -46,7 +46,7 @@ export const productAddedAdminTemplate = (productName, vendorName, vendorShop, v
 `);
 
 // Admin Notification for Vendor Status Change Email Template
-export const vendorStatusChangeAdminTemplate = (vendorName, vendorShop, vendorEmail, newStatus="approved") => baseMail(`
+export const vendorStatusChangeAdminTemplate = (vendorName, vendorShop, vendorEmail, newStatus = "approved") => baseMail(`
   <h2 style="color: #333; margin-bottom: 20px;">🏷️ Vendor Status Updated</h2>
   <p style="font-size: 16px; color: #555;">
     Vendor <strong>${vendorName}</strong> has been inactive and has requested to change their status to <strong>${newStatus}</strong>.
@@ -69,10 +69,10 @@ export const vendorStatusTemplate = (vendorName, vendorShop, vendorStatus, reaso
   </p>` : ""}
   <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
     ${vendorStatus === "active" ?
-      "You can now log in and start managing your products."
-      :
-      "If you have questions about this change, please contact support."
-    }
+    "You can now log in and start managing your products."
+    :
+    "If you have questions about this change, please contact support."
+  }
   </p>
   <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor"
       style="display: inline-block; padding: 10px 20px; background-color: #28a745;
@@ -106,15 +106,13 @@ export const productStatusTemplate = (
   </p>
 
   <p style="font-size: 14px; color: #555; margin: 15px 0;">
-    ${
-      productStatus === "approved"
-        ? "🎉 Congratulations! Your product has been approved and is now live on the marketplace. Start selling right away!"
-        : `❌ Unfortunately, your product has been disapproved. 
-           ${
-             statusMsg
-               ? `<br><em>Reason: ${statusMsg}</em>`
-               : "Please review the product details and make the necessary changes before resubmitting."
-           }`
+    ${productStatus === "approved"
+      ? "🎉 Congratulations! Your product has been approved and is now live on the marketplace. Start selling right away!"
+      : `❌ Unfortunately, your product has been disapproved. 
+           ${statusMsg
+        ? `<br><em>Reason: ${statusMsg}</em>`
+        : "Please review the product details and make the necessary changes before resubmitting."
+      }`
     }
   </p>
 
@@ -123,9 +121,8 @@ export const productStatusTemplate = (
   </p>
 
   <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor" 
-     style="display: inline-block; padding: 10px 20px; background-color: ${
-       productStatus === "approved" ? "#28a745" : "#dc3545"
-     }; 
+     style="display: inline-block; padding: 10px 20px; background-color: ${productStatus === "approved" ? "#28a745" : "#dc3545"
+    }; 
             color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
     ${productStatus === "approved" ? "Go to Dashboard" : "Update & Resubmit"}
   </a>
@@ -225,4 +222,24 @@ export const productDeletedByAdminTemplate = (productName, productId, adminName)
             color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
     Go to Dashboard
   </a>
+`);
+
+// Order Success Email Template
+export const orderSuccessTemplate = (orderId, customerName, paymentMethod, totalAmount, items) => baseMail(`
+  <h2 style="color: #333; margin-bottom: 20px;">🎉 Order Placed Successfully</h2>
+  <p style="font-size: 16px; color: #555;">
+    Hello <strong>${customerName}</strong>, thank you for your order!
+  </p>
+  <p style="font-size: 14px; color: #555;">
+    <strong>Order ID:</strong> ${orderId}<br>
+    <strong>Payment Method:</strong> ${paymentMethod}<br>
+    <strong>Total Amount:</strong> ₹${totalAmount}
+  </p>
+  <h3 style="color: #333; margin: 15px 0;">🛍️ Ordered Items:</h3>
+  <ul style="font-size: 14px; color: #555; padding-left: 20px;">
+    ${items.map(item => `<li>${item.name} × ${item.qty} — ₹${item.price}</li>`).join("")}
+  </ul>
+  <p style="font-size: 14px; color: #555; margin-top: 20px;">
+    We will notify you once your order is shipped.
+  </p>
 `);

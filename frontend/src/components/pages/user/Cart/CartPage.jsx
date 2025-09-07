@@ -1,17 +1,20 @@
 import { useContext, useEffect, useState, useRef } from "react";
-import CartContext from "../../../../context/cart/CartContext";
 import { useNavigate } from "react-router-dom";
-// import Spinner from "../../../common/Spinner";
+import { NavLink } from "react-router-dom";
+
+import CartContext from "../../../../context/cart/CartContext";
+import OrderContext from "../../../../context/orders/OrderContext";
+
 import BackButton from "../../../common/layout/BackButton";
 import { getFinalPrice, formatPrice } from "../Utils/priceUtils";
 import { encryptData } from "../Utils/Encryption";
-import { NavLink } from "react-router-dom";
-import OrderContext from "../../../../context/orders/OrderContext";
+import StatGrid from "../../../common/helperComponents/StatGrid";
 
 import {
   calculateCartTotal,
   removeItemFromCart,
   changeCartQuantity,
+  getCartSummaryData
 } from "../Utils/cartHelpers";
 
 const CartPage = () => {
@@ -25,6 +28,8 @@ const CartPage = () => {
   const [removingId, setRemovingId] = useState(null);
   const token = localStorage.getItem("customerToken");
 
+
+  // Redirect if not logged in
   useEffect(() => {
     if (!token) {
       navigate("/login/user?redirect=/cart", { replace: true });
@@ -33,23 +38,21 @@ const CartPage = () => {
     }
   }, [token, navigate]);
 
+  // Use cartHelpers.removeItemFromCart
   const handleRemove = async (cartItemId) => {
-    setRemovingId(cartItemId);
-    await removeFromCart(cartItemId);
-    await getCart();
-    setRemovingId(null);
+    await removeItemFromCart({
+      cartItemId,
+      removeFromCart,
+      getCart,
+      setRemovingId,
+    });
   };
 
+  //  Use cartHelpers.changeCartQuantity
   const handleQuantityChange = (productId, color, size, newQuantity, stock) => {
     const now = Date.now();
-    if (now - lastClickTime.current < 300) {
-      return;
-    }
+    if (now - lastClickTime.current < 300) return; // debounce
     lastClickTime.current = now;
-
-    if (newQuantity < 1 || newQuantity > stock) return;
-
-    setUpdatingProductId(productId);
 
     changeCartQuantity({
       productId,
@@ -71,9 +74,7 @@ const CartPage = () => {
   };
 
   const handleCartCheckout = async () => {
-    const res = await createOrderDraft({
-      buyNow: false
-    });
+    const res = await createOrderDraft({ buyNow: false });
 
     if (res.success) {
       navigate(`/order-summary/${res.draftOrderId}`);
@@ -88,7 +89,7 @@ const CartPage = () => {
         <p className="text-xl font-semibold text-green-700">Your cart is empty</p>
         <NavLink
           to="/"
-          className="inline-block px-6 py-3 bg-green-900 text-white font-medium rounded-md  transition-colors duration-300 "
+          className="inline-block px-6 py-3 bg-green-900 text-white font-medium rounded-md transition-colors duration-300"
         >
           Shop Now
         </NavLink>
@@ -99,7 +100,7 @@ const CartPage = () => {
   return (
     <div className="bg-green-50 min-h-screen">
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl">
-        <h2 className="text-xl sm:text-2xl font-semibold text-green-700 mb-4 ">
+        <h2 className="text-xl sm:text-2xl font-semibold text-green-700 mb-4">
           Your Shopping Cart
         </h2>
 
@@ -107,11 +108,10 @@ const CartPage = () => {
           <BackButton />
         </div>
 
-
         <div className="space-y-4">
-          {cart.filter(item => item.product).map(({ _id, color, size, product, quantity }) => (
+          {cart.filter((item) => item.product).map(({ _id, color, size, product, quantity }) => (
             <div
-              key={_id || `${product._id}-${color || 'default'}-${size || 'default'}`}
+              key={_id || `${product._id}-${color || "default"}-${size || "default"}`}
               className="flex flex-col md:flex-row md:items-center bg-white border border-green-500 p-4 rounded-xl shadow-sm gap-4"
             >
               <img
@@ -122,7 +122,12 @@ const CartPage = () => {
               />
 
               <div className="flex-1">
-                <h3 className="font-semibold text-lg text-[#333] cursor-pointer" onClick={() => handleProductClick(product._id)}>{product.title}</h3>
+                <h3
+                  className="font-semibold text-lg text-[#333] cursor-pointer"
+                  onClick={() => handleProductClick(product._id)}
+                >
+                  {product.title}
+                </h3>
 
                 <div className="text-2xl font-bold text-[#7F55B1] flex items-center gap-3">
                   {formatPrice(product.price) && product.discount && product.discount > 0 && product.discount < 100 ? (
@@ -160,11 +165,10 @@ const CartPage = () => {
               </div>
 
               <div className="flex md:flex-col items-center md:items-end gap-2 mt-4 md:mt-0">
+                {/* Quantity controls */}
                 <div className="flex items-center border rounded overflow-hidden">
                   <button
-                    onClick={() =>
-                      handleQuantityChange(product._id, color, size, quantity - 1, product.stock)
-                    }
+                    onClick={() => handleQuantityChange(product._id, color, size, quantity - 1, product.stock)}
                     className="px-3 py-1 bg-[#EDE3F9] hover:bg-[#D7C2F0] text-[#7F55B1]"
                     disabled={quantity <= 1 || updatingProductId === product._id}
                   >
@@ -182,9 +186,7 @@ const CartPage = () => {
                     disabled={updatingProductId === product._id}
                   />
                   <button
-                    onClick={() =>
-                      handleQuantityChange(product._id, color, size, quantity + 1, product.stock)
-                    }
+                    onClick={() => handleQuantityChange(product._id, color, size, quantity + 1, product.stock)}
                     className="px-3 py-1 bg-[#EDE3F9] hover:bg-[#D7C2F0] text-[#7F55B1]"
                     disabled={quantity >= product.stock || updatingProductId === product._id}
                   >
@@ -192,6 +194,7 @@ const CartPage = () => {
                   </button>
                 </div>
 
+                {/* Remove button */}
                 <button
                   onClick={() => handleRemove(_id)}
                   disabled={removingId === _id}
@@ -229,23 +232,22 @@ const CartPage = () => {
                     "Remove"
                   )}
                 </button>
-
-
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-8 flex justify-between items-center space-x-6 border-t pt-4">
-          <span className="text-xl font-semibold text-[#7F55B1]">
-            Total: ₹{calculateCartTotal(cart)}
-          </span>
-          <button
-            onClick={handleCartCheckout}
-            className="bg-green-900 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow cursor-pointer"
-          >
-            Proceed to Checkout
-          </button>
+        <div className="mt-8 border-t pt-4">
+          <StatGrid cards={getCartSummaryData(cart)} />
+
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={handleCartCheckout}
+              className="bg-green-900 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow cursor-pointer"
+            >
+              Proceed to Checkout
+            </button>
+          </div>
         </div>
       </div>
     </div>

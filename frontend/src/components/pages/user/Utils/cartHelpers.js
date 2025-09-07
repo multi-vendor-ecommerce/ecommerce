@@ -1,5 +1,6 @@
 import { getFinalPrice } from "./priceUtils";
-import { useNavigate, useLocation } from "react-router-dom";
+import { FiShoppingCart } from "react-icons/fi";
+import { FaRupeeSign, FaBoxOpen } from "react-icons/fa";
 
 // Add product to cart with validation
 export const validateAndAddToCart = async ({
@@ -13,7 +14,7 @@ export const validateAndAddToCart = async ({
   navigate,
   location
 }) => {
-  const token = localStorage.getItem("customerToken"); 
+  const token = localStorage.getItem("customerToken");
   if (!token) {
     navigate("/login/user", { state: { from: location.pathname } });
     return;
@@ -51,7 +52,6 @@ export const calculateCartTotal = (cart) => {
     return acc + discountedPrice * item.quantity;
   }, 0).toFixed(2);
 };
-
 
 // Remove an item from cart
 export const removeItemFromCart = async ({
@@ -131,3 +131,28 @@ export const calculateCheckoutTotals = (
     totalAmount: Number(totalAmount.toFixed(2)),
   };
 };
+
+
+export const getCartSummaryData = (cart) => [
+  {
+    label: "Total Items",
+    value: cart.reduce((acc, item) => acc + item.quantity, 0),
+    icon:  FiShoppingCart,
+    bg: "bg-blue-50",
+    shadow: "shadow-blue-100",
+  },
+  {
+    label: "Total Price",
+    value: `₹${calculateCartTotal(cart)}`,
+    icon:  FaRupeeSign,
+    bg: "bg-green-50",
+    shadow: "shadow-green-100",
+  },
+  {
+    label: "Unique Products",
+    value: cart.length,
+    icon: FaBoxOpen,
+    bg: "bg-purple-50",
+    shadow: "shadow-purple-100",
+  },
+];

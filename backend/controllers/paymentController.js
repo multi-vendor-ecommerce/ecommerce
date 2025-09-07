@@ -4,6 +4,7 @@ import Order from "../models/Order.js";
 import User from "../models/User.js";
 import crypto from "crypto";
 import Products from "../models/Products.js";
+import { sendOrderSuccessMail } from "../services/email/sender.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -93,6 +94,10 @@ export const verifyRazorpayPayment = async (req, res) => {
     const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ success: false, message: "Order not found. Please check your order." });
 
+    // Fetch user for email
+    const user = await User.findById(order.user);
+    if (!user) return res.status(404).json({ success: false, message: "User not found." });
+
     order.paymentMethod = "Online";
     order.paymentInfo = { id: razorpayPaymentId, status: "paid" };
     order.paidAt = new Date();
@@ -118,6 +123,19 @@ export const verifyRazorpayPayment = async (req, res) => {
     }
 
     await order.save();
+
+    await sendOrderSuccessMail({
+      to: user.email,
+      orderId: order._id,
+      customerName: user.name,
+      paymentMethod: order.paymentMethod,
+      totalAmount: order.totalAmount,
+      items: order.orderItems.map(i => ({
+        name: i.productName,
+        qty: i.quantity,
+        price: i.price,
+      })),
+    });
 
     res.status(200).json({
       success: true,
@@ -149,6 +167,10 @@ export const confirmCOD = async (req, res) => {
       return res.status(400).json({ success: false, message: "Order is already paid." });
     }
 
+    const user = await User.findById(order.user);
+    if (!user) return res.status(404).json({ success: false, message: "User not found." });
+
+
     order.shippingInfo = shippingInfo;
     order.paymentMethod = "COD";
     order.paymentInfo = { id: null, status: "pending" };
@@ -166,6 +188,22 @@ export const confirmCOD = async (req, res) => {
     }
 
     await order.save();
+
+    // Send confirmation email for COD
+    await sendOrderSuccessMail({
+      to: user.email,
+      orderId: order._id,
+      customerName: user.name,
+      paymentMethod: order.paymentMethod,
+      totalAmount: order.totalAmount,
+      items: order.orderItems.map(i => ({
+        name: i.productName,
+        qty: i.quantity,
+        price: i.price,
+      })),
+    });
+
+    console.log("COD order confirmed and email sent.");
 
     res.status(200).json({
       success: true,

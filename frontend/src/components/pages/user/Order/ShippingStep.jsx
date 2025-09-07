@@ -1,15 +1,17 @@
 import { useState, useEffect, useContext } from "react";
 import AddressContext from "../../../../context/shippingAddress/AddressContext";
 import StepperControls from "../../../common/StepperControls";
+import Loader from "../../../common/Loader";
+import InputField from "../../../common/InputField";
 
 const ShippingStep = ({ order, setOrder, step, next, prev }) => {
-  const { addresses, getAddresses, deleteAddress, setDefaultAddress, addAddress, updateAddress } =
+  const { addresses, getAddresses, deleteAddress, setDefaultAddress, addAddress, updateAddress, loading } =
     useContext(AddressContext);
 
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editId, setEditId] = useState(null); 
+  const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
     recipientName: "",
     recipientPhone: "",
@@ -20,6 +22,11 @@ const ShippingStep = ({ order, setOrder, step, next, prev }) => {
     state: "",
     pincode: "",
   });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   // Load addresses on mount
   useEffect(() => {
@@ -97,7 +104,11 @@ const ShippingStep = ({ order, setOrder, step, next, prev }) => {
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Shipping Information</h2>
 
-      {addresses?.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center min-h-[200px]">
+          <Loader />
+        </div>
+      ) : addresses?.length === 0 ? (
         <p>No saved addresses. Please add one below.</p>
       ) : (
         <div className="space-y-2">
@@ -184,77 +195,74 @@ const ShippingStep = ({ order, setOrder, step, next, prev }) => {
       {/* Add / Edit Form */}
       {showForm && (
         <form onSubmit={handleFormSubmit} className="space-y-2 border p-4 rounded">
-          <input
-            type="text"
+          <InputField
+            label="Recipient Name"
+            name="recipientName"
             placeholder="Recipient Name"
             value={formData.recipientName}
-            onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-            className="border p-2 rounded w-full"
+            onChange={handleInputChange}
             required
           />
-          <input
-            type="text"
+          <InputField
+            label="Phone"
+            name="recipientPhone"
             placeholder="Phone"
             value={formData.recipientPhone}
-            onChange={(e) => setFormData({ ...formData, recipientPhone: e.target.value })}
-            className="border p-2 rounded w-full"
+            onChange={handleInputChange}
             required
           />
-          <input
-            type="text"
+          <InputField
+            label="Line 1"
+            name="line1"
             placeholder="Line 1"
             value={formData.line1}
-            onChange={(e) => setFormData({ ...formData, line1: e.target.value })}
-            className="border p-2 rounded w-full"
+            onChange={handleInputChange}
             required
           />
-          <input
-            type="text"
+          <InputField
+            label="Line 2"
+            name="line2"
             placeholder="Line 2"
             value={formData.line2}
-            onChange={(e) => setFormData({ ...formData, line2: e.target.value })}
-            className="border p-2 rounded w-full"
+            onChange={handleInputChange}
           />
-          <input
-            type="text"
+          <InputField
+            label="Locality"
+            name="locality"
             placeholder="Locality"
             value={formData.locality}
-            onChange={(e) => setFormData({ ...formData, locality: e.target.value })}
-            className="border p-2 rounded w-full"
+            onChange={handleInputChange}
           />
-          <input
-            type="text"
+          <InputField
+            label="City"
+            name="city"
             placeholder="City"
             value={formData.city}
-            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-            className="border p-2 rounded w-full"
+            onChange={handleInputChange}
             required
           />
-          <input
-            type="text"
+          <InputField
+            label="State"
+            name="state"
             placeholder="State"
             value={formData.state}
-            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-            className="border p-2 rounded w-full"
+            onChange={handleInputChange}
             required
           />
-          <input
-            type="text"
+          <InputField
+            label="Pincode"
+            name="pincode"
             placeholder="Pincode"
             value={formData.pincode}
-            onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-            className="border p-2 rounded w-full"
+            onChange={handleInputChange}
             required
           />
+
           <div className="flex space-x-2">
             <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
               {isEditing ? "Update Address" : "Save Address"}
             </button>
-            <button
-              type="button"
-              onClick={resetForm}
-              className="border px-4 py-2 rounded"
-            >
+            <button type="button" onClick={resetForm} className="border px-4 py-2 rounded">
               Cancel
             </button>
           </div>

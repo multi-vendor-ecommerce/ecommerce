@@ -7,6 +7,7 @@ import BackButton from "../../../../common/layout/BackButton";
 import FilterBar from "../../../../common/FilterBar";
 import { orderFilterFields } from "../../../adminVendorCommon/orders/data/ordersData.js";
 
+
 const MyOrdersList = () => {
   const { orders, getAllOrders, loading } = useContext(OrderContext);
 
@@ -99,15 +100,15 @@ const MyOrdersList = () => {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm sm:text-base font-medium text-gray-900 line-clamp-2">
-                        {item.product.title}
+                         {item?.product?.title || "Product"}
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        Qty: {item.quantity}
-                        {item.size && ` | Size: ${item.size}`}
-                        {item.color && ` | Color: ${item.color}`}
+                        Qty: {item?.quantity}
+                        {item?.size && ` | Size: ${item?.size}`}
+                        {item?.color && ` | Color: ${item?.color}`}
                       </p>
                       <p className="text-sm sm:text-base font-semibold text-green-700 mt-1">
-                        ₹{item.product.price}
+                        ₹{item?.product?.price}
                       </p>
                     </div>
                   </div>
@@ -116,19 +117,19 @@ const MyOrdersList = () => {
 
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 p-2 border-t border-gray-100">
                 <p className="font-semibold text-gray-800 text-sm sm:text-base">
-                  Total: ₹{order.totalAmount}
+                  Total: ₹{order?.totalAmount}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  {order.orderStatus === "pending" ? (
+                  {order?.orderStatus === "pending" ? (
                     <button
-                      onClick={() => navigate(`/order-summary/${order._id}`)}
+                      onClick={() => navigate(`/order-summary/${order?._id}`)}
                       className="px-4 py-2 text-sm font-medium bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors w-full sm:w-auto"
                     >
                       Complete Your Order
                     </button>
                   ) : (
                     <button
-                      onClick={() => goToDetails(order._id)}
+                      onClick={() => goToDetails(order?._id)}
                       className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors w-full sm:w-auto"
                     >
                       View Details

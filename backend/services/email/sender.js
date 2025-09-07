@@ -10,7 +10,8 @@ import {
   vendorStatusChangeAdminTemplate,
   vendorResubmittedProductTemplate,
   vendorDeletionRequestTemplate,
-  productDeletedByAdminTemplate
+  productDeletedByAdminTemplate,
+  orderSuccessTemplate
 } from "./templates.js";
 
 export const sendOtpMail = async ({ to, otp }) => {
@@ -92,5 +93,14 @@ export async function sendProductDeletedByAdminMail({ to, productName, productId
     to,
     subject: `Your Product Has Been Deleted by Admin: ${productName}`,
     html: productDeletedByAdminTemplate(productName, productId, adminName),
+  });
+}
+
+// Order success mail to customer
+export async function sendOrderSuccessMail({ to, orderId, customerName, paymentMethod, totalAmount, items }) {
+  await sendMail({
+    to,
+    subject: "Your Order Has Been Placed Successfully !",
+    html: orderSuccessTemplate(orderId, customerName, paymentMethod, totalAmount, items),
   });
 }
