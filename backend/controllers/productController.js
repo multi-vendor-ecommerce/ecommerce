@@ -1,7 +1,7 @@
 import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
-import { sendProductAddedMail, sendProductAddedAdminMail, sendProductStatusMail } from "../services/email/sender.js";
+import { sendProductAddedMail, sendProductAddedAdminMail, sendProductStatusMail, sendVendorResubmittedProductMail, sendVendorDeletionRequestMail, sendProductDeletedByAdminMail } from "../services/email/sender.js";
 import Vendor from "../models/Vendor.js";
 import { validateProductFields } from "../utils/validateProductFields.js";
 import { mergeImages } from "../utils/mergeImages.js";
@@ -334,175 +334,101 @@ export const editProduct = async (req, res) => {
     const isVendor = req.person?.role === "vendor";
 
     let product = await Product.findById(productId).populate("createdBy", "email name shopName");
-    if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found." });
-    }
+    if (!product) return res.status(404).json({ success: false, message: "Product not found." });
 
     if (isVendor && !product.createdBy._id.equals(req.person.id)) {
       return res.status(403).json({ success: false, message: "Access denied." });
     }
 
-    // Parse JSON fields
-    const parseIfJson = (val) => {
-      if (typeof val === "string") {
-        try {
-          return JSON.parse(val);
-        } catch {
-          return val;
-        }
-      }
-      return val;
-    };
-
-    req.body.category = parseIfJson(req.body.category);
-    req.body.colors = parseIfJson(req.body.colors);
-    req.body.sizes = parseIfJson(req.body.sizes);
-    req.body.tags = parseIfJson(req.body.tags);
-
+    // 🔹 Build update object
+    const update = {};
     const allowedVendorFields = [
       "title", "brand", "description", "images", "video",
       "price", "discount", "stock", "sku", "hsnCode", "gstRate", "isTaxable",
       "freeDelivery", "tags", "colors", "sizes", "category"
     ];
 
-    // Build update object
-    const update = {};
-    if (req.body && typeof req.body === "object") {
-      Object.keys(req.body).forEach((key) => {
-        if (
-          ["hsnCode", "sku", "gstRate", "category"].includes(key) &&
-          product.status === "approved"
-        ) return;
+    Object.keys(req.body || {}).forEach((key) => {
+      if (isAdmin || allowedVendorFields.includes(key)) update[key] = req.body[key];
+    });
 
-        if (isAdmin || allowedVendorFields.includes(key)) {
-          update[key] = req.body[key];
-        }
-      });
-    }
-
-    // Images handling
-    const mergedImages = mergeImages(req);
-    const imagesToDelete = product.images.filter(
-      (dbImg) => !mergedImages.some((img) => img.public_id === dbImg.public_id)
-    );
-    for (const img of imagesToDelete) {
-      try {
-        await cloudinary.uploader.destroy(img.public_id);
-      } catch (err) {
-        console.error("Failed to delete image:", img.public_id, err);
+    // 🔹 Parse JSON fields
+    const parseIfJson = (val) => {
+      if (typeof val === "string") {
+        try { return JSON.parse(val); } catch { return val; }
       }
-    }
-    if (mergedImages.length > 0) update.images = mergedImages;
+      return val;
+    };
 
-    // Remove forbidden fields
-    const forbiddenFields = [
-      "createdBy", "_id", "unitsSold", "totalRevenue",
-      "rating", "totalReviews", "status", "reviews",
-      "createdAt", "updatedAt"
-    ];
-    for (const field of forbiddenFields) delete update[field];
+    update.category = parseIfJson(update.category);
+    update.colors = parseIfJson(update.colors);
+    update.sizes = parseIfJson(update.sizes);
+    update.tags = parseIfJson(update.tags);
 
-    // Validation
-    const errors = validateProductFields(update, true);
-    if (errors.length > 0) {
-      return res.status(400).json({ success: false, message: errors.join(" ") });
+    // Convert category object to ObjectId string if needed
+    if (update.category && typeof update.category === "object" && update.category._id) {
+      update.category = update.category._id;
     }
 
-    // Formatting
+    // 🔹 Trim/format
     if (update.title) update.title = update.title.trim();
     if (update.brand) update.brand = update.brand.trim();
     if (update.sku) update.sku = update.sku.trim().toUpperCase();
     if (update.hsnCode) update.hsnCode = update.hsnCode.trim();
-    if (update.description) update.description = update.description.trim();
+    if (update.description) update.description = update.description?.trim();
 
-    if (Array.isArray(update.colors)) {
-      update.colors = [...new Set(update.colors.map(c => c.trim().toLowerCase()).filter(Boolean))];
-    }
-    if (Array.isArray(update.sizes)) {
-      update.sizes = [...new Set(update.sizes.map(s => s.replace(/[-_]/g, " ").trim()).filter(Boolean))];
-    }
-    if (Array.isArray(update.tags)) {
-      update.tags = [...new Set(update.tags.map(tag => tag.trim().toLowerCase()).filter(Boolean))];
-    }
+    // Arrays formatting
+    if (Array.isArray(update.colors)) update.colors = [...new Set(update.colors.map(c => c.trim().toLowerCase()).filter(Boolean))];
+    if (Array.isArray(update.sizes)) update.sizes = [...new Set(update.sizes.map(s => s.replace(/[-_]/g, " ").trim()).filter(Boolean))];
+    if (Array.isArray(update.tags)) update.tags = [...new Set(update.tags.map(t => t.trim().toLowerCase()).filter(Boolean))];
 
-    // === STATUS & EMAIL LOGIC ===
-    let mailToAdmin = false;
-    let mailToVendor = false;
-    let mailType = "";
+    // 🔹 Validation
+    const errors = validateProductFields(update, true);
+    if (errors.length > 0) return res.status(400).json({ success: false, message: errors.join(" ") });
 
+    // 🔹 Handle image updates
+    const mergedImages = mergeImages(req);
+    if (mergedImages.length > 0) update.images = mergedImages;
+
+    // 🔹 STATUS & EMAIL LOGIC
     if (isVendor) {
       if (product.status === "rejected") {
-        update.status = "pending"; // Needs admin approval
-        mailToAdmin = true;
-        mailToVendor = true;
-        mailType = "vendor_edited_rejected";
-      } else {
-        // Approved product, no approval needed
-        mailToVendor = true;
-        mailType = "vendor_edited_approved";
-      }
-    }
-
-    if (isAdmin) {
-      update.status = "approved";
-      mailToVendor = true;
-      mailType = "admin_edited";
-    }
-
-    // Update product in DB
-    product = await Product.findByIdAndUpdate(
-      productId,
-      update,
-      { new: true, runValidators: true }
-    ).populate("createdBy", "email name shopName");
-
-    // === EMAILS ===
-    try {
-      if (mailToAdmin) {
-        await sendProductStatusMail({
+        update.status = "pending"; // back for admin review
+        await sendVendorResubmittedProductMail({
           to: process.env.ADMIN_EMAIL,
-          productStatus: "Vendor edited rejected product (needs approval)",
           productName: product.title,
           productId: product._id,
           vendorName: product.createdBy.name,
           vendorShop: product.createdBy.shopName
         });
       }
-      if (mailToVendor) {
-        let statusMsg = "";
-        if (mailType === "vendor_edited_rejected") {
-          statusMsg = "Your changes to the rejected product have been submitted for admin approval.";
-        } else if (mailType === "vendor_edited_approved") {
-          statusMsg = "Your changes to the approved product are live.";
-        } else if (mailType === "admin_edited") {
-          statusMsg = "Admin has edited your product.";
-        }
-        await sendProductStatusMail({
-          to: product.createdBy.email,
-          productStatus: product.status,
-          productName: product.title,
-          productId: product._id,
-          vendorName: product.createdBy.name,
-          vendorShop: product.createdBy.shopName,
-          statusMsg
-        });
-      }
-    } catch (emailErr) {
-      console.error("Product status email failed:", emailErr);
+      // approved product edited → no email
     }
 
-    res.status(200).json({
-      success: true,
-      product,
-      message: "Product updated successfully."
-    });
-  } catch (error) {
-    console.error("Edit Product Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Unable to update product.",
-      error: error.message
-    });
+    if (isAdmin && update.status) {
+      const msg = update.status === "approved"
+        ? "Your product has been approved and is now live."
+        : "Your product has been rejected. Please review and resubmit.";
+
+      await sendProductStatusMail({
+        to: product.createdBy.email,
+        productStatus: update.status,
+        productName: product.title,
+        productId: product._id,
+        vendorName: product.createdBy.name,
+        vendorShop: product.createdBy.shopName,
+        statusMsg: msg
+      });
+    }
+
+    // 🔹 Save updates
+    product = await Product.findByIdAndUpdate(productId, update, { new: true, runValidators: true })
+      .populate("createdBy", "email name shopName");
+
+    res.status(200).json({ success: true, product, message: "Product updated successfully." });
+  } catch (err) {
+    console.error("Edit Product Error:", err);
+    res.status(500).json({ success: false, message: "Unable to update product." });
   }
 };
 
@@ -515,35 +441,68 @@ export const deleteProduct = async (req, res) => {
     const isAdmin = req.person?.role === "admin";
     const isVendor = req.person?.role === "vendor";
 
-    let product = await Product.findById(productId);
+    let product = await Product.findById(productId).populate("createdBy", "email name shopName");
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found." });
     }
 
-    if (isVendor && !product.createdBy.equals(req.person.id)) {
+    if (isVendor && !product.createdBy._id.equals(req.person.id)) {
       return res.status(403).json({ success: false, message: "Access denied." });
     }
 
-    // Delete images from Cloudinary
-    if (Array.isArray(product.images)) {
-      for (const img of product.images) {
-        if (img.public_id) {
-          try {
-            await cloudinary.uploader.destroy(img.public_id);
-          } catch (err) {
-            console.error("Failed to delete image from Cloudinary:", img.public_id, err);
+    if (isVendor) {
+      // Vendor requests deletion → soft delete (status pending)
+      product.status = "pendingDeletion";
+      await product.save();
+
+      // Notify admin
+      await sendVendorDeletionRequestMail({
+        to: process.env.ADMIN_EMAIL,
+        productName: product.title,
+        productId: product._id,
+        vendorName: product.createdBy.name,
+        vendorShop: product.createdBy.shopName,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Deletion request submitted. Awaiting admin approval."
+      });
+    }
+
+    if (isAdmin) {
+      // Admin deletes product → hard delete
+      // Delete images from Cloudinary
+      if (Array.isArray(product.images)) {
+        for (const img of product.images) {
+          if (img.public_id) {
+            try {
+              await cloudinary.uploader.destroy(img.public_id);
+            } catch (err) {
+              console.error("Failed to delete image from Cloudinary:", img.public_id, err);
+            }
           }
         }
       }
+
+      await Product.findByIdAndDelete(productId);
+
+      // Notify vendor
+      await sendProductDeletedByAdminMail({
+        to: product.createdBy.email,
+        productName: product.title,
+        productId: product._id,
+        adminName: req.person.name || "Admin",
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Product deleted successfully."
+      });
     }
 
-    // Delete product in DB
-    await Product.findByIdAndDelete(productId);
+    res.status(403).json({ success: false, message: "Unauthorized action." });
 
-    res.status(200).json({
-      success: true,
-      message: "Product deleted successfully."
-    });
   } catch (error) {
     console.error("Delete Product Error:", error);
     res.status(500).json({
@@ -555,7 +514,7 @@ export const deleteProduct = async (req, res) => {
 };
 
 // ==========================
-// Update product status (approve/reject)
+// Update product status (approve/reject/delete)
 // ==========================
 export const updateProductStatus = async (req, res) => {
   let { status } = req.body;

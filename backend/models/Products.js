@@ -108,7 +108,7 @@ const productSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "inactive"],
+      enum: ["pending", "approved", "rejected", "inactive", "pendingDeletion"],
       default: "pending",
     },
     colors: {

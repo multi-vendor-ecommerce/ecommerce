@@ -50,12 +50,13 @@ const customStyles = {
   }),
 };
 
-const CustomSelect = ({ options, value, onChange, menuPlacement = "auto" }) => (
+const CustomSelect = ({ options, value, onChange, menuPlacement = "auto", isDisabled = false }) => (
   <Select
     value={options.find((opt) => opt.value === value)}
     onChange={(selected) => onChange(selected.value)}
     options={options}
     styles={customStyles}
+    isDisabled={isDisabled}
     isSearchable={false}
     menuPlacement={menuPlacement}
     menuPosition="fixed" // Positions relative to the viewport

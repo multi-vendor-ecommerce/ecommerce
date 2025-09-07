@@ -85,26 +85,80 @@ export const vendorStatusTemplate = (vendorName, vendorShop, vendorStatus, reaso
 `);
 
 // Vendor Product Approval/Disapproval Notification Email Template
-export const productStatusTemplate = (productStatus, productName, productId, vendorName, vendorShop, statusMsg) => baseMail(`
-  <h2 style="color: #333; margin-bottom: 20px;">Product ${toTitleCase(productStatus)}!</h2>
+export const productStatusTemplate = (
+  productStatus,
+  productName,
+  productId,
+  vendorName,
+  vendorShop,
+  statusMsg
+) =>
+  baseMail(`
+  <h2 style="color: #333; margin-bottom: 20px;">
+    Product ${toTitleCase(productStatus)}!
+  </h2>
+
   <p style="font-size: 16px; color: #555;">
-    Hello <strong>${vendorName}</strong>, your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) 
-    under <strong>${vendorShop}</strong> has been <strong>${!statusMsg && productStatus}</strong>.
+    Hello <strong>${vendorName}</strong>,  
+    your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>)  
+    under <strong>${vendorShop}</strong> has been 
+    <strong>${productStatus}</strong>.
   </p>
+
   <p style="font-size: 14px; color: #555; margin: 15px 0;">
-    ${productStatus === "approved" ?
-      "You can now start selling this product on the marketplace."
-      :
-      "Please review the product details and make necessary adjustments."
+    ${
+      productStatus === "approved"
+        ? "🎉 Congratulations! Your product has been approved and is now live on the marketplace. Start selling right away!"
+        : `❌ Unfortunately, your product has been disapproved. 
+           ${
+             statusMsg
+               ? `<br><em>Reason: ${statusMsg}</em>`
+               : "Please review the product details and make the necessary changes before resubmitting."
+           }`
     }
   </p>
+
   <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
-    Thank you for being a valued vendor! We appreciate your partnership.
+    Thank you for being a valued vendor! We truly appreciate your partnership.
   </p>
+
   <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor" 
-     style="display: inline-block; padding: 10px 20px; background-color: #28a745; 
+     style="display: inline-block; padding: 10px 20px; background-color: ${
+       productStatus === "approved" ? "#28a745" : "#dc3545"
+     }; 
             color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
-    Go to Dashboard
+    ${productStatus === "approved" ? "Go to Dashboard" : "Update & Resubmit"}
+  </a>
+`);
+
+// Admin Notification: Vendor Resubmitted Product
+export const vendorResubmittedProductTemplate = (
+  productName,
+  productId,
+  vendorName,
+  vendorShop
+) =>
+  baseMail(`
+  <h2 style="color: #333; margin-bottom: 20px;">Vendor Resubmitted a Product for Review</h2>
+
+  <p style="font-size: 16px; color: #555;">
+    <strong>${vendorName}</strong> from <strong>${vendorShop}</strong> has resubmitted the product:
+  </p>
+
+  <p style="font-size: 14px; color: #555; margin: 10px 0;">
+    <strong>Product:</strong> ${productName}<br>
+    <strong>Product ID:</strong> ${productId}
+  </p>
+
+  <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
+    The vendor has updated the product after rejection and requested a re-review.  
+    Please log in to your admin dashboard to check the product details and take the next action.
+  </p>
+
+  <a href="https://multi-vendor-e-commerce.netlify.app/login/admin" 
+     style="display: inline-block; padding: 10px 20px; background-color: #007bff; 
+            color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
+    Review Product
   </a>
 `);
 
@@ -135,4 +189,40 @@ export const vendorProfileUpdatedTemplate = (vendorName, vendorShop, changes, da
   <p style="font-size: 14px; color: #555; margin-top: 20px;">
     Thank you for being a valued vendor! We appreciate your partnership.
   </p>
+`);
+
+// Vendor deletion request → Admin notification
+export const vendorDeletionRequestTemplate = (productName, productId, vendorName, vendorShop) => baseMail(`
+  <h2 style="color: #333; margin-bottom: 20px;">🛑 Deletion Request Submitted</h2>
+  <p style="font-size: 16px; color: #555;">
+    Vendor <strong>${vendorName}</strong> from <strong>${vendorShop}</strong> has requested to delete the product:
+  </p>
+  <p style="font-size: 14px; color: #555; margin: 10px 0;">
+    <strong>Product:</strong> ${productName}<br>
+    <strong>Product ID:</strong> ${productId}
+  </p>
+  <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
+    Please review this request and approve or reject the deletion.
+  </p>
+  <a href="https://multi-vendor-e-commerce.netlify.app/login/admin" 
+     style="display: inline-block; padding: 10px 20px; background-color: #007bff; 
+            color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
+    Review Request
+  </a>
+`);
+
+// Admin deletes product → Vendor notification
+export const productDeletedByAdminTemplate = (productName, productId, adminName) => baseMail(`
+  <h2 style="color: #333; margin-bottom: 20px;">❌ Product Deleted</h2>
+  <p style="font-size: 16px; color: #555;">
+    Your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) has been deleted by <strong>${adminName}</strong>.
+  </p>
+  <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
+    If you have any questions about this action, please contact support.
+  </p>
+  <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor" 
+     style="display: inline-block; padding: 10px 20px; background-color: #dc3545; 
+            color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
+    Go to Dashboard
+  </a>
 `);

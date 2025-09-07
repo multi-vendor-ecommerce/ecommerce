@@ -7,7 +7,10 @@ import {
   vendorStatusTemplate,
   productStatusTemplate,
   vendorProfileUpdatedTemplate,
-  vendorStatusChangeAdminTemplate
+  vendorStatusChangeAdminTemplate,
+  vendorResubmittedProductTemplate,
+  vendorDeletionRequestTemplate,
+  productDeletedByAdminTemplate
 } from "./templates.js";
 
 export const sendOtpMail = async ({ to, otp }) => {
@@ -34,11 +37,19 @@ export async function sendProductAddedAdminMail({ to, vendorName, vendorEmail, p
   });
 }
 
-export async function sendProductStatusMail({ to, productStatus, productName, productId, vendorName, vendorShop, statusMsg="" }) {
+export async function sendProductStatusMail({ to, productStatus, productName, productId, vendorName, vendorShop, statusMsg = "" }) {
   await sendMail({
     to,
     subject: `Your Product Status Update: ${toTitleCase(productStatus)}`,
-    html: productStatusTemplate(productStatus, productName, productId, vendorName, vendorShop),
+    html: productStatusTemplate(productStatus, productName, productId, vendorName, vendorShop, statusMsg),
+  });
+}
+
+export async function sendVendorResubmittedProductMail({ to, productName, productId, vendorName, vendorShop }) {
+  await sendMail({
+    to,
+    subject: "Vendor Resubmitted Product for Review",
+    html: vendorResubmittedProductTemplate(productName, productId, vendorName, vendorShop),
   });
 }
 
@@ -63,5 +74,23 @@ export async function sendVendorProfileUpdatedMail({ to, vendorName, vendorShop,
     to,
     subject: `Your Vendor Profile Has Been Updated by Admin`,
     html: vendorProfileUpdatedTemplate(vendorName, vendorShop, changes, data),
+  });
+}
+
+// Vendor requests product deletion → notify admin
+export async function sendVendorDeletionRequestMail({ to, productName, productId, vendorName, vendorShop }) {
+  await sendMail({
+    to,
+    subject: `Deletion Request for Product: ${productName}`,
+    html: vendorDeletionRequestTemplate(productName, productId, vendorName, vendorShop),
+  });
+}
+
+// Admin deletes product → notify vendor
+export async function sendProductDeletedByAdminMail({ to, productName, productId, adminName }) {
+  await sendMail({
+    to,
+    subject: `Your Product Has Been Deleted by Admin: ${productName}`,
+    html: productDeletedByAdminTemplate(productName, productId, adminName),
   });
 }
