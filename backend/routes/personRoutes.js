@@ -28,7 +28,7 @@ export const changePasswordValidator = [
 ];
 
 // For profile images (single)
-const uploadProfile = upload({ folder: "profiles", prefix: "profile" });
+const uploadProfile = upload({ folder: "profiles", prefix: "profile", fixedPublicId: (req) => `profile-${req.person.id}` });
 
 // Common auth middleware
 const auth = [verifyToken, authorizeRoles("customer", "vendor", "admin")]

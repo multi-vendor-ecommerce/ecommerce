@@ -9,7 +9,6 @@ import Vendor from "../models/Vendor.js";
 export const deleteImage = async (req, res) => {
   try {
     const { publicId, type, targetId } = req.body;
-    // type = "profile" | "product" | "shopLogo"
 
     if (!publicId || !type || !targetId) {
       return res.status(400).json({ success: false, message: "Missing required image information." });
@@ -19,14 +18,18 @@ export const deleteImage = async (req, res) => {
     await cloudinary.uploader.destroy(publicId);
 
     // Update DB
-    if (type === "profile") {
-      await Person.findByIdAndUpdate(targetId, { $set: { profileImage: "", profileImageId: "" } });
-    }
-    if (type === "product") {
-      await Product.findByIdAndUpdate(targetId, { $pull: { images: { public_id: publicId } } });
-    }
-    if (type === "shopLogo") {
-      await Vendor.findByIdAndUpdate(targetId, { $set: { shopLogo: "", shopLogoId: "" } });
+    switch (type) {
+      case "profile":
+        await Person.findByIdAndUpdate(targetId, { $set: { profileImage: "", profileImageId: "" } });
+        break;
+      case "product":
+        await Product.findByIdAndUpdate(targetId, { $pull: { images: { public_id: publicId } } });
+        break;
+      case "shopLogo":
+        await Vendor.findByIdAndUpdate(targetId, { $set: { shopLogo: "", shopLogoId: "" } });
+        break;
+      default:
+        return res.status(400).json({ success: false, message: "Invalid image type." });
     }
 
     res.status(200).json({ success: true, message: "Image deleted." });
@@ -37,12 +40,11 @@ export const deleteImage = async (req, res) => {
 };
 
 // ==========================
-//  EDIT IMAGE - Replace an image in Cloudinary + DB
+// EDIT IMAGE - Replace an image in Cloudinary + DB
 // ==========================
 export const editImage = async (req, res) => {
   try {
     const { oldPublicId, type, targetId } = req.body;
-    // req.file contains new image (via multer)
 
     if (!req.file || !type || !targetId) {
       return res.status(400).json({ success: false, message: "Missing required image information." });
@@ -53,37 +55,56 @@ export const editImage = async (req, res) => {
       await cloudinary.uploader.destroy(oldPublicId);
     }
 
+    // Determine folder strictly by type
+    let folderName;
+    switch (type) {
+      case "profile":
+        folderName = "profiles";
+        break;
+      case "shopLogo":
+        folderName = "shopLogos";
+        break;
+      case "product":
+        folderName = "products";
+        break;
+      default:
+        return res.status(400).json({ success: false, message: "Invalid image type." });
+    }
+
     // Upload new image
     const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: type === "profile" ? "profiles" : type === "shopLogo" ? "shopLogos" : "products",
+      folder: folderName,
+      public_id: req.body.publicId || undefined, // reuse old publicId if provided
     });
 
     // Update DB
-    if (type === "profile") {
-      await Person.findByIdAndUpdate(
-        targetId,
-        { $set: { profileImage: result.secure_url, profileImageId: result.public_id } },
-        { new: true }
-      );
-    }
-    if (type === "product") {
-      await Product.findOneAndUpdate(
-        { _id: targetId, "images.public_id": oldPublicId },
-        { $set: { "images.$": { url: result.secure_url, public_id: result.public_id } } },
-        { new: true }
-      );
-    }
-    if (type === "shopLogo") {
-      await Vendor.findByIdAndUpdate(
-        targetId,
-        { $set: { shopLogo: result.secure_url, shopLogoId: result.public_id } },
-        { new: true }
-      );
+    switch (type) {
+      case "profile":
+        await Person.findByIdAndUpdate(
+          targetId,
+          { $set: { profileImage: result.secure_url, profileImageId: result.public_id } },
+          { new: true }
+        );
+        break;
+      case "product":
+        await Product.findOneAndUpdate(
+          { _id: targetId, "images.public_id": oldPublicId },
+          { $set: { "images.$": { url: result.secure_url, public_id: result.public_id } } },
+          { new: true }
+        );
+        break;
+      case "shopLogo":
+        await Vendor.findByIdAndUpdate(
+          targetId,
+          { $set: { shopLogo: result.secure_url, shopLogoId: result.public_id } },
+          { new: true }
+        );
+        break;
     }
 
     res.status(200).json({
       success: true,
-      message: "Image updated.",
+      message: "Image updated successfully.",
       newImage: { url: result.secure_url, public_id: result.public_id }
     });
   } catch (err) {

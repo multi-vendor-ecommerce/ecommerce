@@ -59,24 +59,24 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
         className="px-6 py-4 min-w-[120px] font-medium hover:scale-105 transition duration-150"
         title={`₹${p.price?.toLocaleString() || "0"}`}
       >
-        ₹{formatNumber(p.price) || "0"}
+        ₹{formatNumber(p?.price) || "0"}
       </td>
 
       {/* Discount Price */}
       <td
         className="px-6 py-4 min-w-[200px] font-medium hover:scale-105 transition duration-150"
-        title={`₹${getFinalPrice(p.price, p.discount)?.toLocaleString() || "0"}`}
+        title={`₹${getFinalPrice(p?.price, p?.discount)?.toLocaleString() || "0"}`}
       >
-        <span>₹{formatNumber(getFinalPrice(p.price, p.discount)) || "0"}</span>{" "}
-        <span className="text-sm text-gray-500">({p.discount ? `${p.discount}%` : "Nil"})</span>
+        <span>₹{formatNumber(getFinalPrice(p?.price, p?.discount)) || "0"}</span>{" "}
+        <span className="text-sm text-gray-500">({p?.discount ? `${p.discount}%` : "Nil"})</span>
       </td>
 
       {/* Units sold */}
       <td
         className="px-6 py-4 min-w-[90px] font-medium hover:scale-105 transition duration-150"
-        title={`${p.unitsSold ?? 0} units`}
+        title={`${p?.unitsSold ?? 0} units`}
       >
-        {formatNumber(p.unitsSold) || 0}
+        {formatNumber(p?.unitsSold) || 0}
       </td>
 
       {/* Revenue */}
@@ -84,7 +84,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
         className="px-6 py-4 min-w-[90px] font-bold hover:scale-105 transition duration-150"
         title={`₹${p.totalRevenue?.toLocaleString() || "0"}`}
       >
-        ₹{formatNumber(p.totalRevenue) || "0"}
+        ₹{formatNumber(p?.totalRevenue) || "0"}
       </td>
 
       {/* Approval Status */}
@@ -101,9 +101,9 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
             "text-green-600": isHighSales,
             "text-red-500": !isHighSales,
           })}
-          title={`${p.unitsSold?.toLocaleString() || 0} sales`}
+          title={`${p?.unitsSold?.toLocaleString() || 0} sales`}
         >
-          {p.unitsSold?.toLocaleString() || 0} Sales
+          {formatNumber(p?.unitsSold) || 0} Sales
         </p>
         <div className="w-[80%] h-2 bg-gray-200 rounded-full overflow-hidden absolute bottom-5">
           <div
@@ -137,13 +137,13 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
             <FiEdit size={20} />
           </NavLink>
 
-          <button
+          <NavLink
+            to={`/${role}/product/edit-delete/${p._id}`}
             title="Delete Product"
             className="hover:text-red-600 hover:scale-110 transition duration-150"
-            onClick={() => console.log("TODO: delete", p._id)}
           >
             <FiTrash2 size={20} />
-          </button>
+          </NavLink>
         </div>
       </td>
     </tr>

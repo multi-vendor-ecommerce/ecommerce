@@ -2,7 +2,7 @@ import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 import multerErrorHandler from "../middleware/multerErrorHandler.js";
-import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts, updateProductStatus, editProduct } from "../controllers/productController.js";
+import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts, updateProductStatus, editProduct, deleteProduct } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 
 const router = express.Router();
@@ -29,7 +29,7 @@ router.get("/category/:id", getProductsByCategoryId);
 // ROUTE 5: GET /api/products/admin
 // Desc: Get all products (admin dashboard)
 router.get("/admin", verifyToken, authorizeRoles("admin"), getAllProducts);
- 
+
 // ROUTE 6: GET /api/products/admin/top-products
 // Desc: Get top-selling products for admin
 router.get("/admin/top-products", verifyToken, authorizeRoles("admin"), getTopSellingProducts);
@@ -42,36 +42,36 @@ router.get("/admin/:id", verifyToken, authorizeRoles("admin"), getProductById);
 // Desc: Edit product by ID (admin)
 router.put("/admin/edit/:id", verifyToken, authorizeRoles("admin"), uploadProduct.array("images", 7), multerErrorHandler, editProduct);
 
-// ROUTE 9: PUT /api/products/admin/:id/status
+// ROUTE 9: DELETE /api/products/admin/:id
+// Desc: Delete product by ID (admin)
+router.delete("/admin/:id", verifyToken, authorizeRoles("admin"), deleteProduct);
+
+// ROUTE 10: PUT /api/products/admin/:id/status
 // Desc: Update product status by ID (admin action)
 router.put("/admin/:id/status", verifyToken, authorizeRoles("admin"), updateProductStatus);
 
-// ROUTE 10: GET /api/products/vendor
+// ROUTE 11: GET /api/products/vendor
 // Desc: Get all products created by the vendor
 router.get("/vendor", verifyToken, authorizeRoles("vendor"), getAllProducts);
 
-// ROUTE 11: GET /api/products/vendor/top-products
+// ROUTE 12: GET /api/products/vendor/top-products
 // Desc: Get top-selling products for vendor
 router.get("/vendor/top-products", verifyToken, authorizeRoles("vendor"), getTopSellingProducts);
 
-// ROUTE 12: GET /api/products/vendor/:id
+// ROUTE 13: GET /api/products/vendor/:id
 // Desc: Get product by ID (vendor detail view)
 router.get("/vendor/:id", verifyToken, authorizeRoles("vendor"), getProductById);
 
-// ROUTE 13: PUT /api/products/vendor/edit/:id
+// ROUTE 14: PUT /api/products/vendor/edit/:id
 // Desc: Edit product by ID (vendor)
 router.put("/vendor/edit/:id", verifyToken, authorizeRoles("vendor"), uploadProduct.array("images", 7), multerErrorHandler, editProduct);
 
-// ROUTE 14: POST /api/products/add-product
+// ROUTE 15: DELETE /api/products/vendor/:id
+// Desc: Delete product by ID (vendor)
+router.delete("/vendor/:id", verifyToken, authorizeRoles("vendor"), deleteProduct);
+
+// ROUTE 16: POST /api/products/add-product
 // Desc: Add a product (vendor only)
 router.post("/add-product", verifyToken, authorizeRoles("vendor"), uploadProduct.array("images", 7), multerErrorHandler, addProduct);
-
-// ROUTE 15: DELETE /api/products/admin/:id
-// Desc: Delete product by ID (admin)
-// router.delete("/admin/:id", verifyToken, authorizeRoles("admin"), deleteProduct);
-
-// ROUTE 16: DELETE /api/products/vendor/:id
-// Desc: Delete product by ID (vendor)
-// router.delete("/vendor/:id", verifyToken, authorizeRoles("vendor"), deleteProduct);
 
 export default router;

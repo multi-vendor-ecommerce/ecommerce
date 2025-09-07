@@ -85,11 +85,11 @@ export const vendorStatusTemplate = (vendorName, vendorShop, vendorStatus, reaso
 `);
 
 // Vendor Product Approval/Disapproval Notification Email Template
-export const productStatusTemplate = (productStatus, productName, productId, vendorName, vendorShop) => baseMail(`
-  < h2 style = "color: #333; margin-bottom: 20px;" > Product ${ toTitleCase(productStatus) } !</ >
+export const productStatusTemplate = (productStatus, productName, productId, vendorName, vendorShop, statusMsg) => baseMail(`
+  <h2 style="color: #333; margin-bottom: 20px;">Product ${toTitleCase(productStatus)}!</h2>
   <p style="font-size: 16px; color: #555;">
     Hello <strong>${vendorName}</strong>, your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) 
-    under <strong>${vendorShop}</strong> has been <strong>${productStatus}</strong>.
+    under <strong>${vendorShop}</strong> has been <strong>${!statusMsg && productStatus}</strong>.
   </p>
   <p style="font-size: 14px; color: #555; margin: 15px 0;">
     ${productStatus === "approved" ?

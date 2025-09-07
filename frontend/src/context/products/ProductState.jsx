@@ -198,6 +198,33 @@ const ProductState = ({ children }) => {
     }
   };
 
+  // Delete product (admin/vendor only)
+  const deleteProduct = async (id) => {
+    const { role } = getRoleInfo();
+
+    try {
+      setLoading(true);
+
+      const headers = {};
+      if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
+      else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
+
+      const response = await fetch(`${host}/api/products/admin/${id}`, {
+        method: "DELETE",
+        headers,
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || "Failed to delete product.");
+      return data;
+    } catch (error) {
+      console.error("Error deleting product:", error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Update product status (admin only)
   const updateProductStatus = async (id, status) => {
     try {
@@ -235,6 +262,7 @@ const ProductState = ({ children }) => {
         addProduct,
         getTopSellingProducts,
         editProduct,
+        deleteProduct,
         updateProductStatus
       }}
     >

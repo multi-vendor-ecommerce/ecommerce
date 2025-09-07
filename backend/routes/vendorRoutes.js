@@ -13,7 +13,7 @@ export const editStoreValidator = [
 ];
 
 // For shop logo images (single)
-const uploadShopLogo = upload({ folder: "shopLogos", prefix: "shopLogo" });
+const uploadShopLogo = upload({ folder: "shopLogos", prefix: "shopLogo", fixedPublicId: (req) => `shopLogo-${req.person.id}` });
 
 // ROUTE 1: GET /api/vendors
 // Desc: Get all vendors (admin only)

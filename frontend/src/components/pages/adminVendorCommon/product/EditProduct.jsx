@@ -10,11 +10,17 @@ import useProductUpdate from "../../../../hooks/useProductUpdate";
 import ActionButtons from "../../../common/ActionButtons";
 import { toast } from "react-toastify";
 import BackButton from "../../../common/layout/BackButton";
+import Button from "../../../common/Button";
+import { FiTrash2 } from "react-icons/fi";
+import PersonContext from "../../../../context/person/PersonContext";
 
 const EditProduct = () => {
+  const { person } = useContext(PersonContext);
   const { productId } = useParams();
   const navigate = useNavigate();
-  const { getProductById, editProduct, loading } = useContext(ProductContext);
+  const { getProductById, editProduct, deleteProduct } = useContext(ProductContext);
+
+  const role = person?.role
 
   const [product, setProduct] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -86,13 +92,26 @@ const EditProduct = () => {
     const result = await handleSave();
     if (result?.success) {
       setEditing(false);
-      navigate("/admin/all-products"); // ✅ absolute path
+      navigate(`/${role}/all-products`); // ✅ absolute path
     } else if (result?.message) {
       toast.error(result.message);
     }
   };
 
-  if (loading || !form) {
+  // === Delete Handler ===
+  const handleDelete = async () => {
+    const confirmed = confirm("Are you sure you want to delete this product? This action cannot be undone.");
+    if (!confirmed) return;
+    const res = await deleteProduct(productId);
+    if (res.success) {
+      toast.success(res.message || "Product deleted successfully.");
+      navigate(`/${role}/all-products`);
+    } else {
+      toast.error(res.message || "Failed to delete product.");
+    }
+  };
+
+  if (!form) {
     return (
       <section className="bg-gray-100 min-h-screen flex items-center justify-center">
         <Loader />
@@ -177,6 +196,14 @@ const EditProduct = () => {
             />
           </div>
         </form>
+
+        <Button
+          icon={FiTrash2}
+          text="Delete Product"
+          className="mt-6 py-3"
+          color="red"
+          onClick={handleDelete}
+        />
       </div>
     </section>
   );

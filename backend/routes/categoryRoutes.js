@@ -5,7 +5,7 @@ import { createCategory, getCategories } from "../controllers/categoryController
 import upload from "../middleware/multer.js";
 
 // For category images (single)
-const uploadCategoryImage = upload({ folder: "categories", prefix: "category" });
+const uploadCategoryImage = upload({ folder: "categories", prefix: "category", fixedPublicId: (req) => `category-${Date.now()}` });
 
 const router = express.Router();
 

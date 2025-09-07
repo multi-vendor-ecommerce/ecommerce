@@ -34,7 +34,7 @@ export async function sendProductAddedAdminMail({ to, vendorName, vendorEmail, p
   });
 }
 
-export async function sendProductStatusMail({ to, productStatus, productName, productId, vendorName, vendorShop }) {
+export async function sendProductStatusMail({ to, productStatus, productName, productId, vendorName, vendorShop, statusMsg="" }) {
   await sendMail({
     to,
     subject: `Your Product Status Update: ${toTitleCase(productStatus)}`,
