@@ -2,6 +2,8 @@
 import { getFormatDate } from "../../../../utils/formatDate";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { toTitleCase } from "../../../../utils/titleCase";
+import { formatNumber } from "../../../../utils/formatNumber";
 
 export const RenderCouponRow = (c, i, handleStartEdit, handleDelete) => {
   // Compute isActive based on usageLimit and expiryDate
@@ -18,34 +20,34 @@ export const RenderCouponRow = (c, i, handleStartEdit, handleDelete) => {
       <td className="px-6 py-3 min-w-[10px] hover:scale-105 transition duration-150">
         <span
           className="font-medium text-gray-800 truncate max-w-[160px] group-hover:font-semibold"
-          title={c.code || "Coupon Code not available"}
+          title={(c.code).toUpperCase() || "Coupon Code not available"}
         >
-          {c.code || "N/A"}
+          {(c.code).toUpperCase() || "N/A"}
         </span>
       </td>
 
       {/* Discount */}
       <td
         className="px-6 py-3 min-w-[10px] font-bold hover:scale-105 transition duration-150"
-        title={`₹${(c.discount ?? 0).toLocaleString()}` || "Discount not available"}
+        title={`₹${formatNumber(c.discount ?? 0)}` || "Discount not available"}
       >
-        {`₹${(c.discount ?? 0).toLocaleString()}` || "N/A"}
+        ₹{formatNumber(c.discount ?? 0)}
       </td>
 
       {/* Minimum Purchase */}
       <td
         className="px-6 py-3 min-w-[10px] hover:scale-105 transition duration-150"
-        title={`₹${(c.minPurchase ?? 0).toLocaleString()}`}
+        title={`₹${formatNumber(c.minPurchase ?? 0)}`}
       >
-        ₹{(c.minPurchase ?? 0).toLocaleString()}
+        ₹{formatNumber(c.minPurchase ?? 0)}
       </td>
 
       {/* Maximum Discount */}
       <td
         className="px-6 py-3 min-w-[10px] hover:scale-105 transition duration-150"
-        title={`₹${(c.maxDiscount ?? 0).toLocaleString()}`}
+        title={`₹${formatNumber(c.maxDiscount ?? 0)}`}
       >
-        ₹{(c.maxDiscount ?? 0).toLocaleString()}
+        ₹{formatNumber(c.maxDiscount ?? 0)}
       </td>
 
       {/* Status */}

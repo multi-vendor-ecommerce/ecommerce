@@ -1,6 +1,8 @@
 // RenderCustomerRow.jsx
 import { formatAddress, shortFormatAddress } from "../../../../utils/formatAddress";
 import { getFormatDate } from "../../../../utils/formatDate";
+import { toTitleCase } from "../../../../utils/titleCase";
+import { formatNumber } from "../../../../utils/formatNumber";
 
 export const RenderCustomerRow = (user, i) => {
   return (
@@ -12,32 +14,30 @@ export const RenderCustomerRow = (user, i) => {
       <td className="px-6 py-4 min-w-[200px] hover:scale-105 transition duration-150">
         <div className="flex items-center gap-4">
           <img
-            src={user.profileImage || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name || "U"}`}
-            alt={user.name || "Unknown Customer"}
-            title={`${user.name || "Unknown User"}'s avatar`}
+            src={user.profileImage || `https://api.dicebear.com/7.x/initials/svg?seed=${toTitleCase(user.name) || "U"}`}
+            alt={toTitleCase(user.name) || "Unknown Customer"}
+            title={`${toTitleCase(user.name) || "Unknown User"}'s avatar`}
             className="w-10 h-10 rounded-full object-cover shadow-md shadow-purple-400"
           />
           <span
             className="font-semibold text-gray-800 truncate max-w-[160px]"
-            title={user.name || "No Name"}
+            title={toTitleCase(user.name) || "No Name"}
           >
-            {user.name || "N/A"}
+            {toTitleCase(user.name) || "N/A"}
           </span>
         </div>
       </td>
 
       {/* Email */}
       <td className="px-6 py-4 min-w-[220px] hover:scale-105 hover:underline transition duration-150">
-        <a href={`mailto:${user.email}`} title={`Send email to ${user.name?.split(" ")[0] || "User"}`}>
+        <a href={`mailto:${user.email}`} title={`Send email to ${toTitleCase(user.name?.split(" ")[0]) || "User"}`}>
           {user.email || "N/A"}
         </a>
       </td>
 
-      {/* Email */}
+      {/* Phone */}
       <td className="px-6 py-4 min-w-[160px] hover:scale-105 hover:underline transition duration-150">
-        <a href={`mailto:${user.phone}`} title={`Send email to ${user.name?.split(" ")[0] || "User"}`}>
-          {user.phone || "N/A"}
-        </a>
+        {user.phone || "N/A"}
       </td>
 
       {/* Laptop Address  */}
@@ -52,12 +52,12 @@ export const RenderCustomerRow = (user, i) => {
 
       {/* Total Orders */}
       <td className="px-6 py-4 min-w-[120px] font-medium hover:scale-105 transition duration-150">
-        {user.totalOrders ?? 0}
+        {formatNumber(user.totalOrders ?? 0)}
       </td>
 
       {/* Total Value */}
       <td className="px-6 py-4 min-w-[140px] font-bold hover:scale-105 transition duration-150">
-        ₹{(user.totalOrderValue ?? 0).toLocaleString()}
+        ₹{formatNumber(user.totalOrderValue ?? 0)}
       </td>
 
       {/* Registered On */}

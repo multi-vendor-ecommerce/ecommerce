@@ -13,6 +13,7 @@ const CreateCategory = () => {
 
   // local state to work with useCategorySelection
   const [selectedCategories, setSelectedCategories] = useState([""]);
+  const [isEditing, setIsEditing] = useState(false); // <-- add this
 
   const {
     categoryLevels,
@@ -22,11 +23,7 @@ const CreateCategory = () => {
   } = useCategorySelection(() => {}, setSelectedCategories, selectedCategories);
 
   // Form state
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    parent: "",
-  });
+  const [form, setForm] = useState({ name: "", description: "", parent: "" });
   const [categoryImage, setCategoryImage] = useState(null);
 
   // Handle text input change
@@ -41,6 +38,7 @@ const CreateCategory = () => {
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsEditing(true); // <-- set editing true
 
     // Build FormData
     const formData = new FormData();
@@ -59,11 +57,12 @@ const CreateCategory = () => {
       toast.success(result.message || "Category created successfully!");
       setForm({ name: "", description: "", parent: "" });
       setCategoryImage(null);
-      setSelectedCategories(["none"]); // reset selection after submit
-      loadCategories(); // reload root categories
+      setSelectedCategories(["none"]);
+      loadCategories();
     } else {
       toast.error(result.message || "Failed to create category.");
     }
+    setIsEditing(false); // <-- set editing false after submit
   };
 
   useEffect(() => {
@@ -160,8 +159,8 @@ const CreateCategory = () => {
 
         <Button
           icon={FiPlus}
-          text={loading ? "Adding..." : "Add Category"}
-          disabled={loading || !form.name.trim() || !form.description.trim()}
+          text={loading && isEditing ? "Adding..." : "Add Category"}
+          disabled={loading || isEditing || !form.name.trim() || !form.description.trim()}
           type="submit"
           onClick={handleSubmit}
           className="py-2"

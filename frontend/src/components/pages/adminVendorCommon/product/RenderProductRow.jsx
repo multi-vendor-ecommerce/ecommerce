@@ -4,6 +4,7 @@ import classNames from "classnames";
 import StatusChip from "../../../common/helperComponents/StatusChip";
 import { getFinalPrice } from "../../user/Utils/priceUtils";
 import { formatNumber } from "../../../../utils/formatNumber";
+import { toTitleCase } from "../../../../utils/titleCase";
 
 export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, role = "admin") => {
   const isHighSales = (p.unitsSold || 0) >= maxUnitsSold * 0.6;
@@ -16,16 +17,16 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
       {/* Product (image + name) */}
       <td
         className="px-6 py-4 min-w-[300px] hover:scale-105 transition duration-150"
-        title={p.title || "No Title"}
+        title={toTitleCase(p.title) || "No Title"}
       >
         <NavLink to={`/${role}/product-details/${p._id}`} className="w-full flex items-center gap-4">
           <img
             src={p.images?.[0].url || "https://m.media-amazon.com/images/I/71Ls4akTeeL._AC_SL1500_.jpg"}
-            alt={p.title || "Product Image"}
+            alt={toTitleCase(p.title) || "Product Image"}
             className="w-[140px] h-12 rounded-lg object-cover shadow-md shadow-purple-400"
           />
           <span className="w-[160px] font-semibold text-gray-800 max-w-[160px] truncate">
-            {p.title || "Untitled"}
+            {toTitleCase(p.title) || "Untitled"}
           </span>
         </NavLink>
       </td>
@@ -41,17 +42,17 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
       {/* Brand */}
       <td
         className="px-6 py-4 min-w-[180px] hover:scale-105 transition duration-150"
-        title={p.brand || "Unbranded"}
+        title={toTitleCase(p.brand) || "Unbranded"}
       >
-        {p.brand || "Unbranded"}
+        {toTitleCase(p.brand) || "Unbranded"}
       </td>
 
       {/* Category */}
       <td
         className="px-6 py-4 min-w-[180px] hover:scale-105 transition duration-150"
-        title={p.category?.name || "Uncategorized"}
+        title={toTitleCase(p.category?.name) || "Uncategorized"}
       >
-        {p.category?.name || "Uncategorized"}
+        {toTitleCase(p.category?.name) || "Uncategorized"}
       </td>
 
       {/* Actual Price */}
@@ -90,7 +91,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
       {/* Approval Status */}
       <td className={`${p.status === "pendingDeletion" ? "min-w-[170px]" : "min-w-[120px]"} px-6 py-4 hover:scale-105 transition duration-150`}>
         <StatusChip
-          status={p.status || (isTopSellingPage ? "approved" : "Unknown")}
+          status={toTitleCase(p.status) || (isTopSellingPage ? "Approved" : "Unknown")}
         />
       </td>
 
@@ -101,7 +102,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
             "text-green-600": isHighSales,
             "text-red-500": !isHighSales,
           })}
-          title={`${p?.unitsSold?.toLocaleString() || 0} sales`}
+          title={`${p?.unitsSold ?? 0} sales`}
         >
           {formatNumber(p?.unitsSold) || 0} Sales
         </p>

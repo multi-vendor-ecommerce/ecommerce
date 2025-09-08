@@ -5,6 +5,7 @@ import TabularData from "../../../common/layout/TabularData";
 import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Loader from "../../../common/Loader";
 import { RenderProductRow } from "../../adminVendorCommon/product/RenderProductRow";
+import { formatNumber } from "../../../../utils/formatNumber";
 
 const TopProducts = () => {
   const { loading, getTopSellingProducts } = useContext(ProductContext);
@@ -80,9 +81,9 @@ const TopProducts = () => {
                       className="bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200"
                     >
                       <p className="font-bold text-gray-700">{c.category.name}</p>
-                      <p className="text-sm text-gray-600">Revenue: ₹{c.totalRevenue.toLocaleString()}</p>
-                      <p className="text-sm text-gray-600">Units Sold: {c.totalUnitsSold}</p>
-                      <p className="text-sm text-gray-600">Products: {c.productCount}</p>
+                      <p className="text-sm text-gray-600">Revenue: ₹{formatNumber(c.totalRevenue)}</p>
+                      <p className="text-sm text-gray-600">Units Sold: {formatNumber(c.totalUnitsSold)}</p>
+                      <p className="text-sm text-gray-600">Products: {formatNumber(c.productCount)}</p>
                       <p className="text-sm text-gray-600">Avg. Rating: {c.averageRating.toFixed(1)}</p>
                     </div>
                   ))}
