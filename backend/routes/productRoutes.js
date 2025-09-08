@@ -44,7 +44,7 @@ router.put("/admin/edit/:id", verifyToken, authorizeRoles("admin"), uploadProduc
 
 // ROUTE 9: DELETE /api/products/admin/:id
 // Desc: Delete product by ID (admin)
-router.delete("/admin/:id", verifyToken, authorizeRoles("admin"), deleteProduct);
+router.delete("/admin/delete/:id", verifyToken, authorizeRoles("admin"), deleteProduct);
 
 // ROUTE 10: PUT /api/products/admin/:id/status
 // Desc: Update product status by ID (admin action)
@@ -66,9 +66,9 @@ router.get("/vendor/:id", verifyToken, authorizeRoles("vendor"), getProductById)
 // Desc: Edit product by ID (vendor)
 router.put("/vendor/edit/:id", verifyToken, authorizeRoles("vendor"), uploadProduct.array("images", 7), multerErrorHandler, editProduct);
 
-// ROUTE 15: DELETE /api/products/vendor/:id
-// Desc: Delete product by ID (vendor)
-router.delete("/vendor/:id", verifyToken, authorizeRoles("vendor"), deleteProduct);
+// ROUTE 15: PUT /api/products/vendor/:id
+// Desc: PUT product by ID (vendor)
+router.put("/vendor/delete/:id", verifyToken, authorizeRoles("vendor"), deleteProduct);
 
 // ROUTE 16: POST /api/products/add-product
 // Desc: Add a product (vendor only)

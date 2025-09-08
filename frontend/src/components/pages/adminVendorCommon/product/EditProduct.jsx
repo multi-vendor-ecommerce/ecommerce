@@ -11,7 +11,7 @@ import ActionButtons from "../../../common/ActionButtons";
 import { toast } from "react-toastify";
 import BackButton from "../../../common/layout/BackButton";
 import Button from "../../../common/Button";
-import { FiTrash2 } from "react-icons/fi";
+import { FiTrash2, FiX } from "react-icons/fi";
 import PersonContext from "../../../../context/person/PersonContext";
 
 const EditProduct = () => {
@@ -198,11 +198,20 @@ const EditProduct = () => {
         </form>
 
         <Button
-          icon={FiTrash2}
-          text="Delete Product"
+          icon={role === "vendor" ? FiX :  FiTrash2}
+          text={role === "vendor" ? 
+            <span>{isLoading ? "Requesting..." : "Request Deletion"}</span>
+            :
+            <span>{isLoading ? "Deleting...": "Deleting Product"}</span>
+          }
           className="mt-6 py-3"
           color="red"
           onClick={handleDelete}
+          disabled={
+            isLoading ||
+            editing ||
+            (role === "vendor" && product?.status === "pendingDeletion")
+          }
         />
       </div>
     </section>

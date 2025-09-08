@@ -25,6 +25,7 @@ import CreateCategory from "./adminCategories/CreateCategory";
 import ApproveVendor from "./adminVendor/ApproveVendor";
 import EditVendor from "./adminVendor/EditVendor";
 import EditProduct from "../adminVendorCommon/product/EditProduct";
+import DeleteProductRequest from "./adminProducts/DeleteProductRequest";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);
@@ -69,7 +70,8 @@ const Admin = () => {
             <Route path="all-products" element={<Products heading="All Products" role={role} />} />
             <Route path="product-details/:productId" element={<ProductDetails role={role} />} />
             <Route path="top-selling-products" element={<Products heading="Top Selling Products" role={role} />} />
-            <Route path="approve-products" element={<ApproveProduct />} />
+            <Route path="products/approve" element={<ApproveProduct />} />
+            <Route path="products/delete" element={<DeleteProductRequest />} />
             <Route path="product/edit-delete/:productId" element={<EditProduct />} />
 
             <Route path="all-vendors" element={<VendorManagement heading="All Vendors" />} />

@@ -1,23 +1,23 @@
-import { useState, useEffect, useContext } from "react";
-import ProductContext from "../../../../context/products/ProductContext";
-import Loader from "../../../common/Loader";
-import BackButton from "../../../common/layout/BackButton";
-import Button from "../../../common/Button";
-import { NavLink } from "react-router-dom";
-import { FiCheckCircle, FiEye, FiXCircle } from "react-icons/fi";
-import { toast } from "react-toastify";
+import { useContext, useEffect, useState } from 'react';
+import { FiEye, FiTrash2, FiX } from 'react-icons/fi';
+import { NavLink } from 'react-router-dom';
+import ProductContext from '../../../../context/products/ProductContext';
+import BackButton from '../../../common/layout/BackButton';
+import Loader from '../../../common/Loader';
+import Button from '../../../common/Button';
+import { toTitleCase } from '../../../../utils/titleCase';
 
-const ApproveProduct = () => {
+const DeleteProductRequest = () => {
   const { getAllProducts, updateProductStatus, loading } = useContext(ProductContext);
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
   const [updatingId, setUpdatingId] = useState(null);
-  const [updatingAction, setUpdatingAction] = useState(""); // "approve" or "reject"
+  const [updatingAction, setUpdatingAction] = useState("");
 
   useEffect(() => {
     const fetchProducts = async () => {
       setError(null);
-      const data = await getAllProducts({ status: "pending" });
+      const data = await getAllProducts({ status: "pendingDeletion" });
       if (data.success) setProducts(data.products);
       else setError(data.message);
     };
@@ -36,18 +36,18 @@ const ApproveProduct = () => {
 
     if (data.success) {
       setProducts(products.filter(product => product._id !== id));
-      toast.success(data.message || `Product ${status} successfully!`);
+      toast.success(data.message || `Product ${toTitleCase(status).toLowerCase()} successfully!`);
     } else {
       toast.error(data.message || "Failed to update product status.");
     }
   };
 
-  const handleApprove = (id) => {
-    handleStatusChange(id, "approved");
+  const handleDelete = (id) => {
+    handleStatusChange(id, "deleted");
   };
 
   const handleReject = (id) => {
-    handleStatusChange(id, "rejected");
+    handleStatusChange(id, "deletionRejected");
   };
 
   if (loading && products.length === 0) {
@@ -62,12 +62,12 @@ const ApproveProduct = () => {
     <section aria-label="Admin Dashboard" className="p-6 min-h-screen bg-gray-50">
       <BackButton />
 
-      <h2 className="text-2xl font-bold mt-4 mb-6">Approve Products</h2>
+      <h2 className="text-2xl font-bold mt-4 mb-6">Delete Products Requests</h2>
 
       <div className="bg-white shadow-md shadow-blue-500 rounded-xl p-6">
         {products.length === 0 ? (
           <div className="text-center text-gray-600 font-medium flex flex-col items-center gap-4">
-            <p>No products to approve</p>
+            <p>No products to delete</p>
             <NavLink
               to="/admin/all-products"
               className="flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-blue-600 font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
@@ -112,23 +112,23 @@ const ApproveProduct = () => {
 
                     <div className="flex flex-row flex-wrap justify-center md:flex-col gap-3 md:gap-2 text-sm lg:text-base">
                       <Button
-                        icon={FiCheckCircle}
-                        text={updatingId === product._id && updatingAction === "approved" ? <span className="animate-pulse">Approving...</span> : "Approve Product"}
-                        onClick={() => handleApprove(product._id)}
-                        className="py-2"
-                        color="green"
-                        disabled={updatingId === product._id}
-                      />
-
-                      <Button
-                        icon={FiXCircle}
-                        text={updatingId === product._id && updatingAction === "rejected" ? <span className="animate-pulse">Rejecting...</span> : "Reject Product"}
-                        onClick={() => handleReject(product._id)}
+                        icon={FiTrash2}
+                        text={updatingId === product._id && updatingAction === "deleted" ? <span className="animate-pulse">Deleting...</span> : "Delete Product"}
+                        onClick={() => handleDelete(product._id)}
                         className="py-2"
                         color="red"
-                        disabled={updatingId === product._id}
+                        disabled={loading || updatingId === product._id}
                       />
-
+                      
+                      <Button
+                        icon={FiX}
+                        text={updatingId === product._id && updatingAction === "deletionRejected" ? <span className="animate-pulse">Rejecting...</span> : "Reject Product"}
+                        onClick={() => handleReject(product._id)}
+                        className="py-2"
+                        color="green"
+                        disabled={loading || updatingId === product._id}
+                      />
+                      
                       <NavLink to={`/admin/product-details/${product._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
                         <FiEye size={20} />
                         <span>View Product</span>
@@ -144,4 +144,4 @@ const ApproveProduct = () => {
   )
 }
 
-export default ApproveProduct;
+export default DeleteProductRequest

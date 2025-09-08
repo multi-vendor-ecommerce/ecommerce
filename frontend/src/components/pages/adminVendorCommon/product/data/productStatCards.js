@@ -7,7 +7,7 @@ import {
   FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
-import { capitalize } from "../../../../../utils/capitalize";
+import { toTitleCase } from "../../../../../utils/titleCase";
 
 export const getProfileCardData = (product) => [
   {
@@ -34,7 +34,7 @@ export const getProfileCardData = (product) => [
   {
     icon: product.status === "approved" ? FaCheckCircle : FaTimesCircle,
     label: "Status",
-    value: capitalize(product.status) || "N/A",
+    value: toTitleCase(product.status) || "N/A",
     bg: "bg-red-100",
     shadow: "hover:shadow-red-500",
   },

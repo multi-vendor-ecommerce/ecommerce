@@ -87,7 +87,8 @@ export const adminSidebarMenu = [
         children: [
           { label: "All Products", path: "/admin/all-products" },
           { label: "Top Selling Products", path: "/admin/top-selling-products" },
-          { label: "Approve Products", path: "/admin/approve-products" },
+          { label: "Approve Products", path: "/admin/products/approve" },
+          { label: "Delete Products Requests", path: "/admin/products/delete" },
         ],
       },
     ],

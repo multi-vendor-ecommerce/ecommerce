@@ -102,7 +102,7 @@ export const productStatusTemplate = (
     Hello <strong>${vendorName}</strong>,  
     your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>)  
     under <strong>${vendorShop}</strong> has been 
-    <strong>${productStatus}</strong>.
+    <strong>${toTitleCase(productStatus).toLowerCase()}</strong>.
   </p>
 
   <p style="font-size: 14px; color: #555; margin: 15px 0;">
@@ -225,19 +225,41 @@ export const productDeletedByAdminTemplate = (productName, productId, adminName)
 `);
 
 // Order Success Email Template
-export const orderSuccessTemplate = (orderId, customerName, paymentMethod, totalAmount, items) => baseMail(`
+export const orderSuccessTemplate = (
+  orderId,
+  customerName,
+  paymentMethod,
+  totalAmount,
+  items = []
+) =>
+  baseMail(`
   <h2 style="color: #333; margin-bottom: 20px;">🎉 Order Placed Successfully</h2>
   <p style="font-size: 16px; color: #555;">
-    Hello <strong>${customerName}</strong>, thank you for your order!
+    Hello <strong>${customerName || "Customer"}</strong>, thank you for your order!
   </p>
   <p style="font-size: 14px; color: #555;">
     <strong>Order ID:</strong> ${orderId}<br>
     <strong>Payment Method:</strong> ${paymentMethod}<br>
-    <strong>Total Amount:</strong> ₹${totalAmount}
+    <strong>Total Amount:</strong> ₹${totalAmount.toFixed(2)}
   </p>
   <h3 style="color: #333; margin: 15px 0;">🛍️ Ordered Items:</h3>
   <ul style="font-size: 14px; color: #555; padding-left: 20px;">
-    ${items.map(item => `<li>${item.name} × ${item.qty} — ₹${item.price}</li>`).join("")}
+    ${
+      items.length > 0
+        ? items
+            .map(
+              (item) => `
+          <li>
+            ${item.name || "Unnamed Product"} 
+            × ${item.qty} — 
+            ₹${item.price ? item.price.toFixed(2) : "0.00"}
+            ${item.discount && item.discount > 0 ? ` (Discount: ${item.discount}%)` : ""}
+          </li>
+        `
+            )
+            .join("")
+        : "<li>No items found in this order.</li>"
+    }
   </ul>
   <p style="font-size: 14px; color: #555; margin-top: 20px;">
     We will notify you once your order is shipped.

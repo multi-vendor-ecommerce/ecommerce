@@ -518,40 +518,97 @@ export const deleteProduct = async (req, res) => {
 // ==========================
 export const updateProductStatus = async (req, res) => {
   let { status } = req.body;
-  status = status.toLowerCase();
+  status = status?.toLowerCase();
+
+  const validStatuses = ["approved", "rejected", "inactive", "deletionrejected", "deleted"];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ success: false, message: "Invalid status update." });
+  }
 
   try {
-    let product = await Product.findById(req.params.id);
+    // Fetch product & vendor
+    let product = await Product.findById(req.params.id).populate("createdBy", "email name shopName");
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found." });
     }
 
-    product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    ).populate("createdBy", "email name shopName");
+    const vendorInfo = {
+      to: product.createdBy.email,
+      productStatus: status === "active" ? "approved" : status,
+      productName: product.title,
+      productId: product._id,
+      vendorName: product.createdBy.name,
+      vendorShop: product.createdBy.shopName
+    };
 
-    // Send email to vendor based on status
-    try {
-      await sendProductStatusMail({
-        to: product.createdBy.email,
-        productStatus: status,
-        productName: product.title,
-        productId: product._id,
-        vendorName: product.createdBy.name,
-        vendorShop: product.createdBy.shopName
+    // === Handle Deletion Rejected ===
+    if (req.person.role === "admin" && status === "deletionrejected") {
+      product.status = "approved"; // fallback to approved
+      await product.save();
+
+      vendorInfo.productStatus = "deletionRejected";
+
+      await safeSendMail(vendorInfo);
+
+      return res.status(200).json({
+        success: true,
+        product,
+        message: "Delete request rejected. Product is now approved."
       });
-    } catch (emailErr) {
-      console.error("Product status email failed:", emailErr);
     }
 
-    res.status(200).json({
+    // === Handle Deleted ===
+    if (req.person.role === "admin" && status === "deleted") {
+      if (Array.isArray(product.images) && product.images.length > 0) {
+        await Promise.all(
+          product.images.map(img =>
+            img.public_id
+              ? cloudinary.uploader.destroy(img.public_id).catch(err => {
+                  console.error("Cloudinary deletion failed:", img.public_id, err);
+                })
+              : null
+          )
+        );
+      }
+
+      await product.deleteOne();
+
+      vendorInfo.productStatus = "deleted";
+      await safeSendMail(vendorInfo);
+
+      return res.status(200).json({
+        success: true,
+        product,
+        message: "Product deleted successfully."
+      });
+    }
+
+    // === Handle Normal Status Updates ===
+    product.status = status;
+    await product.save();
+
+    await safeSendMail(vendorInfo);
+
+    return res.status(200).json({
       success: true,
       product,
       message: `Product ${toTitleCase(status)}.`
     });
+
   } catch (error) {
-    res.status(500).json({ success: false, message: `Unable to update product status`, error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Unable to update product status",
+      error: error.message
+    });
   }
 };
+
+// Helper wrapper to avoid repeated try/catch
+async function safeSendMail(vendorInfo) {
+  try {
+    await sendProductStatusMail(vendorInfo);
+  } catch (err) {
+    console.error("Product status email failed:", err);
+  }
+}

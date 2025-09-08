@@ -209,8 +209,8 @@ const ProductState = ({ children }) => {
       if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
       else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
 
-      const response = await fetch(`${host}/api/products/admin/${id}`, {
-        method: "DELETE",
+      const response = await fetch(`${host}/api/products/${role}/delete/${id}`, {
+        method: role === "admin" ? "DELETE" : "PUT",
         headers,
       });
 

@@ -8,6 +8,7 @@ import {
   FaUserCheck,
   FaUserSlash,
 } from "react-icons/fa";
+import { FiTrash2 } from "react-icons/fi";
 import { toTitleCase } from "../../../utils/titleCase";
 
 const StatusChip = ({ status }) => {
@@ -62,6 +63,11 @@ const StatusChip = ({ status }) => {
     suspended: {
       text: toTitleCase("suspended"),
       icon: <FaBan size={13} className="text-red-600" />,
+      cls: "text-red-700 bg-red-100",
+    },
+    pendingdeletion: {
+      text: toTitleCase("del pending"),
+      icon: <FiTrash2 size={13} className="text-red-600" />,
       cls: "text-red-700 bg-red-100",
     },
   };
