@@ -242,25 +242,45 @@ export const orderSuccessTemplate = (
     <strong>Payment Method:</strong> ${paymentMethod}<br>
     <strong>Total Amount:</strong> ₹${totalAmount.toFixed(2)}
   </p>
+
   <h3 style="color: #333; margin: 15px 0;">🛍️ Ordered Items:</h3>
-  <ul style="font-size: 14px; color: #555; padding-left: 20px;">
-    ${
-      items.length > 0
-        ? items
-            .map(
-              (item) => `
-          <li>
-            ${item.name || "Unnamed Product"} 
-            × ${item.qty} — 
-            ₹${item.price ? item.price.toFixed(2) : "0.00"}
-            ${item.discount && item.discount > 0 ? ` (Discount: ${item.discount}%)` : ""}
-          </li>
-        `
-            )
-            .join("")
-        : "<li>No items found in this order.</li>"
-    }
-  </ul>
+  ${
+    items.length > 0
+      ? `
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #555;">
+          <thead>
+            <tr>
+              <th style="border-bottom: 1px solid #ddd; text-align: left; padding: 8px;">Product</th>
+              <th style="border-bottom: 1px solid #ddd; text-align: center; padding: 8px;">Qty</th>
+              <th style="border-bottom: 1px solid #ddd; text-align: right; padding: 8px;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items
+              .map(
+                (item) => `
+                <tr>
+                  <td style="border-bottom: 1px solid #eee; padding: 8px;">
+                    ${item.name || "Unnamed Product"}
+                    ${
+                      item.discount && item.discount > 0
+                        ? `<br><span style="color: #e63946; font-size: 12px;">Discount: ${item.discount}%</span>`
+                        : ""
+                    }
+                  </td>
+                  <td style="border-bottom: 1px solid #eee; text-align: center; padding: 8px;">${item.qty}</td>
+                  <td style="border-bottom: 1px solid #eee; text-align: right; padding: 8px;">
+                    ₹${item.price ? item.price.toFixed(2) : "0.00"}
+                  </td>
+                </tr>`
+              )
+              .join("")}
+          </tbody>
+        </table>
+      `
+      : "<p>No items found in this order.</p>"
+  }
+
   <p style="font-size: 14px; color: #555; margin-top: 20px;">
     We will notify you once your order is shipped.
   </p>

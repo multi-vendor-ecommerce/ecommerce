@@ -11,7 +11,6 @@ import { encryptData } from "../Utils/Encryption";
 import StatGrid from "../../../common/helperComponents/StatGrid";
 
 import {
-  calculateCartTotal,
   removeItemFromCart,
   changeCartQuantity,
   getCartSummaryData
@@ -51,7 +50,7 @@ const CartPage = () => {
   //  Use cartHelpers.changeCartQuantity
   const handleQuantityChange = (productId, color, size, newQuantity, stock) => {
     const now = Date.now();
-    if (now - lastClickTime.current < 300) return; // debounce
+    if (now - lastClickTime.current < 300) return; 
     lastClickTime.current = now;
 
     changeCartQuantity({
@@ -166,28 +165,43 @@ const CartPage = () => {
 
               <div className="flex md:flex-col items-center md:items-end gap-2 mt-4 md:mt-0">
                 {/* Quantity controls */}
-                <div className="flex items-center border rounded overflow-hidden">
+                <div className="flex items-center w-fit border rounded-lg overflow-hidden">
+                  {/* Minus Button */}
                   <button
-                    onClick={() => handleQuantityChange(product._id, color, size, quantity - 1, product.stock)}
-                    className="px-3 py-1 bg-[#EDE3F9] hover:bg-[#D7C2F0] text-[#7F55B1]"
+                    onClick={() =>
+                      handleQuantityChange(product._id, color, size, quantity - 1, product.stock)
+                    }
+                    className="px-3 py-2 bg-[#EDE3F9] hover:bg-[#D7C2F0] text-[#7F55B1] disabled:opacity-50 disabled:cursor-not-allowed transition"
                     disabled={quantity <= 1 || updatingProductId === product._id}
                   >
-                    -
+                    −
                   </button>
+
+                  {/* Quantity Input */}
                   <input
                     type="number"
                     min="1"
                     max={product.stock}
                     value={quantity}
                     onChange={(e) =>
-                      handleQuantityChange(product._id, color, size, Number(e.target.value), product.stock)
+                      handleQuantityChange(
+                        product._id,
+                        color,
+                        size,
+                        Number(e.target.value),
+                        product.stock
+                      )
                     }
-                    className="w-12 text-center border-l border-r focus:outline-none bg-white"
+                    className="w-14 text-center border-x focus:outline-none bg-white py-2"
                     disabled={updatingProductId === product._id}
                   />
+
+                  {/* Plus Button */}
                   <button
-                    onClick={() => handleQuantityChange(product._id, color, size, quantity + 1, product.stock)}
-                    className="px-3 py-1 bg-[#EDE3F9] hover:bg-[#D7C2F0] text-[#7F55B1]"
+                    onClick={() =>
+                      handleQuantityChange(product._id, color, size, quantity + 1, product.stock)
+                    }
+                    className="px-3 py-2 bg-[#EDE3F9] hover:bg-[#D7C2F0] text-[#7F55B1] disabled:opacity-50 disabled:cursor-not-allowed transition"
                     disabled={quantity >= product.stock || updatingProductId === product._id}
                   >
                     +

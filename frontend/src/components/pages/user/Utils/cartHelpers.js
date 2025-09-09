@@ -132,7 +132,6 @@ export const calculateCheckoutTotals = (
   };
 };
 
-
 export const getCartSummaryData = (cart) => [
   {
     label: "Total Items",
