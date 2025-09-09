@@ -6,6 +6,8 @@ import StatGrid from "../../../common/helperComponents/StatGrid";
 import { FiEdit } from "react-icons/fi";
 import { getProfileCardData } from "./data/productStatCards";
 import BackButton from "../../../common/layout/BackButton";
+import { toTitleCase } from "../../../../utils/titleCase";
+import { formatNumber } from "../../../../utils/formatNumber";
 
 const ProductDetails = ({ role = "admin" }) => {
   const { productId } = useParams();
@@ -48,7 +50,7 @@ const ProductDetails = ({ role = "admin" }) => {
         </NavLink>
       </div>
 
-      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{product.title} - Overview</h2>
+      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-6">{toTitleCase(product.title)} - Overview</h2>
 
       <div className="w-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-200 mb-8 overflow-hidden">
         <div className="flex items-center flex-nowrap overflow-x-auto overflow-y-hidden rounded-xl gap-4 md:gap-x-8 px-6 md:px-15 py-6">
@@ -56,7 +58,7 @@ const ProductDetails = ({ role = "admin" }) => {
             <div key={index} className="min-w-[120px]">
               <img
                 src={img.url}
-                alt={`${product.title} - ${index + 1}`}
+                alt={`${toTitleCase(product.title)} - ${index + 1}`}
                 className="w-30 h-30 object-cover rounded-xl shadow-md shadow-purple-400 hover:shadow-purple-500 transition duration-200"
               />
             </div>
@@ -78,7 +80,7 @@ const ProductDetails = ({ role = "admin" }) => {
           <li><strong>Tags:</strong>{" "}
             {product.tags?.length > 0 ? (
               product.tags.map((tag, index) => (
-                <span key={index} className="inline-block bg-gray-200 rounded-lg px-2 py-0.5 mr-2">{tag}</span>
+                <span key={index} className="inline-block bg-gray-200 rounded-lg px-2 py-0.5 mr-2">{toTitleCase(tag)}</span>
               ))
             ) : (
               "No tags available"
@@ -87,7 +89,7 @@ const ProductDetails = ({ role = "admin" }) => {
           <li><strong>Colors:</strong>{" "}
             {product.colors?.length > 0 ? (
               product.colors.map((color, index) => (
-                <span key={index} className="inline-block bg-gray-200 rounded-lg px-2 py-0.5 mr-2">{color}</span>
+                <span key={index} className="inline-block bg-gray-200 rounded-lg px-2 py-0.5 mr-2">{toTitleCase(color)}</span>
               ))
             ) : (
               "No colors available"
@@ -96,7 +98,7 @@ const ProductDetails = ({ role = "admin" }) => {
           <li>
             <strong>Created By:</strong>
             <NavLink to={`/admin/vendor/profile/${product.createdBy?._id}`} className="text-blue-500 ml-2 hover:underline">
-              {product.createdBy?.name || "Unknown"} ({product.createdBy?.shopName || "Unknown"})
+              {toTitleCase(product.createdBy?.name) || "Unknown"} ({toTitleCase(product.createdBy?.shopName) || "Unknown"})
             </NavLink>
           </li>
         </ul>

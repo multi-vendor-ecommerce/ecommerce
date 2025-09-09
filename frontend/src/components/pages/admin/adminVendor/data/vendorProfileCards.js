@@ -9,22 +9,22 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import { formatNumber } from "../../../../../utils/formatNumber";
-import { capitalize } from "../../../../../utils/capitalize";
+import { toTitleCase } from "../../../../../utils/titleCase";
 
 export const getVendorCardData = (vendor) => [
   {
     icon: FaUser,
     label: "Name",
-    value: vendor.name || "N/A",
-    title: vendor.name || "Vendor name not available",
+    value: toTitleCase(vendor.name) || "N/A",
+    title: toTitleCase(vendor.name) || "Vendor name not available",
     bg: "bg-gray-200",
     shadow: "hover:shadow-gray-500",
   },
   {
     icon: FaStore,
     label: "Shop",
-    value: vendor.shopName || "N/A",
-    title: vendor.shopName || "Vendor shop name not available",
+    value: toTitleCase(vendor.shopName) || "N/A",
+    title: toTitleCase(vendor.shopName) || "Vendor shop name not available",
     bg: "bg-green-100",
     shadow: "hover:shadow-green-500",
   },
@@ -39,16 +39,16 @@ export const getVendorCardData = (vendor) => [
   {
     icon: vendor.status === "active" ? FaCheckCircle : FaTimesCircle,
     label: "Status",
-    value: capitalize(vendor.status) || "Unknown",
-    title: vendor.status || "Status not available",
+    value: toTitleCase(vendor.status) || "Unknown",
+    title: toTitleCase(vendor.status) || "Status not available",
     bg: "bg-blue-100",
     shadow: "hover:shadow-blue-500",
   },
   {
     icon: FaBoxOpen,
     label: "Products",
-    value: vendor.productQuantity ?? "N/A",
-    title: `${vendor.productQuantity ?? "Unknown"} products`,
+    value: formatNumber(vendor.productQuantity ?? 0),
+    title: `${formatNumber(vendor.productQuantity ?? 0)} products`,
     bg: "bg-purple-100",
     shadow: "hover:shadow-purple-500",
   },

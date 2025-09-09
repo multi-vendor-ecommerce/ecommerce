@@ -32,9 +32,9 @@ export default function SummaryCards({ summaryData }) {
 
   const cards = summaryData({
     totalRevenue: formatNumber(totalRevenue),
-    totalOrders,
-    totalProducts,
-    totalCustomers,
+    totalOrders: formatNumber(totalOrders),
+    totalProducts: formatNumber(totalProducts),
+    totalCustomers: formatNumber(totalCustomers),
   });
 
   return (

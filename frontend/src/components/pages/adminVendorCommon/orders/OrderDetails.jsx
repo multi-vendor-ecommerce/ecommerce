@@ -7,6 +7,8 @@ import BackButton from "../../../common/layout/BackButton";
 import { getOrderCardData } from "./data/ordersData";
 import StatGrid from "../../../common/helperComponents/StatGrid";
 import { formatAddress } from "../../../../utils/formatAddress";
+import { toTitleCase } from "../../../../utils/titleCase";
+import { formatNumber } from "../../../../utils/formatNumber";
 
 const OrderDetails = ({ role = "admin" }) => {
   const { orderId } = useParams();
@@ -68,15 +70,15 @@ const OrderDetails = ({ role = "admin" }) => {
             className="flex justify-between items-center bg-gray-50 rounded-lg p-4 border-[0.5px] border-gray-50 shadow-sm hover:shadow-purple-500 transition duration-150"
           >
             <div>
-              <p className="font-semibold text-gray-800">{item.product?.title || "No Product Title"}</p>
+              <p className="font-semibold text-gray-800">{toTitleCase(item.product?.title) || "No Product Title"}</p>
               <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
             </div>
             <div className="text-right">
               <p className="text-gray-700 font-medium">
-                ₹{item.product?.price ?? 0} x {item.quantity}
+                ₹{formatNumber(item.product?.price ?? 0)} x {formatNumber(item.quantity)}
               </p>
               <p className="text-xs md:text-sm text-gray-500">
-                Total: ₹{(item.product?.price ?? 0) * item.quantity}
+                Total: ₹{formatNumber((item.product?.price ?? 0) * item.quantity)}
               </p>
             </div>
           </div>
@@ -87,7 +89,7 @@ const OrderDetails = ({ role = "admin" }) => {
         {/* Customer Info */}
         <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
           <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">Customer Info</h3>
-          <p><span className="font-semibold">Name:</span> {order.user?.name}</p>
+          <p><span className="font-semibold">Name:</span> {toTitleCase(order.user?.name)}</p>
           <p><span className="font-semibold">Location:</span> {formatAddress(order.user?.address)}</p>
           <p className="flex items-center gap-2 text-blue-600"><MdEmail /> {order.user?.email}</p>
           {order.user?.phone && (
@@ -100,10 +102,10 @@ const OrderDetails = ({ role = "admin" }) => {
           <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
             <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">Vendor Info</h3>
             <p>
-              <span className="font-semibold">Shop:</span> {order.orderItems?.[0]?.product?.createdBy?.shopName || "N/A"}
+              <span className="font-semibold">Shop:</span> {toTitleCase(order.orderItems?.[0]?.product?.createdBy?.shopName) || "N/A"}
             </p>
             <p>
-              <span className="font-semibold">Vendor:</span> {order.orderItems?.[0]?.product?.createdBy?.name || "N/A"}
+              <span className="font-semibold">Vendor:</span> {toTitleCase(order.orderItems?.[0]?.product?.createdBy?.name) || "N/A"}
             </p>
             <p className="flex items-center gap-2 text-blue-600">
               <MdEmail /> {order.orderItems?.[0]?.product?.createdBy?.email || "N/A"}

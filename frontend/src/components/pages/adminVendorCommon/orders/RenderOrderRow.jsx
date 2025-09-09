@@ -1,14 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { FiEye, FiTrash2 } from "react-icons/fi";
 import { getFormatDate } from "../../../../utils/formatDate";
-
-/**
- * Renders a single order row for the admin order table.
- *
- * @param {Object} order - The order object containing all details.
- * @param {number} index - The index of the row.
- * @param {function} StatusChip - A component that renders the order status visually.
- */
+import { toTitleCase } from "../../../../utils/titleCase";
+import { formatNumber } from "../../../../utils/formatNumber";
 
 export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorId = null) => (
   <tr
@@ -16,58 +10,82 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
     className={`hover:bg-blue-50 hover:shadow-sm transition ${index !== 0 ? "border-t border-gray-200" : ""}`}
   >
     {/* Order ID */}
-    <td className="px-6 py-3 min-w-[100px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150">
+    <td
+      className="px-6 py-3 min-w-[100px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150"
+      title={`Order ID: ${order._id}`}
+    >
       <NavLink
         to={`/${role}/all-orders/order-details/${order._id}`}
-        title="Order ID"
+        title={`Order ID: ${order._id}`}
       >
         #{order._id}
       </NavLink>
     </td>
 
     {/* Customer Name */}
-    <td className="px-6 py-3 min-w-[180px] hover:scale-105 transition duration-150">
-      {order.user?.name || "Unassigned Customer"}
+    <td
+      className="px-6 py-3 min-w-[180px] hover:scale-105 transition duration-150"
+      title={toTitleCase(order.user?.name) || "Unassigned Customer"}
+    >
+      {toTitleCase(order.user?.name) || "Unassigned Customer"}
     </td>
 
     {/* Vendor Name */}
     {role === "admin" && !vendorId && (
-      <td className="px-6 py-3 min-w-[180px] hover:scale-105 hover:underline hover:font-semibold transition duration-150">
+      <td
+        className="px-6 py-3 min-w-[180px] hover:scale-105 hover:underline hover:font-semibold transition duration-150"
+        title={toTitleCase(order.orderItems?.[0]?.product?.createdBy?.name) || "Unassigned Vendor"}
+      >
         <NavLink
           to={`/admin/vendor/profile/${order.orderItems?.[0]?.product?.createdBy?._id || ""}`}
-          title="Vendor Name"
+          title={toTitleCase(order.orderItems?.[0]?.product?.createdBy?.name) || "Unassigned Vendor"}
         >
-          {order.orderItems?.[0]?.product?.createdBy?.name || "Unassigned Vendor"}
+          {toTitleCase(order.orderItems?.[0]?.product?.createdBy?.name) || "Unassigned Vendor"}
         </NavLink>
       </td>
     )}
 
     {/* First Product Title */}
-    <td className="px-6 py-3 min-w-[300px] hover:scale-105 transition duration-150">
-      {order.orderItems?.[0]?.product?.title || "No Products"}
+    <td
+      className="px-6 py-3 min-w-[300px] hover:scale-105 transition duration-150"
+      title={toTitleCase(order.orderItems?.[0]?.product?.title) || "No Products"}
+    >
+      {toTitleCase(order.orderItems?.[0]?.product?.title) || "No Products"}
       {order.orderItems?.length > 1 && (
         <span className="font-semibold"> +{order.orderItems.length - 1} more</span>
       )}
     </td>
 
     {/* Payment Method */}
-    <td className="px-6 py-3 min-w-[120px] hover:scale-105 transition duration-150">
+    <td
+      className="px-6 py-3 min-w-[120px] hover:scale-105 transition duration-150"
+      title={order.paymentMethod || "N/A"}
+    >
       {order.paymentMethod || "N/A"}
     </td>
 
     {/* Order Date */}
-    <td className="px-6 py-3 min-w-[180px] hover:scale-105 transition duration-150">
+    <td
+      className="px-6 py-3 min-w-[180px] hover:scale-105 transition duration-150"
+      title={order.createdAt ? getFormatDate(order.createdAt) : "N/A"}
+    >
       {getFormatDate(order.createdAt)}
     </td>
 
     {/* Order Status */}
-    <td className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150">
+    <td
+      className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150"
+      title={order.orderStatus || "Unknown"}
+    >
       <StatusChip status={order.orderStatus} />
     </td>
 
     {/* Total Amount */}
-    <td className="px-6 py-3 min-w-[120px] font-semibold hover:scale-105 transition duration-150">
-      ₹{order.totalAmount}
+    <td
+      className="px-6 py-3 min-w-[120px] font-semibold hover:scale-105 transition duration-150"
+      title={`₹${order.totalAmount || 0}`}
+    >
+      ₹{formatNumber(order.totalAmount || 0)}
     </td>
 
     {/* Actions */}
