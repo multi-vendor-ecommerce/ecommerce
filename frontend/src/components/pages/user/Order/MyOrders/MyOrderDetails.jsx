@@ -7,6 +7,7 @@ import BackButton from "../../../../common/layout/BackButton";
 import { getOrderCardData } from "../../../adminVendorCommon/orders/data/ordersData";
 import StatGrid from "../../../../common/helperComponents/StatGrid";
 import { formatAddress } from "../../../../../utils/formatAddress";
+import { toast } from "react-toastify";
 
 const MyOrderDetails = () => {
   const { orderId } = useParams();
@@ -30,10 +31,10 @@ const MyOrderDetails = () => {
     if (!confirm) return;
     const result = await cancelOrder(order._id);
     if (result.success) {
-      alert("Order cancelled successfully.");
+      toast.success( result.message|| "Order cancelled successfully.");
       setOrder((prev) => ({ ...prev, orderStatus: "Cancelled" }));
     } else {
-      alert(result.message || "Failed to cancel order.");
+      toast.error(result.message || "Failed to cancel order.");
     }
   };
 

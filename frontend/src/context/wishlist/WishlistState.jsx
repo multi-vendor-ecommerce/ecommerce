@@ -22,7 +22,7 @@ const WishlistState = ({ children }) => {
       const data = await res.json();
 
       if (data.success) {
-        setWishlist(data.wishlist?.products || []); 
+        setWishlist(data.wishlist?.products || []);
       } else {
         console.warn(data.message);
       }
@@ -80,11 +80,39 @@ const WishlistState = ({ children }) => {
 
       const data = await res.json();
       if (data.success) {
-        setWishlist(data.wishlist.products); 
+        setWishlist(data.wishlist.products);
       }
       return data;
     } catch (error) {
       console.error("Error removing from wishlist:", error);
+      return { success: false, message: "Something went wrong" };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Clear entire wishlist
+  const clearWishlist = async () => {
+    const token = localStorage.getItem("customerToken");
+    if (!token) return { success: false, message: "User not logged in" };
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${host}/api/wishlist`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": token,
+        },
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setWishlist([]); // clear local state as well
+      }
+      return data;
+    } catch (error) {
+      console.error("Error clearing wishlist:", error);
       return { success: false, message: "Something went wrong" };
     } finally {
       setLoading(false);
@@ -105,6 +133,7 @@ const WishlistState = ({ children }) => {
         addToWishlist,
         removeFromWishlist,
         isInWishlist,
+        clearWishlist
       }}
     >
       {children}

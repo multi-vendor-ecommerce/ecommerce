@@ -11,6 +11,7 @@ import { getDecryptedProductIdFromURL } from "../Utils/urlUtils";
 import { getFinalPrice } from "../Utils/priceUtils";
 import OrderContext from "../../../../context/orders/OrderContext";
 import WishlistButton from "../../../common/WishlistButton";
+import { toast } from "react-toastify";
 
 const ProductDetails = () => {
   // Contexts
@@ -85,8 +86,12 @@ const ProductDetails = () => {
       selectedColor,
       addToCart,
       setLoading: setIsLoading,
-      onSuccess: (msg) => alert(msg),
-      onError: (err) => alert(err),
+      onSuccess: (msg) => {
+        toast.success(msg || "Added to cart successfully!");
+      },
+      onError: (err) => {
+        toast.error(err || "Failed to add product to cart.");
+      },
       navigate,
       location,
     });
@@ -111,7 +116,7 @@ const ProductDetails = () => {
     if (res?.success && res.draftOrderId) {
       navigate(`/order-summary/${res.draftOrderId}`);
     } else {
-      alert("Failed to create order draft");
+      toast.error(res?.message || "Failed to create order draft.");
     }
   };
 

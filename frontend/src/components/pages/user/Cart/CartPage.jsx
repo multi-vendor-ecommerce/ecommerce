@@ -9,6 +9,9 @@ import BackButton from "../../../common/layout/BackButton";
 import { getFinalPrice, formatPrice } from "../Utils/priceUtils";
 import { encryptData } from "../Utils/Encryption";
 import StatGrid from "../../../common/helperComponents/StatGrid";
+import Loader from "../../../common/Loader";
+
+import { toast } from "react-toastify";
 
 import {
   removeItemFromCart,
@@ -25,17 +28,19 @@ const CartPage = () => {
 
   const [updatingProductId, setUpdatingProductId] = useState(null);
   const [removingId, setRemovingId] = useState(null);
+  const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("customerToken");
 
 
   // Redirect if not logged in
   useEffect(() => {
-    if (!token) {
-      navigate("/login/user?redirect=/cart", { replace: true });
-    } else {
-      getCart();
-    }
-  }, [token, navigate]);
+    const fetchCart = async () => {
+      setLoading(true);
+      await getCart();
+      setLoading(false);
+    };
+    fetchCart();
+  }, []);
 
   // Use cartHelpers.removeItemFromCart
   const handleRemove = async (cartItemId) => {
@@ -45,12 +50,13 @@ const CartPage = () => {
       getCart,
       setRemovingId,
     });
+    toast.info("Item removed from cart");
   };
 
   //  Use cartHelpers.changeCartQuantity
   const handleQuantityChange = (productId, color, size, newQuantity, stock) => {
     const now = Date.now();
-    if (now - lastClickTime.current < 300) return; 
+    if (now - lastClickTime.current < 300) return;
     lastClickTime.current = now;
 
     changeCartQuantity({
@@ -78,9 +84,17 @@ const CartPage = () => {
     if (res.success) {
       navigate(`/order-summary/${res.draftOrderId}`);
     } else {
-      alert(res.message);
+      toast.error(res.message || "Failed to create order.");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
 
   if (!cart.length) {
     return (

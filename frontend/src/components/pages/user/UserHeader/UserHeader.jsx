@@ -8,15 +8,17 @@ import ProfileMenu from "../../adminVendorCommon/common/header/ProfileMenu";
 import ProfileImage from "../../adminVendorCommon/common/header/ProfileImage";
 
 function UserHeader() {
-  const { cart } = useContext(CartContext);
-  const { person, getCurrentPerson } = useContext(PersonContext);
+  const { cart, getCart } = useContext(CartContext);
+  const { person, getCurrentPerson, logout } = useContext(PersonContext);
   const { wishlist, getWishlist } = useContext(WishlistContext);
 
-  const [cartItemCount, setCartItemCount] = useState(0);
+  const [cartItemCount, setCartItemCount] = useState(null);
+  const [wishlistCount, setWishlistCount] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [token, setToken] = useState(localStorage.getItem("customerToken"));
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  const apiFetchedRef = useRef(false); // <-- ensure APIs called only once
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
@@ -26,6 +28,14 @@ function UserHeader() {
     }
   };
 
+  const handleLogout = () => {
+    logout(); // clear token & user state
+    setToken(null);
+    setCartItemCount(null);
+    setWishlistCount(null);
+    apiFetchedRef.current = false; // allow re-fetch on next login
+  };
+
   // Update token on localStorage changes
   useEffect(() => {
     const onStorageChange = () => setToken(localStorage.getItem("customerToken"));
@@ -33,13 +43,29 @@ function UserHeader() {
     return () => window.removeEventListener("storage", onStorageChange);
   }, []);
 
-  // Fetch user & wishlist if logged in
+  // Fetch user/cart/wishlist only once after login
   useEffect(() => {
-    if (token) {
+    if (token && !apiFetchedRef.current) {
+      apiFetchedRef.current = true;
       getCurrentPerson();
+      getCart();
       getWishlist();
     }
-  }, [token]);
+  }, [token, getCurrentPerson, getCart, getWishlist]);
+
+  // Update cart item count only when cart changes
+  useEffect(() => {
+    if (token && cart) {
+      setCartItemCount(cart.reduce((count, item) => count + item.quantity, 0));
+    }
+  }, [cart, token]);
+
+  // Update wishlist count only when wishlist changes
+  useEffect(() => {
+    if (token && wishlist) {
+      setWishlistCount(wishlist.length);
+    }
+  }, [wishlist, token]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -52,11 +78,6 @@ function UserHeader() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Count cart items
-  useEffect(() => {
-    setCartItemCount(cart.reduce((count, item) => count + item.quantity, 0));
-  }, [cart]);
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleSearch();
   };
@@ -64,14 +85,13 @@ function UserHeader() {
   const displayName = person?.name
     ? person.name.split(" ")[0]
     : person?.email
-      ? person.email.split("@")[0]
-      : "User";
+    ? person.email.split("@")[0]
+    : "User";
 
   return (
     <header className="sticky top-0 bg-[#E8F5E9] z-30 shadow-sm py-1">
       <div className="lg:px-16">
         <div className="container mx-auto px-4 flex items-center justify-between gap-4 flex-wrap">
-
           {/* Logo */}
           <Link to="/" className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap">
             <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-19 sm:h-17 rounded" />
@@ -115,9 +135,9 @@ function UserHeader() {
                   </div>
                 </button>
 
-                {dropdownOpen && <ProfileMenu person={person} />}
-              </div>) : null
-            }
+                {dropdownOpen && <ProfileMenu logout={handleLogout} person={person} />}
+              </div>
+            ) : null}
 
             {/* Wishlist */}
             <Link
@@ -131,9 +151,9 @@ function UserHeader() {
               className="relative bg-[#E8F5E9] p-3 rounded-full hover:bg-pink-200 transition-colors"
             >
               <FaHeart className="text-2xl cursor-pointer hover:text-[pink-600]" />
-              {token && wishlist.length > 0 && (
+              {token && wishlistCount > 0 && (
                 <span className="absolute top-0 right-0 bg-[#2E7D32] text-white rounded-full text-xs px-1.5 py-0.5">
-                  {wishlist.length}
+                  {wishlistCount}
                 </span>
               )}
             </Link>

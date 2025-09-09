@@ -8,6 +8,7 @@ import PaymentStep from "./PaymentStep";
 import OrderContext from "../../../../context/orders/OrderContext";
 import PaymentContext from "../../../../context/paymentContext/PaymentContext";
 import { handlePayment } from "./orderHelpers/paymentHandler";
+import SuccessModal from "./SuccessModal";
 
 const OrderSummary = () => {
   const { id } = useParams();
@@ -20,6 +21,7 @@ const OrderSummary = () => {
   const [step, setStep] = useState(1);
   const [modeOfPayment, setModeOfPayment] = useState("COD");
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Fetch draft order
   useEffect(() => {
@@ -36,61 +38,6 @@ const OrderSummary = () => {
   const next = () => setStep((s) => Math.min(s + 1, 3));
   const prev = () => setStep((s) => Math.max(s - 1, 1));
 
-  // Payment handler
-  // const handlePayment = async (e) => {
-  //   e.preventDefault();
-  //   if (!order) return;
-  //   setLoading(true);
-  //   try {
-  //     if (modeOfPayment === "COD") {
-  //       const res = await confirmCOD(order._id, order.shippingInfo);
-  //       alert("Thankyou! your placed successfully");
-  //       if (res.success) navigate(`/my-orders`);
-  //       else alert(res.message);
-  //     } else {
-  //       const razorpayData = await createRazorpayOrder(order._id);
-  //       if (!razorpayData) throw new Error("Failed to create Razorpay order");
-
-  //       const { razorpayOrder, key } = razorpayData;
-  //       const options = {
-  //         key,
-  //         amount: razorpayOrder.amount,
-  //         currency: razorpayOrder.currency,
-  //         order_id: razorpayOrder.id,
-  //         name: "NoahPlanet",
-  //         description: `Payment for Order #${order._id}`,
-  //         handler: async function (response) {
-  //           const paymentRes = await confirmRazorpayPayment(order._id, {
-  //             razorpayPaymentId: response.razorpay_payment_id,
-  //             razorpayOrderId: response.razorpay_order_id,
-  //             razorpaySignature: response.razorpay_signature,
-  //             shippingInfo: order.shippingInfo,
-  //           });
-  //           alert("Thankyou! your placed successfully");
-  //           if (paymentRes.success) navigate(`/my-orders`);
-  //           else alert(paymentRes.message);
-  //         },
-  //         theme: { color: "#22ce56ff" },
-  //       };
-
-  //       if (window.Razorpay) {
-  //         new window.Razorpay(options).open();
-  //       } else {
-  //         const script = document.createElement("script");
-  //         script.src = "https://checkout.razorpay.com/v1/checkout.js";
-  //         script.onload = () => {
-  //           new window.Razorpay(options).open();
-  //         };
-  //         document.body.appendChild(script);
-  //       }
-  //     }
-  //   } catch (err) {
-  //     alert(err.message || "Payment failed");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const onPayment = (e) => {
     e.preventDefault();
     handlePayment({
@@ -101,6 +48,7 @@ const OrderSummary = () => {
       confirmRazorpayPayment,
       navigate,
       setLoading,
+      onSuccess: () => setShowSuccessModal(true),
     });
   };
 
@@ -149,6 +97,15 @@ const OrderSummary = () => {
           loading={loading}
         />
       )}
+
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          navigate("/my-orders");
+        }}
+        message="Your order has been placed successfully!"
+      />
     </div>
   );
 };

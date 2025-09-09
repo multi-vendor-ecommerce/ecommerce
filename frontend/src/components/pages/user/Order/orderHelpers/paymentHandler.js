@@ -1,4 +1,4 @@
-// src/utils/paymentHandler.js
+import { toast } from "react-toastify";
 
 export const handlePayment = async ({
   order,
@@ -6,8 +6,8 @@ export const handlePayment = async ({
   confirmCOD,
   createRazorpayOrder,
   confirmRazorpayPayment,
-  navigate,
   setLoading,
+  onSuccess
 }) => {
   if (!order) return;
   setLoading(true);
@@ -15,9 +15,11 @@ export const handlePayment = async ({
   try {
     if (modeOfPayment === "COD") {
       const res = await confirmCOD(order._id, order.shippingInfo);
-      alert("Thank you! Your order has been placed successfully.");
-      if (res.success) navigate(`/my-orders`);
-      else alert(res.message);
+      if (res.success) {
+        onSuccess?.();
+      } else {
+        toast.error(res.message || "Failed to place COD order.");
+      }
     } else {
       const razorpayData = await createRazorpayOrder(order._id);
       if (!razorpayData) throw new Error("Failed to create Razorpay order");
@@ -38,10 +40,9 @@ export const handlePayment = async ({
             shippingInfo: order.shippingInfo,
           });
           if (paymentRes.success) {
-            alert("Thank you! Your order has been placed successfully.");
-            navigate(`/my-orders`);
+            onSuccess?.();
           } else {
-            alert(paymentRes.message || "Payment failed. Please try again.");
+            toast.error(paymentRes.message || "Payment failed. Please try again.");
           }
         },
         theme: { color: "#22ce56ff" },
@@ -59,7 +60,7 @@ export const handlePayment = async ({
       }
     }
   } catch (err) {
-    alert(err.message || "Payment failed");
+    toast.error(err.message || "Payment failed");
   } finally {
     setLoading(false);
   }

@@ -1,8 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 
 import UserHeader from "./UserHeader/UserHeader";
-// import UserFooter from "./UserFooter/UserFooter";
-
 import Home from "./Home/Home";
 import ProductsByCategory from "./Product/ProductsByCategory";
 import ProductDetails from "./Product/ProductDetails";
@@ -24,6 +22,7 @@ export default function User() {
         <Route path="/" element={<Home />} />
         <Route path="/category/:id" element={<ProductsByCategory />} />
         <Route path="/product/:id" element={<ProductDetails />} />
+
 
         {/* Protected Routes */}
         <Route
@@ -58,7 +57,6 @@ export default function User() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/my-orders/:orderId"
           element={
@@ -67,13 +65,15 @@ export default function User() {
             </ProtectedRoute>
           }
         />
-
-        <Route path="/wishlist" element={
-          <ProtectedRoute>
-            <WishlistPage />
-          </ProtectedRoute>} />
+        <Route
+          path="/wishlist"
+          element={
+            <ProtectedRoute>
+              <WishlistPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-      {/* <UserFooter /> */}
     </>
   );
 }
