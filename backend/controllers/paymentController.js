@@ -127,9 +127,9 @@ export const verifyRazorpayPayment = async (req, res) => {
 
     try {
       await sendOrderSuccessMail({
-        to: user.email,
-        orderId: order._id.toString(),
-        customerName: user.name,
+        to: user?.email,
+        orderId: order._id,
+        customerName: user?.name,
         paymentMethod: order.paymentMethod,
         totalAmount: order.totalAmount,
         items: order.orderItems.map(i => ({
@@ -175,7 +175,6 @@ export const confirmCOD = async (req, res) => {
     const user = await User.findById(order.user);
     if (!user) return res.status(404).json({ success: false, message: "User not found." });
 
-
     order.shippingInfo = shippingInfo;
     order.paymentMethod = "COD";
     order.paymentInfo = { id: null, status: "pending" };
@@ -194,19 +193,22 @@ export const confirmCOD = async (req, res) => {
 
     await order.save();
 
-    // Send confirmation email for COD
-    await sendOrderSuccessMail({
-      to: user.email,
-      orderId: order._id,
-      customerName: user.name,
-      paymentMethod: order.paymentMethod,
-      totalAmount: order.totalAmount,
-      items: order.orderItems.map(i => ({
-        name: i.product.title,
-        qty: i.quantity,
-        price: i.product.price,
-      })),
-    });
+    try {
+      await sendOrderSuccessMail({
+        to: user?.email,
+        orderId: order._id,
+        customerName: user?.name,
+        paymentMethod: order.paymentMethod,
+        totalAmount: order.totalAmount,
+        items: order.orderItems.map(i => ({
+          name: i.product?.title || "Unknown product",
+          qty: i.quantity || 0,
+          price: i.product?.price || 0,
+        })),
+      });
+    } catch (error) {
+      console.error("Order placed but failed to send email:", error);
+    }
 
     console.log("COD order confirmed and email sent.");
 

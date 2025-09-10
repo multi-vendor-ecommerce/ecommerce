@@ -260,7 +260,7 @@ export const orderSuccessTemplate = (
               .map(
                 (item) => `
                 <tr>
-                  <td style="border-bottom: 1px solid #eee; padding: 8px;">
+                  <td style="border-bottom: 1px solid #eee; text-align: left; padding: 8px;">
                     ${item.name || "Unnamed Product"}
                     ${
                       item.discount && item.discount > 0
