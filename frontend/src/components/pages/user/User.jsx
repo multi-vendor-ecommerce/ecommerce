@@ -16,64 +16,69 @@ import WishlistPage from "./Wishlist/WishlistPage";
 export default function User() {
   return (
     <>
-      <UserHeader />
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/category/:id" element={<ProductsByCategory />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
+      <div className="flex flex-col min-h-screen relative">
+        <UserHeader />
+        
+        <main className="bg-white">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/category/:id" element={<ProductsByCategory />} />
+            <Route path="/product/:id" element={<ProductDetails />} />
 
 
-        {/* Protected Routes */}
-        <Route
-          path="/cart"
-          element={
-            <ProtectedRoute>
-              <CartPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/customer/settings/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/order-summary/:id"
-          element={
-            <ProtectedRoute>
-              <OrderSummary />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/my-orders"
-          element={
-            <ProtectedRoute>
-              <MyOrdersList />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/my-orders/:orderId"
-          element={
-            <ProtectedRoute>
-              <MyOrderDetails />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/wishlist"
-          element={
-            <ProtectedRoute>
-              <WishlistPage />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+            {/* Protected Routes */}
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoute>
+                  <CartPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer/settings/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/order-summary/:id"
+              element={
+                <ProtectedRoute>
+                  <OrderSummary />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-orders"
+              element={
+                <ProtectedRoute>
+                  <MyOrdersList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-orders/:orderId"
+              element={
+                <ProtectedRoute>
+                  <MyOrderDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/wishlist"
+              element={
+                <ProtectedRoute>
+                  <WishlistPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </main>
+      </div>
     </>
   );
 }

@@ -21,7 +21,7 @@ const TopSellingProducts = () => {
     };
 
     return (
-        <section className="px-7 py-4 max-w-9xl mx-auto bg-[#F0FDF4] ">
+        <section className="px-7 py-4 max-w-9xl mx-auto">
             <h2 className="text-2xl font-semibold text-gray-800 text-start">Top Selling Products</h2>
 
             <InfiniteScroller

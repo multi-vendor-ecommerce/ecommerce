@@ -3,19 +3,24 @@ import { FaCaretDown } from "react-icons/fa";
 import CategorySidebar from "./CategorySidebar";
 import Spinner from "../../../../common/Spinner";
 
+const HEADER_HEIGHT = "4rem"; // Adjust if your header is a different height
+
 const CategorySection = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [highlightedCategory, setHighlightedCategory] = useState(null);
 
   return (
-    <div className="sticky  z-20 bg-[#F0FDF4] px-6 py-3">
+    <div
+      className="px-6 py-3"
+      style={{ top: HEADER_HEIGHT }} // Ensures it appears below the header
+    >
       <div className="max-w-screen-xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:gap-6">
           {/* All Categories Button */}
           <div
             onClick={() => {
-              setSidebarOpen(true)
-              setHighlightedCategory(null)
+              setSidebarOpen(true);
+              setHighlightedCategory(null);
             }}
             role="button"
             tabIndex={0}
@@ -28,16 +33,24 @@ const CategorySection = () => {
 
           {/* Parent Categories Horizontal Scroll */}
           <div className="mt-3 md:mt-0 overflow-x-auto no-scrollbar flex-1">
-            <CategorySidebar showAsHorizontal parentCircleSize="large" onParentClick={(catId) => {    
-              setSidebarOpen(true);
-              setHighlightedCategory(catId);
-            }} />
+            <CategorySidebar
+              showAsHorizontal
+              parentCircleSize="large"
+              onParentClick={(catId) => {
+                setSidebarOpen(true);
+                setHighlightedCategory(catId);
+              }}
+            />
           </div>
         </div>
       </div>
 
       {/* Sidebar */}
-      <CategorySidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} highlightedCategory={highlightedCategory} />
+      <CategorySidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        highlightedCategory={highlightedCategory}
+      />
     </div>
   );
 };

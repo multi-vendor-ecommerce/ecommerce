@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import useCategorySelection from "../../../../../hooks/useCategorySelection";
 import { encryptData } from "../../Utils/Encryption";
 import CategoryContext from "../../../../../context/categories/CategoryContext";
+import { toTitleCase } from "../../../../../utils/titleCase";
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -12,6 +13,7 @@ import { Navigation } from "swiper/modules";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
+import { FiPlus } from "react-icons/fi";
 
 // AccordionItem Component
 const AccordionItem = ({
@@ -56,28 +58,28 @@ const AccordionItem = ({
   return (
     <div>
       <div
-        className={`flex justify-between items-center py-2 px-3 rounded cursor-pointer select-none ${isOpen
+        className={`sticky z-40 flex justify-between items-center py-2 px-3 rounded cursor-pointer select-none ${isOpen
             ? "bg-[#E8F5E9] font-semibold text-[#2E7D32]"
             : "hover:bg-[#F1F8E9]"
           }`}
       >
         <span
           onClick={handleNameClick}
-          title={category.name}
+          title={toTitleCase(category.name)}
           className="flex-1"
         >
-          {category.name}
+          {toTitleCase(category.name)}
         </span>
         <span
           onClick={handleToggle}
-          className="text-xl select-none px-2 cursor-pointer"
+          className="text-xl select-none px-2 mt-1 cursor-pointer"
           title={isOpen ? "Collapse" : "Expand"}
         >
-          {isOpen ? "−" : "+"}
+          {isOpen ? <IoClose /> : <FiPlus />}
         </span>
       </div>
       {isOpen && categoryLevels[levelIndex + 1]?.length > 0 && (
-        <div className="ml-4 border-l border-gray-300 pl-3">
+        <div className="ml-4 border-l border-gray-300 pl-3 mt-1">
           {categoryLevels[levelIndex + 1].map((sub) => (
             <AccordionItem
               key={sub._id}
@@ -146,6 +148,7 @@ const CategorySidebar = ({
                   onParentClick(cat._id);
                 }
               }}
+              title={toTitleCase(cat.name)}
             >
               <div
                 className={`bg-gray-100 rounded-full flex items-center justify-center shadow-sm overflow-hidden ${sizeClass} font-semibold`}
@@ -153,11 +156,11 @@ const CategorySidebar = ({
                 {cat.categoryImage ? (
                   <img
                     src={cat.categoryImage}
-                    alt={cat.name}
+                    alt={toTitleCase(cat.name)}
                     className="w-full h-full object-cover rounded-full"
                   />
                 ) : (
-                  <span>{cat.name.slice(0, 2).toUpperCase()}</span>
+                  <span>{toTitleCase(cat.name).slice(0, 2)}</span>
                 )}
               </div>
               <span
@@ -166,8 +169,9 @@ const CategorySidebar = ({
                 style={{
                   maxWidth: parentCircleSize === "large" ? "5rem" : "3.5rem",
                 }}
+                title={toTitleCase(cat.name)}
               >
-                {cat.name}
+                {toTitleCase(cat.name)}
               </span>
             </SwiperSlide>
           ))}
@@ -187,7 +191,7 @@ const CategorySidebar = ({
           onKeyDown={(e) => e.key === "Escape" && onClose()}
         >
           <div
-             className="absolute top-0 left-0 w-72 max-w-full h-full bg-white shadow-md p-4 z-[10000] overflow-y-auto"
+            className="absolute top-0 left-0 w-72 max-w-full h-full bg-white shadow-md p-4 z-[10000] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
@@ -195,7 +199,7 @@ const CategorySidebar = ({
               <button
                 onClick={onClose}
                 aria-label="Close categories sidebar"
-                className="text-gray-700 hover:text-gray-900"
+                className="text-gray-700 hover:text-gray-900 cursor-pointer"
               >
                 <IoClose size={24} />
               </button>

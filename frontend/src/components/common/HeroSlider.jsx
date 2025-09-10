@@ -8,7 +8,7 @@ const HeroSlider = ({ banners = [] }) => {
   if (!Array.isArray(banners) || banners.length === 0) return null;
 
   return (
-    <div className="max-w-8xl bg-green-50 py-4">
+    <div className="max-w-8xl py-4">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <Swiper
           modules={[Autoplay, Pagination]}

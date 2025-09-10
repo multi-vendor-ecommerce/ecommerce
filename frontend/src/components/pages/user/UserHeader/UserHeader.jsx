@@ -6,6 +6,7 @@ import PersonContext from "../../../../context/person/PersonContext";
 import WishlistContext from "../../../../context/wishlist/WishlistContext";
 import ProfileMenu from "../../adminVendorCommon/common/header/ProfileMenu";
 import ProfileImage from "../../adminVendorCommon/common/header/ProfileImage";
+import { toTitleCase } from "../../../../utils/titleCase";
 
 function UserHeader() {
   const { cart, getCart } = useContext(CartContext);
@@ -18,7 +19,7 @@ function UserHeader() {
   const [token, setToken] = useState(localStorage.getItem("customerToken"));
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const apiFetchedRef = useRef(false); // <-- ensure APIs called only once
+  const apiFetchedRef = useRef(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
@@ -29,21 +30,19 @@ function UserHeader() {
   };
 
   const handleLogout = () => {
-    logout(); // clear token & user state
+    logout(person?.role || "customer");
     setToken(null);
     setCartItemCount(null);
     setWishlistCount(null);
-    apiFetchedRef.current = false; // allow re-fetch on next login
+    apiFetchedRef.current = false;
   };
 
-  // Update token on localStorage changes
   useEffect(() => {
     const onStorageChange = () => setToken(localStorage.getItem("customerToken"));
     window.addEventListener("storage", onStorageChange);
     return () => window.removeEventListener("storage", onStorageChange);
   }, []);
 
-  // Fetch user/cart/wishlist only once after login
   useEffect(() => {
     if (token && !apiFetchedRef.current) {
       apiFetchedRef.current = true;
@@ -53,21 +52,18 @@ function UserHeader() {
     }
   }, [token, getCurrentPerson, getCart, getWishlist]);
 
-  // Update cart item count only when cart changes
   useEffect(() => {
     if (token && cart) {
       setCartItemCount(cart.reduce((count, item) => count + item.quantity, 0));
     }
   }, [cart, token]);
 
-  // Update wishlist count only when wishlist changes
   useEffect(() => {
     if (token && wishlist) {
       setWishlistCount(wishlist.length);
     }
   }, [wishlist, token]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -83,13 +79,13 @@ function UserHeader() {
   };
 
   const displayName = person?.name
-    ? person.name.split(" ")[0]
+    ? toTitleCase(person.name.split(" ")[0])
     : person?.email
     ? person.email.split("@")[0]
     : "User";
 
   return (
-    <header className="sticky top-0 bg-[#E8F5E9] z-30 shadow-sm py-1">
+    <header className="sticky top-0 w-full z-50 min-h-16 bg-[#E8F5E9] shadow-sm py-1">
       <div className="lg:px-16">
         <div className="container mx-auto px-4 flex items-center justify-between gap-4 flex-wrap">
           {/* Logo */}

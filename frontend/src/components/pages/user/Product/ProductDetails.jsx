@@ -129,7 +129,7 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className="bg-[#F0FDF4] min-h-screen p-4 md:p-10">
+    <div className="min-h-screen p-4 md:p-10">
       <div className="max-w-7xl mx-auto bg-white shadow-lg border border-[#E4D9F7] rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-8 ">
         {/* LEFT: IMAGE */}
         <div className="p-6">

@@ -42,7 +42,7 @@ export default function ProductSection({ title }) {
   };
 
   return (
-    <div className="bg-green-50 py-4">
+    <div className="py-4">
       <div className="min-h-screen max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-2xl font-semibold py-4 text-gray-800 text-start">
           {title || "Products for you"}
