@@ -17,30 +17,33 @@ export default function ProductGrid({ products, secretKey }) {
       <p className="text-lg text-gray-500 col-span-full text-center mt-10">
         No products found.
       </p>
-    );F
+    );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 my-4 mx-2">
       {products.map((product) => (
         <div
           key={product._id}
-          className="cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-green-500 flex flex-col relative"
+          className="group cursor-pointer mx-2 bg-white rounded-2xl shadow-sm hover:shadow-xl hover:scale-105
+                     transition-all duration-300 border border-gray-200 hover:border-green-500 
+                     flex flex-col relative overflow-hidden"
         >
+          {/* Product Image with fixed aspect ratio */}
           <div
-            className="aspect-square rounded-t-xl overflow-hidden bg-gray-50 relative"
+            className="aspect-[4/3] rounded-t-2xl overflow-hidden relative"
             onClick={() => handleProductClick(product._id)}
           >
             <img
               src={product.images?.[0].url || "https://via.placeholder.com/300"}
               alt={product.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
             />
 
             <div
-              className="absolute top-2 right-2 z-10"
-              onClick={(e) => e.stopPropagation()} 
+              className="absolute top-3 right-3 z-10"
+              onClick={(e) => e.stopPropagation()}
             >
               <WishlistButton productId={product._id} />
             </div>
@@ -49,7 +52,7 @@ export default function ProductGrid({ products, secretKey }) {
           {/* Product Content */}
           <div className="flex flex-col flex-grow p-4">
             <h3
-              className="font-semibold text-base sm:text-lg text-gray-900 truncate cursor-pointer"
+              className="font-semibold text-base sm:text-lg text-gray-900 truncate cursor-pointer group-hover:text-green-600 transition-colors"
               onClick={() => handleProductClick(product._id)}
             >
               {product.title}
@@ -61,8 +64,9 @@ export default function ProductGrid({ products, secretKey }) {
 
             {/* Read More link */}
             <button
-              className="mt-1 text-sm text-purple-700 font-semibold hover:underline self-start"
+              className="mt-1 text-sm text-purple-700 font-semibold hover:underline self-start cursor-pointer"
               onClick={() => handleProductClick(product._id)}
+              title="Read more"
               aria-label={`Read more about ${product.title}`}
             >
               Read more
@@ -100,7 +104,7 @@ export default function ProductGrid({ products, secretKey }) {
                 {product.colors.map((color, i) => (
                   <span
                     key={i}
-                    className="w-5 h-5 rounded-full border border-gray-300"
+                    className="w-5 h-5 rounded-full border border-gray-300 shadow-sm"
                     style={{ backgroundColor: color.toLowerCase() }}
                     title={color}
                   />
@@ -110,7 +114,7 @@ export default function ProductGrid({ products, secretKey }) {
 
             <div className="mt-3 flex justify-between items-center text-xs sm:text-sm">
               {product.freeDelivery && (
-                <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium shadow-sm">
                   Free Delivery
                 </span>
               )}

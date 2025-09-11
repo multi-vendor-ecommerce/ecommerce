@@ -98,7 +98,7 @@ function UserHeader() {
             <input
               type="text"
               placeholder="Search products here..."
-              className="w-full px-3 py-2 border border-[#2E7D32] rounded-l-md focus:outline-none text-user-dark"
+              className="w-full px-3 py-2 bg-white border border-[#2E7D32] rounded-l-md focus:outline-none text-user-dark"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleKeyDown}

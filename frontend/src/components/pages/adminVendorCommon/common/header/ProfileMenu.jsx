@@ -10,11 +10,11 @@ const ProfileMenu = ({ person }) => {
   const { logout } = useContext(AuthContext);
 
   const handleLogOut = () => {
-    logout(person.role);
+    logout(person?.role);
   }
 
   return (
-    <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl shadow-gray-500 z-50">
+    <div className="absolute -right-6 md:right-0 mt-2 w-64 bg-white rounded-xl shadow-xl shadow-gray-500 z-50">
       <div className="p-4">
         <div className="flex items-center gap-3">
           <ProfileImage person={person} />
@@ -58,7 +58,7 @@ const ProfileMenu = ({ person }) => {
           </li>
         )}
         <div className="w-[90%] mx-auto h-[1px] bg-gray-300 mt-2 mb-1.5"></div>
-        <li className="px-4 mx-2 py-3 rounded-xl hover:bg-gray-100 transition-all duration-300 cursor-pointer text-red-600" title="Sign out">
+        <li className="px-4 mx-2 py-3 rounded-xl hover:bg-red-100 transition-all duration-300 cursor-pointer text-red-600" title="Sign out">
           <button onClick={handleLogOut} className="flex items-center gap-2 cursor-pointer hover:scale-105 transition duration-300">
             <HiOutlineLogout size={22} className="text-xl font-semibold" />
             <span>Sign Out</span>

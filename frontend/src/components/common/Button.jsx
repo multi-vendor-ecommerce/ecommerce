@@ -20,7 +20,7 @@ const Button = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center gap-2 px-4 border font-semibold rounded-lg transition duration-150
+      className={`flex items-center gap-2 px-2.5 md:px-4 border font-semibold rounded-lg transition duration-150
         ${disabled ? "opacity-50 cursor-not-allowed" : `${COLORS[color]} hover:text-white cursor-pointer`}
         ${className}`}
     >
