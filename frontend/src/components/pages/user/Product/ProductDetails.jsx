@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ProductContext from "../../../../context/products/ProductContext";
 import CartContext from "../../../../context/cart/CartContext";
 import Spinner from "../../../common/Spinner";
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaShoppingCart, FaBolt } from "react-icons/fa";
 import BackButton from "../../../common/layout/BackButton";
 import ReadMoreLess from "../../../common/ReadMoreLess";
 import { validateAndAddToCart } from "../Utils/cartHelpers";
@@ -129,39 +129,51 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-10">
-      <div className="max-w-7xl mx-auto bg-white shadow-lg border border-[#E4D9F7] rounded-lg overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-8 ">
+    <div className="min-h-screen p-4 md:p-10 bg-gray-50">
+      <div
+        className="max-w-7xl mx-auto rounded-xl border border-gray-100 bg-white shadow-sm 
+      hover:shadow-lg hover:shadow-green-200 hover:border-green-300 
+      overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-8 transition-all duration-300"
+      >
         {/* LEFT: IMAGE */}
         <div className="p-6">
           {productDetails.images?.length > 1 ? (
             <>
-              <div className="aspect-square w-full rounded-xl overflow-hidden mb-4 bg-gray-100 flex items-center justify-center">
+              {/* MAIN IMAGE */}
+              <div className="aspect-square rounded-xl overflow-hidden mb-4 bg-gray-50 border border-gray-200 shadow-sm flex items-center justify-center">
                 <img
                   src={productDetails.images[activeImage]?.url}
                   alt="product"
-                  className="max-w-full max-h-full"
-                  style={{ objectFit: "contain" }}
+                  className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
                 />
               </div>
-              <div className="flex gap-2 overflow-x-auto">
+
+              {/* THUMBNAILS */}
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                 {productDetails.images.map((img, idx) => (
-                  <img
+                  <button
                     key={idx}
-                    src={img.url}
-                    alt={`thumb-${idx}`}
                     onClick={() => setActiveImage(idx)}
-                    className={`w-20 h-20 object-cover rounded-md cursor-pointer border transition ${activeImage === idx ? "border-[#7F55B1]" : "border-transparent hover:border-[#BFA5E0]"
+                    className={`relative flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-300 ${activeImage === idx
+                      ? "border-green-600 shadow-md"
+                      : "border-gray-200 hover:border-green-400"
                       }`}
-                  />
+                  >
+                    <img
+                      src={img.url}
+                      alt={`thumb-${idx}`}
+                      className="w-20 h-20 object-cover"
+                    />
+                  </button>
                 ))}
               </div>
             </>
           ) : (
-            <div className="aspect-square w-full rounded-xl overflow-hidden">
+            <div className="aspect-square w-full rounded-xl overflow-hidden border border-gray-200 bg-gray-50 shadow-sm flex items-center justify-center">
               <img
                 src={productDetails.images?.[0] || "https://via.placeholder.com/600"}
                 alt={productDetails.title}
-                className="w-full h-full object-cover"
+                className="max-h-full max-w-full object-contain"
               />
             </div>
           )}
@@ -170,7 +182,7 @@ const ProductDetails = () => {
         {/* RIGHT: DETAILS */}
         <div className="p-6 space-y-6">
           {/* Title */}
-          <h1 className="text-3xl font-bold text-gray-900 break-words">
+          <h1 className="text-3xl font-bold text-gray-900 break-words leading-snug">
             {productDetails.title}
           </h1>
 
@@ -180,20 +192,27 @@ const ProductDetails = () => {
             </div>
           )}
 
-          {
-            productDetails.createdBy?.name && (
-              <p className="text-sm text-gray-500">
-                Product By:{" "}
-                <span className="font-medium text-gray-700">{productDetails.createdBy.name}</span>
-              </p>
-            )
-          }
+          {productDetails.createdBy?.name && (
+            <p className="text-sm text-gray-500">
+              Product By:{" "}
+              <span className="font-medium text-gray-700">
+                {productDetails.createdBy.name}
+              </span>
+            </p>
+          )}
 
-          <div className="text-2xl font-bold text-[#7F55B1] flex items-center gap-3">
-            {productDetails.discount && productDetails.discount > 0 && productDetails.discount < 100 ? (
+          {/* Price */}
+          <div className="text-2xl font-bold text-green-600 flex items-center gap-3">
+            {productDetails.discount &&
+              productDetails.discount > 0 &&
+              productDetails.discount < 100 ? (
               <>
                 <span>
-                  ₹{getFinalPrice(productDetails.price, productDetails.discount).toLocaleString()}
+                  ₹
+                  {getFinalPrice(
+                    productDetails.price,
+                    productDetails.discount
+                  ).toLocaleString()}
                 </span>
 
                 <span className="text-gray-500 line-through text-lg font-medium">
@@ -213,7 +232,9 @@ const ProductDetails = () => {
           {productDetails.category?.name && (
             <p className="text-sm text-gray-500">
               Category:{" "}
-              <span className="font-medium text-gray-700">{productDetails.category.name}</span>
+              <span className="font-medium text-gray-700">
+                {productDetails.category.name}
+              </span>
             </p>
           )}
 
@@ -221,7 +242,10 @@ const ProductDetails = () => {
           {productDetails.tags?.length > 0 && (
             <div className="flex flex-wrap gap-2 text-xs">
               {productDetails.tags.map((tag, i) => (
-                <span key={i} className="bg-[#EFE7FB] text-[#7F55B1] px-2 py-1 rounded-md">
+                <span
+                  key={i}
+                  className="bg-green-50 text-green-700 px-2 py-1 rounded-md shadow-sm"
+                >
                   {tag}
                 </span>
               ))}
@@ -231,15 +255,17 @@ const ProductDetails = () => {
           {/* Color Picker */}
           {productDetails.colors?.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-1">Select Color:</h4>
+              <h4 className="text-sm font-medium text-gray-700 mb-1">
+                Select Color:
+              </h4>
               <div className="flex gap-2 flex-wrap">
                 {productDetails.colors.map((color, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedColor(color)}
-                    className={`px-3 py-1 rounded-full border text-sm transition ${selectedColor === color
-                      ? "bg-[#7F55B1] text-white border-[#7F55B1]"
-                      : "bg-white border-gray-300 text-gray-700 hover:border-[#7F55B1]"
+                    className={`px-3 py-1 rounded-full border text-sm transition duration-300 ${selectedColor === color
+                      ? "bg-green-600 text-white border-green-600 shadow-md"
+                      : "bg-white border-gray-300 text-gray-700 hover:border-green-600 hover:bg-green-50"
                       }`}
                   >
                     {color}
@@ -252,15 +278,17 @@ const ProductDetails = () => {
           {/* Size Picker */}
           {productDetails.sizes?.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-1 mt-4">Select Size:</h4>
+              <h4 className="text-sm font-medium text-gray-700 mb-1 mt-4">
+                Select Size:
+              </h4>
               <div className="flex gap-2 flex-wrap">
                 {productDetails.sizes.map((size, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedSize(size)}
-                    className={`px-3 py-1 rounded-full border text-sm transition ${selectedSize === size
-                      ? "bg-[#7F55B1] text-white border-[#7F55B1]"
-                      : "bg-white border-gray-300 text-gray-700 hover:border-[#7F55B1]"
+                    className={`px-3 py-1 rounded-full border text-sm transition duration-300 ${selectedSize === size
+                      ? "bg-green-600 text-white border-green-600 shadow-md"
+                      : "bg-white border-gray-300 text-gray-700 hover:border-green-600 hover:bg-green-50"
                       }`}
                   >
                     {size}
@@ -274,30 +302,38 @@ const ProductDetails = () => {
           <ReadMoreLess text={productDetails.description} limit={120} />
 
           {/* Rating */}
-          <div className="flex items-center  gap-1 text-md">
-            <span className="font-semibold text-yellow-500">{productDetails.rating}</span>
+          <div className="flex items-center gap-1 text-md">
+            <span className="font-semibold text-yellow-500">
+              {productDetails.rating}
+            </span>
             <FaStar className="text-yellow-500 mt-[1px]" />
             <span className="text-gray-500 text-sm ml-1">
               ({productDetails.totalReviews.toLocaleString()} reviews)
             </span>
           </div>
 
-
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 mt-4">
+            {/* Buy Now */}
             <button
-              className="bg-[#7F55B1] hover:bg-[#6d48a1] text-white px-6 py-2 rounded-lg shadow-md transition cursor-pointer"
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow-md transition cursor-pointer transform hover:scale-105"
               onClick={handleBuyNow}
             >
+              <FaBolt className="text-white text-lg" />
               Buy Now
             </button>
+
+            {/* Add to Cart */}
             <button
-              className="bg-white border border-[#7F55B1] text-[#7F55B1] px-6 py-2 rounded-lg shadow-md hover:bg-[#f4ecff] transition cursor-pointer"
+              className="flex items-center gap-2 bg-white border border-green-600 text-green-600 px-6 py-2 rounded-lg shadow-md hover:bg-green-50 transition cursor-pointer transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleAddToCart}
               disabled={isLoading}
             >
+              <FaShoppingCart className="text-green-600 text-lg" />
               {isLoading ? "Adding..." : "Add to Cart"}
             </button>
+
+            {/* Wishlist */}
             <WishlistButton productId={productDetails._id} />
           </div>
 
