@@ -7,7 +7,8 @@ const InfiniteScroller = ({
   orientation,
   renderItem,
   pageSize = 10,
-  initialData = []
+  initialData = [],
+  wrapperClassName = ""
 }) => {
   const [data, setData] = useState(initialData);
   const [hasMore, setHasMore] = useState(true);
@@ -58,7 +59,7 @@ const InfiniteScroller = ({
         style={{
           flexDirection: orientation === "horizontal" ? "row" : "column"
         }}
-        className="custom-scrollbar flex"
+        className={`custom-scrollbar flex ${wrapperClassName} h-auto`}
       >
         {data.map((item, index) => (
           <div key={item._id || index} className="mx-3.5 mt-2 mb-4">

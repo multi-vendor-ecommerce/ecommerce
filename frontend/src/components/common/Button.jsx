@@ -3,6 +3,7 @@ const COLORS = {
   blue: "border-blue-600 text-blue-600 hover:bg-blue-600",
   green: "border-green-600 text-green-600 hover:bg-green-600",
   red: "border-red-600 text-red-600 hover:bg-red-600",
+  yellow: "border-yellow-600 text-yellow-600 hover:bg-yellow-600",
   gray: "border-gray-600 text-gray-600 hover:bg-gray-600",
 };
 
