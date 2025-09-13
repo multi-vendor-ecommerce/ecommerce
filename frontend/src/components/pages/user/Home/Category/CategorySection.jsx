@@ -32,7 +32,7 @@ const CategorySection = () => {
           </div>
 
           {/* Parent Categories Horizontal Scroll */}
-          <div className="mt-3 md:mt-0 overflow-x-auto no-scrollbar flex-1">
+          <div className="mt-3 md:mt-0 overflow-x-auto no-scrollbar flex-1 min-h-[100px]">
             <CategorySidebar
               showAsHorizontal
               parentCircleSize="large"
