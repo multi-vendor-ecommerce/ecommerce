@@ -71,6 +71,13 @@ export const verifyRazorpayPayment = async (req, res) => {
   }
 
   try {
+    if (order.user.toString() !== req.person.id) {
+      return res.status(403).json({ success: false, message: "Not authorized for this order." });
+    }
+
+    const order = await Order.findById(orderId).populate("orderItems.product", "title price");
+    if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+
     const body = razorpayOrderId + "|" + razorpayPaymentId;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -91,9 +98,6 @@ export const verifyRazorpayPayment = async (req, res) => {
     if (payment.amount !== expectedAmount) {
       return res.status(400).json({ success: false, message: "Payment amount mismatch. Please contact support." });
     }
-
-    const order = await Order.findById(orderId);
-    if (!order) return res.status(404).json({ success: false, message: "Order not found. Please check your order." });
 
     // Fetch user for email
     const user = await User.findById(order.user);
