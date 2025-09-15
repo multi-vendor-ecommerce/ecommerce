@@ -11,7 +11,7 @@ const CategorySelector = ({
   selectedCategories,
   setSelectedCategories,
   onCategoryFinalSelect,
-  isEditing,
+  isEditing = true,
   showStepper = true,
 }) => {
   const {

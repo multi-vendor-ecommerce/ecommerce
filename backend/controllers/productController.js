@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
@@ -6,6 +7,12 @@ import Vendor from "../models/Vendor.js";
 import { validateProductFields } from "../utils/validateProductFields.js";
 import { mergeImages } from "../utils/mergeImages.js";
 import cloudinary from "../config/cloudinary.js";
+import { safeSendMail } from "../utils/safeSendMail.js";
+
+// Helper to validate ObjectId
+function isValidObjectId(id) {
+  return mongoose.Types.ObjectId.isValid(id);
+}
 
 // ==========================
 // Get all products - handles public, admin, and vendor
@@ -32,9 +39,9 @@ export const getAllProducts = async (req, res) => {
     // Limit fields for public or vendor
     if (!req.person || req.person.role !== "admin") {
       if (req.person?.role === "vendor") {
-        baseQuery = baseQuery.select("title description brand images price category discount tags freeDelivery rating totalReviews colors sizes status");
+        baseQuery = baseQuery.select("title description stock brand images price category discount tags freeDelivery rating totalReviews colors sizes status dimensions weight");
       } else {
-        baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
+        baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes dimensions weight");
         query.status = "approved";
       }
     }
@@ -84,9 +91,9 @@ export const getTopSellingProducts = async (req, res) => {
 
     if (role !== "admin") {
       if (role === "vendor") {
-        baseQuery = baseQuery.select("title brand description images price category discount tags freeDelivery rating totalReviews colors sizes");
+        baseQuery = baseQuery.select("title brand stock description images price category discount tags freeDelivery rating totalReviews colors sizes dimensions weight");
       } else {
-        baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes");
+        baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes dimensions weight");
       }
     }
 
@@ -148,6 +155,11 @@ export const getTopSellingProducts = async (req, res) => {
 // ==========================
 export const getProductById = async (req, res) => {
   try {
+    const productId = req.params.id;
+    if (!isValidObjectId(productId)) {
+      return res.status(400).json({ success: false, message: "Invalid product ID." });
+    }
+
     const isAdmin = req.person?.role === "admin";
     const isVendor = req.person?.role === "vendor";
 
@@ -156,9 +168,11 @@ export const getProductById = async (req, res) => {
       .populate("createdBy", "name email shopName role");
 
     if (!isAdmin) {
-      baseQuery = baseQuery.select(
-        "title description images price discount category tags freeDelivery rating totalReviews colors sizes"
-      );
+      if (isVendor) {
+        baseQuery = baseQuery.select("title description stock brand images price category discount tags freeDelivery rating totalReviews colors sizes status dimensions weight createdBy");
+      } else {
+        baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes dimensions weight");
+      }
     }
 
     const [product] = await Promise.all([baseQuery]);
@@ -188,6 +202,10 @@ export const getProductById = async (req, res) => {
 export const getProductsByCategoryId = async (req, res) => {
   try {
     const categoryId = req.params.id;
+    if (!isValidObjectId(categoryId)) {
+      return res.status(400).json({ success: false, message: "Invalid category ID." });
+    }
+
     const products = await Product.find({ category: categoryId });
     if (!products || products.length === 0) {
       return res.status(404).json({ success: false, message: "No products found for this category." });
@@ -209,15 +227,30 @@ export const addProduct = async (req, res) => {
   try {
     let {
       title, brand, description, category, specifications, price,
-      discount, stock, sku, hsnCode, gstRate, isTaxable,
-      freeDelivery, tags, video, colors, sizes
+      discount, stock, sku, hsnCode, gstRate,
+      dimensions, weight, tags, video, colors, sizes
     } = req.body;
 
-    // === Enhanced Validation ===
+    // Validate category ObjectId
+    if (!isValidObjectId(category)) {
+      return res.status(400).json({ success: false, message: "Invalid category ID." });
+    }
+
+    // Validate and sanitize SKU
+    sku = sku ? sku.replace(/[^A-Za-z0-9_-]/g, "") : "";
+
+    // Validate and sanitize price, discount, stock, gstRate, weight
+    price = Number(price);
+    discount = Number(discount);
+    stock = Number(stock);
+    gstRate = Number(gstRate);
+    weight = Number(weight);
+
+    // Validate product fields
     const productFields = {
       title, brand, description, category, specifications, price,
-      discount, stock, sku, hsnCode, gstRate, isTaxable,
-      freeDelivery, tags, video, colors, sizes
+      discount, stock, sku, hsnCode, gstRate,
+      dimensions, weight, tags, video, colors, sizes
     };
 
     // Images handling (if using file uploads)
@@ -261,6 +294,20 @@ export const addProduct = async (req, res) => {
       tags = [...new Set(tags.map(tag => tag.trim().toLowerCase()).filter(Boolean))];
     }
 
+    // Parse dimensions if string
+    if (typeof dimensions === "string") {
+      try {
+        dimensions = JSON.parse(dimensions);
+      } catch {
+        dimensions = {};
+      }
+    }
+
+    // Parse weight if string
+    if (typeof weight === "string") {
+      weight = Number(weight);
+    }
+
     const existing = await Product.findOne({ sku: sku.trim().toUpperCase() });
     if (existing) {
       return res.status(400).json({ success: false, message: "SKU already exists. Use a unique SKU." });
@@ -281,11 +328,11 @@ export const addProduct = async (req, res) => {
       sku,
       hsnCode,
       gstRate: Number(gstRate),
-      isTaxable: isTaxable !== undefined ? isTaxable : true,
-      freeDelivery: freeDelivery || false,
       tags: tags || [],
       colors,
       sizes,
+      dimensions: dimensions || {},
+      weight: weight !== undefined ? Number(weight) : 0,
     });
 
     // Update vendor's productQuantity
@@ -295,23 +342,19 @@ export const addProduct = async (req, res) => {
     );
 
     // Send email to vendor and admin after product is added
-    try {
-      await sendProductAddedMail({
-        to: req.person.email,
-        productName: newProduct.title,
-        productId: newProduct._id
-      });
+    await safeSendMail(sendProductAddedMail, {
+      to: req.person.email,
+      productName: newProduct.title,
+      productId: newProduct._id
+    });
 
-      await sendProductAddedAdminMail({
-        to: process.env.ADMIN_EMAIL,
-        vendorName: req.person.name,
-        vendorShop: req.person.ShopName,
-        vendorEmail: req.person.email,
-        productName: newProduct.title,
-      });
-    } catch (emailErr) {
-      console.error("Product added email failed:", emailErr);
-    }
+    await safeSendMail(sendProductAddedAdminMail, {
+      to: process.env.ADMIN_EMAIL,
+      vendorName: req.person.name,
+      vendorShop: req.person.ShopName,
+      vendorEmail: req.person.email,
+      productName: newProduct.title,
+    });
 
     res.status(201).json({
       success: true,
@@ -330,6 +373,10 @@ export const addProduct = async (req, res) => {
 export const editProduct = async (req, res) => {
   try {
     const productId = req.params.id;
+    if (!isValidObjectId(productId)) {
+      return res.status(400).json({ success: false, message: "Invalid product ID." });
+    }
+
     const isAdmin = req.person?.role === "admin";
     const isVendor = req.person?.role === "vendor";
 
@@ -344,8 +391,8 @@ export const editProduct = async (req, res) => {
     const update = {};
     const allowedVendorFields = [
       "title", "brand", "description", "images", "video",
-      "price", "discount", "stock", "sku", "hsnCode", "gstRate", "isTaxable",
-      "freeDelivery", "tags", "colors", "sizes", "category"
+      "price", "discount", "stock", "sku", "hsnCode", "gstRate",
+      "tags", "colors", "sizes", "category", "dimensions", "weight"
     ];
 
     Object.keys(req.body || {}).forEach((key) => {
@@ -364,6 +411,7 @@ export const editProduct = async (req, res) => {
     update.colors = parseIfJson(update.colors);
     update.sizes = parseIfJson(update.sizes);
     update.tags = parseIfJson(update.tags);
+    update.dimensions = parseIfJson(update.dimensions);
 
     // Convert category object to ObjectId string if needed
     if (update.category && typeof update.category === "object" && update.category._id) {
@@ -382,6 +430,19 @@ export const editProduct = async (req, res) => {
     if (Array.isArray(update.sizes)) update.sizes = [...new Set(update.sizes.map(s => s.replace(/[-_]/g, " ").trim()).filter(Boolean))];
     if (Array.isArray(update.tags)) update.tags = [...new Set(update.tags.map(t => t.trim().toLowerCase()).filter(Boolean))];
 
+    // Validate and sanitize fields before update
+    if (update.sku) update.sku = update.sku.replace(/[^A-Za-z0-9_-]/g, "");
+    if (update.price !== undefined) update.price = Number(update.price);
+    if (update.discount !== undefined) update.discount = Number(update.discount);
+    if (update.stock !== undefined) update.stock = Number(update.stock);
+    if (update.gstRate !== undefined) update.gstRate = Number(update.gstRate);
+    if (update.weight !== undefined) update.weight = Number(update.weight);
+
+    // Validate category ObjectId if present
+    if (update.category && !isValidObjectId(update.category)) {
+      return res.status(400).json({ success: false, message: "Invalid category ID." });
+    }
+
     // 🔹 Validation
     const errors = validateProductFields(update, true);
     if (errors.length > 0) return res.status(400).json({ success: false, message: errors.join(" ") });
@@ -394,7 +455,7 @@ export const editProduct = async (req, res) => {
     if (isVendor) {
       if (product.status === "rejected") {
         update.status = "pending"; // back for admin review
-        await sendVendorResubmittedProductMail({
+        await safeSendMail(sendVendorResubmittedProductMail, {
           to: process.env.ADMIN_EMAIL,
           productName: product.title,
           productId: product._id,
@@ -410,7 +471,7 @@ export const editProduct = async (req, res) => {
         ? "Your product has been approved and is now live."
         : "Your product has been rejected. Please review and resubmit.";
 
-      await sendProductStatusMail({
+      await safeSendMail(sendProductStatusMail, {
         to: product.createdBy.email,
         productStatus: update.status,
         productName: product.title,
@@ -456,7 +517,7 @@ export const deleteProduct = async (req, res) => {
       await product.save();
 
       // Notify admin
-      await sendVendorDeletionRequestMail({
+      await safeSendMail(sendVendorDeletionRequestMail, {
         to: process.env.ADMIN_EMAIL,
         productName: product.title,
         productId: product._id,
@@ -488,7 +549,7 @@ export const deleteProduct = async (req, res) => {
       await Product.findByIdAndDelete(productId);
 
       // Notify vendor
-      await sendProductDeletedByAdminMail({
+      await safeSendMail(sendProductDeletedByAdminMail, {
         to: product.createdBy.email,
         productName: product.title,
         productId: product._id,
@@ -520,6 +581,11 @@ export const updateProductStatus = async (req, res) => {
   let { status } = req.body;
   status = status?.toLowerCase();
 
+  const productId = req.params.id;
+  if (!isValidObjectId(productId)) {
+    return res.status(400).json({ success: false, message: "Invalid product ID." });
+  }
+
   const validStatuses = ["approved", "rejected", "inactive", "deletionrejected", "deleted"];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ success: false, message: "Invalid status update." });
@@ -547,8 +613,7 @@ export const updateProductStatus = async (req, res) => {
       await product.save();
 
       vendorInfo.productStatus = "deletionRejected";
-
-      await safeSendMail(vendorInfo);
+      await safeSendMail(sendProductStatusMail, vendorInfo);
 
       return res.status(200).json({
         success: true,
@@ -574,7 +639,7 @@ export const updateProductStatus = async (req, res) => {
       await product.deleteOne();
 
       vendorInfo.productStatus = "deleted";
-      await safeSendMail(vendorInfo);
+      await safeSendMail(sendProductStatusMail, vendorInfo);
 
       return res.status(200).json({
         success: true,
@@ -587,7 +652,7 @@ export const updateProductStatus = async (req, res) => {
     product.status = status;
     await product.save();
 
-    await safeSendMail(vendorInfo);
+    await safeSendMail(sendProductStatusMail, vendorInfo);
 
     return res.status(200).json({
       success: true,
@@ -603,12 +668,3 @@ export const updateProductStatus = async (req, res) => {
     });
   }
 };
-
-// Helper wrapper to avoid repeated try/catch
-async function safeSendMail(vendorInfo) {
-  try {
-    await sendProductStatusMail(vendorInfo);
-  } catch (err) {
-    console.error("Product status email failed:", err);
-  }
-}

@@ -8,7 +8,7 @@ const UploadImages = ({
   handleImageChange,
   handleImageDelete,
   images,
-  isEditing,
+  isEditing = true,
   showStepper = true,
 }) => {
   return (
@@ -76,7 +76,7 @@ const UploadImages = ({
         </div>
       </div>
 
-      {!isEditing && showStepper && (
+      {isEditing && showStepper && (
         <StepperControls
           currentStep={step}
           onNext={nextStep}

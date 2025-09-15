@@ -98,13 +98,15 @@ const productSchema = new Schema(
       enum: [0, 5, 12, 18, 28],
       required: true,
     },
-    isTaxable: {
-      type: Boolean,
-      default: true,
+    dimensions: {
+      length: { type: Number, required: true, min: 0 }, // cm
+      width: { type: Number, required: true, min: 0 },  // cm
+      height: { type: Number, required: true, min: 0 }, // cm
     },
-    freeDelivery: {
-      type: Boolean,
-      default: false,
+    weight: {
+      type: Number, // grams
+      required: true,
+      min: 0,
     },
     status: {
       type: String,

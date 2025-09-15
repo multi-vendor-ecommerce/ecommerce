@@ -149,12 +149,16 @@ export const updateVendorStatus = async (req, res) => {
   status = status.toLowerCase();
 
   try {
+    const isValidStatus = ["pending", "active", "inactive", "suspended", "rejected"].includes(status);
+    if (!isValidStatus) {
+      return res.status(400).json({ success: false, message: "Invalid status value." });
+    }
+    
     let vendor = await Vendor.findById(req.params.id);
     if (!vendor) {
       return res.status(404).json({ success: false, message: "Vendor not found." });
     }
 
-    // 🚨 Prevent setting back to "pending"
     if ((status === "pending" || status === "") && vendor.status !== "pending") {
       return res.status(400).json({
         success: false,
@@ -168,13 +172,21 @@ export const updateVendorStatus = async (req, res) => {
       { new: true }
     ).select("name email phone shopName status");
 
-    // Update all products for this vendor
-    await Product.updateMany(
-      { createdBy: vendor._id },
-      { status: status === "active" ? "approved" : "inactive" }
-    );
+    // Update products for this vendor:
+    // - When vendor is active => approved
+    // - Otherwise => inactive
+    // - Do not touch deleted or pendingDeletion products
+    const targetProductStatus = status === "active" ? "approved" : "inactive";
+    const productMatch = {
+      createdBy: vendor._id,
+      status: { $nin: ["deleted", "pendingDeletion"] }
+    };
 
-    // Send status email to vendor
+    const productUpdate = { status: targetProductStatus };
+
+    const result = await Product.updateMany(productMatch, productUpdate);
+
+    // Send status email to vendor (same as before)
     try {
       if (status !== "pending" && status !== "") {
         await sendVendorApprovalStatusMail({
@@ -192,7 +204,7 @@ export const updateVendorStatus = async (req, res) => {
     res.status(200).json({
       success: true,
       vendor,
-      message: `Vendor status updated to ${status}. Products updated as well.`
+      message: `Vendor status updated to ${status}. Products updated (${result.modifiedCount}).`
     });
   } catch (error) {
     res.status(500).json({
@@ -292,7 +304,7 @@ export const reactivateVendorAccount = async (req, res) => {
       return res.status(404).json({ success: false, message: "Vendor not found." });
     }
 
-    if (vendor.status !== toLowerCase("inactive")) {
+    if (vendor.status !== "inactive") {
       return res.status(400).json({ success: false, message: "Only inactive vendors can reactivate their accounts." });
     }
 

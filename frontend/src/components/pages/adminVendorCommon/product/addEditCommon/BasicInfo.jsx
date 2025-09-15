@@ -1,6 +1,6 @@
 import { FiExternalLink } from "react-icons/fi";
 import InputField from "../../../../common/InputField";
-import { addProductFields } from "../../../vendor/vendorProducts/data/addProductFields";
+import { addProductFields } from "../data/addProductFields";
 import StepperControls from "../../../../common/StepperControls";
 
 const BasicInfo = ({
@@ -9,7 +9,7 @@ const BasicInfo = ({
   nextStep,
   prevStep,
   handleInputChange,
-  isEditing,
+  isEditing = true,
   showStepper = true,
 }) => {
   return (
@@ -51,7 +51,7 @@ const BasicInfo = ({
         ))}
       </div>
 
-      {!isEditing && showStepper && (
+      {isEditing && showStepper && (
         <StepperControls
           currentStep={step}
           onNext={nextStep}

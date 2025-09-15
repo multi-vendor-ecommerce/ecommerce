@@ -1,11 +1,22 @@
 import InputField from "../../../../common/InputField";
-import { addProductFields } from "../../../vendor/vendorProducts/data/addProductFields";
+import { addProductFields } from "../data/addProductFields";
 import CustomSelect from "../../../../common/layout/CustomSelect";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { FaCheck } from "react-icons/fa";
 import StepperControls from "../../../../common/StepperControls";
 
-const ProductDetails = ({ formData, handleInputChange, step = 4, nextStep, prevStep, setFormData, loading, handleSubmit, isEditing, showStepper = true }) => {
+const ProductDetails = ({
+  formData,
+  handleInputChange,
+  step = 4,
+  nextStep,
+  prevStep,
+  setFormData,
+  loading,
+  handleSubmit,
+  isEditing = true,
+  showStepper = true
+}) => {
   return (
     <>
       <div className="space-y-4">
@@ -20,34 +31,13 @@ const ProductDetails = ({ formData, handleInputChange, step = 4, nextStep, prevS
               required={field.required}
               value={formData[field.name] || ""}
               onChange={handleInputChange}
-              disabled={!isEditing} // <-- use isEditing
+              disabled={!isEditing}
             />
           </div>
         ))}
       </div>
 
-      {["isTaxable", "freeDelivery"].map((field) => (
-        <label key={field} className="flex items-center gap-2 cursor-pointer">
-          <Checkbox.Root
-            id={field}
-            checked={formData[field]}
-            onCheckedChange={(checked) =>
-              setFormData((prev) => ({ ...prev, [field]: checked }))
-            }
-            className={`w-5 h-5 bg-white border-2 border-gray-300 rounded flex items-center justify-center cursor-pointer ${isEditing ? "pointer-events-none opacity-60" : ""}`}
-            disabled={!isEditing}
-          >
-            <Checkbox.Indicator>
-              <FaCheck size={14} className="text-blue-600" />
-            </Checkbox.Indicator>
-          </Checkbox.Root>
-          <span className="text-gray-700">
-            {field.replace(/([A-Z])/g, " $1")}
-          </span>
-        </label>
-      ))}
-
-      <div className="space-y-2">
+      <div className="space-y-2 mt-4">
         <label htmlFor="visibility" className="block font-medium text-gray-700">Visibility</label>
         <CustomSelect
           options={[
@@ -61,7 +51,7 @@ const ProductDetails = ({ formData, handleInputChange, step = 4, nextStep, prevS
         />
       </div>
 
-      {!isEditing && showStepper && (
+      {isEditing && showStepper && (
         <StepperControls
           currentStep={step}
           onNext={nextStep}
@@ -79,7 +69,7 @@ const ProductDetails = ({ formData, handleInputChange, step = 4, nextStep, prevS
         />
       )}
     </>
-  )
+  );
 }
 
 export default ProductDetails;

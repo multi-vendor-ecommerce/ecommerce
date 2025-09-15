@@ -51,8 +51,39 @@ export const addProductFields = {
         text: "Don't know the code? Look up here",
       },
     },
+    {
+      label: "Length (cm)",
+      name: "dimensions.length",
+      placeholder: "e.g., 30",
+      title: "Enter product length in centimeters",
+      type: "number",
+      required: true,
+    },
+    {
+      label: "Width (cm)",
+      name: "dimensions.width",
+      placeholder: "e.g., 15",
+      title: "Enter product width in centimeters",
+      type: "number",
+      required: true,
+    },
+    {
+      label: "Height (cm)",
+      name: "dimensions.height",
+      placeholder: "e.g., 10",
+      title: "Enter product height in centimeters",
+      type: "number",
+      required: true,
+    },
+    {
+      label: "Weight (g)",
+      name: "weight",
+      placeholder: "e.g., 0.5",
+      title: "Enter product weight in grams",
+      type: "number",
+      required: true,
+    },
   ],
-
   4: [
     {
       label: "Description",
