@@ -65,6 +65,10 @@ const useProductUpdate = (product, editProduct, setEditing, getProductById) => {
       } else if (Array.isArray(value) || typeof value === "object") {
         // stringify arrays/objects (colors, sizes, tags, category, etc.)
         payload.append(key, JSON.stringify(value));
+      } else if (key === "dimensions" && typeof value === "object") {
+        payload.append("dimensions", JSON.stringify(value));
+      } else if (key === "weight") {
+        payload.append("weight", Number(value));
       } else {
         payload.append(key, value);
       }

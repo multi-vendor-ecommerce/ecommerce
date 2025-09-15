@@ -72,6 +72,14 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
         <span className="text-sm text-gray-500">({p?.discount ? `${p.discount}%` : "Nil"})</span>
       </td>
 
+      {/* Stock */}
+      <td
+        className="px-6 py-4 min-w-[90px] font-medium hover:scale-105 transition duration-150"
+        title={`${p?.stock ?? 0} units`}
+      >
+        {formatNumber(p?.stock) || 0}
+      </td>
+
       {/* Units sold */}
       <td
         className="px-6 py-4 min-w-[90px] font-medium hover:scale-105 transition duration-150"

@@ -8,6 +8,7 @@ export function validateProductFields(fields, isEdit = false) {
     "category",
     "sku",
     "hsnCode",
+    "stock",
     "gstRate",
     "price",
     "dimensions",
@@ -18,11 +19,12 @@ export function validateProductFields(fields, isEdit = false) {
       if (!fields[field]) errors.push(`${field} is required.`);
     });
     // Check dimensions subfields
-    if (!fields.dimensions ||
-        typeof fields.dimensions !== "object" ||
-        fields.dimensions.length === undefined ||
-        fields.dimensions.width === undefined ||
-        fields.dimensions.height === undefined
+    if (
+      !fields.dimensions ||
+      typeof fields.dimensions !== "object" ||
+      fields.dimensions.length === undefined ||
+      fields.dimensions.width === undefined ||
+      fields.dimensions.height === undefined
     ) {
       errors.push("Dimensions (length, width, height) are required.");
     }
@@ -34,7 +36,7 @@ export function validateProductFields(fields, isEdit = false) {
 
   // Validate price
   if (fields.price !== undefined) {
-    if (isNaN(fields.price) || fields.price < 0) errors.push("Invalid price value.");
+    if (isNaN(fields.price) || fields.price < 0) errors.push("Price must be a non-negative number.");
   }
 
   // Validate discount
@@ -45,7 +47,7 @@ export function validateProductFields(fields, isEdit = false) {
 
   // Validate stock
   if (fields.stock !== undefined) {
-    if (isNaN(fields.stock) || fields.stock < 0) errors.push("Invalid stock value.");
+    if (isNaN(fields.stock) || fields.stock < 0) errors.push("Stock must be a non-negative number.");
   }
 
   // Validate GST rate
@@ -77,7 +79,7 @@ export function validateProductFields(fields, isEdit = false) {
       isNaN(d.width) || d.width < 0 ||
       isNaN(d.height) || d.height < 0
     ) {
-      errors.push("Dimensions must include valid length, width, and height (>= 0).");
+      errors.push("Dimensions must include valid length, width, and height (all non-negative numbers).");
     }
   }
 
@@ -85,44 +87,45 @@ export function validateProductFields(fields, isEdit = false) {
   if (fields.weight !== undefined) {
     if (isNaN(fields.weight) || fields.weight < 0) {
       errors.push("Weight must be a non-negative number.");
-    }
-  }
+    } }
+  }  }
 
   // Colors
   if (fields.colors !== undefined) {
     if (Array.isArray(fields.colors)) {
-      fields.colors = fields.colors.map(c => c.trim().toLowerCase()).filter(Boolean);
+      fields.colors = fields.colors.map(c => c.trim().toLowerCase()).filter(Boolean);().toLowerCase()).filter(Boolean);
     } else if (typeof fields.colors === "string") {
-      fields.colors = fields.colors.split(",").map(c => c.trim().toLowerCase()).filter(Boolean);
+      fields.colors = fields.colors.split(",").map(c => c.trim().toLowerCase()).filter(Boolean);.colors = fields.colors.split(",").map(c => c.trim().toLowerCase()).filter(Boolean);
     } else {
-      errors.push("Colors must be an array or string.");
-    }
-  }
+      errors.push("Colors must be an array or string."); errors.push("Colors must be an array or string.");
+    } }
+  }  }
 
   // Tags
   if (fields.tags !== undefined) {
     if (Array.isArray(fields.tags)) {
-      fields.tags = fields.tags.map(tag => tag.trim().toLowerCase()).filter(Boolean);
+      fields.tags = fields.tags.map(tag => tag.trim().toLowerCase()).filter(Boolean);im().toLowerCase()).filter(Boolean);
     } else if (typeof fields.tags === "string") {
-      fields.tags = fields.tags.split(",").map(tag => tag.trim().toLowerCase()).filter(Boolean);
+      fields.tags = fields.tags.split(",").map(tag => tag.trim().toLowerCase()).filter(Boolean);.tags = fields.tags.split(",").map(tag => tag.trim().toLowerCase()).filter(Boolean);
     } else {
-      errors.push("Tags must be an array or string.");
-    }
-  }
+      errors.push("Tags must be an array or string."); errors.push("Tags must be an array or string.");
+    } }
+  }  }
 
   // Sizes
   if (fields.sizes !== undefined) {
-    const allowedSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "XXXXL", "Free Size"];
+    const allowedSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "XXXXL", "Free Size"];M", "L", "XL", "XXL", "XXXL", "XXXXL", "Free Size"];
     if (Array.isArray(fields.sizes)) {
-      fields.sizes = fields.sizes.map(s => s.replace(/[-_]/g, " ").trim()).filter(Boolean);
+      fields.sizes = fields.sizes.map(s => s.replace(/[-_]/g, " ").trim()).filter(Boolean);ce(/[-_]/g, " ").trim()).filter(Boolean);
     } else if (typeof fields.sizes === "string") {
-      fields.sizes = fields.sizes.split(",").map(s => s.replace(/[-_]/g, " ").trim()).filter(Boolean);
+      fields.sizes = fields.sizes.split(",").map(s => s.replace(/[-_]/g, " ").trim()).filter(Boolean);.sizes = fields.sizes.split(",").map(s => s.replace(/[-_]/g, " ").trim()).filter(Boolean);
     } else {
-      errors.push("Sizes must be an array or string.");
+      errors.push("Sizes must be an array or string."); errors.push("Sizes must be an array or string.");
     }
-    const isValidSizes = fields.sizes.every(size => allowedSizes.includes(size));
-    if (!isValidSizes) errors.push("Invalid size(s) provided.");
-  }
+    const isValidSizes = fields.sizes.every(size => allowedSizes.includes(size));.includes(size));
+    if (!isValidSizes) errors.push("Invalid size(s) provided."); if (!isValidSizes) errors.push("Invalid size(s) provided.");
+  }  }
 
-  return errors;
-}
+  return errors; return errors;
+
+}}

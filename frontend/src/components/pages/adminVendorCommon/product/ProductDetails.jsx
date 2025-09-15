@@ -7,10 +7,11 @@ import { FiEdit } from "react-icons/fi";
 import { getProfileCardData } from "./data/productStatCards";
 import BackButton from "../../../common/layout/BackButton";
 import { toTitleCase } from "../../../../utils/titleCase";
-import { formatNumber } from "../../../../utils/formatNumber";
+import PersonContext from "../../../../context/person/PersonContext";
 
 const ProductDetails = ({ role = "admin" }) => {
   const { productId } = useParams();
+  const { person } = useContext(PersonContext);
   const { getProductById, loading } = useContext(ProductContext);
   const [product, setProduct] = useState(null);
 
@@ -34,6 +35,12 @@ const ProductDetails = ({ role = "admin" }) => {
   if (!product) {
     return <div className="text-center mt-10 text-red-600">Product not found.</div>;
   }
+
+  const productAttributes = [
+    { label: "Tags", key: "tags" },
+    { label: "Colors", key: "colors" },
+    { label: "Sizes", key: "sizes" },
+  ];
 
   return (
     <section className="p-6 bg-gray-50 min-h-screen">
@@ -73,35 +80,70 @@ const ProductDetails = ({ role = "admin" }) => {
 
       {/* Extra Info */}
       <div className="bg-white p-5 mt-8 rounded-xl shadow-md border border-gray-200 hover:shadow-blue-500 transition duration-200">
-        <h3 className="text-lg font-semibold mb-2 text-gray-700">Details</h3>
-        <ul className="text-gray-600 space-y-2">
-          <li><strong>SKU:</strong> {product.sku || "N/A"}</li>
-          <li><strong>GST Rate:</strong> {product.gstRate || "N/A"}</li>
-          <li><strong>Tags:</strong>{" "}
-            {product.tags?.length > 0 ? (
-              product.tags.map((tag, index) => (
-                <span key={index} className="inline-block bg-gray-200 rounded-lg px-2 py-0.5 mr-2">{toTitleCase(tag)}</span>
-              ))
-            ) : (
-              "No tags available"
+        <h3 className="text-lg font-semibold mb-4 text-gray-700">Details</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          <ul className="text-gray-600">
+            <li><span className="font-semibold my-1">SKU:</span> {product.sku || "N/A"}</li>
+            <li><span className="font-semibold my-1">Brand:</span> {product.brand || "N/A"}</li>
+            <li><span className="font-semibold my-1">GST Rate:</span> {product.gstRate ? `${product.gstRate}%` : "N/A"}</li>
+            <li>
+              <span className="font-semibold my-1">Dimensions (L x W x H):</span>{" "}
+              {product.dimensions
+                ? `${product?.dimensions?.length || "?"} x ${product?.dimensions?.width || "?"} x ${product?.dimensions?.height || "?"} cm`
+                : "N/A"}
+            </li>
+
+            <li>
+              <span className="font-semibold my-1">Weight:</span>{" "}
+              {product?.weight ? `${product.weight} g` : "N/A"}
+            </li>
+
+            {person?.role === "admin" && (
+              <li className="col-span-1 md:col-span-2">
+                <span className="font-semibold my-1">Created By:</span>
+                <NavLink
+                  to={`/admin/vendor/profile/${product.createdBy?._id}`}
+                  className="text-blue-500 ml-2 hover:underline"
+                >
+                  {toTitleCase(product.createdBy?.name) || "Unknown"} (
+                  {toTitleCase(product.createdBy?.shopName) || "Unknown"})
+                </NavLink>
+              </li>
             )}
-          </li>
-          <li><strong>Colors:</strong>{" "}
-            {product.colors?.length > 0 ? (
-              product.colors.map((color, index) => (
-                <span key={index} className="inline-block bg-gray-200 rounded-lg px-2 py-0.5 mr-2">{toTitleCase(color)}</span>
-              ))
-            ) : (
-              "No colors available"
-            )}
-          </li>
-          <li>
-            <strong>Created By:</strong>
-            <NavLink to={`/admin/vendor/profile/${product.createdBy?._id}`} className="text-blue-500 ml-2 hover:underline">
-              {toTitleCase(product.createdBy?.name) || "Unknown"} ({toTitleCase(product.createdBy?.shopName) || "Unknown"})
-            </NavLink>
-          </li>
-        </ul>
+          </ul>
+
+          <ul className="text-gray-600">
+            {productAttributes.map(({ label, key }) => (
+              <li key={key}>
+                <strong>{label}:</strong>{" "}
+                {product[key]?.length > 0 ? (
+                  product[key].map((item, index) => (
+                    <span
+                      key={index}
+                      className="inline-block bg-gray-200 rounded-lg px-2 py-[1px] my-1"
+                    >
+                      {label === "Sizes" ? item : toTitleCase(item)}
+                    </span>
+                  ))
+                ) : (
+                  `No ${label.toLowerCase()} available`
+                )}
+              </li>
+            ))}
+
+            <li>
+              <strong>Dimensions (L × W × H):</strong>{" "}
+              {product.dimensions
+                ? `${product?.dimensions?.length || "?"} × ${product?.dimensions?.width || "?"} × ${product?.dimensions?.height || "?"} cm`
+                : "N/A"}
+            </li>
+
+            <li>
+              <strong>Weight:</strong>{" "}
+              {product?.weight ? `${product.weight} g` : "N/A"}
+            </li>
+          </ul>
+        </div>
       </div>
 
       {/* Description */}

@@ -19,8 +19,12 @@ const AddProduct = () => {
   const [formData, setFormData] = useState({
     title: "", brand: "", tags: "", colors: "", size: "", sku: "",
     hsnCode: "", gstRate: "", description: "", price: "", discount: "",
-    stock: "", isTaxable: true, freeDelivery: false,
-    visibility: "public", category: ""
+    stock: "", visibility: "public", category: "",
+    // Add dimensions and weight fields
+    "dimensions.length": "",
+    "dimensions.width": "",
+    "dimensions.height": "",
+    weight: "",
   });
 
   const handleInputChange = (e) => {
@@ -63,8 +67,8 @@ const AddProduct = () => {
     }
 
     if (step === 3) {
-      const { title, sku, hsnCode } = formData;
-      if (!title.trim() || !sku.trim() || !hsnCode.trim()) {
+      const { title, sku, hsnCode, "dimensions.height": height, "dimensions.length": length, "dimensions.width": width, weight } = formData;
+      if (!title.trim() || !sku.trim() || !hsnCode.trim() || !length.trim() || !width.trim() || !height.trim() || !weight.trim()) {
         toast.error("Please fill all required fields.");
         return;
       }
@@ -91,7 +95,7 @@ const AddProduct = () => {
     const submitData = new FormData();
 
     Object.entries(formData).forEach(([key, value]) => {
-      if (!["tags", "colors", "size"].includes(key)) {
+      if (!["tags", "colors", "size", "dimensions.length", "dimensions.width", "dimensions.height", "weight"].includes(key)) {
         submitData.append(key, value);
       }
     });
@@ -107,6 +111,16 @@ const AddProduct = () => {
       } else appendCommaSeparatedToFormData(submitData, key, value);
     });
 
+    // Add dimensions as an object
+    submitData.append("dimensions", JSON.stringify({
+      length: Number(formData["dimensions.length"]),
+      width: Number(formData["dimensions.width"]),
+      height: Number(formData["dimensions.height"]),
+    }));
+
+    // Add weight as a number
+    submitData.append("weight", Number(formData.weight));
+
     images.forEach((img) => submitData.append("images", img));
 
     try {
@@ -117,8 +131,12 @@ const AddProduct = () => {
         setFormData({
           title: "", brand: "", tags: "", colors: "", size: "", sku: "",
           hsnCode: "", gstRate: "", description: "", price: "", discount: "",
-          stock: "", isTaxable: true, freeDelivery: false,
-          visibility: "public", category: ""
+          stock: "", isTaxable: true,
+          visibility: "public", category: "",
+          "dimensions.length": "",
+          "dimensions.width": "",
+          "dimensions.height": "",
+          weight: "",
         });
         setImages([]);
         setSelectedCategories([]);

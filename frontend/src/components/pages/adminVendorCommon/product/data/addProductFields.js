@@ -58,6 +58,7 @@ export const addProductFields = {
       title: "Enter product length in centimeters",
       type: "number",
       required: true,
+      min: 0, // Prevent negative numbers
     },
     {
       label: "Width (cm)",
@@ -66,6 +67,7 @@ export const addProductFields = {
       title: "Enter product width in centimeters",
       type: "number",
       required: true,
+      min: 0,
     },
     {
       label: "Height (cm)",
@@ -74,6 +76,7 @@ export const addProductFields = {
       title: "Enter product height in centimeters",
       type: "number",
       required: true,
+      min: 0,
     },
     {
       label: "Weight (g)",
@@ -82,6 +85,7 @@ export const addProductFields = {
       title: "Enter product weight in grams",
       type: "number",
       required: true,
+      min: 0,
     },
   ],
   4: [
@@ -100,6 +104,7 @@ export const addProductFields = {
       title: "Enter product price",
       type: "number",
       required: true,
+      min: 0,
     },
     {
       label: "Discount",
@@ -107,6 +112,7 @@ export const addProductFields = {
       placeholder: "Enter discount (%)",
       title: "Enter product discount",
       type: "number",
+      min: 0,
     },
     {
       label: "Stock",
@@ -115,6 +121,7 @@ export const addProductFields = {
       title: "Enter product stock quantity",
       type: "number",
       required: true,
+      min: 0,
     },
     {
       label: "GST Rate",

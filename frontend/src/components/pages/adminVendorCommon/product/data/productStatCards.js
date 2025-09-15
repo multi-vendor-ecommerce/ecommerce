@@ -6,6 +6,7 @@ import {
   FaStore,
   FaCheckCircle,
   FaTimesCircle,
+  FaKey
 } from "react-icons/fa";
 import { toTitleCase } from "../../../../../utils/titleCase";
 import { formatNumber } from "../../../../../utils/formatNumber";
@@ -17,6 +18,13 @@ export const getProfileCardData = (product) => [
     value: toTitleCase(product.title) || "Unknown",
     bg: "bg-blue-100",
     shadow: "hover:shadow-blue-500",
+  },
+  {
+    icon: FaKey,
+    label: "HSN Code",
+    value: toTitleCase(product.hsnCode) || "Unknown",
+    bg: "bg-[#3E1E68]/20",
+    shadow: "hover:shadow-[#3E1E68]",
   },
   {
     icon: FaTag,
@@ -33,13 +41,6 @@ export const getProfileCardData = (product) => [
     shadow: "hover:shadow-pink-500",
   },
   {
-    icon: product.status === "approved" ? FaCheckCircle : FaTimesCircle,
-    label: "Status",
-    value: toTitleCase(product.status) || "N/A",
-    bg: "bg-red-100",
-    shadow: "hover:shadow-red-500",
-  },
-  {
     icon: FaWarehouse,
     label: "Units Sold",
     value: formatNumber(product.unitsSold ?? 0),
@@ -52,6 +53,13 @@ export const getProfileCardData = (product) => [
     value: `₹${formatNumber((product.unitsSold ?? 0) * (product.price ?? 0))}`,
     bg: "bg-green-100",
     shadow: "hover:shadow-green-500",
+  },
+  {
+    icon: product.status === "approved" ? FaCheckCircle : FaTimesCircle,
+    label: "Status",
+    value: toTitleCase(product.status) || "N/A",
+    bg: "bg-red-100",
+    shadow: "hover:shadow-red-500",
   },
   {
     icon: FaTag,
