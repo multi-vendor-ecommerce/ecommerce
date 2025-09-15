@@ -114,6 +114,19 @@ const Profile = () => {
                 />
               );
             })}
+            {/* GST Number only for vendor */}
+            {person?.role === "vendor" && (
+              <InputField
+                label="GST Number"
+                title="Can't change GST Number"
+                name="gstNumber"
+                type="text"
+                placeholder="Enter your GST Number"
+                value={form.gstNumber || ""}
+                onChange={handleChange}
+                disabled={true}
+              />
+            )}
           </div>
         </div>
       </div>

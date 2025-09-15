@@ -30,37 +30,43 @@ export const editPerson = async (req, res) => {
       return res.status(404).json({ success: false, message: "Profile not found." });
     }
 
+    // Only allow these fields to be edited for all roles
+    const allowedFields = [
+      "name", "profileImage", "profileImageId",
+      "address.recipientName", "address.recipientPhone",
+      "address.line1", "address.line2", "address.locality",
+      "address.city", "address.state", "address.country", "address.pincode",
+      "address.geoLocation.lat", "address.geoLocation.lng"
+    ];
+
     const update = {};
 
-    // Helper to set nested fields
-    const setNestedValue = (obj, path, value) => {
-      const keys = path.split(".");
-      let current = obj;
-      for (let i = 0; i < keys.length - 1; i++) {
-        if (!current[keys[i]]) current[keys[i]] = {};
-        current = current[keys[i]];
+    // Helper to set nested fields only if allowed
+    const setNestedValueIfAllowed = (obj, path, value) => {
+      if (allowedFields.includes(path)) {
+        const keys = path.split(".");
+        let current = obj;
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (!current[keys[i]]) current[keys[i]] = {};
+          current = current[keys[i]];
+        }
+        current[keys[keys.length - 1]] = value;
       }
-      current[keys[keys.length - 1]] = value;
     };
 
-    // Iterate over req.body keys and set them in update object
+    // Traverse req.body and set only allowed fields
     const traverse = (obj, prefix = "") => {
       for (const key in obj) {
         const path = prefix ? `${prefix}.${key}` : key;
         if (obj[key] !== null && typeof obj[key] === "object" && !Array.isArray(obj[key])) {
           traverse(obj[key], path);
         } else {
-          setNestedValue(update, path, obj[key]);
+          setNestedValueIfAllowed(update, path, obj[key]);
         }
       }
     };
 
     traverse(req.body);
-
-    const forbiddenFields = ["_id", "role", "email", "createdAt"];
-    for (const field of forbiddenFields) {
-      delete update[field];
-    }
 
     if (Object.keys(update).length === 0) {
       return res.status(400).json({ success: false, message: "No valid fields to update." });

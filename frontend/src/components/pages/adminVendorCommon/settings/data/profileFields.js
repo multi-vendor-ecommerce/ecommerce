@@ -16,6 +16,13 @@ export const profileSections = [
         type: "email", 
         placeholder: "abc@example.com" 
       },
+      { 
+        label: "Phone Number", 
+        title: "Enter your phone number", 
+        name: "phone", 
+        type: "text", 
+        placeholder: "Enter your phone number" 
+      },
     ],
   },
   {
