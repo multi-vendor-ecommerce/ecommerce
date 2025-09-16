@@ -8,6 +8,7 @@ import { validateProductFields } from "../utils/validateProductFields.js";
 import { mergeImages } from "../utils/mergeImages.js";
 import cloudinary from "../config/cloudinary.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
+import { splitAndClean } from "../utils/splitAndClean.js";
 
 // Helper to validate ObjectId
 function isValidObjectId(id) {
@@ -231,70 +232,22 @@ export const addProduct = async (req, res) => {
       dimensions, weight, tags, video, colors, sizes
     } = req.body;
 
-    // Validate category ObjectId
     if (!isValidObjectId(category)) {
       return res.status(400).json({ success: false, message: "Invalid category ID." });
     }
 
-    // Validate and sanitize SKU
     sku = sku ? sku.replace(/[^A-Za-z0-9_-]/g, "") : "";
-
-    // Validate and sanitize price, discount, stock, gstRate, weight
     price = Number(price);
     discount = Number(discount);
     stock = Number(stock);
     gstRate = Number(gstRate);
     weight = Number(weight);
 
-    // Validate product fields
-    const productFields = {
-      title, brand, description, category, specifications, price,
-      discount, stock, sku, hsnCode, gstRate,
-      dimensions, weight, tags, video, colors, sizes
-    };
+    // Normalize arrays
+    tags = splitAndClean(tags);
+    colors = splitAndClean(colors);
+    sizes = splitAndClean(sizes, "upper");
 
-    // Images handling (if using file uploads)
-    const images =
-      req.files?.map(file => ({
-        url: file.path,
-        public_id: file.filename || file.public_id
-      })) || [];
-
-    productFields.images = images;
-
-    const errors = validateProductFields(productFields, false);
-    if (errors.length > 0) {
-      return res.status(400).json({ success: false, message: errors.join(" ") });
-    }
-
-    // === Formatting ===
-    title = toTitleCase(title.trim());
-    brand = toTitleCase(brand.trim());
-    sku = sku.trim().toUpperCase();
-    hsnCode = hsnCode.trim();
-    description = description?.trim() || "";
-
-    colors = Array.isArray(colors)
-      ? [...new Set(colors.map(c => c.trim().toLowerCase()).filter(Boolean))]
-      : [];
-
-    sizes = Array.isArray(sizes)
-      ? [...new Set(sizes.map(s => toTitleCase(s.replace(/[-_]/g, " ").trim())).filter(Boolean))]
-      : [];
-
-    if (typeof specifications === "string") {
-      try {
-        specifications = JSON.parse(specifications);
-      } catch {
-        specifications = {};
-      }
-    }
-
-    if (tags && Array.isArray(tags)) {
-      tags = [...new Set(tags.map(tag => tag.trim().toLowerCase()).filter(Boolean))];
-    }
-
-    // Parse dimensions if string
     if (typeof dimensions === "string") {
       try {
         dimensions = JSON.parse(dimensions);
@@ -303,10 +256,28 @@ export const addProduct = async (req, res) => {
       }
     }
 
-    // Parse weight if string
-    if (typeof weight === "string") {
-      weight = Number(weight);
+    const images =
+      req.files?.map(file => ({
+        url: file.path,
+        public_id: file.filename || file.public_id
+      })) || [];
+
+    const productFields = {
+      title, brand, description, category, specifications, price,
+      discount, stock, sku, hsnCode, gstRate,
+      dimensions, weight, tags, video, colors, sizes, images
+    };
+
+    const { isValid, errors } = validateProductFields(productFields, false);
+    if (!isValid) {
+      return res.status(400).json({ success: false, message: errors.join(" ") });
     }
+
+    title = toTitleCase(title.trim());
+    brand = toTitleCase(brand.trim());
+    sku = sku.trim().toUpperCase();
+    hsnCode = hsnCode.trim();
+    description = description?.trim() || "";
 
     const existing = await Product.findOne({ sku: sku.trim().toUpperCase() });
     if (existing) {
@@ -321,27 +292,21 @@ export const addProduct = async (req, res) => {
       images,
       video: video || null,
       category,
-      specifications: specifications || {},
       price: Number(price),
       discount: discount ? Math.floor(discount) : 0,
       stock: stock ? Number(stock) : 0,
       sku,
       hsnCode,
       gstRate: Number(gstRate),
-      tags: tags || [],
+      tags,
       colors,
       sizes,
       dimensions: dimensions || {},
       weight: weight !== undefined ? Number(weight) : 0,
     });
 
-    // Update vendor's productQuantity
-    await Vendor.findByIdAndUpdate(
-      req.person.id,
-      { $inc: { productQuantity: 1 } }
-    );
+    await Vendor.findByIdAndUpdate(req.person.id, { $inc: { productQuantity: 1 } });
 
-    // Send email to vendor and admin after product is added
     await safeSendMail(sendProductAddedMail, {
       to: req.person.email,
       productName: newProduct.title,
@@ -350,17 +315,13 @@ export const addProduct = async (req, res) => {
 
     await safeSendMail(sendProductAddedAdminMail, {
       to: process.env.ADMIN_EMAIL,
-      vendorName: req.person.name,
-      vendorShop: req.person.ShopName,
-      vendorEmail: req.person.email,
+      vendorName: req.person?.name,
+      vendorShop: req.person?.shopName,
+      vendorEmail: req.person?.email,
       productName: newProduct.title,
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Product added.",
-      product: newProduct
-    });
+    res.status(201).json({ success: true, message: "Product added.", product: newProduct });
   } catch (err) {
     console.error("Add Product Error:", err);
     res.status(500).json({ success: false, message: "Unable to add product.", error: err.message });
@@ -368,7 +329,7 @@ export const addProduct = async (req, res) => {
 };
 
 // ==========================
-// Edit product (admin & vendor)
+// Edit product
 // ==========================
 export const editProduct = async (req, res) => {
   try {
@@ -387,7 +348,6 @@ export const editProduct = async (req, res) => {
       return res.status(403).json({ success: false, message: "Access denied." });
     }
 
-    // 🔹 Build update object
     const update = {};
     const allowedVendorFields = [
       "title", "brand", "description", "images", "video",
@@ -399,7 +359,6 @@ export const editProduct = async (req, res) => {
       if (isAdmin || allowedVendorFields.includes(key)) update[key] = req.body[key];
     });
 
-    // 🔹 Parse JSON fields
     const parseIfJson = (val) => {
       if (typeof val === "string") {
         try { return JSON.parse(val); } catch { return val; }
@@ -408,29 +367,21 @@ export const editProduct = async (req, res) => {
     };
 
     update.category = parseIfJson(update.category);
-    update.colors = parseIfJson(update.colors);
-    update.sizes = parseIfJson(update.sizes);
-    update.tags = parseIfJson(update.tags);
+    update.colors = splitAndClean(parseIfJson(update.colors));
+    update.sizes = splitAndClean(parseIfJson(update.sizes), "upper");
+    update.tags = splitAndClean(parseIfJson(update.tags));
     update.dimensions = parseIfJson(update.dimensions);
 
-    // Convert category object to ObjectId string if needed
     if (update.category && typeof update.category === "object" && update.category._id) {
       update.category = update.category._id;
     }
 
-    // 🔹 Trim/format
     if (update.title) update.title = update.title.trim();
     if (update.brand) update.brand = update.brand.trim();
     if (update.sku) update.sku = update.sku.trim().toUpperCase();
     if (update.hsnCode) update.hsnCode = update.hsnCode.trim();
     if (update.description) update.description = update.description?.trim();
 
-    // Arrays formatting
-    if (Array.isArray(update.colors)) update.colors = [...new Set(update.colors.map(c => c.trim().toLowerCase()).filter(Boolean))];
-    if (Array.isArray(update.sizes)) update.sizes = [...new Set(update.sizes.map(s => s.replace(/[-_]/g, " ").trim()).filter(Boolean))];
-    if (Array.isArray(update.tags)) update.tags = [...new Set(update.tags.map(t => t.trim().toLowerCase()).filter(Boolean))];
-
-    // Validate and sanitize fields before update
     if (update.sku) update.sku = update.sku.replace(/[^A-Za-z0-9_-]/g, "");
     if (update.price !== undefined) update.price = Number(update.price);
     if (update.discount !== undefined) update.discount = Number(update.discount);
@@ -438,23 +389,26 @@ export const editProduct = async (req, res) => {
     if (update.gstRate !== undefined) update.gstRate = Number(update.gstRate);
     if (update.weight !== undefined) update.weight = Number(update.weight);
 
-    // Validate category ObjectId if present
     if (update.category && !isValidObjectId(update.category)) {
       return res.status(400).json({ success: false, message: "Invalid category ID." });
     }
 
-    // 🔹 Validation
-    const errors = validateProductFields(update, true);
-    if (errors.length > 0) return res.status(400).json({ success: false, message: errors.join(" ") });
+    // ✅ Prevent overwriting createdBy
+    if (update.createdBy) {
+      delete update.createdBy;
+    }
 
-    // 🔹 Handle image updates
+    const { isValid, errors } = validateProductFields(update, true);
+    if (!isValid) {
+      return res.status(400).json({ success: false, message: errors.join(" ") });
+    }
+
     const mergedImages = mergeImages(req);
     if (mergedImages.length > 0) update.images = mergedImages;
 
-    // 🔹 STATUS & EMAIL LOGIC
     if (isVendor) {
       if (product.status === "rejected") {
-        update.status = "pending"; // back for admin review
+        update.status = "pending";
         await safeSendMail(sendVendorResubmittedProductMail, {
           to: process.env.ADMIN_EMAIL,
           productName: product.title,
@@ -463,7 +417,6 @@ export const editProduct = async (req, res) => {
           vendorShop: product.createdBy.shopName
         });
       }
-      // approved product edited → no email
     }
 
     if (isAdmin && update.status) {
@@ -482,7 +435,6 @@ export const editProduct = async (req, res) => {
       });
     }
 
-    // 🔹 Save updates
     product = await Product.findByIdAndUpdate(productId, update, { new: true, runValidators: true })
       .populate("createdBy", "email name shopName");
 
@@ -492,6 +444,7 @@ export const editProduct = async (req, res) => {
     res.status(500).json({ success: false, message: "Unable to update product." });
   }
 };
+
 
 // ==========================
 // Delete product (admin & vendor)
@@ -629,8 +582,8 @@ export const updateProductStatus = async (req, res) => {
           product.images.map(img =>
             img.public_id
               ? cloudinary.uploader.destroy(img.public_id).catch(err => {
-                  console.error("Cloudinary deletion failed:", img.public_id, err);
-                })
+                console.error("Cloudinary deletion failed:", img.public_id, err);
+              })
               : null
           )
         );

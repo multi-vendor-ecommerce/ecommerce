@@ -31,10 +31,10 @@ const useProductUpdate = (product, editProduct, setEditing, getProductById) => {
       return;
     }
 
-    // Build diff object (only changed fields)
+    // === Build diff object (exclude createdBy) ===
     const diff = {};
     Object.keys(form).forEach((key) => {
-      if (form[key] !== product[key]) {
+      if (form[key] !== product[key] && key !== "createdBy") {
         diff[key] = form[key];
       }
     });
@@ -60,10 +60,8 @@ const useProductUpdate = (product, editProduct, setEditing, getProductById) => {
           }
         });
       } else if (["tags", "colors", "sizes"].includes(key) && typeof value === "string") {
-        // Use utility to append comma-separated values
         appendCommaSeparatedToFormData(payload, key, value);
       } else if (Array.isArray(value) || typeof value === "object") {
-        // stringify arrays/objects (colors, sizes, tags, category, etc.)
         payload.append(key, JSON.stringify(value));
       } else if (key === "dimensions" && typeof value === "object") {
         payload.append("dimensions", JSON.stringify(value));

@@ -107,8 +107,12 @@ const AddProduct = () => {
     ].forEach(({ key, formKey }) => {
       const value = formData[formKey];
       if (value && value.trim()) {
-        if (!value.includes(",")) submitData.append(key, value.trim());
-      } else appendCommaSeparatedToFormData(submitData, key, value);
+        if (!value.includes(",")) {
+          submitData.append(key, value.trim());
+        } else {
+          appendCommaSeparatedToFormData(submitData, key, value);
+        }
+      }
     });
 
     // Add dimensions as an object

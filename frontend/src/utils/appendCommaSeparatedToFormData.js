@@ -8,7 +8,7 @@ export function appendCommaSeparatedToFormData(formData, key, value) {
   if (!value) return;
   value
     .split(",")
-    .map((v) => v.trim())
+    .map((v) => v.trim().toLowerCase())
     .filter((v) => v)
     .forEach((v) => formData.append(key, v));
 }

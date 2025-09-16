@@ -92,10 +92,9 @@ const ProductDetails = ({ role = "admin" }) => {
                 ? `${product?.dimensions?.length || "?"} x ${product?.dimensions?.width || "?"} x ${product?.dimensions?.height || "?"} cm`
                 : "N/A"}
             </li>
-
             <li>
               <span className="font-semibold my-1">Weight:</span>{" "}
-              {product?.weight ? `${product.weight} g` : "N/A"}
+              {product?.weight ? `${(product.weight).toLocaleString()} g` : "N/A"}
             </li>
 
             {person?.role === "admin" && (
@@ -120,7 +119,7 @@ const ProductDetails = ({ role = "admin" }) => {
                   product[key].map((item, index) => (
                     <span
                       key={index}
-                      className="inline-block bg-gray-200 rounded-lg px-2 py-[1px] my-1"
+                      className="inline-block bg-gray-200 rounded-lg px-2 py-[1px] my-1 mx-1 text-sm"
                     >
                       {label === "Sizes" ? item : toTitleCase(item)}
                     </span>
@@ -130,18 +129,6 @@ const ProductDetails = ({ role = "admin" }) => {
                 )}
               </li>
             ))}
-
-            <li>
-              <strong>Dimensions (L × W × H):</strong>{" "}
-              {product.dimensions
-                ? `${product?.dimensions?.length || "?"} × ${product?.dimensions?.width || "?"} × ${product?.dimensions?.height || "?"} cm`
-                : "N/A"}
-            </li>
-
-            <li>
-              <strong>Weight:</strong>{" "}
-              {product?.weight ? `${product.weight} g` : "N/A"}
-            </li>
           </ul>
         </div>
       </div>
