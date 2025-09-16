@@ -1,6 +1,19 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
+// Only allow these fields to be updated
+const allowedFields = [
+  "profileImage", "profileImageId",
+  "address.recipientName", "address.recipientPhone",
+  "address.line1", "address.line2", "address.locality",
+  "address.city", "address.state", "address.country", "address.pincode",
+  "address.geoLocation.lat", "address.geoLocation.lng",
+  "commissionRate"
+];
+
+// Required fields for validation
+const requiredFields = ["commissionRate"];
+
 const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
   const [form, setForm] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -8,12 +21,21 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
   // Track if there are changes between form and person
   const hasChanges = form && JSON.stringify(form) !== JSON.stringify(person);
 
-  // Add required fields here
-  const requiredFields = ["commissionRate", "gstNumber"];
-
   // Check for empty required fields
   const hasEmptyRequired = form
-    ? requiredFields.some((field) => !form[field] || form[field].toString().trim() === "")
+    ? requiredFields.some((field) => {
+      // Handle nested fields
+      if (field.includes(".")) {
+        const keys = field.split(".");
+        let value = form;
+        for (const k of keys) {
+          value = value?.[k];
+          if (value === undefined) break;
+        }
+        return !value || value.toString().trim() === "";
+      }
+      return !form[field] || form[field].toString().trim() === "";
+    })
     : false;
 
   useEffect(() => {
@@ -42,6 +64,41 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
     });
   };
 
+  // Only include allowed fields that actually changed
+  const filterAllowedDiff = (diffObj) => {
+    const filtered = {};
+    const traverse = (obj, prefix = "") => {
+      for (const key in obj) {
+        const path = prefix ? `${prefix}.${key}` : key;
+        if (allowedFields.includes(path)) {
+          filtered[path] = obj[key];
+        } else if (
+          obj[key] !== null &&
+          typeof obj[key] === "object" &&
+          !Array.isArray(obj[key])
+        ) {
+          traverse(obj[key], path);
+        }
+      }
+    };
+    traverse(diffObj);
+    // Convert flat paths to nested object
+    const result = {};
+    Object.entries(filtered).forEach(([path, value]) => {
+      const keys = path.split(".");
+      let curr = result;
+      keys.forEach((k, i) => {
+        if (i === keys.length - 1) {
+          curr[k] = value;
+        } else {
+          if (!curr[k]) curr[k] = {};
+          curr = curr[k];
+        }
+      });
+    });
+    return result;
+  };
+
   // Save changes
   const handleSave = async () => {
     if (!form || !hasChanges) {
@@ -60,7 +117,11 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
     const compareObjects = (orig, updated, path = "") => {
       Object.keys(updated).forEach((key) => {
         const fullPath = path ? `${path}.${key}` : key;
-        if (typeof updated[key] === "object" && updated[key] !== null && !Array.isArray(updated[key])) {
+        if (
+          typeof updated[key] === "object" &&
+          updated[key] !== null &&
+          !Array.isArray(updated[key])
+        ) {
           compareObjects(orig?.[key] || {}, updated[key], fullPath);
         } else if (orig?.[key] !== updated[key]) {
           const keys = fullPath.split(".");
@@ -79,14 +140,17 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
 
     compareObjects(person, form);
 
+    // Filter only allowed fields
+    const allowedDiff = filterAllowedDiff(diff);
+
     setIsLoading(true);
 
     try {
       let res;
       if (editPerson.length >= 2) {
-        res = await editPerson(person._id, diff);
+        res = await editPerson(person._id, allowedDiff);
       } else {
-        res = await editPerson(diff);
+        res = await editPerson(allowedDiff);
       }
 
       if (res.success) {

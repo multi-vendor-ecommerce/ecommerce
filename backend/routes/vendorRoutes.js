@@ -12,6 +12,20 @@ export const editStoreValidator = [
   body("shopName").optional().trim().escape().isLength({ min: 6 }).withMessage("Shop name must be at least 6 characters")
 ];
 
+export const editVendorValidator = [
+  body("commissionRate").optional({ nullable: true }).isFloat({ min: 0, max: 100 }).withMessage("Commission Rate must be a number between 0 and 100"),
+  body("address.line1").optional({ nullable: true }).isLength({ min: 3 }).withMessage("Address Line 1 must be at least 3 characters"),
+  body("address.city").optional({ nullable: true }).notEmpty().withMessage("City is required"),
+  body("address.state").optional({ nullable: true }).notEmpty().withMessage("State is required"),
+  body("address.pincode").optional({ nullable: true }).matches(/^[1-9][0-9]{5}$/).withMessage("Pincode must be a valid 6-digit number"),
+  body("address.locality").optional({ nullable: true }).trim().escape(),
+  body("address.line2").optional({ nullable: true }).trim().escape(),
+  body("address.recipientName").optional({ nullable: true }).trim().escape(),
+  body("address.recipientPhone").optional({ nullable: true }).isMobilePhone(),
+  body("address.geoLocation.lat").optional({ nullable: true }).isFloat().withMessage("Latitude must be a valid number"),
+  body("address.geoLocation.lng").optional({ nullable: true }).isFloat().withMessage("Longitude must be a valid number"),
+];
+
 // For shop logo images (single)
 const uploadShopLogo = upload({ folder: "shopLogos", prefix: "shopLogo", fixedPublicId: (req) => `shopLogo-${req.person.id}` });
 
@@ -41,7 +55,6 @@ router.get("/:id", verifyToken, authorizeRoles("admin"), getVendorById);
 
 // ROUTE 7: PUT /api/vendors/:id
 // Desc: Admin edit vendor details (admin only)
-router.put("/:id", verifyToken, authorizeRoles("admin"), adminEditVendor);
-
+router.put("/:id", verifyToken, authorizeRoles("admin"), editVendorValidator, validate, adminEditVendor);
 
 export default router;

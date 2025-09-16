@@ -2,6 +2,7 @@ import Person from "../models/Person.js";
 import bcrypt from "bcryptjs";
 import { deleteImage } from "./imageController.js";
 import Vendor from "../models/Vendor.js";
+import { setNestedValueIfAllowed } from "../utils/setNestedValueIfAllowed.js";
 
 // ==========================
 // Get Current Person
@@ -40,19 +41,6 @@ export const editPerson = async (req, res) => {
     ];
 
     const update = {};
-
-    // Helper to set nested fields only if allowed
-    const setNestedValueIfAllowed = (obj, path, value) => {
-      if (allowedFields.includes(path)) {
-        const keys = path.split(".");
-        let current = obj;
-        for (let i = 0; i < keys.length - 1; i++) {
-          if (!current[keys[i]]) current[keys[i]] = {};
-          current = current[keys[i]];
-        }
-        current[keys[keys.length - 1]] = value;
-      }
-    };
 
     // Traverse req.body and set only allowed fields
     const traverse = (obj, prefix = "") => {

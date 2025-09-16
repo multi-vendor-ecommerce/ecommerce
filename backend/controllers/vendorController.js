@@ -3,6 +3,7 @@ import Product from "../models/Products.js"; // Add this import at the top
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 import { sendVendorStatusMail, sendVendorApprovalStatusMail, sendVendorProfileUpdatedMail } from "../services/email/sender.js";
+import { setNestedValueIfAllowed } from "../utils/setNestedValueIfAllowed.js";
 
 // ==========================
 // Get all vendors (paginated)
@@ -219,36 +220,45 @@ export const updateVendorStatus = async (req, res) => {
 // Admin Edit Vendor
 // ==========================
 export const adminEditVendor = async (req, res) => {
-  const { commissionRate, gstNumber } = req.body;
+  // Only allow these fields to be edited by admin
+  const allowedFields = [
+    "commissionRate",
+    "address.recipientName", "address.recipientPhone",
+    "address.line1", "address.line2", "address.locality",
+    "address.city", "address.state", "address.country", "address.pincode",
+    "address.geoLocation.lat", "address.geoLocation.lng"
+  ];
+
   try {
     let vendor = await Vendor.findById(req.params.id);
     if (!vendor) {
       return res.status(404).json({ success: false, message: "Vendor not found." });
     }
 
-    // Build update object only with provided fields
+    // Build update object only with allowed fields
     const update = {};
-    if (commissionRate !== undefined) {
-      if (commissionRate < 0 || commissionRate > 100) {
+
+    // Traverse req.body and set only allowed fields
+    const traverse = (obj, prefix = "") => {
+      for (const key in obj) {
+        const path = prefix ? `${prefix}.${key}` : key;
+        if (obj[key] !== null && typeof obj[key] === "object" && !Array.isArray(obj[key])) {
+          traverse(obj[key], path);
+        } else {
+          setNestedValueIfAllowed(update, path, obj[key], allowedFields);
+        }
+      }
+    };
+    traverse(req.body);
+
+    // Commission rate validation
+    if (update.commissionRate !== undefined) {
+      if (update.commissionRate < 0 || update.commissionRate > 100) {
         return res.status(400).json({
           success: false,
           message: "Commission rate must be between 0 and 100.",
         });
       }
-      update.commissionRate = commissionRate;
-    }
-    if (gstNumber !== undefined) {
-      const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
-      if (!gstRegex.test(gstNumber)) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid GST number format.",
-        });
-      }
-      update.gstNumber = gstNumber;
-    }
-    if (Object.keys(update).length === 0) {
-      return res.status(400).json({ success: false, message: "No fields to update." });
     }
 
     const forbiddenFields = ["_id", "email", "registeredAt", "totalSales", "totalRevenue"];
@@ -256,11 +266,24 @@ export const adminEditVendor = async (req, res) => {
       delete update[field];
     }
 
+    if (Object.keys(update).length === 0) {
+      return res.status(400).json({ success: false, message: "No fields to update." });
+    }
+
+    // Merge address fields if any address field is being updated
+    if (update.address) {
+      update.address = {
+        ...vendor.address.toObject(), // existing address
+        ...update.address             // updated fields
+      };
+    }
+
+    // Now update the vendor with the merged address
     vendor = await Vendor.findByIdAndUpdate(
       req.params.id,
       { $set: update },
       { new: true, runValidators: true }
-    ).select("name email phone shopName commissionRate gstNumber status");
+    ).select("name email phone shopName commissionRate address status");
 
     if (!vendor) {
       return res.status(404).json({ success: false, message: "Vendor not found." });

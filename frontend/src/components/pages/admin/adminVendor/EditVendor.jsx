@@ -31,9 +31,9 @@ const EditVendor = () => {
       setVendor(data);
     };
     fetchVendor();
-  }, [getVendorById, vendorId]);
+  }, [vendorId]);
 
-  // use reusable hook for commissionRate + gstNumber
+  // use reusable hook for commissionRate + address fields
   const {
     form,
     setForm,
@@ -41,7 +41,7 @@ const EditVendor = () => {
     handleSave,
     isLoading,
     hasChanges,
-    hasEmptyRequired, // <-- add this from updated hook
+    hasEmptyRequired,
   } = useProfileUpdate(vendor, adminEditVendor, setEditing, () => getVendorById(vendorId));
 
   const handleStatusChange = async (id) => {
@@ -72,7 +72,7 @@ const EditVendor = () => {
     if (
       vendor?.status === "suspended" ||
       vendor?.status === "rejected" ||
-      
+
       vendor?.status === "inactive"
     ) {
       return field.value === "active";
@@ -133,7 +133,17 @@ const EditVendor = () => {
     <section aria-label="Admin Dashboard" className="p-6 min-h-screen bg-gray-50">
       <BackButton />
 
-      <h2 className="text-2xl font-bold mt-4 mb-6">Edit Vendor</h2>
+      <div className="flex justify-between items-center gap-3 mt-4 mb-6">
+        <h2 className="text-2xl font-bold">Edit Vendor Profile</h2>
+
+        <Button
+          icon={FiCheckCircle}
+          text={updatingId === vendorId ? "Updating..." : "Update Status"}
+          onClick={() => handleStatusChange(vendorId)}
+          className="py-2"
+          disabled={!status || status === vendor?.status || updatingId === vendorId}
+        />
+      </div>
 
       {/* Vendor Status */}
       <div className="flex flex-col gap-3 bg-white shadow-md rounded-xl p-6">
@@ -163,32 +173,7 @@ const EditVendor = () => {
         </p>
       </div>
 
-      <Button
-        icon={FiCheckCircle}
-        text={updatingId === vendorId ? "Updating..." : "Update Status"}
-        onClick={() => handleStatusChange(vendorId)}
-        className="mt-4 py-2"
-        disabled={!status || status === vendor?.status || updatingId === vendorId}
-      />
-      {/* Editable Fields */}
-      <div className="flex flex-col mt-8 gap-3 bg-white shadow-md rounded-xl p-6">
-        {updateVendorFields.map((field) => (
-          <InputField
-            key={field.name}
-            name={field.name}
-            label={field.label}
-            type={field.type}
-            placeholder={field.placeholder}
-            title={field.title}
-            value={form.name}
-            onChange={handleChange}
-            disabled={!editing}
-          />
-        ))}
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3 items-center mt-4">
+      <div className="mt-8 mb-5">
         <ActionButtons
           editing={editing}
           isLoading={isLoading}
@@ -200,6 +185,39 @@ const EditVendor = () => {
           onSave={handleSaveButton}
           disableSave={!hasChanges || hasEmptyRequired} // <-- updated here
         />
+      </div>
+
+      {/* Editable Fields */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 bg-white shadow-md rounded-xl p-6">
+        {updateVendorFields.map((field) => {
+          // Support nested address fields
+          let value = form;
+          if (field.name.includes(".")) {
+            field.name.split(".").forEach((k) => {
+              value = value?.[k];
+            });
+          } else {
+            value = form[field.name];
+          }
+          return (
+            <InputField
+              key={field.name}
+              name={field.name}
+              label={field.label}
+              type={field.type}
+              placeholder={field.placeholder}
+              title={field.title}
+              value={value ?? ""}
+              onChange={handleChange}
+              disabled={!editing}
+            />
+          );
+        })}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-3 items-center mt-4">
+
 
         {/* Disable Account Button */}
         <Button
