@@ -98,6 +98,21 @@ const orderSchema = new mongoose.Schema(
       type: Date,
       default: null
     },
+
+    invoiceNumber: {
+      type: String,
+      required: false, // or true if you always generate it
+      unique: true,    // optional, if you want uniqueness
+    },
+
+    userInvoiceUrl: { type: String, default: null }, // URL for customer invoice
+    vendorInvoices: [
+      {
+        vendorId: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor" },
+        invoiceUrl: { type: String },
+      },
+    ],
+    customNotes: { type: String, default: "" },
   },
   { timestamps: true }
 );
