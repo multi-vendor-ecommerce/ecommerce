@@ -1,39 +1,39 @@
 // services/invoice/invoiceFormatters.js
+import { toTitleCase } from "../../utils/titleCase.js";
+import { getFormattedAddress } from "../../utils/formatAddress.js";
 
 // Build item description
 export const buildItemDescription = (item) => {
   const parts = [];
-  if (item.color) parts.push(`Color: ${item.color}`);
-  if (item.size) parts.push(`Size: ${item.size}`);
-  if (item.product?.hsnCode) parts.push(`HSN: ${item.product.hsnCode}`);
-  if (item.product?.gstRate) parts.push(`GST: ${item.product.gstRate}%`);
+  if (item?.color) parts.push(`Color: ${toTitleCase(item.color)}`);
+  if (item?.size) parts.push(`Size: ${item.size}`);
+  if (item?.product?.hsnCode) parts.push(`HSN: ${item.product.hsnCode}`);
+  if (item?.product?.gstRate) parts.push(`GST: ${item.product.gstRate}%`);
   return parts.join(", ");
 };
 
 // Format vendor address
 export const formatVendorAddress = (vendor) => {
-  if (!vendor?.address) return vendor?.shopName || "Vendor";
-  const addr = vendor.address;
+  if (!vendor) return "Vendor";
+  const addr = vendor.address || {};
+
   return [
-    vendor.shopName || "Vendor",
-    `Owner: ${vendor.name || "N/A"}`,
-    `${addr.line1 || ""}${addr.line2 ? ", " + addr.line2 : ""}`,
-    `${addr.locality ? addr.locality + ", " : ""}${addr.city || ""}, ${addr.state || ""} - ${addr.pincode || ""}`,
-    `${addr.country || "India"}`,
+    toTitleCase(vendor.shopName) || "Vendor",
+    `Owner: ${toTitleCase(vendor.name) || "N/A"}`,
+    getFormattedAddress(addr),
     `GSTIN: ${vendor.gstNumber || "N/A"}`,
-    `Phone: ${vendor.phone || ""}`
+    `Phone: ${vendor.phone || "N/A"}`
   ].filter(Boolean).join("\n");
 };
 
 // Format customer billing address
 export const formatCustomerAddress = (order, user) => {
   const ship = order.shippingInfo || user?.address;
-  if (!ship) return user?.name || "Customer";
+  if (!ship) return toTitleCase(user?.name) || "Customer";
+
   return [
-    ship.recipientName || user?.name || "Customer",
-    `${ship.line1 || ""}${ship.line2 ? ", " + ship.line2 : ""}`,
-    `${ship.locality ? ship.locality + ", " : ""}${ship.city || ""}, ${ship.state || ""} - ${ship.pincode || ""}`,
-    `${ship.country || "India"}`,
+    toTitleCase(ship.recipientName) || toTitleCase(user?.name) || "Customer",
+    getFormattedAddress(ship),
     `Phone: ${ship.recipientPhone || user?.phone || ""}`
   ].filter(Boolean).join("\n");
 };
@@ -42,10 +42,9 @@ export const formatCustomerAddress = (order, user) => {
 export const formatShipTo = (order, user) => {
   const ship = order.shippingInfo || user?.address;
   if (!ship) return "";
+
   return [
-    ship.recipientName || user?.name || "Customer",
-    `${ship.line1 || ""}${ship.line2 ? ", " + ship.line2 : ""}`,
-    `${ship.locality ? ship.locality + ", " : ""}${ship.city || ""}, ${ship.state || ""} - ${ship.pincode || ""}`,
-    `${ship.country || "India"}`
+    toTitleCase(ship.recipientName) || toTitleCase(user?.name) || "Customer",
+    getFormattedAddress(ship)
   ].filter(Boolean).join("\n");
 };

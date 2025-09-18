@@ -292,12 +292,11 @@ export const orderSuccessTemplate = (
 
   ${invoiceUrl ? `
     <a href="${invoiceUrl}" 
-      download
       target="_blank"
       rel="noopener noreferrer"
       style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #007bff; color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;"
     >
-      Download Invoice
+      View Invoice
     </a>
   ` : ""
   }

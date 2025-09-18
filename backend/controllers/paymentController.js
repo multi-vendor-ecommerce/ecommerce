@@ -18,7 +18,6 @@ const razorpay = new Razorpay({
 // ==========================
 export const createRazorpayOrder = async (req, res) => {
   const { orderId } = req.body;
-
   if (!orderId || typeof orderId !== "string") {
     return res.status(400).json({ success: false, message: "Invalid order information." });
   }
@@ -26,7 +25,6 @@ export const createRazorpayOrder = async (req, res) => {
   try {
     const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
-
     if (order.orderStatus !== "pending") {
       return res.status(400).json({ success: false, message: "Order is already confirmed or processed." });
     }
@@ -117,8 +115,17 @@ export const verifyRazorpayPayment = async (req, res) => {
       order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
     }
 
+    // ==========================
+    // Fetch vendors for customer invoice (use first vendor as primary)
+    // ==========================
+    const vendorIds = [...new Set(order.orderItems.map(item => item.product?.createdBy?.toString()).filter(Boolean))];
+    let primaryVendor = null;
+    if (vendorIds.length) {
+      primaryVendor = await Vendor.findById(vendorIds[0]);
+    }
+
     // Generate customer invoice
-    const customerInvoice = await generateInvoice(order, null, user, "customer");
+    const customerInvoice = await generateInvoice(order, primaryVendor, user, "customer");
     order.userInvoiceUrl = customerInvoice?.url || "";
 
     // Generate vendor invoices (multi-vendor)
@@ -224,8 +231,17 @@ export const confirmCOD = async (req, res) => {
       order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
     }
 
+    // ==========================
+    // Fetch vendors for customer invoice (use first vendor as primary)
+    // ==========================
+    const vendorIds = [...new Set(order.orderItems.map(item => item.product?.createdBy?.toString()).filter(Boolean))];
+    let primaryVendor = null;
+    if (vendorIds.length) {
+      primaryVendor = await Vendor.findById(vendorIds[0]);
+    }
+
     // Generate customer invoice
-    const customerInvoice = await generateInvoice(order, null, user, "customer");
+    const customerInvoice = await generateInvoice(order, primaryVendor, user, "customer");
     order.userInvoiceUrl = customerInvoice?.url || "";
 
     // Generate vendor invoices
