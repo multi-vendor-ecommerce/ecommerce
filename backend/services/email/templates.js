@@ -230,7 +230,8 @@ export const orderSuccessTemplate = (
   customerName,
   paymentMethod,
   totalAmount,
-  items = []
+  items = [],
+  invoiceUrl = ""
 ) =>
   baseMail(`
   <h2 style="color: #333; margin-bottom: 20px;">🎉 Order Placed Successfully</h2>
@@ -244,8 +245,7 @@ export const orderSuccessTemplate = (
   </p>
 
   <h3 style="color: #333; margin: 15px 0;">🛍️ Ordered Items:</h3>
-  ${
-    items.length > 0
+  ${items.length > 0
       ? `
         <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #555;">
           <thead>
@@ -257,28 +257,39 @@ export const orderSuccessTemplate = (
           </thead>
           <tbody>
             ${items
-              .map(
-                (item) => `
-                <tr>
-                  <td style="border-bottom: 1px solid #eee; text-align: left; padding: 8px;">
-                    ${item.name || "Unnamed Product"}
-                    ${
-                      item.discount && item.discount > 0
-                        ? `<br><span style="color: #e63946; font-size: 12px;">Discount: ${item.discount}%</span>`
-                        : ""
-                    }
-                  </td>
-                  <td style="border-bottom: 1px solid #eee; text-align: center; padding: 8px;">${item.qty}</td>
-                  <td style="border-bottom: 1px solid #eee; text-align: right; padding: 8px;">
-                    ₹${item.price ? item.price.toFixed(2) : "0.00"}
-                  </td>
-                </tr>`
-              )
-              .join("")}
+        .map(
+          (item) => `
+            <tr>
+              <td style="border-bottom: 1px solid #eee; text-align: left; padding: 8px;">
+                ${item.name || "Unnamed Product"}
+                ${item.discount && item.discount > 0
+              ? `<br><span style="color: #e63946; font-size: 12px;">Discount: ${item.discount}%</span>`
+              : ""
+            }
+              </td>
+              <td style="border-bottom: 1px solid #eee; text-align: center; padding: 8px;">${item.qty}</td>
+              <td style="border-bottom: 1px solid #eee; text-align: right; padding: 8px;">
+                ₹${item.price ? item.price.toFixed(2) : "0.00"}
+              </td>
+            </tr>`
+        )
+        .join("")}
           </tbody>
         </table>
       `
       : "<p>No items found in this order.</p>"
+    }
+
+  ${invoiceUrl ? `
+    <a href="${invoiceUrl}" 
+      download
+      target="_blank"
+      rel="noopener noreferrer"
+      style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #007bff; color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;"
+    >
+      Download Invoice
+    </a>
+  ` : ""
   }
 
   <p style="font-size: 14px; color: #555; margin-top: 20px;">

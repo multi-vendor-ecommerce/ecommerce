@@ -14,6 +14,7 @@ export async function saveInvoice(buffer, invoiceNumber, mode = "customer") {
         resource_type: "raw",
         format: "pdf",
         overwrite: true,
+        type: "upload",
       },
       (error, result) => {
         if (error) {
