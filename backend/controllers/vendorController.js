@@ -289,6 +289,25 @@ export const adminEditVendor = async (req, res) => {
       return res.status(404).json({ success: false, message: "Vendor not found." });
     }
 
+    // Format address for email if present
+    let formattedAddress = "";
+    let formattedRecipientName = "";
+    let formattedRecipientPhone = "";
+    if (update.address) {
+      const addr = update.address;
+      formattedAddress = [
+        addr.line1,
+        addr.line2,
+        addr.locality,
+        addr.city,
+        addr.state,
+        addr.country,
+        addr.pincode,
+      ].filter(Boolean).join(", ");
+      formattedRecipientName = addr.recipientName || "";
+      formattedRecipientPhone = addr.recipientPhone || "";
+    }
+
     // Try sending notification email (non-blocking)
     try {
       await sendVendorProfileUpdatedMail({
@@ -296,7 +315,12 @@ export const adminEditVendor = async (req, res) => {
         vendorName: vendor.name,
         vendorShop: vendor.shopName,
         changes: Object.keys(update),
-        data: update,
+        data: {
+          ...update,
+          ...(update.address ? { address: formattedAddress } : {}),
+          ...(formattedRecipientName ? { recipientName: formattedRecipientName } : {}),
+          ...(formattedRecipientPhone ? { recipientPhone: formattedRecipientPhone } : {}),
+        },
       });
     } catch (emailErr) {
       console.error("Vendor profile updated email failed:", emailErr);

@@ -171,9 +171,19 @@ export const vendorProfileUpdatedTemplate = (vendorName, vendorShop, changes, da
   <div style="margin-bottom: 20px;">
     ${changes.map(change => `
       <div style="margin-bottom: 10px; font-size: 14px; color: #555; background: #f9f9f9; padding: 10px; border-radius: 5px;">
-        <span>${toTitleCase(change)}:</span> <strong>${data[change]}</strong>
+        <span>${change === "address" ? "Full Address" : toTitleCase(change)}:</span> <strong>${data[change]}</strong>
       </div>
     `).join("")}
+    ${data.recipientName ? `
+      <div style="margin-bottom: 10px; font-size: 14px; color: #555; background: #f9f9f9; padding: 10px; border-radius: 5px;">
+        <span>Recipient Name:</span> <strong>${data.recipientName}</strong>
+      </div>
+    ` : ""}
+    ${data.recipientPhone ? `
+      <div style="margin-bottom: 10px; font-size: 14px; color: #555; background: #f9f9f9; padding: 10px; border-radius: 5px;">
+        <span>Recipient Phone:</span> <strong>${data.recipientPhone}</strong>
+      </div>
+    ` : ""}
   </div>
   <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
     Check your profile for the latest updates.
