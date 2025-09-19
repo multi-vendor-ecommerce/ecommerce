@@ -28,13 +28,13 @@ export const formatVendorAddress = (vendor) => {
 
 // Format customer billing address
 export const formatCustomerAddress = (order, user) => {
-  const ship = order.shippingInfo || user?.address;
+  const ship = user?.address;
   if (!ship) return toTitleCase(user?.name) || "Customer";
 
   return [
-    toTitleCase(ship.recipientName) || toTitleCase(user?.name) || "Customer",
+    toTitleCase(user?.name) || "Customer",
     getFormattedAddress(ship),
-    `Phone: ${ship.recipientPhone || user?.phone || ""}`
+    `Phone: ${user?.phone || ""}`
   ].filter(Boolean).join("\n");
 };
 
@@ -45,6 +45,7 @@ export const formatShipTo = (order, user) => {
 
   return [
     toTitleCase(ship.recipientName) || toTitleCase(user?.name) || "Customer",
-    getFormattedAddress(ship)
+    getFormattedAddress(ship),
+    `Phone: ${ship.recipientPhone || user?.phone || ""}`
   ].filter(Boolean).join("\n");
 };
