@@ -3,7 +3,10 @@ import { useNavigate, NavLink } from "react-router-dom";
 
 import WishlistContext from "../../../../context/wishlist/WishlistContext";
 import { encryptData } from "../Utils/Encryption";
+import BackButton from "../../../common/layout/BackButton";
 import Loader from "../../../common/Loader";
+import Button from "../../../common/Button";
+import { FiTrash2, FiX } from "react-icons/fi";
 
 const WishlistPage = () => {
   const { wishlist, getWishlist, removeFromWishlist, clearWishlist, loading } = useContext(WishlistContext);
@@ -59,45 +62,58 @@ const WishlistPage = () => {
   }
 
   return (
-    <div className="w-full mx-auto py-8 px-4 bg-green-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-green-700">My Wishlist</h2>
-        <button
+    <div className="w-full mx-auto py-8 px-4 min-h-screen">
+      <div className="flex justify-between items-center mb-4">
+        <BackButton />
+        <Button
+          icon={FiTrash2}
+          text="Remove All"
           onClick={handleClearAll}
-          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-        >
-          Clear All
-        </button>
+          color="red"
+          className="py-2"
+        />
       </div>
+
+      <h2 className="text-2xl font-bold text-green-700 mb-6">My Wishlist</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {wishlist.map((product) => (
           <div
             key={product._id}
-            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition flex flex-col items-center md:items-start gap-4"
+            className="bg-gray-50 p-4 rounded-xl shadow-md hover:shadow-green-600 transition duration-200 flex flex-col items-center md:items-start gap-4"
           >
-            <img
-              src={product.images?.[0]?.url || "/default-product.png"}
-              alt={product.title}
-              className="w-28 h-28 object-cover rounded cursor-pointer"
-              onClick={() => handleProductClick(product._id)}
-            />
-            <div className="flex-1 w-full">
-              <h3
-                className="font-semibold text-lg cursor-pointer text-green-700 hover:text-green-900 truncate"
+            <div className="flex justify-between items-start gap-2 w-full">
+              <img
+                src={product.images?.[0]?.url || "/default-product.png"}
+                alt={product.title}
+                className="w-28 h-28 object-cover rounded cursor-pointer"
                 onClick={() => handleProductClick(product._id)}
-              >
-                {product.title}
-              </h3>
-              <p className="text-gray-600 text-sm line-clamp-2">{product.description}</p>
-              <div className="mt-3 flex items-center justify-between w-full">
-                <span className="font-bold text-green-700">₹{product.price}</span>
-                <button
-                  onClick={() => handleRemove(product._id)}
-                  className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+              />
+              <div className="flex flex-col flex-1">
+                <h3
+                  className="font-semibold text-lg cursor-pointer text-green-700 hover:text-green-900 truncate"
+                  onClick={() => handleProductClick(product?._id)}
                 >
-                  Remove
-                </button>
+                  {product?.title}
+                </h3>
+                <p className="text-gray-600 text-sm line-clamp-2">{product?.description}</p>
+              </div>
+            </div>
+
+            <div className="flex-1 w-full">
+              <div className="mt-3 flex items-center justify-between w-full">
+                <span className="text-base md:text-lg font-semibold">
+                  Price:{" "}
+                  <span className="text-green-700">₹{(product?.price).toLocaleString()}</span>
+                </span>
+
+                <Button
+                  icon={FiX}
+                  text="Remove"
+                  onClick={() => handleRemove(product?._id)}
+                  className="py-1.5"
+                  color="red"
+                />
               </div>
             </div>
           </div>

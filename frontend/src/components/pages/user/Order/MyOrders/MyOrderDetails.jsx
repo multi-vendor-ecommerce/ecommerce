@@ -10,6 +10,7 @@ import { formatAddress } from "../../../../../utils/formatAddress";
 import { toast } from "react-toastify";
 import StatusChip from "../../../../common/helperComponents/StatusChip";
 import Button from "../../../../common/Button";
+import { FiEye } from "react-icons/fi";
 
 const MyOrderDetails = () => {
   const { orderId } = useParams();
@@ -33,7 +34,7 @@ const MyOrderDetails = () => {
     if (!confirm) return;
     const result = await cancelOrder(order._id);
     if (result.success) {
-      toast.success( result.message|| "Order cancelled successfully.");
+      toast.success(result.message || "Order cancelled successfully.");
       setOrder((prev) => ({ ...prev, orderStatus: "Cancelled" }));
     } else {
       toast.error(result.message || "Failed to cancel order.");
@@ -61,21 +62,33 @@ const MyOrderDetails = () => {
       {/* Header */}
       <div className="flex justify-between items-center gap-5">
         <BackButton />
-        <h2 className="text-2xl font-bold text-green-700">
+        <h2 className="text-2xl font-bold text-green-700 truncate">
           Order #{order._id}
         </h2>
       </div>
 
       {/* Order Summary */}
       <div className="bg-white p-6 rounded-2xl shadow-lg">
-        <h3 className="text-lg md:text-xl font-semibold text-green-700 mb-4">
-          Order Summary
-        </h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg md:text-xl font-semibold text-green-700">
+            Order Summary
+          </h3>
+          <StatusChip status={order.orderStatus} />
+        </div>
+
         <StatGrid cards={getOrderCardData(order)} />
 
-        <div className="mt-4 flex justify-between items-center">
-          <StatusChip status={order.orderStatus} />
-          
+        <div className="mt-5 flex flex-col md:flex-row gap-3 justify-between items-center">
+          <a
+            href={order.userInvoiceUrl || "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-2.5 py-2 md:px-4 text-blue-600 hover:bg-blue-600  border font-semibold rounded-lg transition duration-150 hover:text-white cursor-pointer"
+          >
+            <FiEye size={20} />
+            View Invoice
+          </a>
+
           {order.orderStatus !== "cancelled" &&
             order.orderStatus !== "delivered" && (
               <Button
