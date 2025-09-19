@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { MdPhone, MdLocationOn } from "react-icons/md";
+import { MdPhone, MdLocationOn, MdCancel } from "react-icons/md";
 import OrderContext from "../../../../../context/orders/OrderContext";
 import Loader from "../../../../common/Loader";
 import BackButton from "../../../../common/layout/BackButton";
@@ -8,6 +8,8 @@ import { getOrderCardData } from "../../../adminVendorCommon/orders/data/ordersD
 import StatGrid from "../../../../common/helperComponents/StatGrid";
 import { formatAddress } from "../../../../../utils/formatAddress";
 import { toast } from "react-toastify";
+import StatusChip from "../../../../common/helperComponents/StatusChip";
+import Button from "../../../../common/Button";
 
 const MyOrderDetails = () => {
   const { orderId } = useParams();
@@ -72,25 +74,17 @@ const MyOrderDetails = () => {
         <StatGrid cards={getOrderCardData(order)} />
 
         <div className="mt-4 flex justify-between items-center">
-          <span
-            className={`px-3 py-1 text-sm font-medium rounded-full shadow-sm ${
-              order.orderStatus === "Delivered"
-                ? "bg-green-100 text-green-700"
-                : order.orderStatus === "Cancelled"
-                ? "bg-red-100 text-red-600"
-                : "bg-yellow-100 text-yellow-700"
-            }`}
-          >
-            {order.orderStatus}
-          </span>
-          {order.orderStatus !== "Cancelled" &&
-            order.orderStatus !== "Delivered" && (
-              <button
+          <StatusChip status={order.orderStatus} />
+          
+          {order.orderStatus !== "cancelled" &&
+            order.orderStatus !== "delivered" && (
+              <Button
+                icon={MdCancel}
+                text="Cancel Order"
                 onClick={handleCancelOrder}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-xl shadow-md transition"
-              >
-                Cancel Order
-              </button>
+                className="py-2"
+                color="red"
+              />
             )}
         </div>
       </div>
@@ -107,7 +101,7 @@ const MyOrderDetails = () => {
               className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:shadow-md transition"
             >
               <img
-                src={item.product?.images?.[0]?.url || "/placeholder.png"}
+                src={item.product?.images?.[0].url || "/placeholder.png"}
                 alt={item.product?.title}
                 className="w-20 h-20 object-cover rounded-xl shadow-sm"
               />

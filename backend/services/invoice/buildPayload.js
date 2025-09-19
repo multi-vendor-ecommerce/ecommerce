@@ -27,14 +27,25 @@ export function buildInvoicePayload(order, vendor, user, mode = "customer") {
     order.customNotes || null,
   ].filter(Boolean).join("\n");
 
+  // Logos
+  const platformLogo =
+    "https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_1280.png";
+
+  const vendorLogo =
+    vendor?.shopLogo?.includes("res.cloudinary.com")
+      ? vendor.shopLogo.replace("/upload/", "/upload/w_80,h_80,c_fit/") // 80x80
+      : vendor?.shopLogo;
+
+  const logo = mode === "customer" ? platformLogo : vendorLogo || platformLogo;
+
   // Final payload
   return {
-    logo: vendor?.shopLogo || "https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_1280.png",
+    logo,
     currency: "INR",
+
+    // ✅ Invoice info
     number: order.invoiceNumber || order._id || "INV-000",
-    date: order.createdAt
-      ? new Date(order.createdAt).toISOString().slice(0, 10)
-      : new Date().toISOString().slice(0, 10),
+    date: new Date().toISOString().slice(0, 10), // Invoice date = today
 
     from: formatVendorAddress(vendor),
     to: formatCustomerAddress(order, user),
@@ -47,12 +58,23 @@ export function buildInvoicePayload(order, vendor, user, mode = "customer") {
     shipping: order.shippingCharges || 0,
     amount_paid: order.paymentMethod === "Online" ? order.totalAmount : 0,
 
+    // ✅ Order info (separate from invoice date)
     custom_fields: [
       { name: "Order ID", value: order._id.toString() },
+      {
+        name: "Order Date",
+        value: order.createdAt
+          ? new Date(order.createdAt).toISOString().slice(0, 10)
+          : "N/A",
+      },
       { name: "Payment Method", value: order.paymentMethod },
-      { name: "Payment ID", value: order.paymentInfo?.id || "N/A" },
+      ...(order.paymentMethod === "Online"
+        ? [{ name: "Payment ID", value: order.paymentInfo?.id || "N/A" }]
+        : []),
       { name: "Platform", value: "NoahPlanet Pvt Ltd" },
-      ...(vendor?.gstNumber ? [{ name: "Vendor GSTIN", value: vendor.gstNumber }] : []),
+      ...(vendor?.gstNumber
+        ? [{ name: "Vendor GSTIN", value: vendor.gstNumber }]
+        : []),
     ],
 
     notes: invoiceNotes,

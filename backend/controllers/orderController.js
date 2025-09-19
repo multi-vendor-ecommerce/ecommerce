@@ -245,7 +245,7 @@ export const getOrderById = async (req, res) => {
     const order = await Order.findById(req.params.id)
       .populate({
         path: "orderItems.product",
-        select: "title price createdBy",
+        select: "title price createdBy images",
         populate: {
           path: "createdBy",
           select: "name email address phone shopName"

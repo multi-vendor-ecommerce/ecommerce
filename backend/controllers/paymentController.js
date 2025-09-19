@@ -60,7 +60,9 @@ export const verifyRazorpayPayment = async (req, res) => {
   }
 
   try {
-    const order = await Order.findById(orderId).populate("orderItems.product", "title price createdBy");
+    const order = await Order.findById(orderId)
+    .populate("orderItems.product", "title price createdBy hsnCode gstRate")
+    .populate("paymentInfo", "id");
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
 
     if (order.user.toString() !== req.person.id) {
@@ -199,7 +201,7 @@ export const confirmCOD = async (req, res) => {
   }
 
   try {
-    const order = await Order.findById(orderId).populate("orderItems.product", "title price createdBy");
+    const order = await Order.findById(orderId).populate("orderItems.product", "title price createdBy hsnCode gstRate");
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
 
     if (order.paymentInfo?.status === "paid") {
