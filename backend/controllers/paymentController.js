@@ -7,6 +7,7 @@ import Products from "../models/Products.js";
 import { sendOrderSuccessMail } from "../services/email/sender.js";
 import { generateInvoice } from "../services/invoice/generateInvoice.js";
 import Vendor from "../models/Vendor.js";
+import { safeSendMail } from "../utils/safeSendMail.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -160,23 +161,48 @@ export const verifyRazorpayPayment = async (req, res) => {
     order.vendorInvoices = vendorInvoices;
     await order.save();
 
-    // Send order success email
-    try {
-      await sendOrderSuccessMail({
-        to: user?.email,
-        orderId: order._id,
-        customerName: user?.name,
-        paymentMethod: order.paymentMethod,
-        totalAmount: order.totalAmount,
-        items: order.orderItems.map((i) => ({
-          name: i.product?.title || "Unknown product",
-          qty: i.quantity,
-          price: i.product?.price ?? 0,
-        })),
-        invoiceUrl: order.userInvoiceUrl,
-      });
-    } catch (mailErr) {
-      console.error("Order placed but failed to send email:", mailErr);
+    // Send order success email to user
+    await safeSendMail(sendOrderSuccessMail, {
+      to: user?.email,
+      orderId: order._id,
+      customerName: user?.name,
+      paymentMethod: order.paymentMethod,
+      totalAmount: order.totalAmount,
+      items: order.orderItems.map((i) => ({
+        name: i.product?.title || "Unknown product",
+        qty: i.quantity,
+        price: i.product?.price ?? 0,
+      })),
+      invoiceUrl: order.userInvoiceUrl,
+    });
+
+    // Send order success email to vendors
+    for (const vendorInvoice of vendorInvoices) {
+      try {
+        const vendor = await Vendor.findById(vendorInvoice.vendorId);
+        if (!vendor) continue;
+
+        await safeSendMail(sendOrderSuccessMail, {
+          to: vendor.email,
+          orderId: order._id,
+          customerName: user?.name,
+          paymentMethod: order.paymentMethod,
+          totalAmount: order.totalAmount,
+          items: order.orderItems
+            .filter(i => i.product?.createdBy?.toString() === vendor._id.toString())
+            .map(i => ({
+              name: i.product?.title || "Unknown product",
+              qty: i.quantity,
+              price: i.product?.price ?? 0,
+            })),
+          invoiceUrl: vendorInvoice.invoiceUrl,
+          vendorName: vendor.name,
+          vendorShop: vendor.shopName,
+          isVendor: true, // You can use this flag in your email template
+        });
+      } catch (err) {
+        console.error(`Failed to send vendor invoice email for vendor ${vendorInvoice.vendorId}:`, err);
+      }
     }
 
     res.status(200).json({
@@ -276,23 +302,48 @@ export const confirmCOD = async (req, res) => {
     order.vendorInvoices = vendorInvoices;
     await order.save();
 
-    // Send order success email
-    try {
-      await sendOrderSuccessMail({
-        to: user?.email,
-        orderId: order._id,
-        customerName: user?.name,
-        paymentMethod: order.paymentMethod,
-        totalAmount: order.totalAmount,
-        items: order.orderItems.map((i) => ({
-          name: i.product?.title || "Unknown product",
-          qty: i.quantity,
-          price: i.product?.price || 0,
-        })),
-        invoiceUrl: order.userInvoiceUrl,
-      });
-    } catch (error) {
-      console.error("Order placed but failed to send email:", error);
+    // Send order success email to user
+    await safeSendMail(sendOrderSuccessMail, {
+      to: user?.email,
+      orderId: order._id,
+      customerName: user?.name,
+      paymentMethod: order.paymentMethod,
+      totalAmount: order.totalAmount,
+      items: order.orderItems.map((i) => ({
+        name: i.product?.title || "Unknown product",
+        qty: i.quantity,
+        price: i.product?.price || 0,
+      })),
+      invoiceUrl: order.userInvoiceUrl,
+    });
+
+    // Send order success email to vendors
+    for (const vendorInvoice of vendorInvoices) {
+      try {
+        const vendor = await Vendor.findById(vendorInvoice.vendorId);
+        if (!vendor) continue;
+
+        await safeSendMail(sendOrderSuccessMail, {
+          to: vendor.email,
+          orderId: order._id,
+          customerName: user?.name,
+          paymentMethod: order.paymentMethod,
+          totalAmount: order.totalAmount,
+          items: order.orderItems
+            .filter(i => i.product?.createdBy?.toString() === vendor._id.toString())
+            .map(i => ({
+              name: i.product?.title || "Unknown product",
+              qty: i.quantity,
+              price: i.product?.price || 0,
+            })),
+          invoiceUrl: vendorInvoice.invoiceUrl,
+          vendorName: vendor.name,
+          vendorShop: vendor.shopName,
+          isVendor: true, // You can use this flag in your email template
+        });
+      } catch (err) {
+        console.error(`Failed to send vendor invoice email for vendor ${vendorInvoice.vendorId}:`, err);
+      }
     }
 
     res.status(200).json({

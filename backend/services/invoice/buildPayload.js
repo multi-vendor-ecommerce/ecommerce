@@ -27,16 +27,18 @@ export function buildInvoicePayload(order, vendor, user, mode = "customer") {
     order.customNotes || null,
   ].filter(Boolean).join("\n");
 
+  const invoiceTerms = [
+    mode === "vendor"
+      ? "Please process this order promptly and update the status in your vendor dashboard."
+      : order.paymentMethod === "COD"
+        ? "Cash on Delivery. Please pay at the time of delivery."
+        : "Payment received via Razorpay. Returns accepted within 15 days.",  
+    order.termsAndConditions || null,
+  ].filter(Boolean).join("\n");
+
   // Logos
-  const platformLogo =
+  const logo =
     "https://cdn.pixabay.com/photo/2016/12/27/13/10/logo-1933884_1280.png";
-
-  const vendorLogo =
-    vendor?.shopLogo?.includes("res.cloudinary.com")
-      ? vendor.shopLogo.replace("/upload/", "/upload/w_80,h_80,c_fit/") // 80x80
-      : vendor?.shopLogo;
-
-  const logo = mode === "customer" ? platformLogo : vendorLogo || platformLogo;
 
   // Final payload
   return {
@@ -78,9 +80,6 @@ export function buildInvoicePayload(order, vendor, user, mode = "customer") {
     ],
 
     notes: invoiceNotes,
-    terms:
-      order.paymentMethod === "COD"
-        ? "Cash on Delivery. Please pay at the time of delivery."
-        : "Payment received via Razorpay. Returns accepted within 15 days.",
+    terms: invoiceTerms,
   };
 }

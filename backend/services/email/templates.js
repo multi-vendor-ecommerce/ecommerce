@@ -237,16 +237,24 @@ export const productDeletedByAdminTemplate = (productName, productId, adminName)
 // Order Success Email Template
 export const orderSuccessTemplate = (
   orderId,
-  customerName,
+  name,
   paymentMethod,
   totalAmount,
   items = [],
-  invoiceUrl = ""
+  invoiceUrl = "",
+  isVendor = false,
+  vendorShop = ""
 ) =>
   baseMail(`
-  <h2 style="color: #333; margin-bottom: 20px;">🎉 Order Placed Successfully</h2>
+  <h2 style="color: #333; margin-bottom: 20px;">
+    ${isVendor ? "📦 New Order for Your Shop" : "🎉 Order Placed Successfully"}
+  </h2>
   <p style="font-size: 16px; color: #555;">
-    Hello <strong>${customerName || "Customer"}</strong>, thank you for your order!
+    Hello <strong>${name || (isVendor ? "Vendor" : "Customer")}</strong>, 
+    ${isVendor
+      ? `your shop <strong>${vendorShop}</strong> has received a new order!`
+      : "thank you for your order!"
+    }
   </p>
   <p style="font-size: 14px; color: #555;">
     <strong>Order ID:</strong> ${orderId}<br>
@@ -302,6 +310,9 @@ export const orderSuccessTemplate = (
   }
 
   <p style="font-size: 14px; color: #555; margin-top: 20px;">
-    We will notify you once your order is shipped.
+    ${isVendor
+      ? "Please prepare the items for shipment and update the order status in your dashboard."
+      : "We will notify you once your order is shipped."
+    }
   </p>
 `);

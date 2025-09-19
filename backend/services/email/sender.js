@@ -97,10 +97,32 @@ export async function sendProductDeletedByAdminMail({ to, productName, productId
 }
 
 // Order success mail to customer
-export async function sendOrderSuccessMail({ to, orderId, customerName, paymentMethod, totalAmount, items = [], invoiceUrl = "" }) {
+export async function sendOrderSuccessMail({
+  to,
+  orderId,
+  customerName,
+  paymentMethod,
+  totalAmount,
+  items = [],
+  invoiceUrl = "",
+  isVendor = false,
+  vendorName = "",
+  vendorShop = ""
+}) {
   await sendMail({
     to,
-    subject: "Your Order Has Been Placed Successfully!",
-    html: orderSuccessTemplate(orderId, customerName, paymentMethod, totalAmount, items, invoiceUrl),
+    subject: isVendor
+      ? "New Order Placed for Your Products!"
+      : "Your Order Has Been Placed Successfully!",
+    html: orderSuccessTemplate(
+      orderId,
+      isVendor ? vendorName : customerName,
+      paymentMethod,
+      totalAmount,
+      items,
+      invoiceUrl,
+      isVendor,
+      vendorShop
+    ),
   });
 }

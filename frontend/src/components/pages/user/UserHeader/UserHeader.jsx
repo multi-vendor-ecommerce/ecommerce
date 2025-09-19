@@ -7,63 +7,48 @@ import WishlistContext from "../../../../context/wishlist/WishlistContext";
 import ProfileMenu from "../../adminVendorCommon/common/header/ProfileMenu";
 import ProfileImage from "../../adminVendorCommon/common/header/ProfileImage";
 import { toTitleCase } from "../../../../utils/titleCase";
+import AuthContext from "../../../../context/auth/AuthContext";
 
 function UserHeader() {
   const { cart, getCart } = useContext(CartContext);
   const { person, getCurrentPerson, logout } = useContext(PersonContext);
   const { wishlist, getWishlist } = useContext(WishlistContext);
+  const { authTokens } = useContext(AuthContext);
 
-  const [cartItemCount, setCartItemCount] = useState(null);
-  const [wishlistCount, setWishlistCount] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [token, setToken] = useState(localStorage.getItem("customerToken"));
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const apiFetchedRef = useRef(false);
+  const token = authTokens?.customer; // ✅ direct from AuthContext
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
-  const handleSearch = () => {
-    if (searchTerm.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
-    }
-  };
+  const [cartItemCount, setCartItemCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout(person?.role || "customer");
-    setToken(null);
-    setCartItemCount(null);
-    setWishlistCount(null);
-    apiFetchedRef.current = false;
-  };
-
+  // Fetch user/cart/wishlist once when logged in
   useEffect(() => {
-    const onStorageChange = () => setToken(localStorage.getItem("customerToken"));
-    window.addEventListener("storage", onStorageChange);
-    return () => window.removeEventListener("storage", onStorageChange);
-  }, []);
-
-  useEffect(() => {
-    if (token && !apiFetchedRef.current) {
-      apiFetchedRef.current = true;
+    if (token) {
       getCurrentPerson();
       getCart();
       getWishlist();
+    } else {
+      setCartItemCount(0);
+      setWishlistCount(0);
     }
   }, [token, getCurrentPerson, getCart, getWishlist]);
 
   useEffect(() => {
-    if (token && cart) {
+    if (cart) {
       setCartItemCount(cart.reduce((count, item) => count + item.quantity, 0));
     }
-  }, [cart, token]);
+  }, [cart]);
 
   useEffect(() => {
-    if (token && wishlist) {
+    if (wishlist) {
       setWishlistCount(wishlist.length);
     }
-  }, [wishlist, token]);
+  }, [wishlist]);
 
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -74,8 +59,18 @@ function UserHeader() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleSearch();
+  };
+
+  const handleLogout = () => {
+    logout(person?.role || "customer"); // clears AuthContext instantly
   };
 
   const displayName = person?.name
