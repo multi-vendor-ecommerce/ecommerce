@@ -1,14 +1,20 @@
 // src/components/common/ProtectedRoute.jsx
-import React from "react";
+import { useContext } from "react";
 import { Navigate, useLocation } from "react-router-dom";
+import AuthContext from "../../context/auth/AuthContext";
 
 export default function ProtectedRoute({ children }) {
-  const token = localStorage.getItem("customerToken");
+  const { authTokens } = useContext(AuthContext);
+  const token = localStorage.getItem("customerToken") || authTokens?.customer;
   const location = useLocation();
 
   if (!token) {
-    // Redirect to login, keeping track of the page user was trying to visit
-    return <Navigate to={`/login/user?redirect=${location.pathname}`} replace />;
+    return (
+      <Navigate
+        to={`/login/user?redirect=${location.pathname}`}
+        replace
+      />
+    );
   }
 
   return children;

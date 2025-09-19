@@ -15,7 +15,7 @@ function UserHeader() {
   const { wishlist, getWishlist } = useContext(WishlistContext);
   const { authTokens } = useContext(AuthContext);
 
-  const token = authTokens?.customer; // ✅ direct from AuthContext
+  const token = localStorage.getItem("customerToken") || authTokens?.customer;
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
@@ -34,7 +34,7 @@ function UserHeader() {
       setCartItemCount(0);
       setWishlistCount(0);
     }
-  }, [token, getCurrentPerson, getCart, getWishlist]);
+  }, [token]);
 
   useEffect(() => {
     if (cart) {
@@ -70,7 +70,7 @@ function UserHeader() {
   };
 
   const handleLogout = () => {
-    logout(person?.role || "customer"); // clears AuthContext instantly
+    logout(person?.role || "customer");
   };
 
   const displayName = person?.name

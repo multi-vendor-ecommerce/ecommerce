@@ -6,6 +6,7 @@ import ProductsByCategory from "./Product/ProductsByCategory";
 import ProductDetails from "./Product/ProductDetails";
 import CartPage from "./Cart/CartPage";
 import Profile from "../adminVendorCommon/settings/Profile";
+import Security from "../adminVendorCommon/settings/Security";
 import ProtectedRoute from "../../common/ProtectedRoute";
 
 import OrderSummary from "./Order/OrderSummary";
@@ -41,6 +42,14 @@ export default function User() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customer/settings/security"
+              element={
+                <ProtectedRoute>
+                  <Security />
                 </ProtectedRoute>
               }
             />
