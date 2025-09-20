@@ -42,7 +42,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       const basePrice = originalPrice - discountAmount;
       const gstRate = product.gstRate;
       const gstAmount = (basePrice * gstRate) / 100;
-      const totalPrice = (basePrice + gstAmount) * quantity;
+      const totalPrice = basePrice + gstAmount;
 
       orderItems = [
         {
@@ -60,10 +60,10 @@ export const createOrUpdateDraftOrder = async (req, res) => {
         },
       ];
 
-      subTotal = basePrice * quantity;
-      totalTax = gstAmount * quantity;
+      subTotal = totalPrice * quantity;
+      totalTax = gstAmount + quantity;
       shippingCharges = product.freeDelivery ? 0 : 50;
-      totalDiscount = discountAmount * quantity;
+      totalDiscount = discountAmount + quantity;
 
       draftOrder = await Order.findOne({
         user: userId,
@@ -77,7 +77,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
         draftOrder.subTotal = subTotal;
         draftOrder.totalTax = totalTax;
         draftOrder.shippingCharges = shippingCharges;
-        draftOrder.grandTotal = subTotal + totalTax + shippingCharges - totalDiscount;
+        draftOrder.grandTotal = subTotal + shippingCharges;
         draftOrder.shippingInfo = shippingInfo;
         draftOrder.totalDiscount = totalDiscount;
         await draftOrder.save();
@@ -90,7 +90,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           totalTax,
           shippingCharges,
           totalDiscount,
-          grandTotal: subTotal + totalTax + shippingCharges - totalDiscount,
+          grandTotal: subTotal + shippingCharges,
           orderStatus: "pending",
           source: "buyNow",
         });
@@ -105,15 +105,14 @@ export const createOrUpdateDraftOrder = async (req, res) => {
         const discountPercent = product.discount || 0;
         const discountAmount = (originalPrice * discountPercent) / 100;
 
-
         const basePrice = originalPrice - discountAmount;
         const gstRate = product.gstRate;
         const gstAmount = (basePrice * gstRate) / 100;
-        const totalPrice = (basePrice + gstAmount) * item.quantity;
+        const totalPrice = basePrice + gstAmount;
 
-        subTotal += basePrice * item.quantity;
-        totalTax += gstAmount * item.quantity;
-        totalDiscount += discountAmount * item.quantity;
+        subTotal += totalPrice * item.quantity;
+        totalTax += gstAmount + item.quantity;
+        totalDiscount += discountAmount + item.quantity;
 
         return {
           product: product._id,
@@ -138,7 +137,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
         draftOrder.subTotal = subTotal;
         draftOrder.totalTax = totalTax;
         draftOrder.shippingCharges = shippingCharges;
-        draftOrder.grandTotal = subTotal + totalTax + shippingCharges - totalDiscount;
+        draftOrder.grandTotal = subTotal + shippingCharges;
         draftOrder.totalDiscount = totalDiscount;
         draftOrder.shippingInfo = shippingInfo;
         await draftOrder.save();
@@ -150,8 +149,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           subTotal,
           totalTax,
           shippingCharges,
-          totalDiscount,
-          grandTotal: subTotal + totalTax + shippingCharges - totalDiscount,
+          grandTotal: subTotal + shippingCharges,
           orderStatus: "pending",
           source: "cart",
         });

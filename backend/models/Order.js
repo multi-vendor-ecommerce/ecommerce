@@ -29,13 +29,13 @@ const orderSchema = new mongoose.Schema(
           ref: "Product",
           required: [true, "Product is required"]
         },
-        originalPrice: { type: Number, required: true }, 
-        discountPercent: { type: Number, default: 0 },
+        originalPrice: { type: Number, required: true }, // MRP ya original price
+        discountPercent: { type: Number, default: 0 }, // product discount %
         discountAmount: { type: Number, default: 0 },
-        basePrice: { type: Number, required: true },
-        gstRate: { type: Number, required: true },    
-        gstAmount: { type: Number, required: true },   
-        totalPrice: { type: Number, required: true }, 
+        basePrice: { type: Number, required: true },   // price without GST
+        gstRate: { type: Number, required: true },     // GST %
+        gstAmount: { type: Number, required: true },   // GST value
+        totalPrice: { type: Number, required: true },  // (basePrice + gstAmount) * qty
         color: { type: String, default: null },
         size: { type: String, default: null },
       }
@@ -69,10 +69,14 @@ const orderSchema = new mongoose.Schema(
       }
     },
 
-    subTotal: { type: Number, required: true },        
-    totalTax: { type: Number, required: true },        
+    subTotal: { type: Number, required: true }, 
+
+    totalTax: { type: Number, required: true }, 
+
     shippingCharges: { type: Number, required: true }, 
-    totalDiscount: { type: Number, default: 0 },           
+
+    totalDiscount: { type: Number, default: 0 }, 
+              
     grandTotal: { type: Number, required: true },    
 
     orderStatus: {
@@ -92,14 +96,10 @@ const orderSchema = new mongoose.Schema(
       default: null
     },
 
-    // invoiceNumber: {
-    //   type: String,
-    //   required: false, // or true if you always generate it
-    //   unique: true,    // optional, if you want uniqueness
-    // },
     invoiceNumber: { type: String, unique: true, sparse: true},
 
-    userInvoiceUrl: { type: String, default: null }, // URL for customer invoice
+    userInvoiceUrl: { type: String, default: null }, 
+
     vendorInvoices: [
       {
         vendorId: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor" },
