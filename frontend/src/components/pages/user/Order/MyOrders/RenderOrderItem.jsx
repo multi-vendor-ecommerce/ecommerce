@@ -71,7 +71,7 @@ const RenderOrderItem = ({ order, goToDetails }) => {
         <p className="text-gray-800 text-sm md:text-base">
           Grand Total:{" "}
           <span className="font-semibold">
-            ₹{order?.totalAmount.toLocaleString()}
+            ₹{order?.grandTotal.toLocaleString()}
           </span>
         </p>
         <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">

@@ -25,19 +25,45 @@ export const createOrUpdateDraftOrder = async (req, res) => {
     const shippingInfo = await getShippingInfoForOrder(user);
 
     let orderItems = [];
-    let itemPrice = 0;
-    let tax = 0;
     let shippingCharges = 0;
     let draftOrder;
+    let subTotal = 0;
+    let totalTax = 0;
+    let totalDiscount = 0;
 
     if (buyNow) {
       const product = await Product.findById(productId);
       if (!product) return res.status(404).json({ success: false, message: "Selected product is unavailable." });
 
-      orderItems = [{ product: product._id, quantity, color, size }];
-      itemPrice = product.price * quantity;
-      tax = itemPrice * 0.18;
+      const originalPrice = product.price;
+      const discountPercent = product.discount || 0;
+      const discountAmount = (originalPrice * discountPercent) / 100;
+
+      const basePrice = originalPrice - discountAmount;
+      const gstRate = product.gstRate;
+      const gstAmount = (basePrice * gstRate) / 100;
+      const totalPrice = (basePrice + gstAmount) * quantity;
+
+      orderItems = [
+        {
+          product: product._id,
+          quantity,
+          color,
+          size,
+          originalPrice,
+          discountPercent,
+          discountAmount,
+          basePrice,
+          gstRate,
+          gstAmount,
+          totalPrice,
+        },
+      ];
+
+      subTotal = basePrice * quantity;
+      totalTax = gstAmount * quantity;
       shippingCharges = product.freeDelivery ? 0 : 50;
+      totalDiscount = discountAmount * quantity;
 
       draftOrder = await Order.findOne({
         user: userId,
@@ -45,23 +71,26 @@ export const createOrUpdateDraftOrder = async (req, res) => {
         source: "buyNow",
         "orderItems.product": product._id
       });
+
       if (draftOrder) {
         draftOrder.orderItems = orderItems;
-        draftOrder.itemPrice = itemPrice;
-        draftOrder.tax = tax;
+        draftOrder.subTotal = subTotal;
+        draftOrder.totalTax = totalTax;
         draftOrder.shippingCharges = shippingCharges;
-        draftOrder.totalAmount = itemPrice + tax + shippingCharges;
+        draftOrder.grandTotal = subTotal + totalTax + shippingCharges - totalDiscount;
         draftOrder.shippingInfo = shippingInfo;
+        draftOrder.totalDiscount = totalDiscount;
         await draftOrder.save();
       } else {
         draftOrder = await Order.create({
           user: userId,
           orderItems,
           shippingInfo,
-          itemPrice,
-          tax,
+          subTotal,
+          totalTax,
           shippingCharges,
-          totalAmount: itemPrice + tax + shippingCharges,
+          totalDiscount,
+          grandTotal: subTotal + totalTax + shippingCharges - totalDiscount,
           orderStatus: "pending",
           source: "buyNow",
         });
@@ -69,23 +98,48 @@ export const createOrUpdateDraftOrder = async (req, res) => {
     } else {
       // Cart case
       if (!user.cart.length) return res.status(400).json({ success: false, message: "Your cart is empty." });
-      orderItems = user.cart.map(item => ({
-        product: item.product._id,
-        quantity: item.quantity,
-        color: item.color,
-        size: item.size
-      }));
-      itemPrice = user.cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-      tax = itemPrice * 0.18;
-      shippingCharges = user.cart.some(i => !i.product.freeDelivery) ? 50 : 0;
+
+      orderItems = user.cart.map((item) => {
+        const product = item.product;
+        const originalPrice = product.price;
+        const discountPercent = product.discount || 0;
+        const discountAmount = (originalPrice * discountPercent) / 100;
+
+
+        const basePrice = originalPrice - discountAmount;
+        const gstRate = product.gstRate;
+        const gstAmount = (basePrice * gstRate) / 100;
+        const totalPrice = (basePrice + gstAmount) * item.quantity;
+
+        subTotal += basePrice * item.quantity;
+        totalTax += gstAmount * item.quantity;
+        totalDiscount += discountAmount * item.quantity;
+
+        return {
+          product: product._id,
+          quantity: item.quantity,
+          color: item.color,
+          size: item.size,
+          originalPrice,
+          discountPercent,
+          discountAmount,
+          basePrice,
+          gstRate,
+          gstAmount,
+          totalPrice,
+        };
+      });
+      shippingCharges = user.cart.some((i) => !i.product.freeDelivery) ? 50 : 0;
 
       draftOrder = await Order.findOne({ user: userId, orderStatus: "pending", source: "cart" });
+
       if (draftOrder) {
         draftOrder.orderItems = orderItems;
-        draftOrder.itemPrice = itemPrice;
-        draftOrder.tax = tax;
+        draftOrder.subTotal = subTotal;
+        draftOrder.totalTax = totalTax;
         draftOrder.shippingCharges = shippingCharges;
-        draftOrder.totalAmount = itemPrice + tax + shippingCharges;
+        draftOrder.grandTotal = subTotal + totalTax + shippingCharges - totalDiscount;
+        draftOrder.totalDiscount = totalDiscount;
         draftOrder.shippingInfo = shippingInfo;
         await draftOrder.save();
       } else {
@@ -93,16 +147,16 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           user: userId,
           orderItems,
           shippingInfo,
-          itemPrice,
-          tax,
+          subTotal,
+          totalTax,
           shippingCharges,
-          totalAmount: itemPrice + tax + shippingCharges,
+          totalDiscount,
+          grandTotal: subTotal + totalTax + shippingCharges - totalDiscount,
           orderStatus: "pending",
           source: "cart",
         });
       }
     }
-
     return res.status(201).json({ success: true, message: "Draft order saved.", draftId: draftOrder._id });
   } catch (err) {
     console.error(err);
@@ -292,9 +346,9 @@ export const getOrderById = async (req, res) => {
 
 export const cancelOrder = async (req, res) => {
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
     const userId = req.person.id;
-    
+
     const order = await Order.findById(id);
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found" });

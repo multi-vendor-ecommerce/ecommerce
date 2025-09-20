@@ -53,7 +53,10 @@ const ReviewStep = ({ order, step, next, prev }) => {
                   </p>
                 )}
               </div>
+
+
             </div>
+
           );
         })}
       </div>
@@ -62,11 +65,11 @@ const ReviewStep = ({ order, step, next, prev }) => {
       <div className="border rounded-lg p-4 space-y-2 bg-gray-50">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span>₹{formatPrice(order.itemPrice)}</span>
+          <span>₹{formatPrice(order.subTotal)}</span>
         </div>
         <div className="flex justify-between">
           <span>Tax</span>
-          <span>₹{formatPrice(order.tax)}</span>
+          <span>₹{formatPrice(order.totalTax)}</span>
         </div>
         <div className="flex justify-between">
           <span>Shipping</span>
@@ -79,9 +82,20 @@ const ReviewStep = ({ order, step, next, prev }) => {
         <div className="flex justify-between font-bold border-t pt-2">
           <span>Total</span>
           <span className="text-lg text-purple-700">
-            ₹{formatPrice(order.totalAmount)}
+            ₹{formatPrice(order.grandTotal)}
           </span>
         </div>
+
+        {/* shipping info */}
+        <div className="border rounded-lg p-4 bg-gray-50">
+          <h3 className="font-semibold mb-2">Shipping Address</h3>
+          <p>{order.shippingInfo.recipientName}</p>
+          <p>{order.shippingInfo.line1}, {order.shippingInfo.line2}</p>
+          <p>{order.shippingInfo.locality}, {order.shippingInfo.city} - {order.shippingInfo.pincode}</p>
+          <p>{order.shippingInfo.state}, {order.shippingInfo.country}</p>
+          <p>Phone: {order.shippingInfo.recipientPhone}</p>
+        </div>
+
       </div>
 
       <StepperControls

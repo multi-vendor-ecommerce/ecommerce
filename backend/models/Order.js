@@ -29,6 +29,13 @@ const orderSchema = new mongoose.Schema(
           ref: "Product",
           required: [true, "Product is required"]
         },
+        originalPrice: { type: Number, required: true }, 
+        discountPercent: { type: Number, default: 0 },
+        discountAmount: { type: Number, default: 0 },
+        basePrice: { type: Number, required: true },
+        gstRate: { type: Number, required: true },    
+        gstAmount: { type: Number, required: true },   
+        totalPrice: { type: Number, required: true }, 
         color: { type: String, default: null },
         size: { type: String, default: null },
       }
@@ -62,25 +69,11 @@ const orderSchema = new mongoose.Schema(
       }
     },
 
-    itemPrice: {
-      type: Number,
-      required: [true, "Item price is required"],
-    },
-
-    tax: {
-      type: Number,
-      required: [true, "Tax is required"],
-    },
-
-    shippingCharges: {
-      type: Number,
-      required: [true, "Shipping price is required"],
-    },
-
-    totalAmount: {
-      type: Number,
-      required: [true, "Total amount is required"],
-    },
+    subTotal: { type: Number, required: true },        
+    totalTax: { type: Number, required: true },        
+    shippingCharges: { type: Number, required: true }, 
+    totalDiscount: { type: Number, default: 0 },           
+    grandTotal: { type: Number, required: true },    
 
     orderStatus: {
       type: String,
@@ -92,18 +85,19 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: ["cart", "buyNow"],
       required: true,
-    }, 
+    },
 
     deliveredAt: {
       type: Date,
       default: null
     },
 
-    invoiceNumber: {
-      type: String,
-      required: false, // or true if you always generate it
-      unique: true,    // optional, if you want uniqueness
-    },
+    // invoiceNumber: {
+    //   type: String,
+    //   required: false, // or true if you always generate it
+    //   unique: true,    // optional, if you want uniqueness
+    // },
+    invoiceNumber: { type: String, unique: true, sparse: true},
 
     userInvoiceUrl: { type: String, default: null }, // URL for customer invoice
     vendorInvoices: [
@@ -116,6 +110,5 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
 
 export default mongoose.model("Order", orderSchema);

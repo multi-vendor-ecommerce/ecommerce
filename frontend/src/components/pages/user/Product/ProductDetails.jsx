@@ -192,12 +192,24 @@ const ProductDetails = () => {
             </div>
           )}
 
-          {productDetails.createdBy?.name && (
+          {(productDetails.createdBy?.name || productDetails.createdBy?.shopName) && (
             <p className="text-sm text-gray-500">
-              Product By:{" "}
-              <span className="font-medium text-gray-700">
-                {productDetails.createdBy.name}
-              </span>
+              {productDetails.createdBy?.name && (
+                <>
+                  Product By:{" "}
+                  <span className="font-medium text-gray-700">
+                    {productDetails.createdBy.name}
+                  </span>
+                </>
+              )}
+              {productDetails.createdBy?.shopName && (
+                <>
+                  {" "} | Shop:{" "}
+                  <span className="font-medium text-gray-700">
+                    {productDetails.createdBy.shopName}
+                  </span>
+                </>
+              )}
             </p>
           )}
 

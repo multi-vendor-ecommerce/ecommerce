@@ -31,7 +31,7 @@ export const createRazorpayOrder = async (req, res) => {
     }
 
     const options = {
-      amount: Math.round(order.totalAmount * 100),
+      amount: Math.round(order.grandTotal  * 100),
       currency: "INR",
       receipt: order._id.toString(),
     };
@@ -63,7 +63,6 @@ export const verifyRazorpayPayment = async (req, res) => {
   try {
     const order = await Order.findById(orderId)
     .populate("orderItems.product", "title price createdBy hsnCode gstRate")
-    .populate("paymentInfo", "id");
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
 
     if (order.user.toString() !== req.person.id) {
@@ -86,7 +85,7 @@ export const verifyRazorpayPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: "Payment not captured." });
     }
 
-    const expectedAmount = Math.round(order.totalAmount * 100);
+    const expectedAmount = Math.round(order.grandTotal * 100);
     if (payment.amount !== expectedAmount) {
       return res.status(400).json({ success: false, message: "Payment amount mismatch." });
     }
@@ -167,7 +166,7 @@ export const verifyRazorpayPayment = async (req, res) => {
       orderId: order._id,
       customerName: user?.name,
       paymentMethod: order.paymentMethod,
-      totalAmount: order.totalAmount,
+      totalAmount: order.grandTotal,
       items: order.orderItems.map((i) => ({
         name: i.product?.title || "Unknown product",
         qty: i.quantity,
@@ -187,7 +186,7 @@ export const verifyRazorpayPayment = async (req, res) => {
           orderId: order._id,
           customerName: user?.name,
           paymentMethod: order.paymentMethod,
-          totalAmount: order.totalAmount,
+          totalAmount: order.grandTotal,
           items: order.orderItems
             .filter(i => i.product?.createdBy?.toString() === vendor._id.toString())
             .map(i => ({
@@ -308,7 +307,7 @@ export const confirmCOD = async (req, res) => {
       orderId: order._id,
       customerName: user?.name,
       paymentMethod: order.paymentMethod,
-      totalAmount: order.totalAmount,
+      totalAmount: order.grandTotal,
       items: order.orderItems.map((i) => ({
         name: i.product?.title || "Unknown product",
         qty: i.quantity,
@@ -328,7 +327,7 @@ export const confirmCOD = async (req, res) => {
           orderId: order._id,
           customerName: user?.name,
           paymentMethod: order.paymentMethod,
-          totalAmount: order.totalAmount,
+          totalAmount: order.grandTotal,
           items: order.orderItems
             .filter(i => i.product?.createdBy?.toString() === vendor._id.toString())
             .map(i => ({

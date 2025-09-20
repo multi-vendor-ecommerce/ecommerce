@@ -37,7 +37,7 @@ export const getOrderCardData = (order) => [
   {
     icon: FaMoneyBillWave,
     label: "Total Amount",
-    value: `₹${formatNumber(order.totalAmount)}`,
+    value: `₹${formatNumber(order.grandTotal)}`,
     bg: "bg-green-100",
     shadow: "hover:shadow-green-500",
   },
