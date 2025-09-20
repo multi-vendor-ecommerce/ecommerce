@@ -5,7 +5,7 @@ import { monthlySalesData } from "./data/salesData";
 import RecentOrders from "./RecentOrders";
 import TopProducts from "./TopProducts";
 import TopVendors from "../../admin/adminDashboard/TopVendors";
-import TaxesAndInvoices from "../../vendor/vendorDashboard/TaxesAndInvoices";
+import Invoices from "../../vendor/vendorDashboard/Invoices";
 import { dateFilterFields } from "./data/dateFilterFields";
 import CustomSelect from "../../../common/layout/CustomSelect";
 import UserContext from "../../../../context/user/UserContext";
@@ -71,7 +71,7 @@ const Dashboard = ({ summaryData, role = "admin" }) => {
 
       {role === "vendor" && (
         <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
-          <TaxesAndInvoices />
+          <Invoices />
         </div>
       )}
     </section>
