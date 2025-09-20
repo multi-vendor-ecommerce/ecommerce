@@ -4,8 +4,8 @@ import SalesChart from "./SalesChart";
 import { monthlySalesData } from "./data/salesData";
 import RecentOrders from "./RecentOrders";
 import TopProducts from "./TopProducts";
+import RecentInvoices from "./RecentInvoices";
 import TopVendors from "../../admin/adminDashboard/TopVendors";
-import Invoices from "../../vendor/vendorDashboard/Invoices";
 import { dateFilterFields } from "./data/dateFilterFields";
 import CustomSelect from "../../../common/layout/CustomSelect";
 import UserContext from "../../../../context/user/UserContext";
@@ -60,18 +60,16 @@ const Dashboard = ({ summaryData, role = "admin" }) => {
       </div>
 
       <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
+        <RecentInvoices />
+      </div>
+
+      <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
         <TopProducts />
       </div>
 
       {role === "admin" && (
         <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
           <TopVendors />
-        </div>
-      )}
-
-      {role === "vendor" && (
-        <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
-          <Invoices />
         </div>
       )}
     </section>

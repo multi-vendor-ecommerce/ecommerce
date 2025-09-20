@@ -11,22 +11,19 @@ export const getAllInvoices = async (req, res) => {
     const skip = (page - 1) * limit;
     const role = req.person?.role;
 
-    // Always show only approved products
-    query.status = "approved";
-
     let baseQuery = Order.find(query)
       .sort({ unitsSold: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("vendorInvoices", "vendorId invoiceUrl");
+      .populate("vendorInvoices.vendorId", "name email shopName");
 
-    if (role !== "admin") {
       if (role === "vendor") {
-        baseQuery = baseQuery.select("_id invoiceNumber createdAt totalAmount vendorInvoices");
+        baseQuery = baseQuery.select("_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal vendorInvoices");
+      } else if (role === "admin") {
+        baseQuery = baseQuery.select("_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal vendorInvoices userInvoiceUrl");
       } else {
-        baseQuery = baseQuery.select("_id invoiceNumber createdAt totalAmount vendorInvoices userInvoiceUrl");
+        return res.status(403).json({ success: false, message: "Access denied." });
       }
-    }
 
     const [invoices, total] = await Promise.all([
       baseQuery,

@@ -5,6 +5,7 @@ import Product from "../models/Products.js";
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { getShippingInfoForOrder } from "../utils/getShippingInfo.js";
+import { round2 } from "../utils/round2.js";
 
 // ==========================
 // Create or Update Draft Order
@@ -35,14 +36,14 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       const product = await Product.findById(productId);
       if (!product) return res.status(404).json({ success: false, message: "Selected product is unavailable." });
 
-      const originalPrice = product.price;
+      const originalPrice = round2(product.price);
       const discountPercent = product.discount || 0;
-      const discountAmount = (originalPrice * discountPercent) / 100;
+      const discountAmount = round2((originalPrice * discountPercent) / 100);
 
-      const basePrice = originalPrice - discountAmount;
+      const basePrice = round2(originalPrice - discountAmount);
       const gstRate = product.gstRate;
-      const gstAmount = (basePrice * gstRate) / 100;
-      const totalPrice = basePrice + gstAmount;
+      const gstAmount = round2((basePrice * gstRate) / 100);
+      const totalPrice = round2(basePrice + gstAmount);
 
       orderItems = [
         {
@@ -60,10 +61,10 @@ export const createOrUpdateDraftOrder = async (req, res) => {
         },
       ];
 
-      subTotal = totalPrice * quantity;
-      totalTax = gstAmount + quantity;
+      subTotal = round2(totalPrice * quantity);
+      totalTax = round2(gstAmount * quantity);
       shippingCharges = product.freeDelivery ? 0 : 50;
-      totalDiscount = discountAmount + quantity;
+      totalDiscount = round2(discountAmount * quantity);
 
       draftOrder = await Order.findOne({
         user: userId,
@@ -77,7 +78,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
         draftOrder.subTotal = subTotal;
         draftOrder.totalTax = totalTax;
         draftOrder.shippingCharges = shippingCharges;
-        draftOrder.grandTotal = subTotal + shippingCharges;
+        draftOrder.grandTotal = round2(subTotal + shippingCharges);
         draftOrder.shippingInfo = shippingInfo;
         draftOrder.totalDiscount = totalDiscount;
         await draftOrder.save();
@@ -90,7 +91,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           totalTax,
           shippingCharges,
           totalDiscount,
-          grandTotal: subTotal + shippingCharges,
+          grandTotal: round2(subTotal + shippingCharges),
           orderStatus: "pending",
           source: "buyNow",
         });
@@ -101,18 +102,18 @@ export const createOrUpdateDraftOrder = async (req, res) => {
 
       orderItems = user.cart.map((item) => {
         const product = item.product;
-        const originalPrice = product.price;
+        const originalPrice = round2(product.price);
         const discountPercent = product.discount || 0;
-        const discountAmount = (originalPrice * discountPercent) / 100;
+        const discountAmount = round2((originalPrice * discountPercent) / 100);
 
-        const basePrice = originalPrice - discountAmount;
+        const basePrice = round2(originalPrice - discountAmount);
         const gstRate = product.gstRate;
-        const gstAmount = (basePrice * gstRate) / 100;
-        const totalPrice = basePrice + gstAmount;
+        const gstAmount = round2((basePrice * gstRate) / 100);
+        const totalPrice = round2(basePrice + gstAmount);
 
         subTotal += totalPrice * item.quantity;
-        totalTax += gstAmount + item.quantity;
-        totalDiscount += discountAmount + item.quantity;
+        totalTax += gstAmount * item.quantity;
+        totalDiscount += discountAmount * item.quantity;
 
         return {
           product: product._id,
@@ -128,6 +129,9 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           totalPrice,
         };
       });
+      subTotal = round2(subTotal);
+      totalTax = round2(totalTax);
+      totalDiscount = round2(totalDiscount);
       shippingCharges = user.cart.some((i) => !i.product.freeDelivery) ? 50 : 0;
 
       draftOrder = await Order.findOne({ user: userId, orderStatus: "pending", source: "cart" });
@@ -137,7 +141,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
         draftOrder.subTotal = subTotal;
         draftOrder.totalTax = totalTax;
         draftOrder.shippingCharges = shippingCharges;
-        draftOrder.grandTotal = subTotal + shippingCharges;
+        draftOrder.grandTotal = round2(subTotal + shippingCharges);
         draftOrder.totalDiscount = totalDiscount;
         draftOrder.shippingInfo = shippingInfo;
         await draftOrder.save();
@@ -149,7 +153,8 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           subTotal,
           totalTax,
           shippingCharges,
-          grandTotal: subTotal + shippingCharges,
+          grandTotal: round2(subTotal + shippingCharges),
+          totalDiscount,
           orderStatus: "pending",
           source: "cart",
         });

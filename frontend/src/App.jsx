@@ -12,6 +12,9 @@ import PaymentState from "./context/paymentContext/PaymentState";
 import AddressState from "./context/shippingAddress/AddressState";
 import ImageState from "./context/images/ImageState";
 import WishlistState from "./context/wishlist/WishlistState";
+import InvoiceState from "./context/invoices/InvoiceState";
+
+// Common components
 import Toastify from "./components/common/Toastify";
 
 // Person components
@@ -42,31 +45,33 @@ function App() {
 function AppProviders({ children }) {
   return (
     <AuthState>
-      <WishlistState>
-        <AddressState>
-          <ImageState>
-            <PersonState>
-              <OrderState>
-                <PaymentState>
-                  <CartState>
-                    <CouponState>
-                      <UserState>
-                        <CategoryState>
-                          <VendorState>
-                            <ProductState>
-                              {children}
-                            </ProductState>
-                          </VendorState>
-                        </CategoryState>
-                      </UserState>
-                    </CouponState>
-                  </CartState>
-                </PaymentState>
-              </OrderState>
-            </PersonState>
-          </ImageState>
-        </AddressState>
-      </WishlistState>
+      <InvoiceState>
+        <WishlistState>
+          <AddressState>
+            <ImageState>
+              <PersonState>
+                <OrderState>
+                  <PaymentState>
+                    <CartState>
+                      <CouponState>
+                        <UserState>
+                          <CategoryState>
+                            <VendorState>
+                              <ProductState>
+                                {children}
+                              </ProductState>
+                            </VendorState>
+                          </CategoryState>
+                        </UserState>
+                      </CouponState>
+                    </CartState>
+                  </PaymentState>
+                </OrderState>
+              </PersonState>
+            </ImageState>
+          </AddressState>
+        </WishlistState>
+      </InvoiceState>
     </AuthState>
   );
 }

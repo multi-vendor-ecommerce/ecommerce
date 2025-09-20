@@ -11,11 +11,11 @@ export function buildInvoicePayload(order, vendor, user, mode = "customer") {
     throw new Error("Order has no items to generate invoice");
   }
 
-  // Build line items
-  const items = order.orderItems.map(item => ({
+  // Build line items based on Order model
+  const items = order.orderItems.map((item) => ({
     name: item.product?.title || "Product",
     quantity: Number(item.quantity) || 1,
-    unit_cost: Number(item.product?.price) || 0,
+    unit_cost: Number(item.originalPrice) || 0, // shows up in "Rate / Unit Price"
     description: buildItemDescription(item),
   }));
 
@@ -25,16 +25,20 @@ export function buildInvoicePayload(order, vendor, user, mode = "customer") {
       ? "Thank you for your purchase!"
       : "Internal copy for vendor records.",
     order.customNotes || null,
-  ].filter(Boolean).join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   const invoiceTerms = [
     mode === "vendor"
       ? "Please process this order promptly and update the status in your vendor dashboard."
       : order.paymentMethod === "COD"
-        ? "Cash on Delivery. Please pay at the time of delivery."
-        : "Payment received via Razorpay. Returns accepted within 15 days.",  
+      ? "Cash on Delivery. Please pay at the time of delivery."
+      : "Payment received via Razorpay. Returns accepted within 15 days.",
     order.termsAndConditions || null,
-  ].filter(Boolean).join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   // Logos
   const logo =
@@ -45,7 +49,7 @@ export function buildInvoicePayload(order, vendor, user, mode = "customer") {
     logo,
     currency: "INR",
 
-    // ✅ Invoice info
+    // Invoice info
     number: order.invoiceNumber || order._id || "INV-000",
     date: new Date().toISOString().slice(0, 10), // Invoice date = today
 
@@ -55,12 +59,29 @@ export function buildInvoicePayload(order, vendor, user, mode = "customer") {
 
     items,
     fields: { tax: "%", discounts: true, shipping: true },
-    discounts: order.discounts || 0,
-    tax: order.tax || 0,
+    discounts: order.totalDiscount || 0,
+    tax: order.totalTax || 0,
+    gstAmount: order.gstAmount || undefined,
     shipping: order.shippingCharges || 0,
-    amount_paid: order.paymentMethod === "Online" ? order.totalAmount : 0,
+    amount_paid: order.paymentMethod === "Online" ? order.grandTotal : 0,
 
-    // ✅ Order info (separate from invoice date)
+    // 🆕 Header overrides (template parameters)
+    header: "INVOICE",
+    item_header: "Product",
+    quantity_header: "Qty",
+    unit_cost_header: "Unit Price",
+    amount_header: "Total Amount",
+    subtotal_title: "Sub Total",
+    discounts_title: "Total Discount",
+    tax_title: "GST / Tax",
+    shipping_title: "Delivery Charges",
+    total_title: "Grand Total",
+    amount_paid_title: "Amount Paid",
+    balance_title: "Balance Due",
+    notes_title: "Additional Notes",
+    terms_title: "Terms & Conditions",
+
+    // Order info (separate from invoice date)
     custom_fields: [
       { name: "Order ID", value: order._id.toString() },
       {

@@ -35,7 +35,7 @@ const orderSchema = new mongoose.Schema(
         basePrice: { type: Number, required: true },   // price without GST
         gstRate: { type: Number, required: true },     // GST %
         gstAmount: { type: Number, required: true },   // GST value
-        totalPrice: { type: Number, required: true },  // (basePrice + gstAmount) * qty
+        totalPrice: { type: Number, required: true },  // (basePrice + gstAmount)
         color: { type: String, default: null },
         size: { type: String, default: null },
       }
@@ -102,7 +102,7 @@ const orderSchema = new mongoose.Schema(
 
     vendorInvoices: [
       {
-        vendorId: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor" },
+        vendorId: { type: mongoose.Schema.Types.ObjectId, ref: "Person" },
         invoiceUrl: { type: String },
       },
     ],
