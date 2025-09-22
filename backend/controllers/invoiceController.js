@@ -5,12 +5,9 @@ import buildQuery from "../utils/queryBuilder.js";
 export const getAllInvoices = async (req, res) => {
   try {
     const role = req.person?.role;
-    if (!["vendor", "admin"].includes(role)) {
-      return res.status(403).json({ success: false, message: "Access denied." });
-    }
 
     // Accept query params for search/filter
-    let query = buildQuery(req.query, ["invoiceNumber"]);
+    let query = buildQuery(req.query, ["invoiceNumber", "paymentMethod"]);
 
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.max(parseInt(req.query.limit) || 10, 1);
@@ -25,8 +22,7 @@ export const getAllInvoices = async (req, res) => {
     let baseQuery = Order.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit)
-      .populate("vendorInvoices.vendorId", "name email shopName");
+      .limit(limit);
 
     // Select fields
     if (role === "vendor") {
@@ -34,12 +30,11 @@ export const getAllInvoices = async (req, res) => {
         "_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal vendorInvoices"
       );
     } else {
-      baseQuery = baseQuery.select(
-        "_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal vendorInvoices userInvoiceUrl"
-      );
+      baseQuery = baseQuery.populate("vendorInvoices.vendorId", "name email shopName")
+        .select("_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal vendorInvoices userInvoiceUrl");
     }
 
-    const [invoices, total] = await Promise.all([
+    let [invoices, total] = await Promise.all([
       baseQuery.lean(),
       Order.countDocuments(query),
     ]);
@@ -48,9 +43,12 @@ export const getAllInvoices = async (req, res) => {
     if (role === "vendor") {
       invoices.forEach(order => {
         order.vendorInvoices = order.vendorInvoices.filter(
-          vi => vi.vendorId?._id?.toString() === req.person.id
+          vi => vi.vendorId?.toString() === req.person.id
         );
       });
+
+      // Remove orders that have no matching vendorInvoices
+      invoices = invoices.filter(order => order.vendorInvoices.length > 0);
     }
 
     res.status(200).json({
@@ -59,14 +57,42 @@ export const getAllInvoices = async (req, res) => {
       invoices,
       total,
       page,
-      limit
+      limit,
     });
   } catch (err) {
     console.error("Error fetching invoices:", err);
     res.status(500).json({
       success: false,
       message: "Unable to load invoices.",
-      error: err.message
+      error: err.message,
+    });
+  }
+};
+
+// Admin invoice detail
+export const getInvoiceById = async (req, res) => {
+  try {
+    const invoice = await Order.findById(req.params.id)
+      .populate("vendorInvoices.vendorId", "name email shopName")
+      .select(
+        "_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal vendorInvoices userInvoiceUrl"
+      );
+
+    if (!invoice) {
+      return res.status(404).json({ success: false, message: "Invoice not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Invoice fetched successfully",
+      invoice,
+    });
+  } catch (err) {
+    console.error("Error fetching invoice:", err);
+    res.status(500).json({
+      success: false,
+      message: "Unable to load invoice.",
+      error: err.message,
     });
   }
 };

@@ -66,7 +66,7 @@ export const RenderInvoiceRow = (invoice, index, role = "admin") => {
       {role === "admin" && (
         <td className="px-6 py-4 min-w-[140px]">
           <NavLink
-            to={`/admin/${invoice.invoiceNumber}/vendor-invoices`}
+            to={`/admin/${invoice?._id}/vendor-invoices`}
             className="text-green-600 hover:underline cursor-pointer"
           >
             View All

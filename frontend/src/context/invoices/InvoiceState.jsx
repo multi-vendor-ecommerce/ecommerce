@@ -41,7 +41,7 @@ const InvoiceState = ({ children }) => {
       if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
       else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
 
-      const response = await fetch(`${host}/api/invoices/${role}`, {
+      const response = await fetch(`${host}/api/invoices/${role}?${params.toString()}`, {
         method: "GET",
         headers,
       });
@@ -65,10 +65,38 @@ const InvoiceState = ({ children }) => {
     }
   };
 
+  const getInvoiceById = async (id) => {
+    setLoading(true);
+    try {
+      const { role } = getRoleInfo();
+
+      const response = await fetch(`${host}/api/invoices/admin/${id}`, {
+        method: "GET",
+        headers: { "auth-token": localStorage.getItem("adminToken") },
+      });
+
+      if (!response.ok) {
+        console.error("Failed to fetch invoice details.");
+        return null;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        return data.invoice || null;
+      } else {
+        console.error("Error fetching invoice details:", data.message);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching invoice details:", error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <InvoiceContext.Provider
-      value={{ loading, invoices, totalCount, getAllInvoices }}
-    >
+    <InvoiceContext.Provider value={{ loading, invoices, totalCount, getAllInvoices, getInvoiceById }}>
       {children}
     </InvoiceContext.Provider>
   );

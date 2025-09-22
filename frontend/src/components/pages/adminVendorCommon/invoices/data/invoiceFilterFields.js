@@ -1,7 +1,7 @@
 export const invoiceFilterFields = [
   {
     name: "search",
-    label: "Search by payment method",
+    label: "Search by invoice number or payment method",
     type: "text"
   },
   {

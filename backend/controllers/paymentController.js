@@ -298,6 +298,7 @@ export const confirmCOD = async (req, res) => {
     // ==========================
     // Create Shiprocket Orders for Vendors
     // ==========================
+    const vendorGroups = {};
     for (const item of order.orderItems) {
       const vendorId = item.product?.createdBy?.toString();
       if (!vendorId) continue;
@@ -340,7 +341,6 @@ export const confirmCOD = async (req, res) => {
     order.userInvoiceUrl = customerInvoice?.url || "";
 
     // Generate vendor invoices
-    const vendorGroups = {};
     for (const item of order.orderItems) {
       const vendorId = item.product?.createdBy?.toString();
       if (!vendorId) continue;

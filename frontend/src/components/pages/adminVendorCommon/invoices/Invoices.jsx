@@ -17,8 +17,8 @@ export default function Invoices({ role = "admin" }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
-    getAllInvoices();
-  }, []);
+    getAllInvoices({ ...filters, page, limit: itemsPerPage });
+  }, [page, itemsPerPage, filters]);
 
   const handleChange = (name, value) => {
     setFilters(prev => ({ ...prev, [name]: value }));
@@ -26,11 +26,7 @@ export default function Invoices({ role = "admin" }) {
 
   const handleApply = () => {
     setPage(1);
-    if (isTopSellingPage) {
-      fetchTopSelling(1, itemsPerPage);
-    } else {
-      fetchPaginatedProducts(1, itemsPerPage);
-    }
+    getAllInvoices({ ...filters, page: 1, limit: itemsPerPage });
   };
 
   const handleClear = () => {
@@ -38,7 +34,7 @@ export default function Invoices({ role = "admin" }) {
     setFilters(reset);
     setPage(1);
 
-    getAllInvoices();
+    getAllInvoices({ ...reset, page: 1, limit: itemsPerPage });
   };
 
   const handlePageChange = (pg) => {
@@ -75,6 +71,7 @@ export default function Invoices({ role = "admin" }) {
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
       <div className="flex justify-between items-center mb-3">
         <BackButton />
+
         <NavLink
           to={`/${role}/all-orders`}
           className="flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-blue-600 font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
