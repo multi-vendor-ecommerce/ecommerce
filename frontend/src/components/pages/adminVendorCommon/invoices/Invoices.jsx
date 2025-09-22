@@ -11,7 +11,7 @@ import { FiEye } from "react-icons/fi";
 import { invoiceFilterFields } from "./data/invoiceFilterFields";
 
 export default function Invoices({ role = "admin" }) {
-  const {invoices, getAllInvoices, totalCount, loading } = useContext(InvoiceContext);
+  const { invoices, getAllInvoices, totalCount, loading } = useContext(InvoiceContext);
   const [filters, setFilters] = useState({ search: "" });
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -64,24 +64,24 @@ export default function Invoices({ role = "admin" }) {
     "Total Discount",
     "Grand Total",
     "Payment Method",
-    "Customer Invoice",
-    invoices?.vendorInvoices?.length === 1 ? "Vendor Invoice" : "Vendor Invoices",
+    role === "admin" ? "Customer Invoice" : null,
+    role === "admin"
+      ? (invoices?.vendorInvoices?.length === 1 ? "Vendor Invoice" : "Vendor Invoices")
+      : "My Invoice",
     "Created At"
-  ];
+  ].filter(Boolean); // removes any nulls
 
   return (
     <section className="bg-gray-100 min-h-screen p-6 shadow-md">
       <div className="flex justify-between items-center mb-3">
         <BackButton />
-        {role === "vendor" && (
-          <NavLink
-            to={`/${role}/all-orders`}
-            className="flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-blue-600 font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
-          >
-            <FiEye className="text-lg md:text-2xl" />
-            <span className="hidden md:inline-block">Check All Orders</span>
-          </NavLink>
-        )}
+        <NavLink
+          to={`/${role}/all-orders`}
+          className="flex items-center gap-2 px-3 md:px-4 py-3 md:py-2 border border-blue-500 hover:bg-blue-600 text-blue-600 font-semibold hover:text-white shadow-md hover:shadow-gray-400 rounded-full md:rounded-lg transition cursor-pointer"
+        >
+          <FiEye className="text-lg md:text-2xl" />
+          <span className="hidden md:inline-block">Check All Orders</span>
+        </NavLink>
       </div>
 
       <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mt-4 mb-6">

@@ -72,7 +72,7 @@ const Vendor = () => {
               <Route path="order-details/:orderId" element={<OrderDetails role={role} />} />
             </Route>
 
-            <Route path="orders/invoices" element={<Invoices role={role} />} />
+            <Route path="invoices" element={<Invoices role={role} />} />
 
             <Route path="all-customers" element={<Customers />} />
 

@@ -4,40 +4,69 @@ import buildQuery from "../utils/queryBuilder.js";
 // Vendor/Admin invoice list
 export const getAllInvoices = async (req, res) => {
   try {
+    const role = req.person?.role;
+    if (!["vendor", "admin"].includes(role)) {
+      return res.status(403).json({ success: false, message: "Access denied." });
+    }
+
     // Accept query params for search/filter
     let query = buildQuery(req.query, ["invoiceNumber"]);
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-    const role = req.person?.role;
 
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+    const skip = (page - 1) * limit;
+
+    // Vendor-specific query: only orders that include this vendor
+    if (role === "vendor") {
+      query["vendorInvoices"] = { $elemMatch: { vendorId: req.person.id } };
+    }
+
+    // Base query
     let baseQuery = Order.find(query)
-      .sort({ unitsSold: -1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate("vendorInvoices.vendorId", "name email shopName");
 
-      if (role === "vendor") {
-        baseQuery = baseQuery.select("_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal vendorInvoices");
-      } else if (role === "admin") {
-        baseQuery = baseQuery.select("_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal vendorInvoices userInvoiceUrl");
-      } else {
-        return res.status(403).json({ success: false, message: "Access denied." });
-      }
+    // Select fields
+    if (role === "vendor") {
+      baseQuery = baseQuery.select(
+        "_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal vendorInvoices"
+      );
+    } else {
+      baseQuery = baseQuery.select(
+        "_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal vendorInvoices userInvoiceUrl"
+      );
+    }
 
     const [invoices, total] = await Promise.all([
-      baseQuery,
+      baseQuery.lean(),
       Order.countDocuments(query),
     ]);
+
+    // For vendors, map each order to include only their vendorInvoices
+    if (role === "vendor") {
+      invoices.forEach(order => {
+        order.vendorInvoices = order.vendorInvoices.filter(
+          vi => vi.vendorId?._id?.toString() === req.person.id
+        );
+      });
+    }
 
     res.status(200).json({
       success: true,
       message: "Invoices fetched successfully",
       invoices,
       total,
+      page,
       limit
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Unable to load invoices.", error: err.message });
+    console.error("Error fetching invoices:", err);
+    res.status(500).json({
+      success: false,
+      message: "Unable to load invoices.",
+      error: err.message
+    });
   }
 };
