@@ -38,6 +38,20 @@ const orderSchema = new mongoose.Schema(
         totalPrice: { type: Number, required: true },  // (basePrice + gstAmount)
         color: { type: String, default: null },
         size: { type: String, default: null },
+
+        // Vendor reference (who is selling this product)
+        createdBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Vendor",
+          required: true
+        },
+
+        //   Shiprocket fields (per item/vendor)
+        shiprocketOrderId: { type: String, default: "" }, // shiproket ----
+        shiprocketShipmentId: { type: String, default: "" }, 
+        shiprocketAWB: { type: String, default: "" },       
+        courierName: { type: String, default: "" },         
+        labelUrl: { type: String, default: "" },             
       }
     ],
 
@@ -69,19 +83,19 @@ const orderSchema = new mongoose.Schema(
       }
     },
 
-    subTotal: { type: Number, required: true }, 
+    subTotal: { type: Number, required: true },
 
-    totalTax: { type: Number, required: true }, 
+    totalTax: { type: Number, required: true },
 
-    shippingCharges: { type: Number, required: true }, 
+    shippingCharges: { type: Number, required: true },
 
-    totalDiscount: { type: Number, default: 0 }, 
-              
-    grandTotal: { type: Number, required: true },    
+    totalDiscount: { type: Number, default: 0 },
+
+    grandTotal: { type: Number, required: true },
 
     orderStatus: {
       type: String,
-      default: "processing",
+      default: "pending",
       enum: ["pending", "processing", "shipped", "delivered", "cancelled"]
     },
 
@@ -96,9 +110,9 @@ const orderSchema = new mongoose.Schema(
       default: null
     },
 
-    invoiceNumber: { type: String, unique: true, sparse: true},
+    invoiceNumber: { type: String, unique: true, sparse: true },
 
-    userInvoiceUrl: { type: String, default: null }, 
+    userInvoiceUrl: { type: String, default: null },
 
     vendorInvoices: [
       {

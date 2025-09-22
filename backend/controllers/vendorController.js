@@ -1,9 +1,17 @@
 import Vendor from "../models/Vendor.js";
+import User from "../models/User.js";
+import Order from "../models/Order.js";
 import Product from "../models/Products.js"; // Add this import at the top
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 import { sendVendorStatusMail, sendVendorApprovalStatusMail, sendVendorProfileUpdatedMail } from "../services/email/sender.js";
 import { setNestedValueIfAllowed } from "../utils/setNestedValueIfAllowed.js";
+
+
+import { getVendorShiprocketToken } from "../services/shiprocket/client.js";
+import { createVendorShiprocketOrder } from "../services/shiprocket/orders.js";
+import { fetchShiprocketPickupLocations } from "../services/shiprocket/location.js";
+import { addShiprocketPickupLocation } from "../services/shiprocket/addShiprocketPickupLocation.js";
 
 // ==========================
 // Get all vendors (paginated)
@@ -154,7 +162,7 @@ export const updateVendorStatus = async (req, res) => {
     if (!isValidStatus) {
       return res.status(400).json({ success: false, message: "Invalid status value." });
     }
-    
+
     let vendor = await Vendor.findById(req.params.id);
     if (!vendor) {
       return res.status(404).json({ success: false, message: "Vendor not found." });
@@ -376,5 +384,124 @@ export const reactivateVendorAccount = async (req, res) => {
   } catch (error) {
     console.error("Reactivate Vendor Account Error:", error);
     res.status(500).json({ success: false, message: "Unable to request account reactivation.", error: error.message });
+  }
+};
+
+// ==========================
+// Save Shiprocket Credentials (Vendor only)
+// ==========================
+export const saveShiprocketCredentials = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const vendor = await Vendor.findById(req.person.id);
+
+    if (!vendor || vendor.role !== "vendor") {
+      return res.status(403).json({
+        success: false,
+        message: "Only vendors can save Shiprocket credentials."
+      });
+    }
+
+    // Save credentials in DB
+    vendor.shiprocket.email = email.trim().toLowerCase();
+    vendor.shiprocket.password = password.trim();
+    vendor.shiprocket.token = null;
+    await vendor.save();
+
+    // Get fresh token
+    const token = await getVendorShiprocketToken(vendor._id);
+
+    // Fetch pickup locations from Shiprocket
+    const locations = await fetchShiprocketPickupLocations(token);
+
+    if (!locations || locations.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message:
+          "Shiprocket credentials saved successfully, but no pickup locations found. Please add a pickup address.",
+        requirePickup: true,
+      });
+    }
+
+    // Save all pickup locations
+    vendor.shiprocket.pickupLocations = locations.map(loc => ({
+      id: loc.id,
+      pickup_location: loc.pickup_location,
+      address: loc.address,
+      city: loc.city,
+      state: loc.state,
+      country: loc.country,
+      pin_code: loc.pin_code,
+      name: loc.name,
+      phone: loc.phone,
+      email: loc.email,
+      is_primary_location: loc.is_primary_location === 1
+    }));
+
+    await vendor.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Shiprocket credentials saved successfully.",
+      pickupLocations: vendor.shiprocket.pickupLocations,
+    });
+  } catch (err) {
+    console.error("Save Shiprocket credentials error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to save Shiprocket credentials.",
+      error: err.message,
+    });
+  }
+};
+
+
+// create a pickup location for the vendor
+export const createVendorPickupLocation = async (req, res) => {
+  try {
+    const vendorId = req.person.id;
+    const pickupInput = req.body;
+
+    const result = await addShiprocketPickupLocation(vendorId, pickupInput);
+
+    res.json({
+      success: true,
+      message: "Pickup location created successfully",
+      data: result,
+    });
+  } catch (err) {
+    console.error("Create vendor pickup location error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get vendor token
+export const getVendorShiprocketTokenController = async (req, res) => {
+  try {
+    const token = await getVendorShiprocketToken(req.params.vendorId);
+    res.json({ success: true, token });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Create Shiprocket order
+export const createVendorShiprocketOrderController = async (req, res) => {
+  try {
+    const { orderId, vendorId, userId } = req.body;
+
+    const order = await Order.findById(orderId).populate("orderItems.product");
+    const vendor = await Vendor.findById(vendorId);
+    const user = await User.findById(userId);
+
+    if (!order || !vendor || !user) {
+      return res.status(404).json({ success: false, message: "Order, Vendor, or User not found" });
+    }
+
+    const data = await createVendorShiprocketOrder(order, vendor, user);
+
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

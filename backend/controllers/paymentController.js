@@ -8,6 +8,7 @@ import { sendOrderSuccessMail } from "../services/email/sender.js";
 import { generateInvoice } from "../services/invoice/generateInvoice.js";
 import Vendor from "../models/Vendor.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
+import { createVendorShiprocketOrder } from "../services/shiprocket/orders.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -31,7 +32,7 @@ export const createRazorpayOrder = async (req, res) => {
     }
 
     const options = {
-      amount: Math.round(order.grandTotal  * 100),
+      amount: Math.round(order.grandTotal * 100),
       currency: "INR",
       receipt: order._id.toString(),
     };
@@ -62,7 +63,7 @@ export const verifyRazorpayPayment = async (req, res) => {
 
   try {
     const order = await Order.findById(orderId)
-    .populate("orderItems.product", "title price createdBy hsnCode gstRate")
+      .populate("orderItems.product", "title price createdBy hsnCode gstRate")
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
 
     if (order.user.toString() !== req.person.id) {
@@ -116,6 +117,41 @@ export const verifyRazorpayPayment = async (req, res) => {
     if (!order.invoiceNumber) {
       order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
     }
+
+
+    // ==========================
+    // Create Shiprocket Orders for Vendors
+    // ==========================
+    const shiprocketVendorGroups = {};
+
+    // Group order items by vendor for Shiprocket
+    for (const item of order.orderItems) {
+      const vendorId = item.product?.createdBy?.toString();
+      if (!vendorId) continue;
+      if (!shiprocketVendorGroups[vendorId]) shiprocketVendorGroups[vendorId] = [];
+      shiprocketVendorGroups[vendorId].push(item);
+    }
+
+    // Create Shiprocket order per vendor
+    for (const [vendorId, items] of Object.entries(shiprocketVendorGroups)) {
+      const vendor = await Vendor.findById(vendorId);
+      if (!vendor) continue;
+
+      if (vendor.shiprocket?.email && vendor.shiprocket?.password) {
+        try {
+          const shiprocketRes = await createVendorShiprocketOrder(
+            { ...order.toObject(), orderItems: items },
+            vendor,
+            user
+          );
+          // Save Shiprocket order ID for all items of this vendor
+          items.forEach(i => i.shiprocketOrderId = shiprocketRes.order_id);
+        } catch (err) {
+          console.error(`Shiprocket error for vendor ${vendor.shopName}:`, err.message);
+        }
+      }
+    }
+
 
     // ==========================
     // Fetch vendors for customer invoice (use first vendor as primary)
@@ -258,9 +294,41 @@ export const confirmCOD = async (req, res) => {
       order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
     }
 
+
+    // ==========================
+    // Create Shiprocket Orders for Vendors
+    // ==========================
+    for (const item of order.orderItems) {
+      const vendorId = item.product?.createdBy?.toString();
+      if (!vendorId) continue;
+      if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
+      vendorGroups[vendorId].push(item);
+    }
+
+    // Create Shiprocket order per vendor
+    for (const [vendorId, items] of Object.entries(vendorGroups)) {
+      const vendor = await Vendor.findById(vendorId);
+      if (!vendor) continue;
+
+      if (vendor.shiprocket?.email && vendor.shiprocket?.password) {
+        try {
+          const shiprocketRes = await createVendorShiprocketOrder(
+            { ...order.toObject(), orderItems: items },
+            vendor,
+            user
+          );
+          items.forEach(i => i.shiprocketOrderId = shiprocketRes.order_id);
+        } catch (err) {
+          console.error(`Shiprocket error for vendor ${vendor.shopName}:`, err.message);
+        }
+      }
+    }
+
+
     // ==========================
     // Fetch vendors for customer invoice (use first vendor as primary)
     // ==========================
+
     const vendorIds = [...new Set(order.orderItems.map(item => item.product?.createdBy?.toString()).filter(Boolean))];
     let primaryVendor = null;
     if (vendorIds.length) {

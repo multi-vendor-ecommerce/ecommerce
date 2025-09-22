@@ -5,6 +5,7 @@ import Product from "../models/Products.js";
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { getShippingInfoForOrder } from "../utils/getShippingInfo.js";
+import { createVendorShiprocketOrder } from "../services/shiprocket/orders.js";
 import { round2 } from "../utils/round2.js";
 
 // ==========================
@@ -21,6 +22,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
     }
 
     const user = await User.findById(userId).populate("cart.product").select("cart address name phone");
+
     if (!user) return res.status(404).json({ success: false, message: "Unable to process order." });
 
     const shippingInfo = await getShippingInfoForOrder(user);
@@ -48,6 +50,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       orderItems = [
         {
           product: product._id,
+          createdBy: product.createdBy,
           quantity,
           color,
           size,
@@ -58,6 +61,8 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           gstRate,
           gstAmount,
           totalPrice,
+
+
         },
       ];
 
@@ -117,6 +122,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
 
         return {
           product: product._id,
+          createdBy: product.createdBy, 
           quantity: item.quantity,
           color: item.color,
           size: item.size,

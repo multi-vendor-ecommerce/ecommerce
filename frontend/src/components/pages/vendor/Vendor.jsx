@@ -20,7 +20,7 @@ import PersonContext from "../../../context/person/PersonContext";
 import Loader from "../../common/Loader";
 import VendorStatus from "./vendorStatus/VendorStatus";
 import EditProduct from "../adminVendorCommon/product/EditProduct";
-import Invoices from "../adminVendorCommon/dashboard/RecentInvoices";
+import Invoices from "../adminVendorCommon/invoices/Invoices";
 
 const Vendor = () => {
   const { authTokens } = useContext(AuthContext);

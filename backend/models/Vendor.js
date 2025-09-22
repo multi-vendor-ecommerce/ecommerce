@@ -33,7 +33,29 @@ const Vendor = Person.discriminator("vendor", new mongoose.Schema({
   commissionRate: { type: Number, default: 10 },
   totalSales: { type: Number, default: 0 },
   totalRevenue: { type: Number, default: 0 },
-  registeredAt: { type: Date, default: Date.now }
+  registeredAt: { type: Date, default: Date.now },
+
+  shiprocket: {
+    email: { type: String, trim: true },
+    password: { type: String, trim: true },
+    token: { type: String, trim: true },
+    tokenExpiresAt: { type: Date },
+    pickupLocations: [
+      {
+        id: Number,
+        pickup_location: String,
+        address: String,
+        city: String,
+        state: String,
+        country: String,
+        pin_code: String,
+        name: String,
+        phone: String,
+        email: String,
+        is_primary_location: Boolean
+      }
+    ]
+  }
 }));
 
 export default Vendor;
