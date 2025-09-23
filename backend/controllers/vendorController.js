@@ -455,7 +455,6 @@ export const saveShiprocketCredentials = async (req, res) => {
   }
 };
 
-
 // create a pickup location for the vendor
 export const createVendorPickupLocation = async (req, res) => {
   try {

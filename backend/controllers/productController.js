@@ -4,6 +4,7 @@ import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 import { sendProductAddedMail, sendProductAddedAdminMail, sendProductStatusMail, sendVendorResubmittedProductMail, sendVendorDeletionRequestMail, sendProductDeletedByAdminMail } from "../services/email/sender.js";
 import Vendor from "../models/Vendor.js";
+import Order from "../models/Order.js";
 import { validateProductFields } from "../utils/validateProductFields.js";
 import { mergeImages } from "../utils/mergeImages.js";
 import cloudinary from "../config/cloudinary.js";
@@ -618,6 +619,48 @@ export const updateProductStatus = async (req, res) => {
       success: false,
       message: "Unable to update product status",
       error: error.message
+    });
+  }
+};
+
+// Recently Viewed Products 
+export const getPendingBuyNowProducts = async (req, res) => {
+  try {
+    const userId = req.person.id;
+
+    // Fetch only Buy Now + Pending orders, sorted by recent
+    const pendingOrders = await Order.find({
+      user: userId,
+      source: "buyNow",
+      orderStatus: "pending",
+    })
+      .populate("orderItems.product", "title price images category discount")
+      .sort({ createdAt: -1 }) 
+      .limit(10);
+
+    const products = [];
+    const seen = new Set();
+
+    for (const order of pendingOrders) {
+      for (const item of order.orderItems) {
+        if (item.product?._id && !seen.has(item.product._id.toString())) {
+          seen.add(item.product._id.toString());
+          products.push(item.product);
+        }
+      }
+      if (products.length >= 10) break; 
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Top 10 pending Buy Now products loaded successfully.",
+      products,
+    });
+  } catch (err) {
+    console.error("Pending Buy Now Products Error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Unable to load Buy Now products.",
     });
   }
 };

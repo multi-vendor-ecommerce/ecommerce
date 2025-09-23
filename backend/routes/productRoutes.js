@@ -2,7 +2,7 @@ import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 import multerErrorHandler from "../middleware/multerErrorHandler.js";
-import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts, updateProductStatus, editProduct, deleteProduct } from "../controllers/productController.js";
+import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts, updateProductStatus, editProduct, deleteProduct, getPendingBuyNowProducts } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 
 const router = express.Router();
@@ -73,5 +73,9 @@ router.put("/vendor/delete/:id", verifyToken, authorizeRoles("vendor"), deletePr
 // ROUTE 16: POST /api/products/add-product
 // Desc: Add a product (vendor only)
 router.post("/add-product", verifyToken, authorizeRoles("vendor"), uploadProduct.array("images", 7), multerErrorHandler, addProduct);
+
+
+// get recently viewed products
+router.get("/recently-viewed", verifyToken, authorizeRoles("customer"), getPendingBuyNowProducts);
 
 export default router;

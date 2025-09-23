@@ -20,7 +20,7 @@ const TopSellingProducts = () => {
   };
 
   return (
-    <section className="px-7 py-6 min-w-full">
+    <section className="px-7 min-w-full">
       <h2 className="text-2xl md:text-3xl font-bold text-gray-900 text-start tracking-tight">
         Top Selling Products
       </h2>

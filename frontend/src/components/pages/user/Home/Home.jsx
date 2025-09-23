@@ -4,6 +4,7 @@ import ProductSection from './ProductSection';
 import SliderData from "../Utils/BannersData.js";
 import HeroSlider from '../../../common/HeroSlider';
 import TopSellingProducts from '../Product/TopSellingProducts.jsx';
+import RecentlyProductList from '../Product/RecentlyProductList.jsx';
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
         <CategorySection />
         <TopSellingProducts />
         <HeroSlider banners={SliderData} />
+        <RecentlyProductList />
         <ProductSection />
         {/* <ProductByCategory /> */}
       </div>

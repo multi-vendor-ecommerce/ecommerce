@@ -250,6 +250,43 @@ const ProductState = ({ children }) => {
     }
   };
 
+  // // Recently Viewed Products (Top 10 pending Buy Now)
+  const getRecentlyViewedProducts = async () => {
+    const { role } = getRoleInfo();
+
+    if (role !== "customer") {
+      console.warn("Recently viewed products are only for customers.");
+      return [];
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${host}/api/products/recently-viewed`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("customerToken"),
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch recently viewed products.");
+
+      const data = await response.json();
+      if (data.success) {
+        return data.products || [];
+      } else {
+        return [];
+      }
+    } catch (err) {
+      console.error("Error fetching recently viewed products:", err);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <ProductContext.Provider
       value={{
@@ -263,7 +300,8 @@ const ProductState = ({ children }) => {
         getTopSellingProducts,
         editProduct,
         deleteProduct,
-        updateProductStatus
+        updateProductStatus,
+        getRecentlyViewedProducts
       }}
     >
       {children}
