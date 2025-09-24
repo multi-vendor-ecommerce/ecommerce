@@ -139,7 +139,7 @@ const ProductDetails = ({ role = "admin" }) => {
           Product Description
         </h3>
         <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
-          {product.description || "No description provided."}
+          <span dangerouslySetInnerHTML={{ __html: product.description || "No description provided." }} />
         </p>
       </div>
     </section>

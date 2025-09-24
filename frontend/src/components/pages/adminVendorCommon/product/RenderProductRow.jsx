@@ -16,7 +16,7 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
     >
       {/* Product (image + name) */}
       <td
-        className="px-6 py-4 min-w-[300px] hover:scale-105 transition duration-150"
+        className="px-6 py-4 min-w-[300px] hover:scale-105 transition-all duration-150"
         title={toTitleCase(p.title) || "No Title"}
       >
         <NavLink to={`/${role}/product-details/${p._id}`} className="w-full flex items-center gap-4">

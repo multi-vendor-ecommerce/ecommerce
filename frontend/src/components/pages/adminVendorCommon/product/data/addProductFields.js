@@ -81,7 +81,7 @@ export const addProductFields = {
     {
       label: "Weight (g)",
       name: "weight",
-      placeholder: "e.g., 0.5",
+      placeholder: "e.g., 500",
       title: "Enter product weight in grams",
       type: "number",
       required: true,
@@ -94,7 +94,7 @@ export const addProductFields = {
       name: "description",
       placeholder: "Write product description here...",
       title: "Enter product description",
-      type: "textarea",
+      richtext: true,
       required: true,
     },
     {

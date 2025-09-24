@@ -11,6 +11,7 @@ const BasicInfo = ({
   handleInputChange,
   isEditing = true,
   showStepper = true,
+  loading
 }) => {
   return (
     <>
@@ -30,7 +31,7 @@ const BasicInfo = ({
                   : formData[field.name] || ""
               }
               onChange={handleInputChange}
-              disabled={!isEditing} // <-- use isEditing to control editability
+              disabled={!isEditing || loading} // <-- use isEditing to control editability
             />
             {field.name === "hsnCode" && (
               <a

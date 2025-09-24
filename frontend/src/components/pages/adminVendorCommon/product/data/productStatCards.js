@@ -22,7 +22,7 @@ export const getProfileCardData = (product) => [
   {
     icon: FaKey,
     label: "HSN Code",
-    value: toTitleCase(product?.hsnCode) || "Unknown",
+    value: product?.hsnCode || "N/A",
     bg: "bg-[#3E1E68]/20",
     shadow: "hover:shadow-[#3E1E68]",
   },

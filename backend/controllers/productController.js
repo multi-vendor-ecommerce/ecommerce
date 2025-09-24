@@ -171,7 +171,7 @@ export const getProductById = async (req, res) => {
 
     if (!isAdmin) {
       if (isVendor) {
-        baseQuery = baseQuery.select("title description stock brand images price category discount tags freeDelivery rating totalReviews colors sizes status dimensions weight createdBy");
+        baseQuery = baseQuery.select("title description stock brand images price category discount tags freeDelivery rating totalReviews colors sizes status dimensions weight createdBy hsnCode");
       } else {
         baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes dimensions weight");
       }
@@ -306,19 +306,19 @@ export const addProduct = async (req, res) => {
       weight: weight !== undefined ? Number(weight) : 0,
     });
 
-    await Vendor.findByIdAndUpdate(req.person.id, { $inc: { productQuantity: 1 } });
+    const vendor = await Vendor.findByIdAndUpdate(req.person.id, { $inc: { productQuantity: 1 } });
 
     await safeSendMail(sendProductAddedMail, {
-      to: req.person.email,
+      to: vendor?.email,
       productName: newProduct.title,
       productId: newProduct._id
     });
 
     await safeSendMail(sendProductAddedAdminMail, {
       to: process.env.ADMIN_EMAIL,
-      vendorName: req.person?.name,
-      vendorShop: req.person?.shopName,
-      vendorEmail: req.person?.email,
+      vendorName: vendor?.name,
+      vendorShop: vendor?.shopName,
+      vendorEmail: vendor?.email,
       productName: newProduct.title,
     });
 
@@ -445,7 +445,6 @@ export const editProduct = async (req, res) => {
     res.status(500).json({ success: false, message: "Unable to update product." });
   }
 };
-
 
 // ==========================
 // Delete product (admin & vendor)

@@ -1,8 +1,6 @@
 import InputField from "../../../../common/InputField";
 import { addProductFields } from "../data/addProductFields";
 import CustomSelect from "../../../../common/layout/CustomSelect";
-import * as Checkbox from "@radix-ui/react-checkbox";
-import { FaCheck } from "react-icons/fa";
 import StepperControls from "../../../../common/StepperControls";
 
 const ProductDetails = ({
@@ -31,7 +29,8 @@ const ProductDetails = ({
               required={field.required}
               value={formData[field.name] || ""}
               onChange={handleInputChange}
-              disabled={!isEditing}
+              disabled={!isEditing || loading}
+              richtext={field.richtext || false} // <-- pass richtext prop
             />
           </div>
         ))}

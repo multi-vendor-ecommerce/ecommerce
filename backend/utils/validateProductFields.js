@@ -103,6 +103,9 @@ export function validateProductFields(fields, isEdit = false) {
   // Tags
   if (fields.tags !== undefined) {
     fields.tags = splitAndClean(fields.tags);
+    if (fields.tags.length > 15) {
+      errors.push("You can add at most 15 tags.");
+    }
   }
 
   // Sizes

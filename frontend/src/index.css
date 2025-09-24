@@ -1,50 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 
 body {
-    font-family: "Poppins", sans-serif;
+  font-family: "Poppins", sans-serif;
 }
-
-/* === User Theme Colors === */
-/* Primary: For buttons, headers */
-.bg-user-primary     { background-color: #7F55B1; }
-.text-user-primary   { color: #7F55B1; }
-.border-user-primary { border-color: #7F55B1; }
-
-/* Secondary: For highlights, hovers */
-.bg-user-secondary     { background-color: #9B7EBD; }
-.text-user-secondary   { color: #9B7EBD; }
-.border-user-secondary { border-color: #9B7EBD; }
-
-/* Background/Base */
-.bg-user-base     { background-color: #FFE1E0; }
-.text-user-base   { color: #FFE1E0; }
-
-/* Text Contrast (for dark elements) */
-.text-user-dark     { color: #3f3e3e; }
-.bg-user-dark       { background-color: #F49BAB; }
-.border-user-dark   { border-color: #F49BAB; }
-
-/* === Vendor Theme Colors === */
-
-/* Primary: For buttons, headers */
-.bg-vendor-primary    { background-color: #393E46; }
-.text-vendor-primary  { color: #393E46; }
-.border-vendor-primary { border-color: #393E46; }
-
-/* Secondary: For highlights, badges */
-.bg-vendor-secondary    { background-color: #DFD0B8; }
-.text-vendor-secondary  { color: #DFD0B8; }
-.border-vendor-secondary { border-color: #DFD0B8; }
-
-/* Background/Base */
-.bg-vendor-base    { background-color: #222831; }
-.text-vendor-base  { color: #222831; }
-
-/* Text Contrast (on dark background) */
-.text-vendor-light   { color: #DFD0B8; }
-.text-vendor-white   { color: #FFFFFF; }
-
 
 /* 👇 Hide scrollbar for Chrome, Safari and Edge */
 .no-scrollbar::-webkit-scrollbar {
@@ -72,15 +31,15 @@ html {
 
 /* Custom small scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
-  height: 7px;  /* horizontal scrollbar height */
-  width: 2px;   /* vertical scrollbar width */
+  height: 7px; /* horizontal scrollbar height */
+  width: 2px; /* vertical scrollbar width */
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #a3a3a3;
   border-radius: 9999px;
-  min-width: 20px;   /* horizontal scrollbar min thumb length */
-  min-height: 20px;  /* vertical scrollbar min thumb length */
+  min-width: 20px; /* horizontal scrollbar min thumb length */
+  min-height: 20px; /* vertical scrollbar min thumb length */
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #525252; /* darker grey on hover */
@@ -88,4 +47,79 @@ html {
 
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent; /* transparent track */
+}
+
+/* Main wrapper to apply outline around whole editor (toolbar + editor) */
+.custom-quill-wrapper {
+  border-radius: 0.75rem; /* rounded-xl */
+  border-style: none;
+  transition: all cubic-bezier(0.4, 0, 0.2, 1) 150ms;
+  width: 100%;
+}
+
+/* Focus outline around whole editor */
+.custom-quill-wrapper:focus-within {
+  outline: 2px solid #3b82f6; /* Tailwind ring-blue-500 */
+  outline-offset: 0px;
+}
+
+/* Disabled state for wrapper */
+.custom-quill-wrapper.disabled {
+  background-color: #f3f4f6; /* Tailwind bg-gray-100 */
+  cursor: not-allowed;
+}
+
+/* Toolbar */
+.custom-quill .ql-toolbar {
+  border-radius: 0.75rem 0.75rem 0 0; /* rounded top corners */
+  border-bottom: 1px solid #d1d5db;  /* Tailwind border-gray-300 */
+}
+
+.custom-quill .ql-toolbar:focus-within {
+  background-color: #f9fafb; /* subtle toolbar bg */
+}
+
+/* Quill editor */
+.custom-quill {
+  width: 100%;
+  border-radius: 0.75rem; /* rounded-xl */
+  outline: none;
+  background-color: transparent; /* let wrapper handle bg */
+}
+
+/* Editor area */
+.custom-quill .ql-editor {
+  min-height: 200px;       /* default height */
+  font-size: 1rem;         /* text-base */
+  line-height: 1.5;
+  color: #111827;          /* text-gray-900 */
+  border-radius: 0 0 0.75rem 0.75rem; /* match container bottom corners */
+  background-color: #e5e7eb;
+}
+
+.custom-quill .ql-editor:focus-within {
+  background-color: white;
+}
+
+/* Container */
+.custom-quill .ql-container {
+  border-radius: 0 0 0.75rem 0.75rem;
+  background-color: transparent; /* wrapper handles bg */
+}
+
+/* Disabled state */
+.custom-quill.ql-disabled,
+.custom-quill[readonly] .ql-container,
+.custom-quill-wrapper.disabled .ql-editor {
+  background-color: #f3f4f6; /* Tailwind bg-gray-100 */
+  color: #6b7280;             /* Tailwind text-gray-500 */
+  cursor: not-allowed;
+}
+
+/* Toolbar button hover/focus */
+.custom-quill .ql-toolbar .ql-picker-label:hover,
+.custom-quill .ql-toolbar .ql-picker-item:hover,
+.custom-quill .ql-toolbar button:hover {
+  background-color: white; /* subtle hover */
+  border-radius: 5px;
 }

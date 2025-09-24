@@ -47,11 +47,6 @@ const productSchema = new Schema(
       ref: "Category",
       required: true,
     },
-    specifications: {
-      type: Map,
-      of: String,
-      default: {},
-    },
     price: {
       type: Number,
       required: true,

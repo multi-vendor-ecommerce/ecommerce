@@ -172,6 +172,7 @@ const EditProduct = () => {
               images={form.images || []}
               isEditing={editing}
               showStepper={false}
+              loading={isLoading}
             />
           </div>
 
@@ -183,6 +184,7 @@ const EditProduct = () => {
               handleInputChange={handleChange}
               isEditing={editing}
               showStepper={false}
+              loading={isLoading}
             />
 
             <ProductDetails
