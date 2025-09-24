@@ -265,11 +265,23 @@ export const getAllOrders = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
+    let selectFields = "_id invoiceNumber createdAt orderStatus paymentMethod subTotal totalTax shippingCharges totalDiscount grandTotal orderItems shippingInfo user deliveredAt customNotes";
+    if (role === "vendor") {
+      // Vendor cannot see userInvoiceUrl
+      selectFields += "-userInvoiceUrl";
+    } else if (role === "admin") {
+      // Admin sees all fields (no exclusion)
+    } else if (role === "customer") {
+      // Customer cannot see vendorInvoices
+      selectFields += "-vendorInvoices";
+    }
+
     const [orders, total] = await Promise.all([
       Order.find(query)
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })
+        .select(selectFields)
         .populate({
           path: "orderItems.product",
           select: "title price images category brand createdBy",
@@ -305,7 +317,15 @@ export const getOrderById = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid order information." });
     }
 
+    let selectFields = "_id invoiceNumber createdAt orderStatus paymentMethod source subTotal totalTax shippingCharges totalDiscount grandTotal orderItems shippingInfo user vendorInvoices deliveredAt customNotes userInvoiceUrl";
+    if (req?.person.role === "vendor") {
+      selectFields += "-userInvoiceUrl";
+    } else if (req?.person.role === "customer") {
+      selectFields += "-vendorInvoices";
+    }
+
     const order = await Order.findById(req.params.id)
+      .select(selectFields)
       .populate({
         path: "orderItems.product",
         select: "title price createdBy images",
@@ -341,6 +361,13 @@ export const getOrderById = async (req, res) => {
       )
     ) {
       return res.status(403).json({ success: false, message: "You do not have permission to view this order." });
+    }
+
+    if (req.person.role === "vendor" && order.vendorInvoices && Array.isArray(order.vendorInvoices)) {
+      order.vendorInvoices = order.vendorInvoices.filter(
+        vi => vi.vendorId?.toString() === req.person.id.toString() ||
+              (vi.vendorId?._id && vi.vendorId._id.toString() === req.person.id.toString())
+      );
     }
 
     res.status(200).send({

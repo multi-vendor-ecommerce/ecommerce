@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { MdEmail, MdPhone } from "react-icons/md";
 import OrderContext from "../../../../context/orders/OrderContext";
@@ -9,6 +9,7 @@ import StatGrid from "../../../common/helperComponents/StatGrid";
 import { formatAddress } from "../../../../utils/formatAddress";
 import { toTitleCase } from "../../../../utils/titleCase";
 import { formatNumber } from "../../../../utils/formatNumber";
+import { FiEye } from "react-icons/fi";
 
 const OrderDetails = ({ role = "admin" }) => {
   const { orderId } = useParams();
@@ -43,6 +44,8 @@ const OrderDetails = ({ role = "admin" }) => {
     );
   }
 
+  console.log(order.vendorInvoices)
+
   return (
     <section className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -63,7 +66,19 @@ const OrderDetails = ({ role = "admin" }) => {
 
       {/* Products */}
       <div className="w-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 mb-8 p-6 space-y-4">
-        <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Products</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg md:text-xl font-semibold text-gray-700 truncate">Products</h3>
+          <a
+            href={order.vendorInvoices?.[0]?.invoiceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex gap-2 items-center px-2 md:px-4 py-2 rounded-xl text-center text-sm md:text-[16px] font-medium text-blue-500 border-2 border-blue-500 transition hover:bg-blue-500 hover:text-white cursor-pointer"
+          >
+            <FiEye size={20} />
+            View Invoice
+          </a>
+        </div>
+
         {order.orderItems?.map((item) => (
           <div
             key={item._id}
@@ -73,22 +88,55 @@ const OrderDetails = ({ role = "admin" }) => {
               <p className="font-semibold text-gray-800">{toTitleCase(item.product?.title) || "No Product Title"}</p>
               <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
             </div>
+
             <div className="text-right">
               <p className="text-gray-700 font-medium">
-                ₹{formatNumber(item.product?.price ?? 0)} x {formatNumber(item.quantity)}
+                ₹{formatNumber(item?.originalPrice ?? 0)} x {formatNumber(item.quantity)}
               </p>
               <p className="text-xs md:text-sm text-gray-500">
-                Total: ₹{formatNumber((item.product?.price ?? 0) * item.quantity)}
+                Total: ₹{formatNumber((item?.originalPrice ?? 0) * item.quantity)}
               </p>
             </div>
           </div>
         ))}
+
+        <div className="flex flex-col md:flex-row items-end justify-between md:items-center gap-1 border-t border-dashed border-gray-300 pt-4 mt-4 text-sm text-gray-600">
+          <div className="text-right md:text-left space-y-1">
+            <p>
+              <span className="font-medium">GST / Tax:</span> ₹{formatNumber(order?.totalTax) || "0.00"}
+            </p>
+            <p>
+              <span className="font-medium">Total Discount:</span> - ₹{formatNumber(order?.totalDiscount) || "0.00"}
+            </p>
+            <p>
+              <span className="text-green-600 font-semibold">Subtotal:</span> ₹{formatNumber(order?.subTotal) || "0.00"}
+            </p>
+          </div>
+
+          <div className="text-right space-y-1">
+            <p>
+              <span className="font-medium">Shipping Charges:</span> ₹{formatNumber(order?.shippingCharges) || "0.00"}
+            </p>
+            <p>
+              <span className="text-blue-700 font-semibold">Grand Total:</span> ₹{formatNumber(order?.grandTotal) || "0.00"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 mb-8">
+        {/* Order Shipping Info */}
+        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 space-y-1.5">
+          <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Shipping Info</h3>
+          <p><span className="font-semibold">Shipping Address:</span> {formatAddress(order?.shippingInfo)}</p>
+          <p><span className="font-semibold">Invoice Number:</span> {order?.invoiceNumber}</p>
+        </div>
       </div>
 
       <div className={`grid ${role === "vendor" ? "grid-cols-1" : "md:grid-cols-2"} gap-6`}>
         {/* Customer Info */}
-        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 space-y-4">
-          <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-2">Customer Info</h3>
+        <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 space-y-1.5">
+          <h3 className="text-lg md:text-xl font-semibold text-gray-700 mb-4">Customer Info</h3>
           <p><span className="font-semibold">Name:</span> {toTitleCase(order.user?.name)}</p>
           <p><span className="font-semibold">Location:</span> {formatAddress(order.user?.address)}</p>
           <p className="flex items-center gap-2 text-blue-600"><MdEmail /> {order.user?.email}</p>

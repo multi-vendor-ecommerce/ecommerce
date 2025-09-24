@@ -18,9 +18,9 @@ const EditProduct = () => {
   const { person } = useContext(PersonContext);
   const { productId } = useParams();
   const navigate = useNavigate();
-  const { getProductById, editProduct, deleteProduct } = useContext(ProductContext);
+  const { getProductById, editProduct, deleteProduct, loading } = useContext(ProductContext);
 
-  const role = person?.role
+  const role = person?.role;
 
   const [product, setProduct] = useState(null);
   const [editing, setEditing] = useState(false);
@@ -202,15 +202,15 @@ const EditProduct = () => {
         <Button
           icon={role === "vendor" ? FiX :  FiTrash2}
           text={role === "vendor" ? 
-            <span>{isLoading ? "Requesting..." : "Request Deletion"}</span>
+            <span>{loading ? "Requesting..." : "Request Deletion"}</span>
             :
-            <span>{isLoading ? "Deleting...": "Deleting Product"}</span>
+            <span>{loading ? "Deleting...": "Delete Product"}</span>
           }
           className="mt-6 py-3"
           color="red"
           onClick={handleDelete}
           disabled={
-            isLoading ||
+            loading ||
             editing ||
             (role === "vendor" && product?.status === "pendingDeletion")
           }

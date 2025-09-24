@@ -1,8 +1,8 @@
-import { FaMoneyBillWave, FaCreditCard, FaShippingFast, FaMapMarkerAlt, FaClock } from "react-icons/fa";
+import { FaMoneyBillWave, FaCreditCard, FaShippingFast, FaClock, FaShoppingBag } from "react-icons/fa";
 import { formatNumber } from "../../../../../utils/formatNumber";
 import { getFormatDate } from "../../../../../utils/formatDate";
-import { shortFormatAddress } from "../../../../../utils/formatAddress";
 import { capitalize } from "../../../../../utils/capitalize";
+import { toTitleCase } from "../../../../../utils/titleCase";
 
 // ——— filter options ——————————————————————————
 export const orderFilterFields = [
@@ -56,9 +56,9 @@ export const getOrderCardData = (order) => [
     shadow: "hover:shadow-purple-500",
   },
   {
-    icon: FaMapMarkerAlt,
-    label: "Shipping Address",
-    value: shortFormatAddress(order.user?.address),
+    icon: FaShoppingBag,
+    label: "Source",
+    value: toTitleCase(order?.source) || "N/A",
     bg: "bg-blue-100",
     shadow: "hover:shadow-blue-500",
   },

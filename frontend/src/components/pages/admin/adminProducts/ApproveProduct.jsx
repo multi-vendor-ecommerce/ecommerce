@@ -107,7 +107,9 @@ const ApproveProduct = () => {
                         <span className="font-medium">Price:</span>{" "}
                         <span className="text-blue-600 font-bold">₹{product.price.toLocaleString()}</span>
                       </div>
-                      <div className="text-gray-500 mt-2 text-sm line-clamp-2">{product.description}</div>
+                      <div className="text-gray-500 mt-2 text-sm line-clamp-2">
+                        <span dangerouslySetInnerHTML={{ __html: product.description || "No description provided." }} />
+                      </div>
                     </div>
 
                     <div className="flex flex-row flex-wrap justify-center md:flex-col gap-3 md:gap-2 text-sm lg:text-base">
