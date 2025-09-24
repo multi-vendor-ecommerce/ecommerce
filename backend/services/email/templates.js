@@ -38,10 +38,10 @@ export const productAddedAdminTemplate = (productName, vendorName, vendorShop, v
     A new product <strong>${productName}</strong> has been submitted to the marketplace.
   </p>
   <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #888; margin-top: 10px;">
-    <span>Vendor Details:</span>
-    <span>Name: <strong>${vendorName}</strong></span>
-    <span>Shop name: <strong>${vendorShop}</strong></span>
-    <span>Email: <strong>${vendorEmail}</strong></span>
+    <p>Vendor Details:</p>
+    <p>Name: <strong>${vendorName}</strong></p>
+    <p>Shop name: <strong>${vendorShop}</strong></p>
+    <p>Email: <strong>${vendorEmail}</strong></p>
   </div>
 `);
 

@@ -1,4 +1,6 @@
 import { splitAndClean } from "./splitAndClean.js";
+import { toTitleCase } from "./titleCase.js";
+import sanitizeHtml from "sanitize-html";
 
 export function validateProductFields(fields, isEdit = false) {
   const errors = [];
@@ -6,29 +8,42 @@ export function validateProductFields(fields, isEdit = false) {
   // Required fields (skip if isEdit and field not present)
   const required = [
     "title", "brand", "category", "sku", "hsnCode",
-    "stock", "gstRate", "price", "dimensions", "weight"
+    "stock", "gstRate", "price", "dimensions", "weight", "description", "tags", "images"
   ];
 
   if (!isEdit) {
     required.forEach((field) => {
-      if (!fields[field]) errors.push(`${field} is required.`);
+      if (!fields[field]) errors.push(`${toTitleCase(field)}'s field is required. Enter the ${field}.`);
     });
+  }
 
-    // Dimensions required check
-    if (
-      !fields.dimensions ||
-      typeof fields.dimensions !== "object" ||
-      fields.dimensions.length === undefined ||
-      fields.dimensions.width === undefined ||
-      fields.dimensions.height === undefined
-    ) {
-      errors.push("Dimensions (length, width, height) are required.");
+  if (fields.images) {
+    if (!Array.isArray(fields.images)) {
+      errors.push("Images must be provided as an array.");
+    } else {
+      if (fields.images.length < 3) {
+        errors.push("At least 3 product images to upload.");
+      }
+      if (fields.images.length > 7) {
+        errors.push("You can upload a maximum of 7 product images.");
+      }
     }
+  }
 
-    // Weight required check
-    if (fields.weight === undefined || fields.weight === null) {
-      errors.push("Weight is required.");
-    }
+  // Dimensions required check
+  if (
+    !fields.dimensions ||
+    typeof fields.dimensions !== "object" ||
+    fields.dimensions.length === undefined ||
+    fields.dimensions.width === undefined ||
+    fields.dimensions.height === undefined
+  ) {
+    errors.push("Dimensions (length, width, height) are required.");
+  }
+
+  // Weight required check
+  if (fields.weight === undefined || fields.weight === null) {
+    errors.push("Weight is required.");
   }
 
   // Validate price
@@ -95,6 +110,16 @@ export function validateProductFields(fields, isEdit = false) {
     }
   }
 
+  // Description
+  if (fields.description) {
+    fields.description = sanitizeHtml(fields.description, {
+      allowedTags: ["p", "h1", "h2", "h3", "ul", "ol", "li", "strong", "em", "u", "a", "br"],
+      allowedAttributes: {
+        a: ["href", "title", "target"],
+      },
+    });
+  }
+
   // Colors
   if (fields.colors !== undefined) {
     fields.colors = splitAndClean(fields.colors);
@@ -103,8 +128,12 @@ export function validateProductFields(fields, isEdit = false) {
   // Tags
   if (fields.tags !== undefined) {
     fields.tags = splitAndClean(fields.tags);
-    if (fields.tags.length > 15) {
-      errors.push("You can add at most 15 tags.");
+    if (!fields.tags.length || fields.tags.length > 15) {
+      errors.push(
+        !fields.tags.length
+          ? "At least one tag is required."
+          : "You can add at most 15 tags."
+      );
     }
   }
 

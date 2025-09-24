@@ -60,8 +60,8 @@ const AddProduct = () => {
     }
 
     if (step === 2) {
-      if (images && images.length === 0) {
-        toast.error("Please upload at least one product image.");
+      if (images && (images.length < 3 || images.length > 7)) {
+        toast.error("Please upload between 3 and 7 product images.");
         return;
       }
     }

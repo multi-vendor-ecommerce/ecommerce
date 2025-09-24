@@ -21,6 +21,7 @@ import Loader from "../../common/Loader";
 import VendorStatus from "./vendorStatus/VendorStatus";
 import EditProduct from "../adminVendorCommon/product/EditProduct";
 import Invoices from "../adminVendorCommon/invoices/Invoices";
+import { toTitleCase } from "../../../utils/titleCase";
 
 const Vendor = () => {
   const { authTokens } = useContext(AuthContext);
@@ -54,7 +55,7 @@ const Vendor = () => {
   return (
     <div className="flex min-h-screen relative">
       {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} menuData={vendorSidebarMenu} panelLabel="Vendor Panel" homePath="/vendor" />
+      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} menuData={vendorSidebarMenu} panelLabel={`${toTitleCase(person?.name)}'s Panel` || "Vendor Panel"} homePath="/vendor" />
 
       {/* Main Content Area */}
       <div className="w-full lg:w-[82%] flex flex-col">

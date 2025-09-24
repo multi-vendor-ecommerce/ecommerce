@@ -9,26 +9,39 @@ export const RenderInvoiceRow = (invoice, index, role = "admin") => {
       key={invoice._id || index}
       className={`hover:bg-blue-50 transition ${index !== 0 ? "border-t border-gray-200" : ""}`}
     >
+      {/* Order Id */}
+      <td
+        className="px-6 py-3 min-w-[100px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150"
+        title={`Order ID: ${invoice._id}`}
+      >
+        <NavLink
+          to={`/${role}/all-orders/order-details/${invoice._id}`}
+          title={`Order ID: ${invoice._id}`}
+        >
+          #{invoice._id}
+        </NavLink>
+      </td>
+
       {/* Invoice Number */}
-      <td className="px-6 py-4 min-w-[140px] text-gray-800 truncate">
+      <td className="px-6 py-4 min-w-[140px] text-gray-800 truncate hover:scale-105 transition duration-150">
         {invoice.invoiceNumber || "N/A"}
       </td>
 
       {/* Total Tax */}
-      <td className="px-6 py-4 min-w-[140px]">₹{formatNumber(invoice.totalTax ?? 0)}</td>
+      <td className="px-6 py-4 min-w-[140px] hover:scale-105 transition duration-150">₹{formatNumber(invoice.totalTax ?? 0)}</td>
 
       {/* Total Discount */}
-      <td className="px-6 py-4 min-w-[140px]">₹{formatNumber(invoice.totalDiscount ?? 0)}</td>
+      <td className="px-6 py-4 min-w-[140px] hover:scale-105 transition duration-150">₹{formatNumber(invoice.totalDiscount ?? 0)}</td>
 
       {/* Grand Total */}
-      <td className="px-6 py-4 min-w-[140px] font-bold">₹{formatNumber(invoice.grandTotal ?? 0)}</td>
+      <td className="px-6 py-4 min-w-[140px] font-bold hover:scale-105 transition duration-150">₹{formatNumber(invoice.grandTotal ?? 0)}</td>
 
       {/* Payment Method */}
-      <td className="px-6 py-4 min-w-[140px]">{invoice.paymentMethod || "N/A"}</td>
+      <td className="px-6 py-4 min-w-[140px] hover:scale-105 transition duration-150">{invoice.paymentMethod || "N/A"}</td>
 
       {/* User Invoice PDF */}
       {role === "admin" && (
-        <td className="px-6 py-4 min-w-[140px]">
+        <td className="px-6 py-4 min-w-[140px] hover:scale-105 transition duration-150">
           {invoice.userInvoiceUrl ? (
             <a
               href={invoice.userInvoiceUrl}
@@ -46,7 +59,7 @@ export const RenderInvoiceRow = (invoice, index, role = "admin") => {
 
       {/* Vendor Invoices */}
       {role === "vendor" && (
-        <td className="px-6 py-4 min-w-[180px]">
+        <td className="px-6 py-4 min-w-[180px] hover:scale-105 transition duration-150">
           {invoice.vendorInvoices?.[0]?.invoiceUrl ? (
             <a
               href={invoice.vendorInvoices[0].invoiceUrl}
@@ -64,7 +77,7 @@ export const RenderInvoiceRow = (invoice, index, role = "admin") => {
 
       {/* Admin - View All Vendor Invoices */}
       {role === "admin" && (
-        <td className="px-6 py-4 min-w-[140px]">
+        <td className="px-6 py-4 min-w-[140px] hover:scale-105 transition duration-150">
           <NavLink
             to={`/admin/${invoice?._id}/vendor-invoices`}
             className="text-green-600 hover:underline cursor-pointer"
@@ -75,7 +88,7 @@ export const RenderInvoiceRow = (invoice, index, role = "admin") => {
       )}
 
       {/* Created Date */}
-      <td className="px-6 py-4 min-w-[180px]">{getFormatDate(invoice.createdAt)}</td>
+      <td className="px-6 py-4 min-w-[180px] hover:scale-105 transition duration-150">{getFormatDate(invoice.createdAt)}</td>
     </tr>
   );
 };

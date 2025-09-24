@@ -34,9 +34,9 @@ const UploadImages = ({
           />
         </div>
         <p className="text-gray-600 text-center px-3 md:px-0 text-xs md:text-sm mt-3">
-          Upload clear images of the product from multiple angles.
+          Upload at least 3 (max 7) clear images of the product from multiple angles.
         </p>
-        <p className="text-yellow-600 text-xs md:text-sm">
+        <p className="text-yellow-600 text-xs md:text-sm mt-0.5">
           Image size should not exceed 5MB.
         </p>
       </div>

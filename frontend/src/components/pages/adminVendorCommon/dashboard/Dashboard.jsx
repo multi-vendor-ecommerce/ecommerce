@@ -11,15 +11,18 @@ import CustomSelect from "../../../common/layout/CustomSelect";
 import UserContext from "../../../../context/user/UserContext";
 import OrderContext from "../../../../context/orders/OrderContext";
 import VendorContext from "../../../../context/vendors/VendorContext";
+import InvoiceContext from "../../../../context/invoices/InvoiceContext";
 
 const Dashboard = ({ summaryData, role = "admin" }) => {
   const { getAllCustomers } = useContext(UserContext);
   const { getAllOrders } = useContext(OrderContext);
   const { getTopVendors } = useContext(VendorContext);
+  const { getAllInvoices } = useContext(InvoiceContext)
 
   useEffect(() => {
     getAllCustomers();
     getAllOrders();
+    getAllInvoices();
     if (role === "admin") getTopVendors();
   }, []);
 
@@ -32,7 +35,7 @@ const Dashboard = ({ summaryData, role = "admin" }) => {
   return (
     <section aria-label="Admin Dashboard" className="p-6 min-h-screen bg-gray-50">
       <h1 className="text-2xl font-bold text-gray-800 mb-8 bg-gray-200 pl-4 pr-3 py-2.5 rounded-xl">
-        {role === "admin" ? "Admin Dashboard" : "Vendor Dashboard"}
+        {role === "admin" ? "Admin Dashboard" : "Your Vendor Dashboard"}
       </h1>
 
       <div className="mt-6 bg-white px-4 py-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
@@ -60,7 +63,7 @@ const Dashboard = ({ summaryData, role = "admin" }) => {
       </div>
 
       <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
-        <RecentInvoices />
+        <RecentInvoices role={role} />
       </div>
 
       <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">

@@ -38,10 +38,11 @@ const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", hom
     <aside className="w-full sticky top-0 h-full lg:h-screen overflow-y-auto bg-white pl-3 pr-1 py-5 shadow-md text-black border-r border-gray-200">
       {/* Logo */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="bg-black text-white py-1 px-4 rounded-full">
-          <span className="font-bold text-lg">{panelLabel[0]}</span>
-        </div>
-        <NavLink to={homePath} className="text-lg font-bold">
+        <NavLink to={homePath} className="flex gap-2 items-center text-lg font-bold">
+          <div className="bg-black text-white py-1 px-4 rounded-full">
+            <span className="font-bold text-lg">{panelLabel[0]}</span>
+          </div>
+
           {panelLabel}
         </NavLink>
       </div>
@@ -75,10 +76,9 @@ const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", hom
                       to={item.path}
                       end
                       className={({ isActive }) =>
-                        `flex items-center gap-4 px-2 py-2 rounded-xl hover:bg-gray-200 transition ${
-                          isActive
-                            ? "bg-gray-200 text-black font-semibold"
-                            : "text-gray-700"
+                        `flex items-center gap-4 px-2 py-2 rounded-xl hover:bg-gray-200 transition ${isActive
+                          ? "bg-gray-200 text-black font-semibold"
+                          : "text-gray-700"
                         }`
                       }
                     >
@@ -94,8 +94,7 @@ const SidebarContent = ({ isMobileOpen, menuData = [], panelLabel = "Panel", hom
                           <NavLink
                             to={child.path}
                             className={({ isActive }) =>
-                              `block px-2 py-1 rounded hover:bg-gray-100 ${
-                                isActive ? "text-black font-medium" : ""
+                              `block px-2 py-1 rounded hover:bg-gray-100 ${isActive ? "text-black font-medium" : ""
                               }`
                             }
                           >

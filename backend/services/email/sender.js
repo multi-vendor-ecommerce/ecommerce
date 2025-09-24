@@ -30,7 +30,7 @@ export const sendProductAddedMail = async ({ to, productName, productId }) => {
   });
 };
 
-export async function sendProductAddedAdminMail({ to, vendorName, vendorEmail, productName }) {
+export async function sendProductAddedAdminMail({ to, vendorName, vendorEmail, productName, vendorShop }) {
   await sendMail({
     to,
     subject: "New Product Added by Vendor",

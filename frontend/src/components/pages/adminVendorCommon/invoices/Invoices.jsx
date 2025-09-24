@@ -55,6 +55,7 @@ export default function Invoices({ role = "admin" }) {
   }
 
   const headers = [
+    "Order Id",
     "Invoice Number",
     "GST / Tax",
     "Total Discount",

@@ -75,8 +75,9 @@ html {
   border-bottom: 1px solid #d1d5db;  /* Tailwind border-gray-300 */
 }
 
-.custom-quill .ql-toolbar:focus-within {
-  background-color: #f9fafb; /* subtle toolbar bg */
+/* Toolbar bg on focus */
+.custom-quill-wrapper:focus-within .ql-toolbar {
+  background-color: #f0f0f3; /* subtle toolbar bg */
 }
 
 /* Quill editor */
@@ -97,7 +98,8 @@ html {
   background-color: #e5e7eb;
 }
 
-.custom-quill .ql-editor:focus-within {
+/* Editor bg on focus */
+.custom-quill-wrapper:focus-within .ql-editor {
   background-color: white;
 }
 

@@ -64,7 +64,7 @@ const VendorInvoicesPage = () => {
                   View Invoice
                 </a>
               ) : (
-                <span className="text-gray-400">N/A</span>
+                <span className="text-gray-400">No Invoice Available</span>
               )}
               <span className="text-sm text-gray-500">
                 {getFormatDate(vi.createdAt)}
