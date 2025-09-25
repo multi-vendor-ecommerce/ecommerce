@@ -10,9 +10,10 @@ import { getFinalPrice, formatPrice } from "../Utils/priceUtils";
 import { encryptData } from "../Utils/Encryption";
 import StatGrid from "../../../common/helperComponents/StatGrid";
 import Loader from "../../../common/Loader";
+import Button from "../../../common//Button";
 
 import { toast } from "react-toastify";
-import { FiPlus, FiMinus } from "react-icons/fi";
+import { FiPlus, FiMinus, FiTrash2, FiX } from "react-icons/fi";
 
 import {
   removeItemFromCart,
@@ -50,7 +51,7 @@ const CartPage = () => {
       getCart,
       setRemovingId,
     });
-    toast.info("Item removed from cart");
+    toast.success("Item removed from cart.");
   };
 
   //  Use cartHelpers.changeCartQuantity
@@ -113,13 +114,13 @@ const CartPage = () => {
   return (
     <div className="min-h-screen pb-24">   
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-9xl">
+        <div className="py-2">
+          <BackButton className="border-green-500 hover:bg-green-700" />
+        </div>
+
         <h2 className="text-xl sm:text-2xl font-semibold text-green-700 mb-4">
           Your Shopping Cart
         </h2>
-
-        <div className="py-2">
-          <BackButton />
-        </div>
 
         {/* Cart Items */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -239,17 +240,14 @@ const CartPage = () => {
                   </div>
 
                   {/* Remove button */}
-                  <button
+                  <Button
+                    icon={FiX}
+                    text={removingId === _id ? "Removing..." : "Remove"}
                     onClick={() => handleRemove(_id)}
                     disabled={removingId === _id}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all
-                  ${removingId === _id
-                        ? "bg-red-300 text-white cursor-not-allowed"
-                        : "bg-red-100 text-red-600 hover:bg-red-600 hover:text-white shadow-sm"
-                      }`}
-                  >
-                    {removingId === _id ? "Removing..." : "Remove"}
-                  </button>
+                    className="py-2"
+                    color="red"
+                  />
                 </div>
               </div>
             ))}
@@ -264,12 +262,13 @@ const CartPage = () => {
       {/* Sticky Checkout Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-green-200 shadow-md">
         <div className="max-w-9xl mx-auto px-4 py-3 flex justify-end">
-          <button
+          <Button
+            text="Proceed to Checkout"
             onClick={handleCartCheckout}
-            className="bg-green-900 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow text-sm sm:text-base"
-          >
-            Proceed to Checkout
-          </button>
+            className="py-2"
+            color="green"
+            disabled={cart.length === 0}
+          />
         </div>
       </div>
     </div>

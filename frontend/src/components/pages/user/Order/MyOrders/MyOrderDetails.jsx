@@ -61,7 +61,8 @@ const MyOrderDetails = () => {
     <section className="p-6 bg-gradient-to-br from-green-50 via-white to-green-100 min-h-screen space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center gap-5">
-        <BackButton />
+        <BackButton className="border-green-500 hover:bg-green-700" />
+        
         <h2 className="text-2xl font-bold text-green-700 truncate">
           Order #{order._id}
         </h2>

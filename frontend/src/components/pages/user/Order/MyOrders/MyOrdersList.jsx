@@ -68,7 +68,7 @@ const MyOrdersList = () => {
       <h2 className="text-2xl font-bold mb-6 text-gray-800">My Orders</h2>
 
       <div className="mb-4">
-        <BackButton />
+        <BackButton className="border-green-500 hover:bg-green-700" />
       </div>
 
       {/* FilterBar */}

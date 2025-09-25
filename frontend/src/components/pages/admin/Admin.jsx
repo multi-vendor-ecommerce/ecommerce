@@ -21,6 +21,7 @@ import Profile from "../adminVendorCommon/settings/Profile";
 import Security from "../adminVendorCommon/settings/Security";
 import PersonContext from "../../../context/person/PersonContext";
 import ApproveProduct from "./adminProducts/ApproveProduct";
+import AdminCategories from "./adminCategories/AdminCategories";
 import CreateCategory from "./adminCategories/CreateCategory";
 import ApproveVendor from "./adminVendor/ApproveVendor";
 import EditVendor from "./adminVendor/EditVendor";
@@ -86,10 +87,8 @@ const Admin = () => {
             <Route path="approve-vendors" element={<ApproveVendor />} />
             <Route path="vendor/edit-delete/:vendorId" element={<EditVendor />} />
 
-            {/* Theme */}
-            <Route path="theme/">
-              <Route path="add-category" element={<CreateCategory />} />
-            </Route>
+            <Route path="categories" element={<AdminCategories />} />
+            <Route path="add-category" element={<CreateCategory />} />
 
             {/* Settings */}
             <Route path="settings/">

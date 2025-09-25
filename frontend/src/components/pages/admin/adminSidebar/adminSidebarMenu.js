@@ -117,6 +117,23 @@ export const adminSidebarMenu = [
 
   // ───────────────── THEME EDITOR ─────────────────
   {
+    section: "CATEGORY",
+    items: [
+      {
+        label: "Category Management",
+        icon: FiLayers,
+        expandable: true,
+        key: "category",
+        path: "/admin/categories",
+        children: [
+          { label: "All Categories", path: "/admin/categories" },
+          { label: "Category Creation", path: "/admin/add-category" },
+        ],
+      },
+    ],
+  },
+  // ───────────────── THEME EDITOR ─────────────────
+  {
     section: "THEME EDITOR",
     items: [
       {

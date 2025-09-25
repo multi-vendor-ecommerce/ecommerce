@@ -41,7 +41,7 @@ const WishlistPage = () => {
 
   if (loading || localLoading) {
     return (
-      <div className="flex min-h-screen justify-center items-center bg-green-50">
+      <div className="flex min-h-screen justify-center items-center">
         <Loader />
       </div>
     );
@@ -64,7 +64,8 @@ const WishlistPage = () => {
   return (
     <div className="w-full mx-auto py-8 px-4 min-h-screen">
       <div className="flex justify-between items-center mb-4">
-        <BackButton />
+        <BackButton className="border-green-500 hover:bg-green-700" />
+        
         <Button
           icon={FiTrash2}
           text="Remove All"
@@ -76,11 +77,11 @@ const WishlistPage = () => {
 
       <h2 className="text-2xl font-bold text-green-700 mb-6">My Wishlist</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {wishlist.map((product) => (
           <div
             key={product._id}
-            className="bg-gray-50 p-4 rounded-xl shadow-md hover:shadow-green-600 transition duration-200 flex flex-col items-center md:items-start gap-4"
+            className="w-full bg-gray-50 p-4 rounded-xl shadow-md hover:shadow-green-600 transition duration-200 flex flex-col items-center md:items-start gap-4"
           >
             <div className="flex justify-between items-start gap-2 w-full">
               <img
@@ -89,7 +90,7 @@ const WishlistPage = () => {
                 className="w-28 h-28 object-cover rounded cursor-pointer"
                 onClick={() => handleProductClick(product._id)}
               />
-              <div className="flex flex-col flex-1">
+              <div className="w-[80%] flex flex-col flex-1">
                 <h3
                   className="font-semibold text-lg cursor-pointer text-green-700 hover:text-green-900 truncate"
                   onClick={() => handleProductClick(product?._id)}

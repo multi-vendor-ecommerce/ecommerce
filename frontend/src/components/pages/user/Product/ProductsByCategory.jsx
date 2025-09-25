@@ -52,7 +52,7 @@ export default function ProductByCategory() {
     <div className="bg-[#F9F7FC] min-h-screen">
       <div className="py-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="pb-3">
-          <BackButton />
+          <BackButton className="border-green-500 hover:bg-green-700" />
         </div>
 
         <ProductGrid products={products} secretKey={secretKey} />

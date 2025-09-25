@@ -349,7 +349,7 @@ const ProductDetails = () => {
             <WishlistButton productId={productDetails._id} />
           </div>
 
-          <BackButton />
+          <BackButton className="border-green-500 hover:bg-green-700" />
         </div>
       </div>
     </div>
