@@ -4,7 +4,7 @@ import { MdPhone, MdLocationOn, MdCancel } from "react-icons/md";
 import OrderContext from "../../../../../context/orders/OrderContext";
 import Loader from "../../../../common/Loader";
 import BackButton from "../../../../common/layout/BackButton";
-import { getOrderCardData } from "../../../adminVendorCommon/orders/data/ordersData";
+import { getOrderCardData } from "../../../adminVendorCommon/orders/data/orderStatCards";
 import StatGrid from "../../../../common/helperComponents/StatGrid";
 import { formatAddress } from "../../../../../utils/formatAddress";
 import { toast } from "react-toastify";

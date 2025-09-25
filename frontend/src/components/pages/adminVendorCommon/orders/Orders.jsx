@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import StatusChip from "../../../common/helperComponents/StatusChip";
-import { orderFilterFields } from "./data/ordersData";
+import { orderFilterFields } from "./data/orderFilterFields";
 import { RenderOrderRow } from "./RenderOrderRow";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";

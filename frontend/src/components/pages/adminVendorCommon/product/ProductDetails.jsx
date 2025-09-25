@@ -82,24 +82,24 @@ const ProductDetails = ({ role = "admin" }) => {
       <div className="bg-white p-5 mt-8 rounded-xl shadow-md border border-gray-200 hover:shadow-blue-500 transition duration-200">
         <h3 className="text-lg font-semibold mb-4 text-gray-700">Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-          <ul className="text-gray-600">
-            <li><span className="font-semibold my-1">SKU:</span> {product.sku || "N/A"}</li>
-            <li><span className="font-semibold my-1">Brand:</span> {product.brand || "N/A"}</li>
-            <li><span className="font-semibold my-1">GST Rate:</span> {product.gstRate ? `${product.gstRate}%` : "N/A"}</li>
+          <ul className="text-gray-600 space-y-1.5">
+            <li><span className="font-semibold">SKU:</span> {product?.sku || "N/A"}</li>
+            <li><span className="font-semibold">Brand:</span> {product?.brand || "N/A"}</li>
+            <li><span className="font-semibold">GST Rate:</span> {`${product?.gstRate}%` || "N/A"}</li>
             <li>
-              <span className="font-semibold my-1">Dimensions (L x W x H):</span>{" "}
+              <span className="font-semibold">Dimensions (L x W x H):</span>{" "}
               {product.dimensions
                 ? `${product?.dimensions?.length || "?"} x ${product?.dimensions?.width || "?"} x ${product?.dimensions?.height || "?"} cm`
                 : "N/A"}
             </li>
             <li>
-              <span className="font-semibold my-1">Weight:</span>{" "}
+              <span className="font-semibold">Weight:</span>{" "}
               {product?.weight ? `${(product.weight).toLocaleString()} g` : "N/A"}
             </li>
 
             {person?.role === "admin" && (
               <li className="col-span-1 md:col-span-2">
-                <span className="font-semibold my-1">Created By:</span>
+                <span className="font-semibold">Created By:</span>
                 <NavLink
                   to={`/admin/vendor/profile/${product.createdBy?._id}`}
                   className="text-blue-500 ml-2 hover:underline"
@@ -111,7 +111,7 @@ const ProductDetails = ({ role = "admin" }) => {
             )}
           </ul>
 
-          <ul className="text-gray-600">
+          <ul className="text-gray-600 space-y-1.5">
             {productAttributes.map(({ label, key }) => (
               <li key={key}>
                 <strong>{label}:</strong>{" "}

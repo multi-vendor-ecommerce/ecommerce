@@ -3,7 +3,7 @@ import OrderContext from "../../../../../context/orders/OrderContext";
 import InfiniteScroller from "../../../../common/InfiniteScroller";
 import BackButton from "../../../../common/layout/BackButton";
 import FilterBar from "../../../../common/FilterBar";
-import { orderFilterFields } from "../../../adminVendorCommon/orders/data/ordersData.js";
+import { orderFilterFields } from "../../../adminVendorCommon/orders/data/orderFilterFields.js";
 import { useNavigate } from "react-router-dom";
 import RenderOrderItem from "./RenderOrderItem.jsx";
 

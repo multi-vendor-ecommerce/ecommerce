@@ -141,8 +141,7 @@ export function validateProductFields(fields, isEdit = false) {
   if (fields.sizes !== undefined) {
     const allowedSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "XXXXL", "FREE SIZE"];
 
-    fields.sizes = splitAndClean(fields.sizes, "upper")  // ⬅ force uppercase
-      .map(s => s.replace(/[-_]/g, " ").trim());        // handle "free-size" etc.
+    fields.sizes = splitAndClean(fields.sizes, "upper");
 
     const isValidSizes = fields.sizes.every(size => allowedSizes.includes(size));
     if (!isValidSizes) errors.push("Invalid size(s) detected.");

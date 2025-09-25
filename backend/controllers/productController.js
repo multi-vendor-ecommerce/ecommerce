@@ -171,7 +171,7 @@ export const getProductById = async (req, res) => {
 
     if (!isAdmin) {
       if (isVendor) {
-        baseQuery = baseQuery.select("title description stock brand images price category discount tags freeDelivery rating totalReviews colors sizes status dimensions weight createdBy hsnCode");
+        baseQuery = baseQuery.select("title description stock brand sku gstRate images price category discount tags freeDelivery rating totalReviews colors sizes status dimensions weight createdBy hsnCode");
       } else {
         baseQuery = baseQuery.select("title description images price category discount tags freeDelivery rating totalReviews colors sizes dimensions weight");
       }
