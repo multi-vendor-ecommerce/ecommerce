@@ -1,6 +1,6 @@
 import {
   FiBarChart2, FiClipboard, FiUsers, FiTag, FiMail, FiBox,
-  FiShoppingCart, FiLayers, FiSettings, FiHome
+  FiShoppingCart, FiLayers, FiSettings, FiList
 } from 'react-icons/fi';
 
 export const adminSidebarMenu = [
@@ -117,11 +117,11 @@ export const adminSidebarMenu = [
 
   // ───────────────── THEME EDITOR ─────────────────
   {
-    section: "CATEGORY",
+    section: "CATEGORY MANAGEMENT",
     items: [
       {
-        label: "Category Management",
-        icon: FiLayers,
+        label: "Categories",
+        icon: FiList,
         expandable: true,
         key: "category",
         path: "/admin/categories",
@@ -145,7 +145,6 @@ export const adminSidebarMenu = [
         children: [
           { label: "Text Blocks", path: "/admin/theme/text-blocks" },
           { label: "Image Blocks", path: "/admin/theme/image-blocks" },
-          { label: "Category Creation", path: "/admin/theme/add-category" },
           { label: "Blog CRUD", path: "/admin/theme/blog-crud" },
         ],
       },
