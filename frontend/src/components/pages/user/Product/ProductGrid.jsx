@@ -59,7 +59,7 @@ export default function ProductGrid({ products, secretKey }) {
             </h3>
 
             <p className="text-sm sm:text-base text-gray-500 mt-1 line-clamp-2">
-              {product.description}
+              <span dangerouslySetInnerHTML={{ __html: product?.description || "No description provided." }} />
             </p>
 
             {/* Read More link */}

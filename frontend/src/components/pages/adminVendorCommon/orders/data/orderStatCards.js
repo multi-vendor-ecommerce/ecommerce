@@ -13,18 +13,18 @@ export const getOrderCardData = (order) => [
     shadow: "hover:shadow-green-500",
   },
   {
-    icon: FaCreditCard,
-    label: "Payment Method",
-    value: order.paymentMethod || "Unknown",
-    bg: "bg-yellow-100",
-    shadow: "hover:shadow-yellow-500",
-  },
-  {
     icon: FaShippingFast,
     label: "Status",
-    value: capitalize(order.orderStatus) || "Unknown",
+    value: capitalize(order?.orderStatus) || "N/A",
     bg: "bg-purple-100",
     shadow: "hover:shadow-purple-500",
+  },
+  {
+    icon: FaCreditCard,
+    label: "Payment Method",
+    value: order?.paymentMethod || "N/A",
+    bg: "bg-yellow-100",
+    shadow: "hover:shadow-yellow-500",
   },
   {
     icon: FaShoppingBag,
@@ -35,10 +35,9 @@ export const getOrderCardData = (order) => [
   },
   {
     icon: FaClock,
-    label: "Ordered At",
+    label: order?.orderStatus === "pending" ? "Order Initiated At" : "Order Confirmed At",
     value: getFormatDate(order.createdAt),
     bg: "bg-pink-100",
     shadow: "hover:shadow-pink-500",
   },
 ];
-

@@ -10,7 +10,9 @@ const ReadMoreLess = ({ text = "", limit = 100 }) => {
 
   return (
     <div>
-      <p style={{ marginBottom: '0.5rem' }}>{visibleText}</p>
+      <p style={{ marginBottom: '0.5rem' }}>
+        <span dangerouslySetInnerHTML={{ __html: visibleText || "No description provided." }} />
+      </p>
       {isLongText && (
         <button
           onClick={() => setExpanded(!expanded)}

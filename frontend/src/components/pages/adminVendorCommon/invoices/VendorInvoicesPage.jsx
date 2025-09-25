@@ -32,9 +32,7 @@ const VendorInvoicesPage = () => {
     <section className="p-6 min-h-screen bg-gray-50">
       <BackButton />
 
-      <h2 className="text-xl font-semibold mt-4 mb-6 truncate">
-        Vendor Invoices for Order #{invoice?._id}
-      </h2>
+      <h2 className="text-xl md:text-2xl font-bold text-gray-800 mt-4 mb-6">Vendor Invoices for Order #{invoice?._id}</h2>
 
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {invoice?.vendorInvoices.map((vi, index) => (
@@ -52,7 +50,13 @@ const VendorInvoicesPage = () => {
               <div className="text-gray-600 mb-1">
                 <span className="font-medium">Shop:</span> {vi.vendorId?.shopName || "N/A"}
               </div>
+              {invoice.paymentMethod === "Online" && invoice.paymentInfo?.id && (
+                <div className="text-gray-600 mb-1">
+                  <span className="font-medium">Payment Id:</span> {invoice.paymentInfo?.id || "N/A"}
+                </div>
+              )}
             </div>
+
             <div className="mt-4 flex items-center justify-between">
               {vi?.invoiceUrl ? (
                 <a

@@ -67,7 +67,7 @@ const OrderDetails = ({ role = "admin" }) => {
       <div className="w-full bg-white rounded-xl shadow-md hover:shadow-blue-500 transition duration-150 mb-8 p-6 space-y-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg md:text-xl font-semibold text-gray-700 truncate">Products</h3>
-          {role === "vendor" && (
+          {role === "vendor" && order.vendorInvoices?.[0]?.invoiceUrl && (
             <a
               href={order.vendorInvoices?.[0]?.invoiceUrl}
               target="_blank"
@@ -128,10 +128,15 @@ const OrderDetails = ({ role = "admin" }) => {
             <span className="font-semibold">Shipping Address:</span> {formatAddress(order?.shippingInfo)}
           </p>
           <p>
-            <span className="font-semibold">Invoice Number:</span> {order?.invoiceNumber || "N/A"}
+            <span className="font-semibold">Invoice Number:</span> {order?.invoiceNumber || "N/A"} {" "}
+            {order?.orderStatus === "pending" && !order?.userInvoiceUrl && (
+              <span className="text-orange-400 text-xs md:text-[15px] italic">
+                (Order is in pending. Payment not completed.)
+              </span>
+            )}
           </p>
 
-          {role === "admin" && (
+          {role === "admin" && order?.userInvoiceUrl && (
             <div className="flex flex-col md:flex-row gap-1 justify-between items-center space-y-1 mt-4">
               <a
                 href={order?.userInvoiceUrl}

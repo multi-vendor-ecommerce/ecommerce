@@ -13,6 +13,9 @@ export const getAllInvoices = async (req, res) => {
     const limit = Math.max(parseInt(req.query.limit) || 10, 1);
     const skip = (page - 1) * limit;
 
+    // Only show invoices where orderStatus is NOT pending
+    query.orderStatus = { $ne: "pending" };
+
     // Vendor-specific query: only orders that include this vendor
     if (role === "vendor") {
       query["vendorInvoices"] = { $elemMatch: { vendorId: req.person.id } };
@@ -74,8 +77,9 @@ export const getInvoiceById = async (req, res) => {
   try {
     const invoice = await Order.findById(req.params.id)
       .populate("vendorInvoices.vendorId", "name email shopName")
+      .populate("paymentInfo", "id")
       .select(
-        "_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal vendorInvoices userInvoiceUrl"
+        "_id invoiceNumber createdAt totalTax totalDiscount paymentMethod grandTotal paymentInfo vendorInvoices userInvoiceUrl"
       );
 
     if (!invoice) {
