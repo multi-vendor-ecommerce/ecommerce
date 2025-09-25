@@ -54,7 +54,7 @@ const Profile = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gray-50">
-      <BackButton />
+      <BackButton className={person?.role === "customer" && "border-green-500 hover:bg-green-700"} />
 
       {/* Action Buttons */}
       <div className="mt-4 mb-6 flex justify-between items-center gap-2">
