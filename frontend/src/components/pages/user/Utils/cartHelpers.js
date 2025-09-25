@@ -1,6 +1,7 @@
 import { getFinalPrice } from "./priceUtils";
 import { FiShoppingCart } from "react-icons/fi";
 import { FaRupeeSign, FaBoxOpen } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 // Add product to cart with validation
 export const validateAndAddToCart = async ({
@@ -97,13 +98,12 @@ export const changeCartQuantity = async ({
   try {
     const data = await addToCart(productId, delta, color, size);
     if (!data.success) {
-      alert(`Failed to update quantity: ${data.message}`);
+      toast.error(data.message || "Failed to update quantity");
     } else {
       await getCart();
     }
   } catch (error) {
-    console.error("Error updating quantity:", error);
-    alert("Something went wrong while updating quantity.");
+    toast.error("Something went wrong while updating quantity.")
   }
 
   setUpdatingProductId(null);

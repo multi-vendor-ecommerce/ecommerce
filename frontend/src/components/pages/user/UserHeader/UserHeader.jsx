@@ -76,8 +76,8 @@ function UserHeader() {
   const displayName = person?.name
     ? toTitleCase(person.name.split(" ")[0])
     : person?.email
-    ? person.email.split("@")[0]
-    : "User";
+      ? person.email.split("@")[0]
+      : "User";
 
   return (
     <header className="sticky top-0 w-full z-50 min-h-16 bg-[#E8F5E9] shadow-sm py-1">
@@ -167,6 +167,21 @@ function UserHeader() {
                 </span>
               )}
             </Link>
+
+            {(!person || person?.role === "customer") && (
+              <Link
+                to="/register/vendor"
+                onClick={(e) => {
+                  if (!token) {
+                    e.preventDefault();
+                    navigate("/login/vendor");
+                  }
+                }}
+                className="py-2 flex items-center gap-2 px-4 border font-semibold rounded-lg transition duration-150 hover:bg-green-600 text-green-600 hover:text-white cursor-pointer"
+              >
+                Become Seller
+              </Link>
+            )}
           </div>
         </div>
 
