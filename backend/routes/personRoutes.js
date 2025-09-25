@@ -11,6 +11,7 @@ const router = express.Router();
 export const editPersonValidator = [
   body("name").optional({ nullable: true }).trim().escape().isLength({ min: 3 }).withMessage("Name must be at least 3 characters"),
   body("phone").optional({ nullable: true }).trim().isMobilePhone().withMessage("Phone must be valid"),
+  body("companyName").optional({ nullable: true }).trim().isLength({ min: 3 }).withMessage("Company name must be at least 3 characters"),
   body("address.line1").optional({ nullable: true }).isLength({ min: 3 }).withMessage("Address Line 1 must be at least 3 characters"),
   body("address.city").optional({ nullable: true }).notEmpty().withMessage("City is required"),
   body("address.state").optional({ nullable: true }).notEmpty().withMessage("State is required"),

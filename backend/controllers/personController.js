@@ -26,12 +26,17 @@ export const getCurrentPerson = async (req, res) => {
 // ==========================
 export const editPerson = async (req, res) => {
   try {
-    const person = await Person.findById(req.person.id);
+    // Determine the correct model based on role
+    const Model = req.person.role === "vendor" ? Vendor : Person;
+
+    const person = await Model.findById(req.person.id);
     if (!person) {
       return res.status(404).json({ success: false, message: "Profile not found." });
     }
 
-    // Only allow these fields to be edited for all roles
+    const update = {};
+
+    // Base allowed fields
     const allowedFields = [
       "name", "profileImage", "profileImageId",
       "address.recipientName", "address.recipientPhone",
@@ -40,16 +45,38 @@ export const editPerson = async (req, res) => {
       "address.geoLocation.lat", "address.geoLocation.lng"
     ];
 
-    const update = {};
+    // Vendor-specific one-time fields
+    if (req.person.role === "vendor") {
+      if (!person.companyNameLocked || !person.companyName) {
+        allowedFields.push("companyName", "companyNameLocked");
+      }
 
-    // Traverse req.body and set only allowed fields
+      // Handle companyName separately
+      if (req.body.companyName) {
+        if (person.companyNameLocked) {
+          return res.status(400).json({
+            success: false,
+            message: "Company name can only be set once. Contact support to change."
+          });
+        } else {
+          update.companyName = req.body.companyName.trim();
+          update.companyNameLocked = true;
+        }
+      }
+    }
+
+    // Traverse the body to update other allowed fields
     const traverse = (obj, prefix = "") => {
       for (const key in obj) {
         const path = prefix ? `${prefix}.${key}` : key;
-        if (obj[key] !== null && typeof obj[key] === "object" && !Array.isArray(obj[key])) {
-          traverse(obj[key], path);
+        const value = obj[key];
+
+        if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+          traverse(value, path);
         } else {
-          setNestedValueIfAllowed(update, path, obj[key]);
+          // Skip companyName since it is handled separately
+          if (path === "companyName") continue;
+          setNestedValueIfAllowed(update, path, value, allowedFields);
         }
       }
     };
@@ -60,7 +87,8 @@ export const editPerson = async (req, res) => {
       return res.status(400).json({ success: false, message: "No valid fields to update." });
     }
 
-    const updatedPerson = await Person.findByIdAndUpdate(
+    // Update using the correct model
+    const updatedPerson = await Model.findByIdAndUpdate(
       req.person.id,
       { $set: update },
       { new: true, runValidators: true }
@@ -69,12 +97,16 @@ export const editPerson = async (req, res) => {
     res.status(200).json({
       success: true,
       updatedPerson,
-      message: "Profile updated successfully.",
+      message: "Profile updated successfully."
     });
 
   } catch (err) {
     console.error("Edit Person Error:", err);
-    res.status(500).json({ success: false, message: "Unable to update profile. Please try again.", error: err.message });
+    res.status(500).json({
+      success: false,
+      message: "Unable to update profile. Please try again.",
+      error: err.message
+    });
   }
 };
 

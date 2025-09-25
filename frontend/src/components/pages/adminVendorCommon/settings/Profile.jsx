@@ -54,7 +54,7 @@ const Profile = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gray-50">
-      <BackButton className={person?.role === "customer" && "border-green-500 hover:bg-green-700"} />
+      <BackButton className={person?.role === "customer" ? "border-green-500 hover:bg-green-700" : "border-purple-500 hover:bg-purple-700"} />
 
       {/* Action Buttons */}
       <div className="mt-4 mb-6 flex justify-between items-center gap-2">
@@ -116,6 +116,7 @@ const Profile = () => {
             })}
             {/* GST Number only for vendor */}
             {person?.role === "vendor" && (
+              <>
               <InputField
                 label="GST Number"
                 title="Can't change GST Number"
@@ -126,6 +127,17 @@ const Profile = () => {
                 onChange={handleChange}
                 disabled={true}
               />
+              <InputField
+                label="Company Name"
+                title="Can change for first time only"
+                name="companyName"
+                type="text"
+                placeholder="Enter your Company Name"
+                value={form.companyName || ""}
+                onChange={handleChange}
+                disabled={!editing || person?.companyNameLocked}
+              />
+              </>
             )}
           </div>
         </div>

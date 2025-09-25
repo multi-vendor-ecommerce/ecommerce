@@ -40,7 +40,7 @@ const Security = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gray-50">
-      <BackButton className={person?.role === "customer" && "border-green-500 hover:bg-green-700"} />
+      <BackButton className={person?.role === "customer" ? "border-green-500 hover:bg-green-700" : "border-purple-500 hover:bg-purple-700"} />
 
       <div className="mt-4 mb-6 flex justify-between items-center gap-2">
         <h2 className="text-xl md:text-2xl font-bold">Change Password</h2>

@@ -3,6 +3,15 @@ import mongoose from "mongoose";
 import Person from "./Person.js";
 
 const Vendor = Person.discriminator("vendor", new mongoose.Schema({
+  companyName: {
+    type: String,
+    default: "",
+    trim: true
+  },
+  companyNameLocked: {
+    type: Boolean,
+    default: false
+  },
   shopName: {
     type: String,
     required: true,

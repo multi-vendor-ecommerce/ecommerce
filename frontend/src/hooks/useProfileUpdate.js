@@ -1,30 +1,31 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
-// Only allow these fields to be updated
-const allowedFields = [
-  "profileImage", "profileImageId",
+const baseAllowedFields = [
+  "name", "profileImage", "profileImageId",
   "address.recipientName", "address.recipientPhone",
   "address.line1", "address.line2", "address.locality",
   "address.city", "address.state", "address.country", "address.pincode",
-  "address.geoLocation.lat", "address.geoLocation.lng",
-  "commissionRate"
+  "address.geoLocation.lat", "address.geoLocation.lng"
 ];
 
-// Required fields for validation
-const requiredFields = ["commissionRate"];
+// No required fields
+const requiredFields = [];
 
 const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
   const [form, setForm] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Track if there are changes between form and person
+  // Dynamically build allowed fields
+  const allowedFields = [...baseAllowedFields];
+  if (person?.role === "vendor" && (!person?.companyNameLocked || !person?.companyName)) {
+    allowedFields.push("companyName");
+  }
+
   const hasChanges = form && JSON.stringify(form) !== JSON.stringify(person);
 
-  // Check for empty required fields
   const hasEmptyRequired = form
     ? requiredFields.some((field) => {
-      // Handle nested fields
       if (field.includes(".")) {
         const keys = field.split(".");
         let value = form;
@@ -40,12 +41,10 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
 
   useEffect(() => {
     if (person) {
-      // Deep clone to avoid mutating original person object
       setForm(JSON.parse(JSON.stringify(person)));
     }
   }, [person]);
 
-  // Handle nested input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => {
@@ -64,7 +63,6 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
     });
   };
 
-  // Only include allowed fields that actually changed
   const filterAllowedDiff = (diffObj) => {
     const filtered = {};
     const traverse = (obj, prefix = "") => {
@@ -72,17 +70,13 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
         const path = prefix ? `${prefix}.${key}` : key;
         if (allowedFields.includes(path)) {
           filtered[path] = obj[key];
-        } else if (
-          obj[key] !== null &&
-          typeof obj[key] === "object" &&
-          !Array.isArray(obj[key])
-        ) {
+        } else if (obj[key] !== null && typeof obj[key] === "object" && !Array.isArray(obj[key])) {
           traverse(obj[key], path);
         }
       }
     };
     traverse(diffObj);
-    // Convert flat paths to nested object
+
     const result = {};
     Object.entries(filtered).forEach(([path, value]) => {
       const keys = path.split(".");
@@ -99,7 +93,6 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
     return result;
   };
 
-  // Save changes
   const handleSave = async () => {
     if (!form || !hasChanges) {
       toast.info("No changes to save.");
@@ -112,16 +105,11 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
       return;
     }
 
-    // Only include fields that actually changed
     const diff = {};
     const compareObjects = (orig, updated, path = "") => {
       Object.keys(updated).forEach((key) => {
         const fullPath = path ? `${path}.${key}` : key;
-        if (
-          typeof updated[key] === "object" &&
-          updated[key] !== null &&
-          !Array.isArray(updated[key])
-        ) {
+        if (typeof updated[key] === "object" && updated[key] !== null && !Array.isArray(updated[key])) {
           compareObjects(orig?.[key] || {}, updated[key], fullPath);
         } else if (orig?.[key] !== updated[key]) {
           const keys = fullPath.split(".");
@@ -176,6 +164,7 @@ const useProfileUpdate = (person, editPerson, setEditing, getCurrentPerson) => {
     isLoading,
     hasChanges,
     hasEmptyRequired,
+    allowedFields, // expose for frontend to disable locked fields
   };
 };
 
