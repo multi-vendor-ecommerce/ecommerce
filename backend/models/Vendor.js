@@ -2,7 +2,9 @@
 import mongoose from "mongoose";
 import Person from "./Person.js";
 
-const Vendor = Person.discriminator("vendor", new mongoose.Schema({
+const { Schema } = mongoose;
+
+const Vendor = Person.discriminator("vendor", new Schema({
   companyName: {
     type: String,
     default: "",

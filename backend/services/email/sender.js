@@ -38,11 +38,11 @@ export async function sendProductAddedAdminMail({ to, vendorName, vendorEmail, p
   });
 }
 
-export async function sendProductStatusMail({ to, productStatus, productName, productId, vendorName, vendorShop, statusMsg = "" }) {
+export async function sendProductStatusMail({ to, productStatus, productName, productId, vendorName, vendorShop, review = "" }) {
   await sendMail({
     to,
     subject: `Your Product Status Update: ${toTitleCase(productStatus)}`,
-    html: productStatusTemplate(productStatus, productName, productId, vendorName, vendorShop, statusMsg),
+    html: productStatusTemplate(productStatus, productName, productId, vendorName, vendorShop, review),
   });
 }
 
@@ -88,11 +88,11 @@ export async function sendVendorDeletionRequestMail({ to, productName, productId
 }
 
 // Admin deletes product → notify vendor
-export async function sendProductDeletedByAdminMail({ to, productName, productId, adminName }) {
+export async function sendProductDeletedByAdminMail({ to, productName, productId, adminName, review = "" }) {
   await sendMail({
     to,
     subject: `Your Product Has Been Deleted by Admin: ${productName}`,
-    html: productDeletedByAdminTemplate(productName, productId, adminName),
+    html: productDeletedByAdminTemplate(productName, productId, adminName, review),
   });
 }
 

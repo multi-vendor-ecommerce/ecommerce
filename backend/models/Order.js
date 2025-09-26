@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 
-const orderSchema = new mongoose.Schema(
+const { Schema } = mongoose;
+
+const orderSchema = new Schema(
   {
     shippingInfo: {
       recipientName: { type: String, trim: true },
@@ -25,7 +27,7 @@ const orderSchema = new mongoose.Schema(
           required: [true, "Product quantity is required"]
         },
         product: {
-          type: mongoose.Schema.Types.ObjectId,
+          type: Schema.Types.ObjectId,
           ref: "Product",
           required: [true, "Product is required"]
         },
@@ -41,7 +43,7 @@ const orderSchema = new mongoose.Schema(
 
         // Vendor reference (who is selling this product)
         createdBy: {
-          type: mongoose.Schema.Types.ObjectId,
+          type: Schema.Types.ObjectId,
           ref: "Vendor",
           required: true
         },
@@ -62,7 +64,7 @@ const orderSchema = new mongoose.Schema(
     },
 
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Person",
       required: [true, "User is required"]
     },
