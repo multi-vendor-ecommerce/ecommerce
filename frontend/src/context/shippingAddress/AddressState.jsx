@@ -7,8 +7,8 @@ const AddressState = ({ children }) => {
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL;
+  const host = "http://localhost:5000";
 
   // Fetch all addresses for logged-in user
   const getAddresses = async () => {
