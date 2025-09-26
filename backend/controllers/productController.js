@@ -1,20 +1,17 @@
-import mongoose from "mongoose";
 import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 import { sendProductAddedMail, sendProductAddedAdminMail, sendProductStatusMail, sendVendorResubmittedProductMail, sendVendorDeletionRequestMail, sendProductDeletedByAdminMail } from "../services/email/sender.js";
 import Vendor from "../models/Vendor.js";
 import Order from "../models/Order.js";
+import Review from "../models/Review.js";
 import { validateProductFields } from "../utils/validateProductFields.js";
+import { deleteCloudinaryImages } from "../utils/deleteCloudinaryImages.js";
 import { mergeImages } from "../utils/mergeImages.js";
 import cloudinary from "../config/cloudinary.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
 import { splitAndClean } from "../utils/splitAndClean.js";
-
-// Helper to validate ObjectId
-function isValidObjectId(id) {
-  return mongoose.Types.ObjectId.isValid(id);
-}
+import { isValidObjectId } from "mongoose";
 
 // ==========================
 // Get all products - handles public, admin, and vendor
@@ -421,10 +418,6 @@ export const editProduct = async (req, res) => {
     }
 
     if (isAdmin && update.status) {
-      const msg = update.status === "approved"
-        ? "Your product has been approved and is now live."
-        : "Your product has been rejected. Please review and resubmit.";
-
       await safeSendMail(sendProductStatusMail, {
         to: product.createdBy.email,
         productStatus: update.status,
@@ -432,12 +425,14 @@ export const editProduct = async (req, res) => {
         productId: product._id,
         vendorName: product.createdBy.name,
         vendorShop: product.createdBy.shopName,
-        statusMsg: msg
       });
     }
 
-    product = await Product.findByIdAndUpdate(productId, update, { new: true, runValidators: true })
-      .populate("createdBy", "email name shopName");
+    product = await Product.findByIdAndUpdate(
+      productId,
+      update,
+      { new: true, runValidators: true }
+    ).populate("createdBy", "email name shopName");
 
     res.status(200).json({ success: true, product, message: "Product updated successfully." });
   } catch (err) {
@@ -450,10 +445,14 @@ export const editProduct = async (req, res) => {
 // Delete product (admin & vendor)
 // ==========================
 export const deleteProduct = async (req, res) => {
+  const productId = req.params.id;
+  const isAdmin = req.person?.role === "admin";
+  const isVendor = req.person?.role === "vendor";
+
   try {
-    const productId = req.params.id;
-    const isAdmin = req.person?.role === "admin";
-    const isVendor = req.person?.role === "vendor";
+    if (!isValidObjectId(productId)) {
+      return res.status(400).json({ success: false, message: "Invalid product ID." });
+    }
 
     let product = await Product.findById(productId).populate("createdBy", "email name shopName");
     if (!product) {
@@ -487,26 +486,30 @@ export const deleteProduct = async (req, res) => {
     if (isAdmin) {
       // Admin deletes product → hard delete
       // Delete images from Cloudinary
-      if (Array.isArray(product.images)) {
-        for (const img of product.images) {
-          if (img.public_id) {
-            try {
-              await cloudinary.uploader.destroy(img.public_id);
-            } catch (err) {
-              console.error("Failed to delete image from Cloudinary:", img.public_id, err);
-            }
-          }
-        }
+      if (product?.images.length > 0) {
+        await deleteCloudinaryImages(product.images);
       }
+
+      const review = req.body.review.trim() || "";
+
+      // Save a review record
+      await Review.create({
+        targetId: product?._id,
+        targetType: toTitleCase("product"),
+        adminId: req?.person.id,
+        status: product?.status,
+        review
+      });
 
       await Product.findByIdAndDelete(productId);
 
       // Notify vendor
       await safeSendMail(sendProductDeletedByAdminMail, {
-        to: product.createdBy.email,
-        productName: product.title,
-        productId: product._id,
-        adminName: req.person.name || "Admin",
+        to: product?.createdBy.email,
+        productName: product?.title,
+        productId: product?._id,
+        adminName: req?.person.name || "Admin",
+        review
       });
 
       return res.status(200).json({
@@ -528,11 +531,16 @@ export const deleteProduct = async (req, res) => {
 };
 
 // ==========================
-// Update product status (approve/reject/delete)
+// Update product status (approve/reject/delete) with review/review
 // ==========================
 export const updateProductStatus = async (req, res) => {
-  let { status } = req.body;
+  let { status, review } = req.body; // admin-provided review
   status = status?.toLowerCase();
+  review = review.trim();
+
+  if (req.person?.role !== "admin") {
+    return res.status(403).json({ success: false, message: "Access denied. Admins only." });
+  }
 
   const productId = req.params.id;
   if (!isValidObjectId(productId)) {
@@ -546,7 +554,7 @@ export const updateProductStatus = async (req, res) => {
 
   try {
     // Fetch product & vendor
-    let product = await Product.findById(req.params.id).populate("createdBy", "email name shopName");
+    let product = await Product.findById(productId).populate("createdBy", "email name shopName");
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found." });
     }
@@ -557,7 +565,8 @@ export const updateProductStatus = async (req, res) => {
       productName: product.title,
       productId: product._id,
       vendorName: product.createdBy.name,
-      vendorShop: product.createdBy.shopName
+      vendorShop: product.createdBy.shopName,
+      review // <-- use review here
     };
 
     // === Handle Deletion Rejected ===
@@ -565,7 +574,14 @@ export const updateProductStatus = async (req, res) => {
       product.status = "approved"; // fallback to approved
       await product.save();
 
-      vendorInfo.productStatus = "deletionRejected";
+      await Review.create({
+        targetId: product._id,
+        targetType: "Product",
+        adminId: req.person.id,
+        status: "deletionRejected",
+        review
+      });
+
       await safeSendMail(sendProductStatusMail, vendorInfo);
 
       return res.status(200).json({
@@ -578,20 +594,19 @@ export const updateProductStatus = async (req, res) => {
     // === Handle Deleted ===
     if (req.person.role === "admin" && status === "deleted") {
       if (Array.isArray(product.images) && product.images.length > 0) {
-        await Promise.all(
-          product.images.map(img =>
-            img.public_id
-              ? cloudinary.uploader.destroy(img.public_id).catch(err => {
-                console.error("Cloudinary deletion failed:", img.public_id, err);
-              })
-              : null
-          )
-        );
+        await deleteCloudinaryImages(product.images);
       }
+
+      await Review.create({
+        targetId: product._id,
+        targetType: "Product",
+        adminId: req.person.id,
+        status: "deleted",
+        review
+      });
 
       await product.deleteOne();
 
-      vendorInfo.productStatus = "deleted";
       await safeSendMail(sendProductStatusMail, vendorInfo);
 
       return res.status(200).json({
@@ -604,6 +619,14 @@ export const updateProductStatus = async (req, res) => {
     // === Handle Normal Status Updates ===
     product.status = status;
     await product.save();
+
+    await Review.create({
+      targetId: product._id,
+      targetType: "Product",
+      adminId: req.person.id,
+      status,
+      review
+    });
 
     await safeSendMail(sendProductStatusMail, vendorInfo);
 
@@ -622,7 +645,7 @@ export const updateProductStatus = async (req, res) => {
   }
 };
 
-// Recently Viewed Products 
+// Recently Viewed Products
 export const getPendingBuyNowProducts = async (req, res) => {
   try {
     const userId = req.person.id;
@@ -634,7 +657,7 @@ export const getPendingBuyNowProducts = async (req, res) => {
       orderStatus: "pending",
     })
       .populate("orderItems.product", "title price images category discount")
-      .sort({ createdAt: -1 }) 
+      .sort({ createdAt: -1 })
       .limit(10);
 
     const products = [];
@@ -647,7 +670,7 @@ export const getPendingBuyNowProducts = async (req, res) => {
           products.push(item.product);
         }
       }
-      if (products.length >= 10) break; 
+      if (products.length >= 10) break;
     }
 
     res.status(200).json({

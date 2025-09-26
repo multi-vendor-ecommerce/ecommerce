@@ -199,19 +199,20 @@ const ProductState = ({ children }) => {
   };
 
   // Delete product (admin/vendor only)
-  const deleteProduct = async (id) => {
+  const deleteProduct = async (id, review) => {
     const { role } = getRoleInfo();
 
     try {
       setLoading(true);
 
-      const headers = {};
+      const headers = { contentType: "application/json" };
       if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
       else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
 
       const response = await fetch(`${host}/api/products/${role}/delete/${id}`, {
         method: role === "admin" ? "DELETE" : "PUT",
         headers,
+        body: role === "admin" ? JSON.stringify({ review }) : null,
       });
 
       const data = await response.json();
@@ -226,7 +227,7 @@ const ProductState = ({ children }) => {
   };
 
   // Update product status (admin only)
-  const updateProductStatus = async (id, status) => {
+  const updateProductStatus = async (id, status, review) => {
     try {
       setLoading(true);
 
@@ -236,7 +237,7 @@ const ProductState = ({ children }) => {
           "Content-Type": "application/json",
           "auth-token": localStorage.getItem("adminToken"),
         },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, review }),
       });
 
       const data = await response.json();

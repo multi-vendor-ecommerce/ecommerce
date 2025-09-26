@@ -91,39 +91,60 @@ export const productStatusTemplate = (
   productId,
   vendorName,
   vendorShop,
-  statusMsg
-) =>
-  baseMail(`
+  review = ""
+) => baseMail(`
   <h2 style="color: #333; margin-bottom: 20px;">
     Product ${toTitleCase(productStatus)}!
   </h2>
 
-  <p style="font-size: 16px; color: #555;">
+  <p style="font-size: 16px; color: #555; margin-bottom: 15px;">
     Hello <strong>${vendorName}</strong>,  
     your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>)  
     under <strong>${vendorShop}</strong> has been 
-    <strong>${toTitleCase(productStatus).toLowerCase()}</strong>.
+    <strong>${toTitleCase(productStatus)}</strong>.
   </p>
 
-  <p style="font-size: 14px; color: #555; margin: 15px 0;">
-    ${productStatus === "approved"
-      ? "🎉 Congratulations! Your product has been approved and is now live on the marketplace. Start selling right away!"
-      : `❌ Unfortunately, your product has been disapproved. 
-           ${statusMsg
-        ? `<br><em>Reason: ${statusMsg}</em>`
-        : "Please review the product details and make the necessary changes before resubmitting."
-      }`
-    }
-  </p>
+  ${productStatus === "approved" ? `
+    <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
+      🎉 Congratulations! Your product has been approved and is now live on the marketplace. Start selling right away!
+    </p>
+  ` : `
+    <p style="font-size: 14px; color: #555; margin: 15px 0;">
+      ❌ Unfortunately, your product has been rejected.
+    </p>
+
+    ${review ? `
+      <div style="
+        font-size: 14px; 
+        color: #555; 
+        margin: 10px 0; 
+        font-style: italic; 
+        border-left: 3px solid #dc3545; 
+        padding-left: 10px;
+      ">
+        ${review} 
+      </div>
+    ` : `
+      <p style="font-size: 14px; color: #555; margin: 10px 0;">
+        Please review the product details and make the necessary changes before resubmitting.
+      </p>
+    `}
+  `}
 
   <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
     Thank you for being a valued vendor! We truly appreciate your partnership.
   </p>
 
   <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor" 
-     style="display: inline-block; padding: 10px 20px; background-color: ${productStatus === "approved" ? "#28a745" : "#dc3545"
-    }; 
-            color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
+      style="
+        display: inline-block; 
+        padding: 10px 20px; 
+        background-color: ${productStatus === "approved" ? "#28a745" : "#dc3545"}; 
+        color: #fff; 
+        border-radius: 6px; 
+        text-decoration: none; 
+        font-weight: bold;
+      ">
     ${productStatus === "approved" ? "Go to Dashboard" : "Update & Resubmit"}
   </a>
 `);
@@ -219,12 +240,14 @@ export const vendorDeletionRequestTemplate = (productName, productId, vendorName
 `);
 
 // Admin deletes product → Vendor notification
-export const productDeletedByAdminTemplate = (productName, productId, adminName) => baseMail(`
+export const productDeletedByAdminTemplate = (productName, productId, adminName, review = "") => baseMail(`
   <h2 style="color: #333; margin-bottom: 20px;">❌ Product Deleted</h2>
   <p style="font-size: 16px; color: #555;">
     Your product <strong>${productName}</strong> (ID: <strong>${productId}</strong>) has been deleted by <strong>${adminName}</strong>.
   </p>
   <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
+    ${review}
+    
     If you have any questions about this action, please contact support.
   </p>
   <a href="https://multi-vendor-e-commerce.netlify.app/login/vendor" 
@@ -307,7 +330,7 @@ export const orderSuccessTemplate = (
       View Invoice
     </a>
   ` : ""
-  }
+    }
 
   <p style="font-size: 14px; color: #555; margin-top: 20px;">
     ${isVendor

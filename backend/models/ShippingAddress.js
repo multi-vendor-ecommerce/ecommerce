@@ -1,10 +1,12 @@
 // models/ShippingAddress.js
 import mongoose from "mongoose";
 
-const shippingAddressSchema = new mongoose.Schema(
+const { Schema } = mongoose;
+
+const shippingAddressSchema = new Schema(
   {
     customer: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Person",
       required: true,
     },

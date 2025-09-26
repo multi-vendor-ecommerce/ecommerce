@@ -1,9 +1,11 @@
 // models/Person.js
 import mongoose from "mongoose";
 
+const { Schema } = mongoose;
+
 const options = { discriminatorKey: "role", timestamps: true };
 
-const PersonSchema = new mongoose.Schema({
+const PersonSchema = new Schema({
   name: { type: String, required: true, trim: true },
   profileImage: { type: String, default: "" },
   profileImageId: { type: String, default: "" },

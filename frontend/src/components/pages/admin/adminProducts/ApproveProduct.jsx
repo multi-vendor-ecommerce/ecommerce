@@ -4,8 +4,9 @@ import Loader from "../../../common/Loader";
 import BackButton from "../../../common/layout/BackButton";
 import Button from "../../../common/Button";
 import { NavLink } from "react-router-dom";
-import { FiCheckCircle, FiEye, FiXCircle } from "react-icons/fi";
+import { FiCheckCircle, FiEye, FiX, FiXCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
+import ReviewBox from "../../../common/ReviewBox";
 
 const ApproveProduct = () => {
   const { getAllProducts, updateProductStatus, loading } = useContext(ProductContext);
@@ -13,6 +14,7 @@ const ApproveProduct = () => {
   const [products, setProducts] = useState([]);
   const [updatingId, setUpdatingId] = useState(null);
   const [updatingAction, setUpdatingAction] = useState(""); // "approve" or "reject"
+  const [review, setReview] = useState(""); // per product
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -26,13 +28,19 @@ const ApproveProduct = () => {
   }, []);
 
   const handleStatusChange = async (id, status) => {
+    if (status === "rejected" && !review.trim()) {
+      toast.error("Please provide review before rejecting.");
+      return;
+    }
+
     setUpdatingId(id);
     setUpdatingAction(status);
 
-    const data = await updateProductStatus(id, status);
+    const data = await updateProductStatus(id, status, review); // send review
 
     setUpdatingId(null);
     setUpdatingAction("");
+    setReview("");
 
     if (data.success) {
       setProducts(products.filter(product => product._id !== id));
@@ -42,13 +50,8 @@ const ApproveProduct = () => {
     }
   };
 
-  const handleApprove = (id) => {
-    handleStatusChange(id, "approved");
-  };
-
-  const handleReject = (id) => {
-    handleStatusChange(id, "rejected");
-  };
+  const handleApprove = (id) => handleStatusChange(id, "approved");
+  const handleReject = (id) => handleStatusChange(id, "rejected");
 
   if (loading && products.length === 0) {
     return (
@@ -61,7 +64,6 @@ const ApproveProduct = () => {
   return (
     <section aria-label="Admin Dashboard" className="p-6 min-h-screen bg-gray-50">
       <BackButton />
-
       <h2 className="text-2xl font-bold mt-4 mb-6">Approve Products</h2>
 
       <div className="bg-white shadow-md shadow-blue-500 rounded-xl p-6">
@@ -76,16 +78,16 @@ const ApproveProduct = () => {
               <span className="hidden md:inline-block">View All Products</span>
             </NavLink>
           </div>
-        )
-          : (
-            <>
-              {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-              <ul className="flex flex-col gap-8">
-                {products.map(product => (
-                  <li
-                    key={product._id}
-                    className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-lg border-[0.5px] border-gray-50 hover:shadow-sm hover:shadow-purple-500 transition duration-200 bg-gray-50"
-                  >
+        ) : (
+          <>
+            {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+            <ul className="flex flex-col gap-8">
+              {products.map(product => (
+                <li
+                  key={product._id}
+                  className="flex flex-col gap-6 p-4 rounded-lg border-[0.5px] border-gray-50 hover:shadow-sm hover:shadow-purple-500 transition duration-200 bg-gray-50"
+                >
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 flex-1 w-full">
                     <img
                       src={product.images?.[0].url}
                       alt={product.title}
@@ -119,16 +121,19 @@ const ApproveProduct = () => {
                         onClick={() => handleApprove(product._id)}
                         className="py-2"
                         color="green"
-                        disabled={updatingId === product._id}
+                        disabled={updatingId !== null} // disable all other buttons
                       />
 
                       <Button
                         icon={FiXCircle}
-                        text={updatingId === product._id && updatingAction === "rejected" ? <span className="animate-pulse">Rejecting...</span> : "Reject Product"}
-                        onClick={() => handleReject(product._id)}
+                        text="Reject Product"
+                        onClick={() => {
+                          setUpdatingId(product._id);
+                          setUpdatingAction("rejected");
+                        }}
                         className="py-2"
                         color="red"
-                        disabled={updatingId === product._id}
+                        disabled={updatingId !== null} // disable all other buttons
                       />
 
                       <NavLink to={`/admin/product-details/${product._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
@@ -136,14 +141,26 @@ const ApproveProduct = () => {
                         <span>View Product</span>
                       </NavLink>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
+                  </div>
+
+                  {updatingId === product._id && updatingAction === "rejected" && (
+                    <ReviewBox
+                      value={review}
+                      setValue={setReview}
+                      onSubmit={() => handleReject(product._id)}
+                      onCancel={() => { setUpdatingId(null); setUpdatingAction(""); setReview(""); }}
+                      submitText="Send Rejection"
+                      disabled={updatingId === null}
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </section>
-  )
-}
+  );
+};
 
 export default ApproveProduct;
