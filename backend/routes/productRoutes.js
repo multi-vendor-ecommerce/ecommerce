@@ -4,8 +4,15 @@ import authorizeRoles from "../middleware/authorizeRole.js";
 import multerErrorHandler from "../middleware/multerErrorHandler.js";
 import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts, updateProductStatus, editProduct, deleteProduct, getPendingBuyNowProducts } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
+import { body } from "express-validator";
+import { validate } from "../middleware/validateFields.js";
 
 const router = express.Router();
+
+export const editProductStatusValidator = [
+  body("status").notEmpty().withMessage("Status is required").isIn(["pending", "approved", "rejected", "inactive", "pendingDeletion", "deleted", "deletionRejected"]).withMessage("Invalid status value"),
+  body("review").optional().trim().escape().isLength({ min: 10 }).withMessage("Review must be at least 10 characters")
+];
 
 // For product images (multiple)
 const uploadProduct = upload({ folder: "products", prefix: "product", fileSize: 5 * 1024 * 1024 });
@@ -48,7 +55,7 @@ router.delete("/admin/delete/:id", verifyToken, authorizeRoles("admin"), deleteP
 
 // ROUTE 10: PUT /api/products/admin/:id/status
 // Desc: Update product status by ID (admin action)
-router.put("/admin/:id/status", verifyToken, authorizeRoles("admin"), updateProductStatus);
+router.put("/admin/:id/status", verifyToken, authorizeRoles("admin"), editProductStatusValidator, validate, updateProductStatus);
 
 // ROUTE 11: GET /api/products/vendor
 // Desc: Get all products created by the vendor

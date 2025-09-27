@@ -62,11 +62,11 @@ export async function sendVendorStatusMail({ to, vendorName, vendorShop, vendorE
   });
 }
 
-export async function sendVendorApprovalStatusMail({ to, vendorStatus, vendorName, vendorShop, reason = "" }) {
+export async function sendVendorApprovalStatusMail({ to, vendorStatus, vendorName, vendorShop, review = "" }) {
   await sendMail({
     to,
     subject: `Your Vendor Account Status Update: ${toTitleCase(vendorStatus)}`,
-    html: vendorStatusTemplate(vendorName, vendorShop, vendorStatus, reason),
+    html: vendorStatusTemplate(vendorName, vendorShop, vendorStatus, review),
   });
 }
 

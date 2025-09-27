@@ -1,12 +1,12 @@
 import Vendor from "../models/Vendor.js";
 import User from "../models/User.js";
 import Order from "../models/Order.js";
-import Product from "../models/Products.js"; // Add this import at the top
+import Product from "../models/Products.js";
+import Review from "../models/Review.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 import { sendVendorStatusMail, sendVendorApprovalStatusMail, sendVendorProfileUpdatedMail } from "../services/email/sender.js";
 import { setNestedValueIfAllowed } from "../utils/setNestedValueIfAllowed.js";
-
 
 import { getVendorShiprocketToken } from "../services/shiprocket/client.js";
 import { createVendorShiprocketOrder } from "../services/shiprocket/orders.js";
@@ -154,8 +154,9 @@ export const getVendorById = async (req, res) => {
 // Update vendor status
 // ==========================
 export const updateVendorStatus = async (req, res) => {
-  let { status } = req.body;
+  let { status, review } = req.body;
   status = status.toLowerCase();
+  review = review.trim() || "";
 
   try {
     const isValidStatus = ["pending", "active", "inactive", "suspended", "rejected"].includes(status);
@@ -202,6 +203,15 @@ export const updateVendorStatus = async (req, res) => {
 
     const result = await Product.updateMany(productMatch, productUpdate);
 
+    // Save a review record
+    await Review.create({
+      targetId: vendor?._id,
+      targetType: toTitleCase("vendor"),
+      adminId: req?.person.id,
+      status: vendor?.status,
+      review
+    });
+
     // Send status email to vendor (same as before)
     try {
       if (status !== "pending" && status !== "") {
@@ -210,7 +220,7 @@ export const updateVendorStatus = async (req, res) => {
           vendorStatus: status === "active" ? "approved" : status === "inactive" ? "disabled" : status,
           vendorName: vendor.name,
           vendorShop: vendor.shopName,
-          reason: req.body.reason || "",
+          review
         });
       }
     } catch (emailErr) {

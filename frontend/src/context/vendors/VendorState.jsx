@@ -133,7 +133,7 @@ const VendorState = (props) => {
   }, [host]);
 
   // Approve vendor (admin only)
-  const updateVendorStatus = async (id, status) => {
+  const updateVendorStatus = async (id, status, review) => {
     try {
       setLoading(true);
 
@@ -143,7 +143,7 @@ const VendorState = (props) => {
           "Content-Type": "application/json",
           "auth-token": localStorage.getItem("adminToken"),
         },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, review }),
       });
 
       const data = await response.json();

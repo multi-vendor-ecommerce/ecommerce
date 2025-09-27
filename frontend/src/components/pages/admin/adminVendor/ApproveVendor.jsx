@@ -6,24 +6,32 @@ import Button from "../../../common/Button";
 import { NavLink } from "react-router-dom";
 import { FiCheckCircle, FiEye, FiXCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
+import ReviewBox from "../../../common/ReviewBox";
 
 const ApproveVendor = () => {
   const { vendors, getAllVendors, updateVendorStatus, loading } = useContext(VendorContext);
   const [updatingId, setUpdatingId] = useState(null);
-  const [updatingAction, setUpdatingAction] = useState(""); // "approve" or "reject"
+  const [updatingAction, setUpdatingAction] = useState(""); // "active" or "rejected"
+  const [review, setReview] = useState("");
 
   useEffect(() => {
     getAllVendors({ status: "pending" });
   }, []);
 
   const handleStatusChange = async (id, status) => {
-    setUpdatingId(id);
-    setUpdatingAction(status); // Track which action is happening
+    if (status === "rejected" && !review.trim()) {
+      toast.error("Please provide review before rejecting.");
+      return;
+    }
 
-    const data = await updateVendorStatus(id, status);
+    setUpdatingId(id);
+    setUpdatingAction(status);
+
+    const data = await updateVendorStatus(id, status, review);
 
     setUpdatingId(null);
     setUpdatingAction("");
+    setReview("");
 
     if (data.success) {
       toast.success(data.message || `Vendor ${status} successfully!`);
@@ -32,13 +40,8 @@ const ApproveVendor = () => {
     }
   };
 
-  const handleApprove = (id) => {
-    handleStatusChange(id, "active");
-  };
-
-  const handleReject = (id) => {
-    handleStatusChange(id, "rejected");
-  };
+  const handleApprove = (id) => handleStatusChange(id, "active");
+  const handleReject = (id) => handleStatusChange(id, "rejected");
 
   if (loading && vendors.length === 0) {
     return (
@@ -71,72 +74,88 @@ const ApproveVendor = () => {
             {vendors.map(vendor => (
               <li
                 key={vendor._id}
-                className="flex flex-col md:flex-row items-center gap-6 p-4 rounded-lg border-[0.5px] border-gray-50 hover:shadow-sm hover:shadow-purple-500 transition duration-200 bg-gray-50"
+                className="flex flex-col gap-6 p-4 rounded-lg border-[0.5px] border-gray-50 hover:shadow-sm hover:shadow-purple-500 transition duration-200 bg-gray-50"
               >
-                <img
-                  src={
-                    vendor.shopLogo ||
-                    `https://api.dicebear.com/7.x/initials/svg?seed=${vendor.shopName || "V"}`
-                  }
-                  alt={vendor.shopName}
-                  className="w-32 h-32 object-cover rounded-lg border border-gray-300 shadow"
-                />
-                <div className="flex-1 text-center md:text-start">
-                  <div className="font-semibold text-lg text-gray-900">{vendor.shopName}</div>
-                  <div className="text-gray-700 mt-1">
-                    <span className="font-medium">Name:</span>{" "}
-                    {vendor.name}
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 flex-1 w-full">
+                  <img
+                    src={
+                      vendor.shopLogo ||
+                      `https://api.dicebear.com/7.x/initials/svg?seed=${vendor.shopName || "V"}`
+                    }
+                    alt={vendor.shopName}
+                    className="w-32 h-32 object-cover rounded-lg border border-gray-300 shadow"
+                  />
+                  <div className="flex-1 text-center md:text-start">
+                    <div className="font-semibold text-lg text-gray-900">{vendor.shopName}</div>
+                    <div className="text-gray-700 mt-1">
+                      <span className="font-medium">Name:</span>{" "}
+                      {vendor.name}
+                    </div>
+                    <div className="text-gray-700 mt-1">
+                      <span className="font-medium">GST Number:</span>{" "}
+                      {vendor.gstNumber}
+                    </div>
+                    <div className="text-gray-700 mt-1">
+                      <span className="font-medium">Email:</span>{" "}
+                      {vendor.email}
+                    </div>
+                    <div className="text-gray-700 mt-1">
+                      <span className="font-medium">Mobile Number:</span>{" "}
+                      {vendor.phone}
+                    </div>
+                    <div className="text-gray-700 mt-1">
+                      <span className="font-medium">Address:</span>{" "}
+                      {vendor.address?.line1}, {vendor.address?.city}, {vendor.address?.state}, {vendor.address?.country}, {vendor.address?.pincode}
+                    </div>
+                    <div className="text-gray-700 mt-1">
+                      <span className="font-medium">Status:</span>{" "}
+                      <span className="text-yellow-600 font-bold">{vendor.status}</span>
+                    </div>
+                    <div className="text-gray-700 mt-1">
+                      <span className="font-medium">Registered At:</span>{" "}
+                      {vendor.registeredAt ? new Date(vendor.registeredAt).toLocaleDateString() : "—"}
+                    </div>
                   </div>
-                  <div className="text-gray-700 mt-1">
-                    <span className="font-medium">GST Number:</span>{" "}
-                    {vendor.gstNumber}
-                  </div>
-                  <div className="text-gray-700 mt-1">
-                    <span className="font-medium">Email:</span>{" "}
-                    {vendor.email}
-                  </div>
-                  <div className="text-gray-700 mt-1">
-                    <span className="font-medium">Mobile Number:</span>{" "}
-                    {vendor.phone}
-                  </div>
-                  <div className="text-gray-700 mt-1">
-                    <span className="font-medium">Address:</span>{" "}
-                    {vendor.address?.line1}, {vendor.address?.city}, {vendor.address?.state}, {vendor.address?.country}, {vendor.address?.pincode}
-                  </div>
-                  <div className="text-gray-700 mt-1">
-                    <span className="font-medium">Status:</span>{" "}
-                    <span className="text-yellow-600 font-bold">{vendor.status}</span>
-                  </div>
-                  <div className="text-gray-700 mt-1">
-                    <span className="font-medium">Registered At:</span>{" "}
-                    {vendor.registeredAt ? new Date(vendor.registeredAt).toLocaleDateString() : "—"}
+
+                  <div className="flex flex-row flex-wrap justify-center md:flex-col gap-3 md:gap-2 text-sm lg:text-base">
+                    <Button
+                      icon={FiCheckCircle}
+                      text={updatingId === vendor._id && updatingAction === "active" ? <span className="animate-pulse">Approving...</span> : "Approve"}
+                      onClick={() => handleApprove(vendor._id)}
+                      className="py-2"
+                      color="green"
+                      disabled={updatingId === vendor._id}
+                    />
+
+                    <Button
+                      icon={FiXCircle}
+                      text="Reject"
+                      onClick={() => {
+                        setUpdatingId(vendor._id);
+                        setUpdatingAction("rejected");
+                      }}
+                      className="py-2"
+                      color="red"
+                      disabled={updatingId === vendor._id}
+                    />
+
+                    <NavLink to={`/admin/vendor/profile/${vendor._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
+                      <FiEye size={20} />
+                      <span>View Vendor</span>
+                    </NavLink>
                   </div>
                 </div>
 
-                <div className="flex flex-row flex-wrap justify-center md:flex-col gap-3 md:gap-2 text-sm lg:text-base">
-                  <Button
-                    icon={FiCheckCircle}
-                    text={updatingId === vendor._id && updatingAction === "active" ? <span className="animate-pulse">Approving...</span> : "Approve"}
-                    onClick={() => handleApprove(vendor._id)}
-                    className="py-2"
-                    color="green"
-                    disabled={updatingId === vendor._id}
+                {updatingId === vendor._id && updatingAction === "rejected" && (
+                  <ReviewBox
+                    value={review}
+                    setValue={setReview}
+                    onSubmit={() => handleReject(vendor._id)}
+                    onCancel={() => { setUpdatingId(null); setUpdatingAction(""); setReview(""); }}
+                    submitText="Send Rejection"
+                    disabled={updatingId === null}
                   />
-
-                  <Button
-                    icon={FiXCircle}
-                    text={updatingId === vendor._id && updatingAction === "rejected" ? <span className="animate-pulse">Rejecting...</span> : "Reject"}
-                    onClick={() => handleReject(vendor._id)}
-                    className="py-2"
-                    color="red"
-                    disabled={updatingId === vendor._id}
-                  />
-
-                  <NavLink to={`/admin/vendor/profile/${vendor._id}`} className="flex gap-2 items-center font-semibold text-blue-600 px-3 py-2 rounded-lg border border-blue-500 hover:bg-blue-500 hover:text-white transition duration-150">
-                    <FiEye size={20} />
-                    <span>View Vendor</span>
-                  </NavLink>
-                </div>
+                )}
               </li>
             ))}
           </ul>

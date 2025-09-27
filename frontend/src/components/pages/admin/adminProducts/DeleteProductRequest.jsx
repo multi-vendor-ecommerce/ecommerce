@@ -29,6 +29,11 @@ const DeleteProductRequest = () => {
   }, []);
 
   const handleStatusChange = async (id, status) => {
+    if (status === "deletionRejected" && !review.trim()) {
+      toast.error("Please provide review before rejecting.");
+      return;
+    }
+    
     setUpdatingId(id);
     setUpdatingAction(status);
 
@@ -167,4 +172,4 @@ const DeleteProductRequest = () => {
   )
 }
 
-export default DeleteProductRequest
+export default DeleteProductRequest;

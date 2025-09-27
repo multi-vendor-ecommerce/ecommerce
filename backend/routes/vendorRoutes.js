@@ -27,6 +27,11 @@ export const editVendorValidator = [
   body("address.geoLocation.lng").optional({ nullable: true }).isFloat().withMessage("Longitude must be a valid number"),
 ];
 
+export const editVendorStatusValidator = [
+  body("status").notEmpty().withMessage("Status is required").isIn(["pending", "active", "inactive", "suspended", "rejected"]).withMessage("Invalid status value"),
+  body("review").optional().trim().escape().isLength({ min: 10 }).withMessage("Review must be at least 10 characters")
+];
+
 // For shop logo images (single)
 const uploadShopLogo = upload({ folder: "shopLogos", prefix: "shopLogo", fixedPublicId: (req) => `shopLogo-${req.person.id}` });
 
@@ -40,7 +45,7 @@ router.get("/top", verifyToken, authorizeRoles("admin"), getTopVendors);
 
 // ROUTE 3: PUT /api/vendors/:id/status
 // Desc: Update vendor status (admin only)
-router.put("/:id/status", verifyToken, authorizeRoles("admin"), updateVendorStatus);
+router.put("/:id/status", verifyToken, authorizeRoles("admin"), editVendorStatusValidator, validate, updateVendorStatus);
 
 // ROUTE 4: PUT /api/vendors/edit/store
 // Desc: Edit vendor store info (vendor only)
@@ -57,7 +62,6 @@ router.get("/:id", verifyToken, authorizeRoles("admin"), getVendorById);
 // ROUTE 7: PUT /api/vendors/:id
 // Desc: Admin edit vendor details (admin only)
 router.put("/:id", verifyToken, authorizeRoles("admin"), editVendorValidator, validate, adminEditVendor);
-
 
 
 // shiprocket api : --------------

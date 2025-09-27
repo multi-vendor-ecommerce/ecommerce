@@ -59,14 +59,23 @@ export const vendorStatusChangeAdminTemplate = (vendorName, vendorShop, vendorEm
 `);
 
 // Vendor Account Status Change Notification Email Template
-export const vendorStatusTemplate = (vendorName, vendorShop, vendorStatus, reason = "") => baseMail(`
+export const vendorStatusTemplate = (vendorName, vendorShop, vendorStatus, review = "") => baseMail(`
   <h2 style="color: #333; margin-bottom: 20px;">🏷️ Account Status Updated</h2>
   <p style="font-size: 16px; color: #555;">
     Hello <strong>${vendorName}</strong>, your vendor account for <strong>${vendorShop}</strong> has had its status changed to <strong>${vendorStatus}</strong> by <strong>Admin</strong>.
   </p>
-  ${vendorStatus !== "active" && reason ? `<p style="font-size: 14px; color: #555; margin: 15px 0;">
-    <strong>Reason:</strong> ${reason}
-  </p>` : ""}
+  ${vendorStatus !== "active" && review ? `
+    <div style="
+      font-size: 14px; 
+      color: #555; 
+      margin: 10px 0; 
+      font-style: italic; 
+      border-left: 3px solid #dc3545; 
+      padding-left: 10px;
+    ">
+      ${review}
+    </div>
+  ` : "Please allow some time for the review process."}
   <p style="font-size: 14px; color: #555; margin-bottom: 20px;">
     ${vendorStatus === "active" ?
     "You can now log in and start managing your products."
