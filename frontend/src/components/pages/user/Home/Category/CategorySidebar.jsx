@@ -136,7 +136,6 @@ const CategorySidebar = ({
           modules={[Navigation]}
           spaceBetween={16}
           slidesPerView="auto"
-          navigation
           grabCursor
         >
           {rootCategories.map((cat) => (

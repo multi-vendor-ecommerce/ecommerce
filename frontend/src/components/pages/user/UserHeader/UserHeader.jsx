@@ -8,6 +8,7 @@ import ProfileMenu from "../../adminVendorCommon/common/header/ProfileMenu";
 import ProfileImage from "../../adminVendorCommon/common/header/ProfileImage";
 import { toTitleCase } from "../../../../utils/titleCase";
 import AuthContext from "../../../../context/auth/AuthContext";
+import Tobbar from "./Tobbar";
 
 function UserHeader() {
   const { cart, getCart } = useContext(CartContext);
@@ -79,13 +80,14 @@ function UserHeader() {
       ? person.email.split("@")[0]
       : "User";
 
-  return (
+  return (<>
+    <Tobbar />
     <header className="sticky top-0 w-full z-50 min-h-16 bg-[#E8F5E9] shadow-sm py-1">
       <div className="lg:px-16">
         <div className="container mx-auto px-4 flex items-center justify-between gap-4 flex-wrap">
           {/* Logo */}
           <Link to="/" className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap">
-            <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-19 sm:h-17 rounded" />
+            <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-14 sm:h-17 rounded" />
           </Link>
 
           {/* Desktop Search */}
@@ -109,27 +111,7 @@ function UserHeader() {
 
           {/* Right Icons */}
           <div className="flex items-center gap-4 text-user-dark text-lg whitespace-nowrap">
-            {!token ? (
-              <Link to="/login/user" className="hover:text-user-primary text-md">
-                Sign In
-              </Link>
-            ) : person ? (
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 hover:text-user-primary focus:outline-none cursor-pointer"
-                >
-                  <ProfileImage person={person} />
-                  <div className="hidden sm:flex flex-col cursor-pointer">
-                    <span className="text-sm font-semibold">Hi, {displayName}</span>
-                    <span className="text-xs text-gray-400">Welcome back!</span>
-                  </div>
-                </button>
-
-                {dropdownOpen && <ProfileMenu logout={handleLogout} person={person} />}
-              </div>
-            ) : null}
-
+            
             {/* Wishlist */}
             <Link
               to={token ? "/wishlist" : "#"}
@@ -168,20 +150,27 @@ function UserHeader() {
               )}
             </Link>
 
-            {(!person || person?.role === "customer") && (
-              <Link
-                to="/register/vendor"
-                onClick={(e) => {
-                  if (!token) {
-                    e.preventDefault();
-                    navigate("/login/vendor");
-                  }
-                }}
-                className="py-2 flex items-center gap-2 px-4 border font-semibold rounded-lg transition duration-150 hover:bg-green-600 text-green-600 hover:text-white cursor-pointer"
-              >
-                Become Seller
+            {!token ? (
+              <Link to="/login/user" className="hover:text-user-primary text-md">
+                Sign In
               </Link>
-            )}
+            ) : person ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-2 hover:text-user-primary focus:outline-none cursor-pointer"
+                >
+                  <ProfileImage person={person} />
+                  <div className="hidden sm:flex flex-col cursor-pointer">
+                    <span className="text-sm font-semibold">Hi, {displayName}</span>
+                    <span className="text-xs text-gray-400">Welcome back!</span>
+                  </div>
+                </button>
+
+                {dropdownOpen && <ProfileMenu logout={handleLogout} person={person} />}
+              </div>
+            ) : null}
+
           </div>
         </div>
 
@@ -207,6 +196,7 @@ function UserHeader() {
         </div>
       </div>
     </header>
+    </>
   );
 }
 

@@ -12,6 +12,8 @@ import { getFinalPrice } from "../Utils/priceUtils";
 import OrderContext from "../../../../context/orders/OrderContext";
 import WishlistButton from "../../../common/WishlistButton";
 import { toast } from "react-toastify";
+import ProductReview from "./ProductReview/ProductReview";
+import RecentlyProductList from "./RecentlyProductList";
 
 const ProductDetails = () => {
   // Contexts
@@ -351,7 +353,10 @@ const ProductDetails = () => {
 
           <BackButton className="border-green-500 hover:bg-green-700" />
         </div>
+        
       </div>
+      <ProductReview productId={productDetails._id} />
+      <RecentlyProductList />
     </div>
   );
 };

@@ -656,7 +656,13 @@ export const getPendingBuyNowProducts = async (req, res) => {
       source: "buyNow",
       orderStatus: "pending",
     })
-      .populate("orderItems.product", "title price images category discount")
+      .populate({
+        path: "orderItems.product",
+        populate: [
+          { path: "createdBy", select: "_id name email role shopName" },
+          { path: "category", select: "_id name" }
+        ]
+      })
       .sort({ createdAt: -1 })
       .limit(10);
 
@@ -677,7 +683,11 @@ export const getPendingBuyNowProducts = async (req, res) => {
       success: true,
       message: "Top 10 pending Buy Now products loaded successfully.",
       products,
+      total: products.length,
+      page: 1,
+      limit: 10
     });
+
   } catch (err) {
     console.error("Pending Buy Now Products Error:", err);
     res.status(500).json({
