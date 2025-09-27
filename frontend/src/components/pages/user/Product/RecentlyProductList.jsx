@@ -18,7 +18,7 @@ const RecentlyProductList = () => {
     fetchRecentlyViewed();
   }, []);
 
-  if (!recentProducts?.length) return null; // Hide if no products
+  if (!recentProducts?.length) return null; 
 
   return (
     <div className="my-6 max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">

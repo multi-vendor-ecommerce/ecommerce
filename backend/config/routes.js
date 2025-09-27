@@ -12,6 +12,7 @@ import shippingAddressRoutes from "../routes/shippingAddressRoutes.js";
 import imageRoutes from "../routes/imageRoutes.js";
 import wishlistRoutes from "../routes/wishlistRoutes.js";
 import invoiceRoutes from "../routes/invoiceRoutes.js";
+import ProductReviewRoutes from "../routes/ProductReviewRoutes.js"
 
 // ==========================
 // API Routes
@@ -31,6 +32,7 @@ const apiRoutes = [
   { path: "images", route: imageRoutes },
   { path: "wishlist", route: wishlistRoutes },
   { path: "invoices", route: invoiceRoutes },
+  { path: "product-reviews", route: ProductReviewRoutes}
 ];
 
 export default apiRoutes;
