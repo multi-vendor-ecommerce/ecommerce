@@ -6,7 +6,7 @@ const baseAllowedFields = [
   "address.recipientName", "address.recipientPhone",
   "address.line1", "address.line2", "address.locality",
   "address.city", "address.state", "address.country", "address.pincode",
-  "address.geoLocation.lat", "address.geoLocation.lng"
+  "address.geoLocation.lat", "address.geoLocation.lng", "commissionRate"
 ];
 
 // No required fields

@@ -180,7 +180,7 @@ export const vendorResubmittedProductTemplate = (
   </a>
 `);
 
-// Vendor Profile Updated Notification Email Template (uses <div> and <p> for changes)
+// Vendor Profile Updated Notification Email Template
 export const vendorProfileUpdatedTemplate = (vendorName, vendorShop, changes, data) => baseMail(`
   <h2 style="color: #333; margin-bottom: 20px;">🛠️ Vendor Profile Updated</h2>
   <p style="font-size: 16px; color: #555;">
@@ -190,11 +190,25 @@ export const vendorProfileUpdatedTemplate = (vendorName, vendorShop, changes, da
     <strong>Changes made:</strong>
   </p>
   <div style="margin-bottom: 20px;">
-    ${changes.map(change => `
-      <div style="margin-bottom: 10px; font-size: 14px; color: #555; background: #f9f9f9; padding: 10px; border-radius: 5px;">
-        <span>${change === "address" ? "Full Address" : toTitleCase(change)}:</span> <strong>${data[change]}</strong>
-      </div>
-    `).join("")}
+    ${changes.map(change => {
+      let label = change === "address" ? "Full Address" : toTitleCase(change);
+      let value = data[change];
+
+      // ✅ Special case for commissionRate
+      if (change === "commissionRate" && [undefined, null, ""].includes(value)) {
+        label = "Commission Rate";
+        value = `${value}%`;
+      }
+
+      // ✅ Skip undefined, null, or empty
+      if (value === undefined || value === null || value === "") return "";
+
+      return `
+        <div style="margin-bottom: 10px; font-size: 14px; color: #555; background: #f9f9f9; padding: 10px; border-radius: 5px;">
+          <span>${label}:</span> <strong>${value}</strong>
+        </div>
+      `;
+    }).join("")}
     ${data.recipientName ? `
       <div style="margin-bottom: 10px; font-size: 14px; color: #555; background: #f9f9f9; padding: 10px; border-radius: 5px;">
         <span>Recipient Name:</span> <strong>${data.recipientName}</strong>

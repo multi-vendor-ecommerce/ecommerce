@@ -72,7 +72,6 @@ const EditVendor = () => {
     if (
       vendor?.status === "suspended" ||
       vendor?.status === "rejected" ||
-
       vendor?.status === "inactive"
     ) {
       return field.value === "active";
@@ -95,7 +94,7 @@ const EditVendor = () => {
       setVendor((prev) => ({
         ...prev,
         commissionRate: form.commissionRate,
-        gstNumber: form.gstNumber,
+        address: { ...prev.address, ...form.address },
       }));
       setEditing(false);
     }
@@ -217,8 +216,6 @@ const EditVendor = () => {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 items-center mt-4">
-
-
         {/* Disable Account Button */}
         <Button
           icon={vendor.status === "inactive" ? FiUnlock : MdBlock}

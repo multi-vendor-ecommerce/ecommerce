@@ -168,6 +168,13 @@ export const updateVendorStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: "Vendor not found." });
     }
 
+    if (status === vendor.status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is unchanged."
+      });
+    }
+
     if ((status === "pending" || status === "") && vendor.status !== "pending") {
       return res.status(400).json({
         success: false,
@@ -261,6 +268,12 @@ export const adminEditVendor = async (req, res) => {
 
     // Commission rate validation
     if (update.commissionRate !== undefined) {
+      if (update.commissionRate === vendor.commissionRate) {
+        return res.status(400).json({
+          success: false,
+          message: "Commission rate is unchanged.",
+        });
+      }
       if (update.commissionRate < 0 || update.commissionRate > 100) {
         return res.status(400).json({
           success: false,
@@ -276,6 +289,30 @@ export const adminEditVendor = async (req, res) => {
 
     if (Object.keys(update).length === 0) {
       return res.status(400).json({ success: false, message: "No fields to update." });
+    }
+
+    // Format address for email if present
+    let formattedAddress = "";
+    let formattedRecipientName = "";
+    let formattedRecipientPhone = "";
+    if (update.address) {
+      const addr = update.address;
+      formattedAddress = [
+        addr.line1,
+        addr.line2,
+        addr.locality,
+        addr.city,
+        addr.state,
+        addr.country,
+        addr.pincode,
+      ].filter(Boolean).join(", ");
+
+      if (addr.recipientName) {
+        formattedRecipientName = addr.recipientName || "";
+      }
+      if (addr.recipientPhone) {
+        formattedRecipientPhone = addr.recipientPhone || "";
+      }
     }
 
     // Merge address fields if any address field is being updated
@@ -297,25 +334,6 @@ export const adminEditVendor = async (req, res) => {
       return res.status(404).json({ success: false, message: "Vendor not found." });
     }
 
-    // Format address for email if present
-    let formattedAddress = "";
-    let formattedRecipientName = "";
-    let formattedRecipientPhone = "";
-    if (update.address) {
-      const addr = update.address;
-      formattedAddress = [
-        addr.line1,
-        addr.line2,
-        addr.locality,
-        addr.city,
-        addr.state,
-        addr.country,
-        addr.pincode,
-      ].filter(Boolean).join(", ");
-      formattedRecipientName = addr.recipientName || "";
-      formattedRecipientPhone = addr.recipientPhone || "";
-    }
-
     // Try sending notification email (non-blocking)
     try {
       await sendVendorProfileUpdatedMail({
@@ -325,9 +343,9 @@ export const adminEditVendor = async (req, res) => {
         changes: Object.keys(update),
         data: {
           ...update,
-          ...(update.address ? { address: formattedAddress } : {}),
-          ...(formattedRecipientName ? { recipientName: formattedRecipientName } : {}),
-          ...(formattedRecipientPhone ? { recipientPhone: formattedRecipientPhone } : {}),
+          ...(update.address && { address: formattedAddress }),
+          ...(formattedRecipientName && { recipientName: formattedRecipientName }),
+          ...(formattedRecipientPhone && { recipientPhone: formattedRecipientPhone }),
         },
       });
     } catch (emailErr) {

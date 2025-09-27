@@ -70,7 +70,7 @@ export async function sendVendorApprovalStatusMail({ to, vendorStatus, vendorNam
   });
 }
 
-export async function sendVendorProfileUpdatedMail({ to, vendorName, vendorShop, changes, data }) {
+export async function sendVendorProfileUpdatedMail({ to, vendorName, vendorShop, changes = {}, data = {} }) {
   await sendMail({
     to,
     subject: `Your Vendor Profile Has Been Updated by Admin`,
