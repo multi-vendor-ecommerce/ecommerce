@@ -5,7 +5,6 @@ import Product from "../models/Products.js";
 import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { getShippingInfoForOrder } from "../utils/getShippingInfo.js";
-import { createVendorShiprocketOrder } from "../services/shiprocket/orders.js";
 import { round2 } from "../utils/round2.js";
 
 // ==========================

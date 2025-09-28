@@ -8,7 +8,7 @@ import { sendOrderSuccessMail } from "../services/email/sender.js";
 import { generateInvoice } from "../services/invoice/generateInvoice.js";
 import Vendor from "../models/Vendor.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
-import { createVendorShiprocketOrder } from "../services/shiprocket/orders.js";
+import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -118,40 +118,13 @@ export const verifyRazorpayPayment = async (req, res) => {
       order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
     }
 
-
-    // ==========================
-    // Create Shiprocket Orders for Vendors
-    // ==========================
-    const shiprocketVendorGroups = {};
-
-    // Group order items by vendor for Shiprocket
-    for (const item of order.orderItems) {
-      const vendorId = item.product?.createdBy?.toString();
-      if (!vendorId) continue;
-      if (!shiprocketVendorGroups[vendorId]) shiprocketVendorGroups[vendorId] = [];
-      shiprocketVendorGroups[vendorId].push(item);
+    // ===== Add Shiprocket integration =====
+    try {
+      await pushOrderToShiprocket(order._id);
+      console.log("Shiprocket orders created for all vendors");
+    } catch (err) {
+      console.error("Shiprocket push failed:", err.message);
     }
-
-    // Create Shiprocket order per vendor
-    for (const [vendorId, items] of Object.entries(shiprocketVendorGroups)) {
-      const vendor = await Vendor.findById(vendorId);
-      if (!vendor) continue;
-
-      if (vendor.shiprocket?.email && vendor.shiprocket?.password) {
-        try {
-          const shiprocketRes = await createVendorShiprocketOrder(
-            { ...order.toObject(), orderItems: items },
-            vendor,
-            user
-          );
-          // Save Shiprocket order ID for all items of this vendor
-          items.forEach(i => i.shiprocketOrderId = shiprocketRes.order_id);
-        } catch (err) {
-          console.error(`Shiprocket error for vendor ${vendor.shopName}:`, err.message);
-        }
-      }
-    }
-
 
     // ==========================
     // Fetch vendors for customer invoice (use first vendor as primary)
@@ -290,83 +263,52 @@ export const confirmCOD = async (req, res) => {
     }
 
     // Invoice number
-    if (!order.invoiceNumber) {
-      order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
-    }
-
-
-    // ==========================
-    // Create Shiprocket Orders for Vendors
-    // ==========================
-    const vendorGroups = {};
-    for (const item of order.orderItems) {
-      const vendorId = item.product?.createdBy?.toString();
-      if (!vendorId) continue;
-      if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
-      vendorGroups[vendorId].push(item);
-    }
-
-    // Create Shiprocket order per vendor
-    for (const [vendorId, items] of Object.entries(vendorGroups)) {
-      const vendor = await Vendor.findById(vendorId);
-      if (!vendor) continue;
-
-      if (vendor.shiprocket?.email && vendor.shiprocket?.password) {
-        try {
-          const shiprocketRes = await createVendorShiprocketOrder(
-            { ...order.toObject(), orderItems: items },
-            vendor,
-            user
-          );
-          items.forEach(i => i.shiprocketOrderId = shiprocketRes.order_id);
-        } catch (err) {
-          console.error(`Shiprocket error for vendor ${vendor.shopName}:`, err.message);
-        }
-      }
-    }
+    // if (!order.invoiceNumber) {
+    //   order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
+    // }
 
 
     // ==========================
     // Fetch vendors for customer invoice (use first vendor as primary)
     // ==========================
 
-    const vendorIds = [...new Set(order.orderItems.map(item => item.product?.createdBy?.toString()).filter(Boolean))];
-    let primaryVendor = null;
-    if (vendorIds.length) {
-      primaryVendor = await Vendor.findById(vendorIds[0]);
-    }
+    // const vendorIds = [...new Set(order.orderItems.map(item => item.product?.createdBy?.toString()).filter(Boolean))];
+    // let primaryVendor = null;
+    // if (vendorIds.length) {
+    //   primaryVendor = await Vendor.findById(vendorIds[0]);
+    // }
 
     // Generate customer invoice
-    const customerInvoice = await generateInvoice(order, primaryVendor, user, "customer");
-    order.userInvoiceUrl = customerInvoice?.url || "";
+    // const customerInvoice = await generateInvoice(order, primaryVendor, user, "customer");
+    // order.userInvoiceUrl = customerInvoice?.url || "";
 
     // Generate vendor invoices
-    for (const item of order.orderItems) {
-      const vendorId = item.product?.createdBy?.toString();
-      if (!vendorId) continue;
-      if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
-      vendorGroups[vendorId].push(item);
-    }
+    // for (const item of order.orderItems) {
+    //   const vendorId = item.product?.createdBy?.toString();
+    //   if (!vendorId) continue;
+    //   if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
+    //   vendorGroups[vendorId].push(item);
+    // }
 
-    const vendorInvoices = [];
-    for (const [vendorId, items] of Object.entries(vendorGroups)) {
-      try {
-        const vendor = await Vendor.findById(vendorId);
-        if (!vendor) continue;
+    // const vendorInvoices = [];
+    // for (const [vendorId, items] of Object.entries(vendorGroups)) {
+    //   try {
+    //     const vendor = await Vendor.findById(vendorId);
+    //     if (!vendor) continue;
 
-        const result = await generateInvoice(
-          { ...order.toObject(), orderItems: items },
-          vendor,
-          user,
-          "vendor"
-        );
+    //     const result = await generateInvoice(
+    //       { ...order.toObject(), orderItems: items },
+    //       vendor,
+    //       user,
+    //       "vendor"
+    //     );
 
-        vendorInvoices.push({ vendorId, invoiceUrl: result?.url || "" });
-      } catch (err) {
-        console.error(`Invoice generation failed for vendor ${vendorId}:`, err);
-      }
-    }
-    order.vendorInvoices = vendorInvoices;
+    //     vendorInvoices.push({ vendorId, invoiceUrl: result?.url || "" });
+    //   } catch (err) {
+    //     console.error(`Invoice generation failed for vendor ${vendorId}:`, err);
+    //   }
+    // }
+    // order.vendorInvoices = vendorInvoices;
     await order.save();
 
     // Send order success email to user
@@ -381,37 +323,38 @@ export const confirmCOD = async (req, res) => {
         qty: i.quantity,
         price: i.product?.price || 0,
       })),
-      invoiceUrl: order.userInvoiceUrl,
+      // invoiceUrl: order.userInvoiceUrl,
     });
 
     // Send order success email to vendors
-    for (const vendorInvoice of vendorInvoices) {
-      try {
-        const vendor = await Vendor.findById(vendorInvoice.vendorId);
-        if (!vendor) continue;
+    // for (const vendorInvoice of vendorInvoices) {
+    //   try {
+    //     const vendor = await Vendor.findById(vendorInvoice.vendorId);
+    //     if (!vendor) continue;
 
-        await safeSendMail(sendOrderSuccessMail, {
-          to: vendor.email,
-          orderId: order._id,
-          customerName: user?.name,
-          paymentMethod: order.paymentMethod,
-          totalAmount: order.grandTotal,
-          items: order.orderItems
-            .filter(i => i.product?.createdBy?.toString() === vendor._id.toString())
-            .map(i => ({
-              name: i.product?.title || "Unknown product",
-              qty: i.quantity,
-              price: i.product?.price || 0,
-            })),
-          invoiceUrl: vendorInvoice.invoiceUrl,
-          vendorName: vendor.name,
-          vendorShop: vendor.shopName,
-          isVendor: true, // You can use this flag in your email template
-        });
-      } catch (err) {
-        console.error(`Failed to send vendor invoice email for vendor ${vendorInvoice.vendorId}:`, err);
-      }
-    }
+    //     await safeSendMail(sendOrderSuccessMail, {
+    //       to: vendor.email,
+    //       orderId: order._id,
+    //       customerName: user?.name,
+    //       paymentMethod: order.paymentMethod,
+    //       totalAmount: order.grandTotal,
+    //       items: order.orderItems
+    //         .filter(i => i.product?.createdBy?.toString() === vendor._id.toString())
+    //         .map(i => ({
+    //           name: i.product?.title || "Unknown product",
+    //           qty: i.quantity,
+    //           price: i.product?.price || 0,
+    //         })),
+    //       invoiceUrl: vendorInvoice.invoiceUrl,
+    //       vendorName: vendor.name,
+    //       vendorShop: vendor.shopName,
+    //       isVendor: true, // You can use this flag in your email template
+    //     });
+    //   } catch (err) {
+    //     console.error(`Failed to send vendor invoice email for vendor ${vendorInvoice.vendorId}:`, err);
+    //   }
+    // }
+
 
     res.status(200).json({
       success: true,

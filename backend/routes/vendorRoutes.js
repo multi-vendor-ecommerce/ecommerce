@@ -1,7 +1,7 @@
 import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
-import { getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor, reactivateVendorAccount, saveShiprocketCredentials, getVendorShiprocketTokenController, createVendorShiprocketOrderController, createVendorPickupLocation } from "../controllers/vendorController.js";
+import { getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor, reactivateVendorAccount, vendorPlaceOrder } from "../controllers/vendorController.js";
 
 import { body } from "express-validator";
 import { validate } from "../middleware/validateFields.js";
@@ -65,15 +65,9 @@ router.put("/:id", verifyToken, authorizeRoles("admin"), editVendorValidator, va
 
 
 // shiprocket api : --------------
-router.post("/shiprocket/credential", verifyToken, authorizeRoles("vendor"), saveShiprocketCredentials);
+// router.post("/shiprocket/credential", verifyToken, authorizeRoles("vendor"), saveShiprocketCredentials);
 
-// Get vendor token
-router.get("/shiprocket/token/:vendorId", verifyToken, authorizeRoles("vendor"), getVendorShiprocketTokenController);
-
-// Create Shiprocket order
-router.post("/shiprocket/order", verifyToken, authorizeRoles("vendor"), createVendorShiprocketOrderController);
-
-// Add pickup location
-router.post("/shiprocket/add/pickup",verifyToken, authorizeRoles("vendor"), createVendorPickupLocation );
+// Vendor can only place their own items
+router.post("/create-order", verifyToken, authorizeRoles("vendor"), vendorPlaceOrder);
 
 export default router;
