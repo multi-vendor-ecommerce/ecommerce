@@ -1,6 +1,4 @@
 import Vendor from "../models/Vendor.js";
-import User from "../models/User.js";
-import Order from "../models/Order.js";
 import Product from "../models/Products.js";
 import Review from "../models/Review.js";
 import buildQuery from "../utils/queryBuilder.js";
@@ -9,10 +7,10 @@ import { sendVendorStatusMail, sendVendorApprovalStatusMail, sendVendorProfileUp
 import { setNestedValueIfAllowed } from "../utils/setNestedValueIfAllowed.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
 
-import { getVendorShiprocketToken } from "../services/shiprocket/client.js";
-import { createVendorShiprocketOrder } from "../services/shiprocket/orders.js";
-import { fetchShiprocketPickupLocations } from "../services/shiprocket/location.js";
-import { addShiprocketPickupLocation } from "../services/shiprocket/addShiprocketPickupLocation.js";
+
+import Order from "../models/Order.js";
+
+import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
 
 // ==========================
 // Get all vendors (paginated)
@@ -404,120 +402,46 @@ export const reactivateVendorAccount = async (req, res) => {
   }
 };
 
-// ==========================
-// Save Shiprocket Credentials (Vendor only)
-// ==========================
-export const saveShiprocketCredentials = async (req, res) => {
+
+export const vendorPlaceOrder = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const vendor = await Vendor.findById(req.person.id);
+    const { orderId } = req.body;
+    if (!orderId) return res.status(400).json({ success: false, message: "Order ID is required." });
 
-    if (!vendor || vendor.role !== "vendor") {
-      return res.status(403).json({
-        success: false,
-        message: "Only vendors can save Shiprocket credentials."
-      });
-    }
+    // Fetch order with product details
+    const order = await Order.findById(orderId).populate("orderItems.product");
+    if (!order) return res.status(404).json({ success: false, message: "Order not found." });
 
-    // Save credentials in DB
-    vendor.shiprocket.email = email.trim().toLowerCase();
-    vendor.shiprocket.password = password.trim();
-    vendor.shiprocket.token = null;
-    await vendor.save();
+    const vendorId = req.person.id; // Logged-in vendor
+    // Filter only this vendor's items
+    const vendorItems = order.orderItems.filter(
+      item => item.product.createdBy?.toString() === vendorId
+    );
 
-    // Get fresh token
-    const token = await getVendorShiprocketToken(vendor._id);
+    if (!vendorItems.length)
+      return res.status(403).json({ success: false, message: "No items in this order belong to you." });
 
-    // Fetch pickup locations from Shiprocket
-    const locations = await fetchShiprocketPickupLocations(token);
+    // Ensure each order item has createdBy (to prevent validation errors)
+    vendorItems.forEach(item => {
+      if (!item.createdBy) item.createdBy = item.product.createdBy;
+    });
 
-    if (!locations || locations.length === 0) {
-      return res.status(200).json({
-        success: true,
-        message:
-          "Shiprocket credentials saved successfully, but no pickup locations found. Please add a pickup address.",
-        requirePickup: true,
-      });
-    }
+    // 🔹 Push only this vendor's items to Shiprocket
+    const updatedOrder = await pushOrderToShiprocket(order._id);
 
-    // Save all pickup locations
-    vendor.shiprocket.pickupLocations = locations.map(loc => ({
-      id: loc.id,
-      pickup_location: loc.pickup_location,
-      address: loc.address,
-      city: loc.city,
-      state: loc.state,
-      country: loc.country,
-      pin_code: loc.pin_code,
-      name: loc.name,
-      phone: loc.phone,
-      email: loc.email,
-      is_primary_location: loc.is_primary_location === 1
-    }));
+    await updatedOrder.save();
 
-    await vendor.save();
-
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      message: "Shiprocket credentials saved successfully.",
-      pickupLocations: vendor.shiprocket.pickupLocations,
+      message: "Vendor order placed successfully and sent to Shiprocket.",
+      order: updatedOrder,
     });
   } catch (err) {
-    console.error("Save Shiprocket credentials error:", err);
+    console.error("Vendor place order error:", err);
     res.status(500).json({
       success: false,
-      message: "Failed to save Shiprocket credentials.",
+      message: "Failed to place vendor order.",
       error: err.message,
     });
-  }
-};
-
-// create a pickup location for the vendor
-export const createVendorPickupLocation = async (req, res) => {
-  try {
-    const vendorId = req.person.id;
-    const pickupInput = req.body;
-
-    const result = await addShiprocketPickupLocation(vendorId, pickupInput);
-
-    res.json({
-      success: true,
-      message: "Pickup location created successfully",
-      data: result,
-    });
-  } catch (err) {
-    console.error("Create vendor pickup location error:", err);
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// Get vendor token
-export const getVendorShiprocketTokenController = async (req, res) => {
-  try {
-    const token = await getVendorShiprocketToken(req.params.vendorId);
-    res.json({ success: true, token });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// Create Shiprocket order
-export const createVendorShiprocketOrderController = async (req, res) => {
-  try {
-    const { orderId, vendorId, userId } = req.body;
-
-    const order = await Order.findById(orderId).populate("orderItems.product");
-    const vendor = await Vendor.findById(vendorId);
-    const user = await User.findById(userId);
-
-    if (!order || !vendor || !user) {
-      return res.status(404).json({ success: false, message: "Order, Vendor, or User not found" });
-    }
-
-    const data = await createVendorShiprocketOrder(order, vendor, user);
-
-    res.json({ success: true, data });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
   }
 };

@@ -1,44 +1,45 @@
-import Vendor from "../../models/Vendor.js";
-import { fetchShiprocketPickupLocations } from "./location.js";
 
-const SHIPROCKET_BASE_URL = "https://apiv2.shiprocket.in/v1/external";
+const SR_EMAIL = process.env.SR_EMAIL;
+const SR_PASSWORD = process.env.SR_PASSWORD;
+const SR_BASE_URL = process.env.SR_BASE_URL;
 
-export const getVendorShiprocketToken = async (vendorId) => {
-  const vendor = await Vendor.findById(vendorId);
-  if (!vendor) throw new Error("Vendor not found");
+let cachedToken = null;
+let tokenExpiry = null;
 
-  // Return cached token if valid
-  if (vendor.shiprocket.token && vendor.shiprocket.tokenExpiresAt > new Date()) {
-    return vendor.shiprocket.token;
+async function getAdminToken() {
+  if (cachedToken && tokenExpiry && new Date() < tokenExpiry) {
+    return cachedToken;
   }
 
-  // Authenticate vendor
-  const response = await fetch(`${SHIPROCKET_BASE_URL}/auth/login`, {
+  const response = await fetch(`${SR_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email: vendor.shiprocket.email,
-      password: vendor.shiprocket.password,
-    }),
+    body: JSON.stringify({ email: SR_EMAIL, password: SR_PASSWORD }),
   });
 
-  if (!response.ok) {
-    throw new Error(`Shiprocket login failed: ${response.statusText}`);
-  }
-
   const data = await response.json();
-
-  // Save token and expiry
-  vendor.shiprocket.token = data.token;
-  vendor.shiprocket.tokenExpiresAt = new Date(Date.now() + 23 * 60 * 60 * 1000); // ~23h
-
-  // Fetch pickup locations if not set
-  const locations = await fetchShiprocketPickupLocations(data.token);
-  if (locations.length > 0) {
-    vendor.shiprocket.pickupLocation = locations[0].pickup_location;
-    vendor.shiprocket.pickupLocationId = locations[0].id;
+  if (!data.token) {
+    throw new Error(`Shiprocket login failed: ${JSON.stringify(data)}`);
   }
 
-  await vendor.save();
-  return data.token;
-};
+  cachedToken = data.token;
+  tokenExpiry = new Date(Date.now() + 23 * 60 * 60 * 1000); 
+  return cachedToken;
+}
+
+async function createOrder(orderPayload) {
+  const token = await getAdminToken();
+
+  const response = await fetch(`${SR_BASE_URL}/orders/create/adhoc`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(orderPayload),
+  });
+
+  return await response.json();
+}
+
+export const ShiprocketClient = { getAdminToken, createOrder };
