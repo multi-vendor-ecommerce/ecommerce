@@ -7,6 +7,7 @@ import buildQuery from "../utils/queryBuilder.js";
 import { toTitleCase } from "../utils/titleCase.js";
 import { sendVendorStatusMail, sendVendorApprovalStatusMail, sendVendorProfileUpdatedMail } from "../services/email/sender.js";
 import { setNestedValueIfAllowed } from "../utils/setNestedValueIfAllowed.js";
+import { safeSendMail } from "../utils/safeSendMail.js";
 
 import { getVendorShiprocketToken } from "../services/shiprocket/client.js";
 import { createVendorShiprocketOrder } from "../services/shiprocket/orders.js";
@@ -212,19 +213,15 @@ export const updateVendorStatus = async (req, res) => {
       review
     });
 
-    // Send status email to vendor (same as before)
-    try {
-      if (status !== "pending" && status !== "") {
-        await sendVendorApprovalStatusMail({
-          to: vendor.email,
-          vendorStatus: status === "active" ? "approved" : status === "inactive" ? "disabled" : status,
-          vendorName: vendor.name,
-          vendorShop: vendor.shopName,
-          review
-        });
-      }
-    } catch (emailErr) {
-      console.error("Vendor status email failed:", emailErr);
+    // Send status email to vendor using safeSendMail
+    if (status !== "pending" && status !== "") {
+      await safeSendMail(sendVendorApprovalStatusMail, {
+        to: vendor.email,
+        vendorStatus: status === "active" ? "approved" : status === "inactive" ? "disabled" : status,
+        vendorName: vendor.name,
+        vendorShop: vendor.shopName,
+        review
+      });
     }
 
     res.status(200).json({
@@ -345,22 +342,18 @@ export const adminEditVendor = async (req, res) => {
     }
 
     // Try sending notification email (non-blocking)
-    try {
-      await sendVendorProfileUpdatedMail({
-        to: vendor.email,
-        vendorName: vendor.name,
-        vendorShop: vendor.shopName,
-        changes: Object.keys(update),
-        data: {
-          ...update,
-          ...(update.address && { address: formattedAddress }),
-          ...(formattedRecipientName && { recipientName: formattedRecipientName }),
-          ...(formattedRecipientPhone && { recipientPhone: formattedRecipientPhone }),
-        },
-      });
-    } catch (emailErr) {
-      console.error("Vendor profile updated email failed:", emailErr);
-    }
+    await safeSendMail(sendVendorProfileUpdatedMail, {
+      to: vendor.email,
+      vendorName: vendor.name,
+      vendorShop: vendor.shopName,
+      changes: Object.keys(update),
+      data: {
+        ...update,
+        ...(update.address && { address: formattedAddress }),
+        ...(formattedRecipientName && { recipientName: formattedRecipientName }),
+        ...(formattedRecipientPhone && { recipientPhone: formattedRecipientPhone }),
+      },
+    });
 
     res.status(200).json({
       success: true,
@@ -397,16 +390,12 @@ export const reactivateVendorAccount = async (req, res) => {
       { new: true }
     ).select("name email phone shopName status");
 
-    try {
-      await sendVendorStatusMail({
-        to: process.env.ADMIN_EMAIL,
-        vendorName: vendor.name,
-        vendorShop: vendor.shopName,
-        vendorEmail: vendor.email,
-      });
-    } catch (emailErr) {
-      console.error("Vendor status email failed:", emailErr);
-    }
+    await safeSendMail(sendVendorStatusMail, {
+      to: process.env.ADMIN_EMAIL,
+      vendorName: vendor.name,
+      vendorShop: vendor.shopName,
+      vendorEmail: vendor.email,
+    });
 
     res.status(200).json({ success: true, vendor, message: "Account reactivation requested. Awaiting admin approval." });
   } catch (error) {

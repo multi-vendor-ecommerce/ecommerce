@@ -7,6 +7,7 @@ import { NavLink } from "react-router-dom";
 import { FiCheckCircle, FiEye, FiXCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 import ReviewBox from "../../../common/ReviewBox";
+import { vendorFields } from "./data/vendorFieldsData";
 
 const ApproveVendor = () => {
   const { vendors, getAllVendors, updateVendorStatus, loading } = useContext(VendorContext);
@@ -87,34 +88,23 @@ const ApproveVendor = () => {
                   />
                   <div className="flex-1 text-center md:text-start">
                     <div className="font-semibold text-lg text-gray-900">{vendor.shopName}</div>
-                    <div className="text-gray-700 mt-1">
-                      <span className="font-medium">Name:</span>{" "}
-                      {vendor.name}
-                    </div>
-                    <div className="text-gray-700 mt-1">
-                      <span className="font-medium">GST Number:</span>{" "}
-                      {vendor.gstNumber}
-                    </div>
-                    <div className="text-gray-700 mt-1">
-                      <span className="font-medium">Email:</span>{" "}
-                      {vendor.email}
-                    </div>
-                    <div className="text-gray-700 mt-1">
-                      <span className="font-medium">Mobile Number:</span>{" "}
-                      {vendor.phone}
-                    </div>
-                    <div className="text-gray-700 mt-1">
-                      <span className="font-medium">Address:</span>{" "}
-                      {vendor.address?.line1}, {vendor.address?.city}, {vendor.address?.state}, {vendor.address?.country}, {vendor.address?.pincode}
-                    </div>
-                    <div className="text-gray-700 mt-1">
-                      <span className="font-medium">Status:</span>{" "}
-                      <span className="text-yellow-600 font-bold">{vendor.status}</span>
-                    </div>
-                    <div className="text-gray-700 mt-1">
-                      <span className="font-medium">Registered At:</span>{" "}
-                      {vendor.registeredAt ? new Date(vendor.registeredAt).toLocaleDateString() : "—"}
-                    </div>
+                    {vendorFields.map(field => {
+                      const rendered = field.render ? field.render(vendor) : vendor[field.key];
+                      if (field.key === "status" && rendered && rendered.isStatus) {
+                        return (
+                          <div className="text-gray-700 mt-1" key={field.key}>
+                            <span className="font-medium">{field.label}:</span>{" "}
+                            <span className="text-yellow-600 font-bold">{rendered.value}</span>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="text-gray-700 mt-1" key={field.key}>
+                          <span className="font-medium">{field.label}:</span>{" "}
+                          {rendered}
+                        </div>
+                      );
+                    })}
                   </div>
 
                   <div className="flex flex-row flex-wrap justify-center md:flex-col gap-3 md:gap-2 text-sm lg:text-base">
