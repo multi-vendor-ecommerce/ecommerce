@@ -6,12 +6,24 @@ import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, ge
 import upload from "../middleware/multer.js";
 import { body } from "express-validator";
 import { validate } from "../middleware/validateFields.js";
+import sanitizeHtml from "sanitize-html";
 
 const router = express.Router();
 
 export const editProductStatusValidator = [
-  body("status").notEmpty().withMessage("Status is required").isIn(["pending", "approved", "rejected", "inactive", "pendingDeletion", "deleted", "deletionRejected"]).withMessage("Invalid status value"),
-  body("review").optional().trim().escape().isLength({ min: 10 }).withMessage("Review must be at least 10 characters")
+  body("status")
+    .notEmpty().withMessage("Status is required")
+    .isIn(["pending", "approved", "rejected", "inactive", "pendingDeletion", "deleted", "deletionRejected"])
+    .withMessage("Invalid status value"),
+
+  body("review")
+    .optional()
+    .trim()
+    .customSanitizer(value => sanitizeHtml(value, {
+      allowedTags: ["p", "strong", "em", "u", "br", "ul", "ol", "li"],
+      allowedAttributes: {}
+    }))
+    .isLength({ min: 10 }).withMessage("Review must be at least 10 characters")
 ];
 
 // For product images (multiple)
@@ -80,7 +92,6 @@ router.put("/vendor/delete/:id", verifyToken, authorizeRoles("vendor"), deletePr
 // ROUTE 16: POST /api/products/add-product
 // Desc: Add a product (vendor only)
 router.post("/add-product", verifyToken, authorizeRoles("vendor"), uploadProduct.array("images", 7), multerErrorHandler, addProduct);
-
 
 // get recently viewed products
 router.get("/recently-viewed", verifyToken, authorizeRoles("customer"), getPendingBuyNowProducts);

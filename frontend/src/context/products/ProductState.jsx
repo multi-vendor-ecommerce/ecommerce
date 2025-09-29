@@ -205,7 +205,7 @@ const ProductState = ({ children }) => {
     try {
       setLoading(true);
 
-      const headers = { contentType: "application/json" };
+      const headers = { "Content-Type": "application/json", };
       if (role === "admin") headers["auth-token"] = localStorage.getItem("adminToken");
       else if (role === "vendor") headers["auth-token"] = localStorage.getItem("vendorToken");
 

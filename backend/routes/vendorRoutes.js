@@ -2,10 +2,10 @@ import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 import { getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor, reactivateVendorAccount, vendorPlaceOrder } from "../controllers/vendorController.js";
-
 import { body } from "express-validator";
 import { validate } from "../middleware/validateFields.js";
 import upload from "../middleware/multer.js";
+import sanitizeHtml from "sanitize-html";
 
 const router = express.Router();
 
@@ -28,8 +28,21 @@ export const editVendorValidator = [
 ];
 
 export const editVendorStatusValidator = [
-  body("status").notEmpty().withMessage("Status is required").isIn(["pending", "active", "inactive", "suspended", "rejected"]).withMessage("Invalid status value"),
-  body("review").optional().trim().escape().isLength({ min: 10 }).withMessage("Review must be at least 10 characters")
+  body("status")
+    .notEmpty().withMessage("Status is required")
+    .isIn(["pending", "active", "inactive", "suspended", "rejected"])
+    .withMessage("Invalid status value"),
+
+  body("review")
+    .optional()
+    .trim()
+    .customSanitizer((value) =>
+      sanitizeHtml(value, {
+        allowedTags: ["p", "strong", "em", "u", "br", "ul", "ol", "li"],
+        allowedAttributes: {}
+      })
+    )
+    .isLength({ min: 10 }).withMessage("Review must be at least 10 characters")
 ];
 
 // For shop logo images (single)

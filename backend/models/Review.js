@@ -23,7 +23,7 @@ const reviewSchema = new Schema(
       enum: ["approved", "rejected", "deleted", "inactive", "suspended", "deletionRejected"],
       required: true,
     },
-    remarks: {
+    review: {
       type: String,
       default: "",
       trim: true,

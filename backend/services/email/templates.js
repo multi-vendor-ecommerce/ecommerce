@@ -71,7 +71,7 @@ export const vendorStatusTemplate = (vendorName, vendorShop, vendorStatus, revie
       margin: 10px 0; 
       font-style: italic; 
       border-left: 3px solid #dc3545; 
-      padding-left: 10px;
+      padding-left: 7px;
     ">
       ${review}
     </div>
@@ -120,7 +120,7 @@ export const productStatusTemplate = (
   ` : `
     <p style="font-size: 14px; color: #555; margin: 15px 0;">
       ❌ Unfortunately, your product has been rejected.
-    </p>
+    </p> 
 
     ${review ? `
       <div style="
@@ -129,7 +129,7 @@ export const productStatusTemplate = (
         margin: 10px 0; 
         font-style: italic; 
         border-left: 3px solid #dc3545; 
-        padding-left: 10px;
+        padding-left: 7px;
       ">
         ${review} 
       </div>

@@ -14,6 +14,7 @@ import useProfileUpdate from "../../../../hooks/useProfileUpdate";
 import Loader from "../../../common/Loader";
 import { MdBlock } from "react-icons/md";
 import { updateVendorFields } from "./data/updateVendorFields";
+import ReviewBox from "../../../common/ReviewBox";
 
 const EditVendor = () => {
   const { vendorId } = useParams();
@@ -22,6 +23,9 @@ const EditVendor = () => {
 
   const [vendor, setVendor] = useState(null);
   const [status, setStatus] = useState(null);
+  const [review, setReview] = useState("");
+  const [showRemarksBox, setShowRemarksBox] = useState(false);
+
   const [updatingId, setUpdatingId] = useState(null);
   const [editing, setEditing] = useState(false);
 
@@ -50,9 +54,17 @@ const EditVendor = () => {
       return;
     }
 
+    if (!status && !review?.trim()) {
+      toast.error("Please provide remarks before rejecting.");
+      return;
+    }
+
     setUpdatingId(id);
-    const data = await updateVendorStatus(id, status);
+
+    const data = await updateVendorStatus(id, status, review);
+
     setUpdatingId(null);
+    setReview("");
 
     if (data?.success) {
       setVendor((prev) => ({ ...prev, status }));
@@ -137,15 +149,22 @@ const EditVendor = () => {
 
         <Button
           icon={FiCheckCircle}
-          text={updatingId === vendorId ? "Updating..." : "Update Status"}
-          onClick={() => handleStatusChange(vendorId)}
+          text="Update Status"
+          onClick={() => {
+            if (["rejected", "suspended"].includes(status)) {
+              setShowRemarksBox(true);
+            } else {
+              setUpdatingId(vendor._id);
+              handleStatusChange(vendor._id);
+            }
+          }}
           className="py-2"
-          disabled={!status || status === vendor?.status || updatingId === vendorId}
+          disabled={!status || status === vendor?.status || updatingId === vendor._id}
         />
       </div>
 
       {/* Vendor Status */}
-      <div className="flex flex-col gap-3 bg-white shadow-md rounded-xl p-6">
+      <div className="flex flex-col gap-3 bg-white rounded-xl p-6 shadow-md hover:shadow-blue-500 transition duration-200">
         <div className="flex gap-2 justify-between items-center">
           <h3 className="inline font-semibold">Vendor Status</h3>
           <span className="flex gap-2 items-center">
@@ -172,6 +191,31 @@ const EditVendor = () => {
         </p>
       </div>
 
+      {/* Remarks Section - Shown only for rejected or suspended status */}
+      {showRemarksBox && (
+        <div className="mt-4 bg-white rounded-xl p-6 shadow-md hover:shadow-blue-500 transition duration-200">
+          <ReviewBox
+            value={review}
+            setValue={setReview}
+            onSubmit={() => {
+              handleStatusChange(vendor._id);
+              setShowRemarksBox(false);
+            }}
+            onCancel={() => {
+              setUpdatingId(null);
+              setReview("");
+              setShowRemarksBox(false);
+            }}
+            submitText="Send Remarks & Update"
+            color="green"
+            disabled={
+              !review ||
+              !review.replace(/<(.|\n)*?>/g, "").trim()
+            }
+          />
+        </div>
+      )}
+
       <div className="mt-8 mb-5">
         <ActionButtons
           editing={editing}
@@ -187,7 +231,7 @@ const EditVendor = () => {
       </div>
 
       {/* Editable Fields */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 bg-white shadow-md rounded-xl p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 bg-white rounded-xl p-6 shadow-md hover:shadow-blue-500 transition duration-200">
         {updateVendorFields.map((field) => {
           // Support nested address fields
           let value = form;
