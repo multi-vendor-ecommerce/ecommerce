@@ -97,9 +97,9 @@ export const RenderProductRow = (p, i, maxUnitsSold, isTopSellingPage = false, r
       </td>
 
       {/* Approval Status */}
-      <td className={`${p.status === "pendingDeletion" ? "min-w-[170px]" : "min-w-[120px]"} px-6 py-4 hover:scale-105 transition duration-150`}>
+      <td className={`${p?.status === "pendingDeletion" ? "min-w-[170px]" : "min-w-[120px]"} px-6 py-4 hover:scale-105 transition duration-150`}>
         <StatusChip
-          status={(p.status).toLowerCase() || (isTopSellingPage ? "Approved" : "Unknown")}
+          status={(p?.status) || (isTopSellingPage ? "Approved" : "Unknown")}
         />
       </td>
 

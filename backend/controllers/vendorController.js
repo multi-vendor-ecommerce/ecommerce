@@ -402,7 +402,6 @@ export const reactivateVendorAccount = async (req, res) => {
   }
 };
 
-
 export const vendorPlaceOrder = async (req, res) => {
   try {
     const { orderId } = req.body;

@@ -2,6 +2,7 @@
 import { ShiprocketClient } from "./client.js";
 import Order from "../../models/Order.js";
 import Vendor from "../../models/Vendor.js";
+import { formatDate } from "../../utils/formatDate.js";
 
 export async function pushOrderToShiprocket(orderId) {
   const order = await Order.findById(orderId)
@@ -11,7 +12,7 @@ export async function pushOrderToShiprocket(orderId) {
 
   if (!order) throw new Error("Order not found");
 
-  // 🔹 Group items vendor-wise
+  // Group items by vendor
   const vendorGroups = {};
   for (const item of order.orderItems) {
     const vendorId = item.product.createdBy?.toString();
@@ -20,60 +21,64 @@ export async function pushOrderToShiprocket(orderId) {
     vendorGroups[vendorId].push(item);
   }
 
-  // 🔹 Loop vendor-wise
   for (const [vendorId, items] of Object.entries(vendorGroups)) {
     const vendor = await Vendor.findById(vendorId);
     if (!vendor) throw new Error(`Vendor ${vendorId} not found`);
 
-    // 🔹 Use vendor's registered Shiprocket pickup code
-    // Default fallback: first available pickup code
-    const pickup_location = vendor.pickupLocationCode || "work"; // must match Shiprocket registered code
-    const pickup_name = vendor.name;
-    const pickup_phone = vendor.phone;
-    const pickup_email = vendor.email || "";
+    const pickup_location = vendor?.pickupLocationCode || "work";
 
-    // Delivery details (customer)
-    const shipping = order.shippingInfo || {};
-    const billing_customer_name = shipping.recipientName || order.user.name;
-    const billing_phone = shipping.recipientPhone || order.user.phone;
-    const billing_email = order.user.email || "";
+    const shipping = order.shippingInfo;
+    if (!shipping?.line1 || !shipping?.city || !shipping?.state || !shipping?.pincode) {
+      throw new Error("Order is missing required shipping address fields");
+    }
 
-    // Items payload
-    const order_items = items.map((item) => ({
-      name: item.product.title,
-      sku: item.product._id.toString(),
-      units: item.quantity,
-      selling_price: item.totalPrice,
-    }));
-
-    // Shiprocket payload
     const payload = {
-      order_id: `${order._id}-${vendorId}`,
-      order_date: new Date().toISOString(),
-      pickup_location, 
-      pickup_name,
-      pickup_phone,
-      pickup_email,
+      order_id: `${order._id}-${vendorId}`.substring(0, 50), // Max 50 chars
+      order_date: formatDate(),
+      pickup_location,
 
-      billing_customer_name,
-      billing_last_name: "",
+      // Billing info
+      billing_customer_name: shipping.recipientName || order.user.name,
+      billing_last_name: "", // optional
       billing_address: shipping.line1,
       billing_address_2: shipping.line2 || "",
       billing_city: shipping.city,
       billing_state: shipping.state,
       billing_country: shipping.country || "India",
-      billing_pincode: shipping.pincode,
-      billing_email,
-      billing_phone,
+      billing_pincode: parseInt(shipping.pincode, 10),
+      billing_email: order.user.email,
+      billing_phone: parseInt(shipping.recipientPhone || order.user.phone, 10),
 
+      // Shipping info (even if shipping_is_billing is true, always include required fields)
       shipping_is_billing: true,
+      shipping_customer_name: shipping.recipientName || order.user.name,
+      shipping_last_name: "",
+      shipping_address: shipping.line1,
+      shipping_address_2: shipping.line2 || "",
+      shipping_city: shipping.city,
+      shipping_state: shipping.state,
+      shipping_country: shipping.country || "India",
+      shipping_pincode: parseInt(shipping.pincode, 10),
+      shipping_phone: parseInt(shipping.recipientPhone || order.user.phone || "0", 10), // must include
+
       payment_method: order.paymentMethod === "COD" ? "COD" : "Prepaid",
-      order_items,
+
+      order_items: items.map(item => ({
+        name: item.product.title,
+        sku: item.product._id.toString(),
+        units: item.quantity,
+        selling_price: item.totalPrice,
+      })),
+
       sub_total: items.reduce((sum, i) => sum + i.totalPrice, 0),
       length: 10,
       breadth: 10,
       height: 10,
       weight: 0.5,
+
+      // Optional fields that might prevent errors
+      invoice_number: order.invoiceNumber ? order.invoiceNumber.substring(0, 50) : undefined, // max 50 chars
+      order_type: "NON ESSENTIALS",
     };
 
     console.log("Shiprocket Payload:\n", payload);
@@ -82,7 +87,7 @@ export async function pushOrderToShiprocket(orderId) {
     console.log("Shiprocket Response:\n", JSON.stringify(response, null, 2));
 
     // Save Shiprocket info per item
-    items.forEach((item) => {
+    items.forEach(item => {
       item.shiprocketOrderId = response.order_id || "";
       item.shiprocketShipmentId = response.shipment_id || "";
       item.shiprocketAWB = response.awb_code || "";

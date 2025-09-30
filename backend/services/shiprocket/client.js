@@ -1,7 +1,10 @@
-
 const SR_EMAIL = process.env.SR_EMAIL;
 const SR_PASSWORD = process.env.SR_PASSWORD;
 const SR_BASE_URL = process.env.SR_BASE_URL;
+
+if (!SR_EMAIL || !SR_PASSWORD || !SR_BASE_URL) {
+  throw new Error("Missing Shiprocket environment variables");
+}
 
 let cachedToken = null;
 let tokenExpiry = null;
@@ -18,6 +21,8 @@ async function getAdminToken() {
   });
 
   const data = await response.json();
+
+  console.log(data)
   if (!data.token) {
     throw new Error(`Shiprocket login failed: ${JSON.stringify(data)}`);
   }
