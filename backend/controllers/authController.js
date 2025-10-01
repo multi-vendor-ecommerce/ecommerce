@@ -4,6 +4,7 @@ import Person from "../models/Person.js";
 import User from "../models/User.js";
 import Vendor from "../models/Vendor.js";
 import { toTitleCase } from "../utils/titleCase.js";
+import { addVendorPickup } from "../services/shiprocket/pickup.js";
 
 // ==========================
 // Register Person (User/Vendor)
@@ -71,15 +72,12 @@ export const registerPerson = async (req, res) => {
     // Check for existing email
     let existing = await Person.findOne({ email });
 
-    // Vendor logic: allow new entry if previous vendor is rejected/disapproved
     if (existing) {
       if (role === "vendor") {
         if (["pending", "approved"].includes(existing.status)) {
           return res.status(400).json({ success: false, message: "Email already in use." });
         }
-        // If rejected/disapproved, allow new entry (don't block)
       } else {
-        // For users/customers, always block
         return res.status(400).json({ success: false, message: "Email already in use." });
       }
     }
@@ -131,6 +129,17 @@ export const registerPerson = async (req, res) => {
         shopName,
         gstNumber,
       });
+
+      // -------------------------
+      // SHIPROCKET PICKUP INTEGRATION
+      // -------------------------
+      try {
+        await addVendorPickup(person); // <-- auto-add pickup location
+      } catch (err) {
+        console.error("Shiprocket Pickup Error:", err.message);
+        // Continue without blocking registration
+      }
+
     } else {
       person = await User.create({
         name,

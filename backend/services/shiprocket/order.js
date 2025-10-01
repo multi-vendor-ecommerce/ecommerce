@@ -25,7 +25,11 @@ export async function pushOrderToShiprocket(orderId) {
     const vendor = await Vendor.findById(vendorId);
     if (!vendor) throw new Error(`Vendor ${vendorId} not found`);
 
-    const pickup_location = vendor?.pickupLocationCode || "work";
+    const pickup_location = vendor.shiprocket.pickupLocationCode;
+
+    if (!pickup_location) {
+      throw new Error(`Vendor ${vendor.shopName} does not have a Shiprocket pickup location.`);
+    }
 
     const shipping = order.shippingInfo;
     if (!shipping?.line1 || !shipping?.city || !shipping?.state || !shipping?.pincode) {
