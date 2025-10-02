@@ -78,5 +78,23 @@ async function getPickups() {
   return data;
 }
 
+// client.js
+export async function assignAWB(shipment_id) {
+  if (!shipment_id) throw new Error("Shipment ID required for AWB assignment");
+
+  const token = await getAdminToken();
+  const response = await fetch(`${SR_BASE_URL}/courier/assign/awb`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ shipment_id }),
+  });
+
+  const data = await response.json();
+  return data;
+}
+
 // Export it along with the other functions
-export const ShiprocketClient = { getAdminToken, createOrder, addPickup, getPickups };
+export const ShiprocketClient = { getAdminToken, createOrder, addPickup, getPickups, assignAWB };

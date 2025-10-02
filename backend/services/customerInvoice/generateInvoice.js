@@ -12,14 +12,20 @@ function validateInvoicePayload(payload) {
   }
 }
 
-export async function generateInvoice(order, vendor, user, mode = "customer") {
+/**
+ * Generate invoice for customer only
+ * @param {Object} order - Order object
+ * @param {Object} user - Customer/User object
+ */
+export async function generateInvoice(order, user) {
   const invoiceNumber = order.invoiceNumber || `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
 
-  const payload = buildInvoicePayload(order, vendor, user, mode);
+  // Only customer payload
+  const payload = buildInvoicePayload(order, user);
   validateInvoicePayload(payload);
 
   const buffer = await callInvoiceApi(payload);
-  const invoiceUrl = await saveInvoice(buffer, `${invoiceNumber}-${mode}`, mode);
+  const invoiceUrl = await saveInvoice(buffer, invoiceNumber, "customer");
 
   return { url: invoiceUrl };
 }

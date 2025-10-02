@@ -1,7 +1,13 @@
 import cloudinary from "../../config/cloudinary.js";
 import streamifier from "streamifier";
 
-export async function saveInvoice(buffer, invoiceNumber, mode = "customer") {
+/**
+ * Save customer invoice PDF to Cloudinary
+ * @param {Buffer|ArrayBuffer} buffer - PDF data
+ * @param {string} invoiceNumber - File name
+ * @returns {Promise<string>} - Secure URL of uploaded invoice
+ */
+export async function saveInvoice(buffer, invoiceNumber) {
   if (!buffer || buffer.byteLength === 0) {
     throw new Error("Invoice buffer is empty, cannot upload");
   }
@@ -9,7 +15,7 @@ export async function saveInvoice(buffer, invoiceNumber, mode = "customer") {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        folder: mode === "customer" ? "invoices/customers" : "invoices/vendors",
+        folder: "invoices/customers",
         public_id: invoiceNumber,
         resource_type: "raw",
         format: "pdf",
@@ -21,7 +27,7 @@ export async function saveInvoice(buffer, invoiceNumber, mode = "customer") {
           console.error("❌ Cloudinary upload error:", error);
           return reject(error);
         }
-        console.log("✅ Invoice uploaded:", result.secure_url);
+        console.log("✅ Customer invoice uploaded:", result.secure_url);
         resolve(result.secure_url);
       }
     );

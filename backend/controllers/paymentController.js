@@ -4,9 +4,9 @@ import Order from "../models/Order.js";
 import User from "../models/User.js";
 import crypto from "crypto";
 import Products from "../models/Products.js";
-import { sendOrderSuccessMail } from "../services/email/sender.js";
-import { generateInvoice } from "../services/invoice/generateInvoice.js";
 import Vendor from "../models/Vendor.js";
+import { sendOrderSuccessMail } from "../services/email/sender.js";
+import { generateInvoice } from "../services/customerInvoice/generateInvoice.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
 import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
 
@@ -16,7 +16,7 @@ const razorpay = new Razorpay({
 });
 
 // ==========================
-// Create Razorpay order for Online Payment
+// Create Razorpay order
 // ==========================
 export const createRazorpayOrder = async (req, res) => {
   const { orderId } = req.body;
@@ -52,7 +52,7 @@ export const createRazorpayOrder = async (req, res) => {
 };
 
 // ==========================
-// Verify Razorpay payment signature
+// Verify Razorpay payment
 // ==========================
 export const verifyRazorpayPayment = async (req, res) => {
   const { orderId, razorpayPaymentId, razorpayOrderId, razorpaySignature, shippingInfo } = req.body;
@@ -63,9 +63,8 @@ export const verifyRazorpayPayment = async (req, res) => {
 
   try {
     const order = await Order.findById(orderId)
-      .populate("orderItems.product", "title price createdBy hsnCode gstRate")
+      .populate("orderItems.product", "title price createdBy hsnCode gstRate");
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
-
     if (order.user.toString() !== req.person.id) {
       return res.status(403).json({ success: false, message: "Not authorized for this order." });
     }
@@ -118,7 +117,7 @@ export const verifyRazorpayPayment = async (req, res) => {
       order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
     }
 
-    // ===== Add Shiprocket integration =====
+    // Shiprocket integration
     try {
       await pushOrderToShiprocket(order._id);
       console.log("Shiprocket orders created for all vendors");
@@ -126,50 +125,12 @@ export const verifyRazorpayPayment = async (req, res) => {
       console.error("Shiprocket push failed:", err.message);
     }
 
-    // ==========================
-    // Fetch vendors for customer invoice (use first vendor as primary)
-    // ==========================
-    const vendorIds = [...new Set(order.orderItems.map(item => item.product?.createdBy?.toString()).filter(Boolean))];
-    let primaryVendor = null;
-    if (vendorIds.length) {
-      primaryVendor = await Vendor.findById(vendorIds[0]);
-    }
-
-    // Generate customer invoice
-    const customerInvoice = await generateInvoice(order, primaryVendor, user, "customer");
+    // Generate customer invoice only
+    const customerInvoice = await generateInvoice(order, user);
     order.userInvoiceUrl = customerInvoice?.url || "";
-
-    // Generate vendor invoices (multi-vendor)
-    const vendorGroups = {};
-    for (const item of order.orderItems) {
-      const vendorId = item.product?.createdBy?.toString();
-      if (!vendorId) continue;
-      if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
-      vendorGroups[vendorId].push(item);
-    }
-
-    const vendorInvoices = [];
-    for (const [vendorId, items] of Object.entries(vendorGroups)) {
-      try {
-        const vendor = await Vendor.findById(vendorId);
-        if (!vendor) continue;
-
-        const result = await generateInvoice(
-          { ...order.toObject(), orderItems: items },
-          vendor,
-          user,
-          "vendor"
-        );
-
-        vendorInvoices.push({ vendorId, invoiceUrl: result?.url || "" });
-      } catch (err) {
-        console.error(`Invoice generation failed for vendor ${vendorId}:`, err);
-      }
-    }
-    order.vendorInvoices = vendorInvoices;
     await order.save();
 
-    // Send order success email to user
+    // Send order success email to customer
     await safeSendMail(sendOrderSuccessMail, {
       to: user?.email,
       orderId: order._id,
@@ -185,31 +146,36 @@ export const verifyRazorpayPayment = async (req, res) => {
     });
 
     // Send order success email to vendors
-    for (const vendorInvoice of vendorInvoices) {
-      try {
-        const vendor = await Vendor.findById(vendorInvoice.vendorId);
-        if (!vendor) continue;
+    const vendorGroups = {};
+    for (const item of order.orderItems) {
+      const vendorId = item.product?.createdBy?.toString();
+      if (!vendorId) continue;
+      if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
+      vendorGroups[vendorId].push(item);
+    }
 
+    for (const [vendorId, items] of Object.entries(vendorGroups)) {
+      const vendor = await Vendor.findById(vendorId);
+      if (!vendor) continue;
+
+      try {
         await safeSendMail(sendOrderSuccessMail, {
           to: vendor.email,
           orderId: order._id,
           customerName: user?.name,
           paymentMethod: order.paymentMethod,
-          totalAmount: order.grandTotal,
-          items: order.orderItems
-            .filter(i => i.product?.createdBy?.toString() === vendor._id.toString())
-            .map(i => ({
-              name: i.product?.title || "Unknown product",
-              qty: i.quantity,
-              price: i.product?.price ?? 0,
-            })),
-          invoiceUrl: vendorInvoice.invoiceUrl,
+          totalAmount: items.reduce((sum, i) => sum + (i.product?.price ?? 0) * i.quantity, 0),
+          items: items.map(i => ({
+            name: i.product?.title || "Unknown product",
+            qty: i.quantity,
+            price: i.product?.price ?? 0,
+          })),
           vendorName: vendor.name,
           vendorShop: vendor.shopName,
-          isVendor: true, // You can use this flag in your email template
+          isVendor: true,
         });
       } catch (err) {
-        console.error(`Failed to send vendor invoice email for vendor ${vendorInvoice.vendorId}:`, err);
+        console.error(`Failed to send vendor email for ${vendorId}:`, err);
       }
     }
 
@@ -225,7 +191,7 @@ export const verifyRazorpayPayment = async (req, res) => {
 };
 
 // ==========================
-// Confirm COD Payment (with multi-vendor invoices)
+// Confirm COD payment
 // ==========================
 export const confirmCOD = async (req, res) => {
   const { orderId, shippingInfo } = req.body;
@@ -235,7 +201,8 @@ export const confirmCOD = async (req, res) => {
   }
 
   try {
-    const order = await Order.findById(orderId).populate("orderItems.product", "title price createdBy hsnCode gstRate");
+    const order = await Order.findById(orderId)
+      .populate("orderItems.product", "title price createdBy hsnCode gstRate");
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
 
     if (order.paymentInfo?.status === "paid") {
@@ -263,55 +230,24 @@ export const confirmCOD = async (req, res) => {
     }
 
     // Invoice number
-    // if (!order.invoiceNumber) {
-    //   order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
-    // }
+    if (!order.invoiceNumber) {
+      order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
+    }
 
+    // Shiprocket integration
+    try {
+      await pushOrderToShiprocket(order._id);
+      console.log("Shiprocket orders created for all vendors");
+    } catch (err) {
+      console.error("Shiprocket push failed:", err.message);
+    }
 
-    // ==========================
-    // Fetch vendors for customer invoice (use first vendor as primary)
-    // ==========================
-
-    // const vendorIds = [...new Set(order.orderItems.map(item => item.product?.createdBy?.toString()).filter(Boolean))];
-    // let primaryVendor = null;
-    // if (vendorIds.length) {
-    //   primaryVendor = await Vendor.findById(vendorIds[0]);
-    // }
-
-    // Generate customer invoice
-    // const customerInvoice = await generateInvoice(order, primaryVendor, user, "customer");
-    // order.userInvoiceUrl = customerInvoice?.url || "";
-
-    // Generate vendor invoices
-    // for (const item of order.orderItems) {
-    //   const vendorId = item.product?.createdBy?.toString();
-    //   if (!vendorId) continue;
-    //   if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
-    //   vendorGroups[vendorId].push(item);
-    // }
-
-    // const vendorInvoices = [];
-    // for (const [vendorId, items] of Object.entries(vendorGroups)) {
-    //   try {
-    //     const vendor = await Vendor.findById(vendorId);
-    //     if (!vendor) continue;
-
-    //     const result = await generateInvoice(
-    //       { ...order.toObject(), orderItems: items },
-    //       vendor,
-    //       user,
-    //       "vendor"
-    //     );
-
-    //     vendorInvoices.push({ vendorId, invoiceUrl: result?.url || "" });
-    //   } catch (err) {
-    //     console.error(`Invoice generation failed for vendor ${vendorId}:`, err);
-    //   }
-    // }
-    // order.vendorInvoices = vendorInvoices;
+    // Generate customer invoice only
+    const customerInvoice = await generateInvoice(order, user);
+    order.userInvoiceUrl = customerInvoice?.url || "";
     await order.save();
 
-    // Send order success email to user
+    // Send order success email to customer
     await safeSendMail(sendOrderSuccessMail, {
       to: user?.email,
       orderId: order._id,
@@ -323,38 +259,42 @@ export const confirmCOD = async (req, res) => {
         qty: i.quantity,
         price: i.product?.price || 0,
       })),
-      // invoiceUrl: order.userInvoiceUrl,
+      invoiceUrl: order.userInvoiceUrl,
     });
 
     // Send order success email to vendors
-    // for (const vendorInvoice of vendorInvoices) {
-    //   try {
-    //     const vendor = await Vendor.findById(vendorInvoice.vendorId);
-    //     if (!vendor) continue;
+    const vendorGroups = {};
+    for (const item of order.orderItems) {
+      const vendorId = item.product?.createdBy?.toString();
+      if (!vendorId) continue;
+      if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
+      vendorGroups[vendorId].push(item);
+    }
 
-    //     await safeSendMail(sendOrderSuccessMail, {
-    //       to: vendor.email,
-    //       orderId: order._id,
-    //       customerName: user?.name,
-    //       paymentMethod: order.paymentMethod,
-    //       totalAmount: order.grandTotal,
-    //       items: order.orderItems
-    //         .filter(i => i.product?.createdBy?.toString() === vendor._id.toString())
-    //         .map(i => ({
-    //           name: i.product?.title || "Unknown product",
-    //           qty: i.quantity,
-    //           price: i.product?.price || 0,
-    //         })),
-    //       invoiceUrl: vendorInvoice.invoiceUrl,
-    //       vendorName: vendor.name,
-    //       vendorShop: vendor.shopName,
-    //       isVendor: true, // You can use this flag in your email template
-    //     });
-    //   } catch (err) {
-    //     console.error(`Failed to send vendor invoice email for vendor ${vendorInvoice.vendorId}:`, err);
-    //   }
-    // }
+    for (const [vendorId, items] of Object.entries(vendorGroups)) {
+      const vendor = await Vendor.findById(vendorId);
+      if (!vendor) continue;
 
+      try {
+        await safeSendMail(sendOrderSuccessMail, {
+          to: vendor.email,
+          orderId: order._id,
+          customerName: user?.name,
+          paymentMethod: order.paymentMethod,
+          totalAmount: items.reduce((sum, i) => sum + (i.product?.price ?? 0) * i.quantity, 0),
+          items: items.map(i => ({
+            name: i.product?.title || "Unknown product",
+            qty: i.quantity,
+            price: i.product?.price ?? 0,
+          })),
+          vendorName: vendor.name,
+          vendorShop: vendor.shopName,
+          isVendor: true,
+        });
+      } catch (err) {
+        console.error(`Failed to send vendor email for ${vendorId}:`, err);
+      }
+    }
 
     res.status(200).json({
       success: true,

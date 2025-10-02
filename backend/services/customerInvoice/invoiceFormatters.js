@@ -3,7 +3,6 @@ import { toTitleCase } from "../../utils/titleCase.js";
 import { getFormattedAddress } from "../../utils/formatAddress.js";
 
 // Build item description
-// Build item description
 export const buildItemDescription = (item) => {
   const parts = [];
 
@@ -11,7 +10,6 @@ export const buildItemDescription = (item) => {
   if (item?.size) parts.push(`Size: ${item.size}`);
   if (item?.product?.hsnCode) parts.push(`HSN: ${item.product.hsnCode}`);
 
-  // GST (rate + amount together)
   if (item?.gstRate != null && item?.gstAmount != null) {
     parts.push(`GST: ${item.gstRate}% (₹${item.gstAmount})`);
   } else if (item?.gstRate != null) {
@@ -20,7 +18,6 @@ export const buildItemDescription = (item) => {
     parts.push(`GST: ₹${item.gstAmount}`);
   }
 
-  // Discount (percent + amount together)
   if (item?.discountPercent > 0 && item?.discountAmount > 0) {
     parts.push(`Discount: ${item.discountPercent}% (₹${item.discountAmount})`);
   } else if (item?.discountPercent > 0) {
@@ -30,20 +27,6 @@ export const buildItemDescription = (item) => {
   }
 
   return parts.join(", ");
-};
-
-// Format vendor address
-export const formatVendorAddress = (vendor) => {
-  if (!vendor) return "Vendor";
-  const addr = vendor.address || {};
-
-  return [
-    toTitleCase(vendor.shopName) || "Vendor",
-    `Owner: ${toTitleCase(vendor.name) || "N/A"}`,
-    getFormattedAddress(addr),
-    `GSTIN: ${vendor.gstNumber || "N/A"}`,
-    `Phone: ${vendor.phone || "N/A"}`
-  ].filter(Boolean).join("\n");
 };
 
 // Format customer billing address

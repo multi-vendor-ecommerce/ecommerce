@@ -23,16 +23,21 @@ export async function pushOrderToShiprocket(orderId) {
 
   for (const [vendorId, items] of Object.entries(vendorGroups)) {
     const vendor = await Vendor.findById(vendorId);
-    if (!vendor) throw new Error(`Vendor ${vendorId} not found`);
+    if (!vendor) {
+      console.warn(`Vendor ${vendorId} not found, skipping`);
+      continue;
+    }
 
     const pickup_location = vendor?.shiprocket?.pickupLocationCode;
     if (!pickup_location) {
-      throw new Error(`Vendor ${vendor.shopName} does not have a Shiprocket pickup location.`);
+      console.warn(`Vendor ${vendor.shopName} does not have a Shiprocket pickup location, skipping`);
+      continue;
     }
 
     const shipping = order.shippingInfo;
     if (!shipping?.line1 || !shipping?.city || !shipping?.state || !shipping?.pincode) {
-      throw new Error("Order is missing required shipping address fields");
+      console.warn("Order missing required shipping address, skipping vendor:", vendor.shopName);
+      continue;
     }
 
     // Default values for missing dimensions/weight
@@ -55,11 +60,11 @@ export async function pushOrderToShiprocket(orderId) {
     });
 
     const payload = {
-      order_id: `${order._id}-${vendorId}`.substring(0, 50), // Max 50 chars
+      order_id: `${order._id}-${vendorId}`.substring(0, 50),
       order_date: formatDate(),
       pickup_location,
 
-      // Billing info = always user
+      // Billing info (always user)
       billing_customer_name: order.user.name || "Customer",
       billing_last_name: "",
       billing_address: order.user.address.line1,
@@ -71,7 +76,7 @@ export async function pushOrderToShiprocket(orderId) {
       billing_email: order.user.email,
       billing_phone: parseInt(order.user.phone, 10),
 
-      // Shipping info = recipient first, fallback user
+      // Shipping info (recipient first, fallback to user)
       shipping_is_billing: true,
       shipping_customer_name: shipping.recipientName || order.user.name,
       shipping_last_name: "",
@@ -107,19 +112,36 @@ export async function pushOrderToShiprocket(orderId) {
       order_type: "NON ESSENTIALS",
     };
 
-    console.log("Shiprocket Payload:\n", payload);
+    console.log("Shiprocket Payload for vendor", vendor.shopName, ":\n", payload);
 
-    const response = await ShiprocketClient.createOrder(payload);
-    console.log("Shiprocket Response:\n", JSON.stringify(response, null, 2));
+    try {
+      // Create Shiprocket order
+      const response = await ShiprocketClient.createOrder(payload);
+      console.log("Shiprocket Response for vendor", vendor.shopName, ":\n", response);
 
-    // Save Shiprocket info per item
-    items.forEach(item => {
-      item.shiprocketOrderId = response.order_id || "";
-      item.shiprocketShipmentId = response.shipment_id || "";
-      item.shiprocketAWB = response.awb_code || "";
-      item.courierName = response.courier_company || "";
-      item.labelUrl = response.label_url || "";
-    });
+      // Assign AWB
+      let awbResponse = {};
+      if (response?.shipment_id) {
+        try {
+          awbResponse = await ShiprocketClient.assignAWB(response?.shipment_id);
+          console.log("AWB Assignment Response for vendor", vendor.shopName, ":", awbResponse);
+        } catch (awbErr) {
+          console.error("AWB assignment failed for shipment:", response?.shipment_id, awbErr.message);
+        }
+      }
+
+      // Save Shiprocket info per item
+      items.forEach(item => {
+        item.shiprocketOrderId = response.order_id || "";
+        item.shiprocketShipmentId = response.shipment_id || "";
+        item.shiprocketAWB = awbResponse.awb_code || response.awb_code || "";
+        item.courierName = response.courier_company || "";
+        item.labelUrl = response.label_url || "";
+      });
+
+    } catch (err) {
+      console.error("Failed to create Shiprocket order for vendor", vendor.shopName, err.message);
+    }
   }
 
   await order.save();

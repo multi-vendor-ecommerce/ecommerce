@@ -6,10 +6,7 @@ import { toTitleCase } from "../utils/titleCase.js";
 import { sendVendorStatusMail, sendVendorApprovalStatusMail, sendVendorProfileUpdatedMail } from "../services/email/sender.js";
 import { setNestedValueIfAllowed } from "../utils/setNestedValueIfAllowed.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
-
-
 import Order from "../models/Order.js";
-
 import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
 
 // ==========================
