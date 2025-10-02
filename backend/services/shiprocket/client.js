@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import { get } from "mongoose";
 dotenv.config();
 
 const SR_EMAIL = process.env.SR_EMAIL;
@@ -10,8 +9,7 @@ if (!SR_EMAIL || !SR_PASSWORD || !SR_BASE_URL) {
   throw new Error("Missing Shiprocket environment variables");
 }
 
-let cachedToken = null;
-let tokenExpiry = null;
+let cachedToken = null, tokenExpiry = null;
 
 async function getAdminToken() {
   if (cachedToken && tokenExpiry && new Date() < tokenExpiry) {

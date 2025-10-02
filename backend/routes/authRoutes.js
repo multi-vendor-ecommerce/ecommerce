@@ -31,7 +31,7 @@ const registerValidator = [
 
   body("address.line1", "Address Line 1 is required")
     .notEmpty()
-    .isLength({ min: 3 }),
+    .isLength({ min: 11 }),
 
   body("address.city", "City is required").notEmpty(),
   body("address.state", "State is required").notEmpty(),
