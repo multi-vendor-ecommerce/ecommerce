@@ -85,7 +85,7 @@ const ProductReviewState = ({ children }) => {
 
         try {
             const res = await fetch(`${host}/api/product-reviews/${reviewId}/helpful`, {
-                method: "POST",
+                method: "PUT",
                 headers: {
                     "auth-token": token,
                 },

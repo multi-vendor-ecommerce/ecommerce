@@ -111,7 +111,7 @@ function UserHeader() {
 
           {/* Right Icons */}
           <div className="flex items-center gap-4 text-user-dark text-lg whitespace-nowrap">
-            
+
             {/* Wishlist */}
             <Link
               to={token ? "/wishlist" : "#"}
@@ -123,7 +123,13 @@ function UserHeader() {
               }}
               className="relative bg-[#E8F5E9] p-3 rounded-full hover:bg-pink-200 transition-colors"
             >
-              <FaHeart className="text-2xl cursor-pointer hover:text-[pink-600]" />
+              <FaHeart
+                className="text-2xl text-gray-600 cursor-pointer transition 
+                duration-200 ease-in-out transform hover:scale-110 
+                hover:text-pink-500"
+                title="Favorite"
+              />
+
               {token && wishlistCount > 0 && (
                 <span className="absolute top-0 right-0 bg-[#2E7D32] text-white rounded-full text-xs px-1.5 py-0.5">
                   {wishlistCount}
@@ -140,11 +146,11 @@ function UserHeader() {
                   navigate("/login/user");
                 }
               }}
-              className="relative bg-purple-100 p-3 rounded-full hover:bg-purple-200 transition-colors"
+              className="relative bg-green-100 p-3 rounded-full hover:bg-green-200 transition-colors"
             >
-              <FaShoppingCart className="text-2xl cursor-pointer hover:text-purple-800" />
+              <FaShoppingCart className="text-2xl cursor-pointer text-gray-600 hover:text-green-800" />
               {token && cartItemCount > 0 && (
-                <span className="absolute top-0 right-0 bg-red-600 text-white rounded-full text-xs px-1.5 py-0.5">
+                <span className="absolute top-0 right-0 bg-[#2E7D32] text-white rounded-full text-xs px-1.5 py-0.5">
                   {cartItemCount}
                 </span>
               )}
@@ -196,7 +202,7 @@ function UserHeader() {
         </div>
       </div>
     </header>
-    </>
+  </>
   );
 }
 

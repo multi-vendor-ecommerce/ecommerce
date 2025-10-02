@@ -356,7 +356,7 @@ const ProductDetails = () => {
         
       </div>
       <ProductReview productId={productDetails._id} />
-      <RecentlyProductList />
+      {/* <RecentlyProductList /> */}
     </div>
   );
 };
