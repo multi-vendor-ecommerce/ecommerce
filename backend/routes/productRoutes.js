@@ -2,7 +2,7 @@ import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 import multerErrorHandler from "../middleware/multerErrorHandler.js";
-import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts, updateProductStatus, editProduct, deleteProduct, getPendingBuyNowProducts } from "../controllers/productController.js";
+import { getAllProducts, getProductById, getProductsByCategoryId, addProduct, getTopSellingProducts, updateProductStatus, editProduct, deleteProduct, getPendingBuyNowProducts, searchProducts } from "../controllers/productController.js";
 import upload from "../middleware/multer.js";
 import { body } from "express-validator";
 import { validate } from "../middleware/validateFields.js";
@@ -96,4 +96,6 @@ router.post("/add-product", verifyToken, authorizeRoles("vendor"), uploadProduct
 // get recently viewed products
 router.get("/recently-viewed", verifyToken, authorizeRoles("customer"), getPendingBuyNowProducts);
 
-export default router;
+// Search products (Public)
+router.get("/search", searchProducts);
+export default router;  

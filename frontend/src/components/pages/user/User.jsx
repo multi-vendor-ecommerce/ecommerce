@@ -8,18 +8,26 @@ import CartPage from "./Cart/CartPage";
 import Profile from "../adminVendorCommon/settings/Profile";
 import Security from "../adminVendorCommon/settings/Security";
 import ProtectedRoute from "../../common/ProtectedRoute";
+import UserFooter from "./UserFooter/UserFooter";
 
 import OrderSummary from "./Order/OrderSummary";
 import MyOrdersList from "./Order/MyOrders/MyOrdersList";
 import MyOrderDetails from "./Order/MyOrders/MyOrderDetails";
 import WishlistPage from "./Wishlist/WishlistPage";
 
+import Help from "./UserFooter/Help/Help";
+import Contact from "./UserFooter/Contact";
+import FAQ from "./UserFooter/FAQ";
+import Returns from "./UserFooter/Returns";
+import Privacy from "./UserFooter/Privacy";
+import Terms from "./UserFooter/Terms";
+
 export default function User() {
   return (
     <>
       <div className="flex flex-col min-h-screen relative">
         <UserHeader />
-        
+
         <main className="bg-white">
           <Routes>
             {/* Public Routes */}
@@ -85,8 +93,18 @@ export default function User() {
                 </ProtectedRoute>
               }
             />
+
+            <Route path="/help" element={<Help />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/returns" element={<Returns />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/privacy-policy" element={<Privacy />} />
           </Routes>
         </main>
+
+        <UserFooter />
       </div>
     </>
   );

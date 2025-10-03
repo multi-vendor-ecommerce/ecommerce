@@ -696,3 +696,80 @@ export const getPendingBuyNowProducts = async (req, res) => {
     });
   }
 };
+
+export const searchProducts = async (req, res) => {
+  try {
+    const {
+      q, 
+      minPrice,
+      maxPrice,
+      category,
+      brand,
+      colors,
+      sizes,
+      tags,
+      sort,
+      page = 1,
+      limit = 20
+    } = req.query;
+
+    const query = buildQuery({ search: q }, ["title", "brand"], "status");
+
+    query.status = "approved";
+
+    // Price range filter
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+
+    // Category filter
+    if (category && isValidObjectId(category)) query.category = category;
+
+    // Brand filter (multiple comma-separated brands)
+    if (brand) query.brand = { $in: brand.split(",").map(b => b.trim()) };
+
+    // Array filters: colors, sizes, tags
+    if (colors) query.colors = { $in: colors.split(",").map(c => c.trim()) };
+    if (sizes) query.sizes = { $in: sizes.split(",").map(s => s.trim().toUpperCase()) };
+    if (tags) query.tags = { $in: tags.split(",").map(t => t.trim().toLowerCase()) };
+
+    // Pagination
+    const skip = (page - 1) * limit;
+
+    // Sorting
+    let sortObj = { createdAt: -1 }; // default newest first
+    if (sort === "priceLow") sortObj = { price: 1 };
+    if (sort === "priceHigh") sortObj = { price: -1 };
+    if (sort === "rating") sortObj = { rating: -1 };
+
+    const [products, total] = await Promise.all([
+      Product.find(query)
+        .populate("category", "name")
+        .populate("createdBy", "name shopName role")
+        .select("title description images price category discount rating colors sizes")
+        .sort(sortObj)
+        .skip(skip)
+        .limit(Number(limit)),
+      Product.countDocuments(query)
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Products loaded successfully.",
+      products,
+      total,
+      page: Number(page),
+      limit: Number(limit)
+    });
+
+  } catch (err) {
+    console.error("Search Products Error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Unable to search products.",
+      error: err.message
+    });
+  }
+};

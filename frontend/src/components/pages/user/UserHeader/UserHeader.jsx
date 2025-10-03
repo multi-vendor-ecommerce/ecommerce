@@ -87,7 +87,7 @@ function UserHeader() {
         <div className="container mx-auto px-4 flex items-center justify-between gap-4 flex-wrap">
           {/* Logo */}
           <Link to="/" className="text-xl sm:text-2xl font-bold text-user-primary whitespace-nowrap">
-            <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-14 sm:h-17 rounded" />
+            <img src="/PrimaryLogo.jpg" alt="NOAH PLANET Logo" className="h-14 sm:h-17 rounded " />
           </Link>
 
           {/* Desktop Search */}
@@ -181,7 +181,7 @@ function UserHeader() {
         </div>
 
         {/* Mobile Search */}
-        <div className="w-full px-4 mt-3 block lg:hidden">
+        <div className="w-full px-4  block lg:hidden">
           <div className="flex">
             <input
               type="text"
