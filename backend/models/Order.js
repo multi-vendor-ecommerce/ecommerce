@@ -48,12 +48,20 @@ const orderSchema = new Schema(
           required: true
         },
 
-        //   Shiprocket fields (per item/vendor)
-        shiprocketOrderId: { type: String, default: "" }, // shiproket ----
-        shiprocketShipmentId: { type: String, default: "" }, 
-        shiprocketAWB: { type: String, default: "" },       
-        courierName: { type: String, default: "" },         
-        labelUrl: { type: String, default: "" },             
+        // Vendor packaging details (entered before shipment)
+        packageLength: { type: Number, default: 0 },
+        packageBreadth: { type: Number, default: 0 },
+        packageHeight: { type: Number, default: 0 },
+        packageWeight: { type: Number, default: 0 },
+
+        // Shiprocket fields
+        shiprocketOrderId: { type: String, default: "" },
+        shiprocketShipmentId: { type: String, default: "" },
+        shiprocketAWB: { type: String, default: "" },
+        courierName: { type: String, default: "" },
+        labelUrl: { type: String, default: "" },
+        invoiceUrl: { type: String, default: "" },
+        manifestUrl: { type: String, default: "" },
       }
     ],
 

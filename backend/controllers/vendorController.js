@@ -399,41 +399,82 @@ export const reactivateVendorAccount = async (req, res) => {
   }
 };
 
+// ==========================
+// Vendor Place Order
+// ==========================
 export const vendorPlaceOrder = async (req, res) => {
+  const { packageLength, packageBreadth, packageHeight, packageWeight } = req.body;
+  const orderId = req.params.id;
+
   try {
-    const { orderId } = req.body;
-    if (!orderId) return res.status(400).json({ success: false, message: "Order ID is required." });
+    if (!orderId) {
+      return res.status(400).json({ success: false, message: "Order ID is required." });
+    }
 
-    // Fetch order with product details
+    // Validate packaging fields
+    if (!packageLength || !packageBreadth || !packageHeight || !packageWeight) {
+      return res.status(400).json({
+        success: false,
+        message: "Package length, breadth, height, and weight are required.",
+      });
+    }
+
+    if (packageLength <= 0 || packageBreadth <= 0 || packageHeight <= 0 || packageWeight <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Package dimensions and weight must be greater than zero.",
+      });
+    }
+
+    // Fetch order
     const order = await Order.findById(orderId).populate("orderItems.product");
-    if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
 
-    const vendorId = req.person.id; // Logged-in vendor
-    // Filter only this vendor's items
+    const vendorId = req.person.id;
     const vendorItems = order.orderItems.filter(
       item => item.product.createdBy?.toString() === vendorId
     );
 
-    if (!vendorItems.length)
+    if (!vendorItems.length) {
       return res.status(403).json({ success: false, message: "No items in this order belong to you." });
+    }
 
-    // Ensure each order item has createdBy (to prevent validation errors)
-    vendorItems.forEach(item => {
-      if (!item.createdBy) item.createdBy = item.product.createdBy;
-    });
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      {
+        $set: {
+          "orderItems.$[item].packageLength": packageLength,
+          "orderItems.$[item].packageBreadth": packageBreadth,
+          "orderItems.$[item].packageHeight": packageHeight,
+          "orderItems.$[item].packageWeight": packageWeight,
+        }
+      },
+      {
+        new: true,
+        runValidators: true,
+        arrayFilters: [{ "item.createdBy": vendorId }]
+      }
+    );
+    
+    if (!updatedOrder) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update order with packaging details.",
+      });
+    }
 
-    // 🔹 Push only this vendor's items to Shiprocket
-    const updatedOrder = await pushOrderToShiprocket(order._id);
-
-    await updatedOrder.save();
+    // Push to Shiprocket
+    const finalOrder = await pushOrderToShiprocket(updatedOrder?._id);
 
     res.status(200).json({
       success: true,
       message: "Vendor order placed successfully and sent to Shiprocket.",
-      order: updatedOrder,
+      order: finalOrder,
     });
   } catch (err) {
-    console.error("Vendor place order error:", err);
+    console.error("Vendor place order error:", err.stack);
     res.status(500).json({
       success: false,
       message: "Failed to place vendor order.",

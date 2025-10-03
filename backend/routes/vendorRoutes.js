@@ -78,9 +78,8 @@ router.put("/:id", verifyToken, authorizeRoles("admin"), editVendorValidator, va
 
 
 // shiprocket api : --------------
-// router.post("/shiprocket/credential", verifyToken, authorizeRoles("vendor"), saveShiprocketCredentials);
 
 // Vendor can only place their own items
-router.post("/create-order", verifyToken, authorizeRoles("vendor"), vendorPlaceOrder);
+router.put("/create-order/:id", verifyToken, authorizeRoles("vendor"), vendorPlaceOrder);
 
 export default router;

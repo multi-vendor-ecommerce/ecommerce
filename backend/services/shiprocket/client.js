@@ -95,6 +95,43 @@ export async function assignAWB(shipment_id) {
   const data = await response.json();
   return data;
 }
+async function generateDocuments(shipment_id, order_id) {
+  if (!shipment_id) throw new Error("Shipment ID required for document generation");
+
+  const token = await getAdminToken();
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+
+  // Generate Label
+  const labelRes = await fetch(`${SR_BASE_URL}/courier/generate/label`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ shipment_id: [shipment_id] }),
+  }).then(res => res.json());
+
+  // Generate Invoice
+  const invoiceRes = await fetch(`${SR_BASE_URL}/orders/print/invoice`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ ids: [order_id] }),
+  }).then(res => res.json());
+
+  // Generate Manifest
+  const manifestRes = await fetch(`${SR_BASE_URL}/manifests/generate`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ shipment_id: [shipment_id] }),
+  }).then(res => res.json());
+
+  return {
+    labelUrl: labelRes?.label_url || null,
+    invoiceUrl: invoiceRes?.invoice_url || null,
+    manifestUrl: manifestRes?.manifest_url || null,
+    raw: { labelRes, invoiceRes, manifestRes }, // keep raw responses for debugging
+  };
+}
 
 // Export it along with the other functions
-export const ShiprocketClient = { getAdminToken, createOrder, addPickup, getPickups, assignAWB };
+export const ShiprocketClient = { getAdminToken, createOrder, addPickup, getPickups, assignAWB, generateDocuments };
