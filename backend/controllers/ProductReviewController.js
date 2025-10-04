@@ -95,8 +95,6 @@ export const addReview = async (req, res) => {
   }
 };
 
-
-
 // ==========================
 // Get reviews of a product
 // ==========================
@@ -133,10 +131,10 @@ export const getProductReviews = async (req, res) => {
 // Mark review as helpful
 // ==========================
 export const markHelpful = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.person?.id;
+  
   try {
-    const { id } = req.params;
-    const userId = req.person?.id;
-
     if (!isValidObjectId(id)) {
       return res.status(400).json({ success: false, message: "Invalid review ID." });
     }
