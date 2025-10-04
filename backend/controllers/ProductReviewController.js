@@ -133,7 +133,7 @@ export const getProductReviews = async (req, res) => {
 export const markHelpful = async (req, res) => {
   const { id } = req.params;
   const userId = req.person?.id;
-  
+
   try {
     if (!isValidObjectId(id)) {
       return res.status(400).json({ success: false, message: "Invalid review ID." });
