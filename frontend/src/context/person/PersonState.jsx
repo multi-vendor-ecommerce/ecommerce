@@ -5,8 +5,8 @@ const PersonState = (props) => {
   const [person, setPerson] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // const host = import.meta.env.VITE_BACKEND_URL;
-  const host = "http://localhost:5000";
+  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
+  // const host = "http://localhost:5000";
 
   // Detect role and token
   const getRoleInfo = () => {

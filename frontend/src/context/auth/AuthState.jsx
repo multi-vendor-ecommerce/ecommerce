@@ -16,8 +16,8 @@ const AuthState = ({ children }) => {
 
   const [loading, setLoading] = useState(false);
 
-  // const host = import.meta.env.VITE_BACKEND_URL;
-  const host = "http://localhost:5000";
+  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
+  // const host = "http://localhost:5000";
 
   // Register Function
   const register = async (formData) => {

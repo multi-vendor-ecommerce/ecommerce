@@ -5,7 +5,7 @@ const WishlistState = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL;
+  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
   // const host = "http://localhost:5000";
 
   // Fetch wishlist items
