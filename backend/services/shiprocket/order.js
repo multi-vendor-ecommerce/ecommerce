@@ -34,7 +34,10 @@ export async function pushOrderToShiprocket(orderId) {
         item.shiprocketOrderId = response.order_id || "";
         item.shiprocketShipmentId = response.shipment_id || "";
         item.shiprocketAWB = response.awb_code || response.awb_code || "";
+        item.shiprocketStatus = response.status || ""; 
+        item.shiprocketStatusCode = response.status_code || null;
         item.courierName = response.courier_company || "";
+
         item.labelUrl = docsResponse.labelUrl || "";
         item.invoiceUrl = docsResponse.invoiceUrl || "";
         item.manifestUrl = docsResponse.manifestUrl || "";

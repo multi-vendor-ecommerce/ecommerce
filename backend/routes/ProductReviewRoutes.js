@@ -1,5 +1,5 @@
 import express from "express";
-import { addReview, getProductReviews, markHelpful } from "../controllers/ProductReviewController.js";
+import { addReview, getProductReviews, markHelpful } from "../controllers/productReviewController.js";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
 

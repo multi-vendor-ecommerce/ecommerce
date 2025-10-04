@@ -30,7 +30,7 @@ async function getAdminToken() {
   }
 
   cachedToken = data.token;
-  tokenExpiry = new Date(Date.now() + 23 * 60 * 60 * 1000); 
+  tokenExpiry = new Date(Date.now() + 23 * 60 * 60 * 1000);
   return cachedToken;
 }
 
@@ -45,6 +45,11 @@ async function createOrder(orderPayload) {
     },
     body: JSON.stringify(orderPayload),
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`Shiprocket order creation failed: ${JSON.stringify(errorData)}`);
+  }
 
   return await response.json();
 }
@@ -61,8 +66,12 @@ async function addPickup(pickupPayload) {
     body: JSON.stringify(pickupPayload),
   });
 
-  const data = await response.json();
-  return data;
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`Shiprocket add pickup failed: ${JSON.stringify(errorData)}`);
+  }
+
+  return await response?.json();
 }
 
 async function getPickups() {
@@ -74,8 +83,13 @@ async function getPickups() {
       Authorization: `Bearer ${token}`,
     },
   });
-  const data = await response.json();
-  return data;
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`Shiprocket get pickups failed: ${JSON.stringify(errorData)}`);
+  }
+
+  return await response.json();
 }
 
 // client.js
@@ -92,9 +106,14 @@ export async function assignAWB(shipment_id) {
     body: JSON.stringify({ shipment_id }),
   });
 
-  const data = await response.json();
-  return data;
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`Shiprocket AWB assignment failed: ${JSON.stringify(errorData)}`);
+  }
+
+  return await response.json();
 }
+
 async function generateDocuments(shipment_id, order_id) {
   if (!shipment_id) throw new Error("Shipment ID required for document generation");
 
@@ -133,5 +152,35 @@ async function generateDocuments(shipment_id, order_id) {
   };
 }
 
+async function trackShipment(shipment_id) {
+  if (!shipment_id) throw new Error("Shipment ID required for tracking");
+
+  const token = await getAdminToken();
+
+  // Track Shipment
+  const response = await fetch(`${SR_BASE_URL}/courier/track/shipment/${shipment_id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(errorData)}`);
+  }
+
+  return await response.json();
+}
+
 // Export it along with the other functions
-export const ShiprocketClient = { getAdminToken, createOrder, addPickup, getPickups, assignAWB, generateDocuments };
+export const ShiprocketClient = {
+  getAdminToken,
+  createOrder,
+  addPickup,
+  getPickups,
+  assignAWB,
+  generateDocuments,
+  trackShipment,
+};

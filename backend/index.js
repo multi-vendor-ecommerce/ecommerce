@@ -11,6 +11,11 @@ import apiRoutes from "./config/routes.js";
 // ==========================
 connectToMongo();
 
+// ==========================
+// Import Cron Jobs
+// ==========================
+import "./cron/shiprocketSync.js";
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 

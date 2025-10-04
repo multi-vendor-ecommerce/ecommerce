@@ -58,10 +58,13 @@ const orderSchema = new Schema(
         shiprocketOrderId: { type: String, default: "" },
         shiprocketShipmentId: { type: String, default: "" },
         shiprocketAWB: { type: String, default: "" },
+        shiprocketStatus: { type: String, default: "" },
         courierName: { type: String, default: "" },
+        shiprocketStatusCode: { type: Number, default: null },
         labelUrl: { type: String, default: "" },
         invoiceUrl: { type: String, default: "" },
         manifestUrl: { type: String, default: "" },
+        trackingData: { type: Schema.Types.Mixed, default: null },
       }
     ],
 
