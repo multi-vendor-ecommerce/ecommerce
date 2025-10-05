@@ -51,7 +51,7 @@ const InfiniteScroller = ({
         next={loadMore}
         hasMore={hasMore}
         loader={
-          <div className="w-full h-64 flex items-center justify-center">
+          <div className="w-[100vw] h-64 flex items-center justify-center">
             <Spinner />
           </div>
         }

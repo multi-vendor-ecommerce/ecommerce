@@ -6,8 +6,8 @@ const ProductState = ({ children }) => {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
+  const host = "http://localhost:5000";
 
   // Role + Token utility
   const getRoleInfo = () => {
@@ -287,6 +287,58 @@ const ProductState = ({ children }) => {
     }
   };
 
+  // Search & filter products (customer only)
+  const searchProducts = async ({
+    q = "",
+    minPrice = "",
+    maxPrice = "",
+    category = "",
+    brand = "",
+    colors = "",
+    sizes = "",
+    tags = "",
+    sort = "",
+    page = 1,
+    limit = 20,
+  } = {}) => {
+    // force customer role for search (only approved products are shown)
+    const role = "customer";
+
+    try {
+      setLoading(true);
+
+      const params = new URLSearchParams({ page, limit });
+
+      if (q.trim()) params.append("q", q);
+      if (minPrice) params.append("minPrice", minPrice);
+      if (maxPrice) params.append("maxPrice", maxPrice);
+      if (category) params.append("category", category);
+      if (brand) params.append("brand", brand);       // multiple allowed: Nike,Adidas
+      if (colors) params.append("colors", colors);   // multiple allowed: red,blue
+      if (sizes) params.append("sizes", sizes);      // multiple allowed: M,L
+      if (tags) params.append("tags", tags);         // multiple allowed: trending,new
+      if (sort) params.append("sort", sort);         // priceLow, priceHigh, rating
+
+      const url = `${host}/api/products/search?${params.toString()}`;
+
+      const res = await fetch(url, { method: "GET" });
+      if (!res.ok) throw new Error("Failed to fetch products.");
+
+      const data = await res.json();
+
+      if (data.success) {
+        setProducts(data.products);
+        setTotalCount(data.total);
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error searching products:", error);
+      return { products: [], total: 0, success: false, message: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   return (
@@ -303,7 +355,8 @@ const ProductState = ({ children }) => {
         editProduct,
         deleteProduct,
         updateProductStatus,
-        getRecentlyViewedProducts
+        getRecentlyViewedProducts,
+        searchProducts
       }}
     >
       {children}

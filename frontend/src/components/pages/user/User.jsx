@@ -14,6 +14,7 @@ import OrderSummary from "./Order/OrderSummary";
 import MyOrdersList from "./Order/MyOrders/MyOrdersList";
 import MyOrderDetails from "./Order/MyOrders/MyOrderDetails";
 import WishlistPage from "./Wishlist/WishlistPage";
+import SearchPage from "./Home/SearchPage";
 
 import Help from "./UserFooter/Help/Help";
 import Contact from "./UserFooter/Contact";
@@ -93,6 +94,7 @@ export default function User() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/search" element={<SearchPage />} />
 
             <Route path="/help" element={<Help />} />
             <Route path="/contact" element={<Contact />} />

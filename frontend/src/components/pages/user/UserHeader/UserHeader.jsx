@@ -103,7 +103,7 @@ function UserHeader() {
             <button
               type="button"
               onClick={handleSearch}
-              className="bg-[#2E7D32] px-3 text-white font-semibold rounded-r-md"
+              className="bg-[#2E7D32] px-3 text-white font-semibold rounded-r-md  cursor-pointer hover:bg-green-800 transition-colors"
             >
               <FaSearch />
             </button>
