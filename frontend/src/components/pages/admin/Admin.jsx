@@ -27,8 +27,7 @@ import ApproveVendor from "./adminVendor/ApproveVendor";
 import EditVendor from "./adminVendor/EditVendor";
 import EditProduct from "../adminVendorCommon/product/EditProduct";
 import DeleteProductRequest from "./adminProducts/DeleteProductRequest";
-import Invoices from "../adminVendorCommon/invoices/Invoices";
-import VendorInvoicesPage from "../adminVendorCommon/invoices/VendorInvoicesPage";
+import ManageOrders from "../adminVendorCommon/orders/ManageOrders";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);
@@ -66,8 +65,7 @@ const Admin = () => {
               <Route path="order-details/:orderId" element={<OrderDetails role={role} />} />
             </Route>
 
-            <Route path="invoices" element={<Invoices role={role} />} />
-            <Route path=":invoiceId/vendor-invoices" element={<VendorInvoicesPage />} />
+            <Route path="manage-orders" element={<ManageOrders />} />
 
             <Route path="all-customers" element={<Customers />} />
             <Route path="coupons" element={<CouponsManager />} />

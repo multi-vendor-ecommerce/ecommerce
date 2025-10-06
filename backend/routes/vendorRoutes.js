@@ -34,7 +34,7 @@ export const editVendorStatusValidator = [
     .withMessage("Invalid status value"),
 
   body("review")
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .customSanitizer((value) =>
       sanitizeHtml(value, {

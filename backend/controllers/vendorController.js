@@ -202,13 +202,15 @@ export const updateVendorStatus = async (req, res) => {
     const result = await Product.updateMany(productMatch, productUpdate);
 
     // Save a review record
-    await Review.create({
-      targetId: vendor?._id,
-      targetType: toTitleCase("vendor"),
-      adminId: req?.person.id,
-      status: vendor?.status,
-      review
-    });
+    if (!["active", "pending"].includes(status) && review) {
+      await Review.create({
+        targetId: vendor?._id,
+        targetType: toTitleCase("vendor"),
+        adminId: req?.person.id,
+        status: vendor?.status,
+        review
+      });
+    }
 
     // Send status email to vendor using safeSendMail
     if (status !== "pending" && status !== "") {

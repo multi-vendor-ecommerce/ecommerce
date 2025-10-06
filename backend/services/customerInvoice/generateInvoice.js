@@ -25,7 +25,7 @@ export async function generateInvoice(order, user) {
   validateInvoicePayload(payload);
 
   const buffer = await callInvoiceApi(payload);
-  const invoiceUrl = await saveInvoice(buffer, invoiceNumber, "customer");
+  const invoiceUrl = await saveInvoice(buffer, invoiceNumber);
 
   return { url: invoiceUrl };
 }
