@@ -58,6 +58,7 @@ const orderSchema = new Schema(
         shiprocketOrderId: { type: String, default: "" },
         shiprocketShipmentId: { type: String, default: "" },
         shiprocketAWB: { type: String, default: "" },
+        originalShiprocketStatus: { type: String, default: "" },
         shiprocketStatus: { type: String, default: "" },
         courierName: { type: String, default: "" },
         shiprocketStatusCode: { type: Number, default: null },

@@ -7,16 +7,16 @@ export const orderFilterFields = [
   },
   {
     name: "status",
-    label: "Order Status",
+    label: "Status",
     type: "select",
     options: [
       { value: "", label: "All" },
-      { value: "pending", label: "Pending" },
-      { value: "processing", label: "Processing" },
-      { value: "shipped", label: "Shipped" },
-      { value: "delivered", label: "Delivered" },
-      { value: "cancelled", label: "Cancelled" }
-
+      { value: "New / Ready to Ship", label: "New / Ready to Ship" },
+      { value: "Pickups / Manifests", label: "Pickups / Manifests" },
+      { value: "In Transit", label: "In Transit" },
+      { value: "Delivered", label: "Delivered" },
+      { value: "RTO", label: "RTO" },
+      { value: "Exceptions", label: "Exceptions" },
     ]
   },
   {

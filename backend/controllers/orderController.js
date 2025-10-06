@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Product from "../models/Products.js";
-import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { getShippingInfoForOrder } from "../utils/getShippingInfo.js";
 import { round2 } from "../utils/round2.js";
@@ -211,7 +210,7 @@ export const getAllOrders = async (req, res) => {
     }
 
     // Build query for status and paymentMethod only
-    query = buildQuery(req.query, ["paymentMethod"], "orderStatus");
+    query = buildQuery(req.query, ["paymentMethod"], ["orderStatus", "orderItems.shiprocketStatus"]);
 
     if (role === "customer") {
       query.user = req.person.id;

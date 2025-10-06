@@ -1,7 +1,7 @@
 // ==========================
 // Build MongoDB Query from Parameters
 // ==========================
-const buildQuery = (params, searchFields = [], statusField = "status") => {
+const buildQuery = (params, searchFields = [], statusFields = ["status"]) => {
   const { search, date, status } = params;
   const query = {};
 
@@ -27,8 +27,12 @@ const buildQuery = (params, searchFields = [], statusField = "status") => {
   }
 
   // Flexible status field
-  if (status) {
-    query[statusField] = status;
+  if (status && Array.isArray(statusFields)) {
+    if (statusFields.length === 1) {
+      query[statusFields[0]] = status;
+    } else {
+      query.$or = statusFields.map(field => ({ [field]: status }));
+    }
   }
 
   return query;
