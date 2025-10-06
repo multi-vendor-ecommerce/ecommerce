@@ -1,7 +1,7 @@
 import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
-import { getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor, reactivateVendorAccount, vendorPlaceOrder } from "../controllers/vendorController.js";
+import { getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor, reactivateVendorAccount, vendorPlaceOrder, cancelVendorOrder } from "../controllers/vendorController.js";
 import { body } from "express-validator";
 import { validate } from "../middleware/validateFields.js";
 import upload from "../middleware/multer.js";
@@ -76,10 +76,11 @@ router.get("/:id", verifyToken, authorizeRoles("admin"), getVendorById);
 // Desc: Admin edit vendor details (admin only)
 router.put("/:id", verifyToken, authorizeRoles("admin"), editVendorValidator, validate, adminEditVendor);
 
-
 // shiprocket api : --------------
 
 // Vendor can only place their own items
 router.put("/create-order/:id", verifyToken, authorizeRoles("vendor"), vendorPlaceOrder);
+
+router.get("/cancel-order/:id", verifyToken, authorizeRoles("vendor", "admin"), cancelVendorOrder);
 
 export default router;

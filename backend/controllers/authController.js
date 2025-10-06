@@ -22,6 +22,10 @@ export const registerPerson = async (req, res) => {
     shopName = shopName ? toTitleCase(shopName?.trim()) : "";
     gstNumber = gstNumber?.trim().toUpperCase();
 
+    if (role === "admin") {
+      return res.status(403).json({ success: false, message: "Admin registration not allowed." });
+    }
+
     // Address destructuring
     const {
       name: recipientName = "",
@@ -65,10 +69,7 @@ export const registerPerson = async (req, res) => {
     if (password !== confirmPassword) {
       return res.status(400).json({ success: false, message: "Passwords do not match." });
     }
-    if (role === "admin") {
-      return res.status(403).json({ success: false, message: "Admin registration not allowed." });
-    }
-
+    
     // Check for existing email
     let existing = await Person.findOne({ email });
 
@@ -162,7 +163,7 @@ export const registerPerson = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: `${toTitleCase(person.role)} registered.`,
+      message: `Congratulations! You have registered successfully.`,
       data: { authToken, role: person.role },
     });
   } catch (err) {
@@ -208,7 +209,7 @@ export const loginPerson = async (req, res) => {
       message: person.status === "inactive" ? "Your account is inactive. Request for activation."
       : person.status === "pending" ? "Your account is pending approval. Please wait."
       : person.status === "rejected" || person.status === "suspended" ? `Your account registration was ${person.status}. Contact support.`
-      : `${toTitleCase(person.role)} login successful.`,
+      : `Logged in successfully.`,
       data: { authToken, role: person.role, status: person.status },
     });
   } catch (err) {

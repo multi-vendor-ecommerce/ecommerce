@@ -46,12 +46,13 @@ async function createOrder(orderPayload) {
     body: JSON.stringify(orderPayload),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Shiprocket order creation failed: ${JSON.stringify(errorData)}`);
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
   }
 
-  return await response.json();
+  return data;
 }
 
 async function addPickup(pickupPayload) {
@@ -66,12 +67,13 @@ async function addPickup(pickupPayload) {
     body: JSON.stringify(pickupPayload),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Shiprocket add pickup failed: ${JSON.stringify(errorData)}`);
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
   }
 
-  return await response?.json();
+  return data;
 }
 
 async function getPickups() {
@@ -84,12 +86,13 @@ async function getPickups() {
     },
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Shiprocket get pickups failed: ${JSON.stringify(errorData)}`);
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
   }
 
-  return await response.json();
+  return data;
 }
 
 // client.js
@@ -106,16 +109,22 @@ export async function assignAWB(shipment_id) {
     body: JSON.stringify({ shipment_id }),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Shiprocket AWB assignment failed: ${JSON.stringify(errorData)}`);
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
   }
 
-  return await response.json();
+  return data;
 }
 
-async function generateDocuments(shipment_id, order_id) {
-  if (!shipment_id) throw new Error("Shipment ID required for document generation");
+async function generateDocuments(shipmentIds, orderIds) {
+  if (
+    !shipmentIds ||
+    (Array.isArray(shipmentIds) && shipmentIds.length === 0)
+  ) {
+    throw new Error("At least one shipment ID is required for document generation");
+  }
 
   const token = await getAdminToken();
   const headers = {
@@ -123,32 +132,36 @@ async function generateDocuments(shipment_id, order_id) {
     Authorization: `Bearer ${token}`,
   };
 
+  // Ensure both are arrays
+  const shipmentArray = Array.isArray(shipmentIds) ? shipmentIds : [shipmentIds];
+  const orderArray = Array.isArray(orderIds) ? orderIds : [orderIds];
+
   // Generate Label
   const labelRes = await fetch(`${SR_BASE_URL}/courier/generate/label`, {
     method: "POST",
     headers,
-    body: JSON.stringify({ shipment_id: [shipment_id] }),
-  }).then(res => res.json());
+    body: JSON.stringify({ shipment_id: shipmentArray }),
+  }).then((res) => res.json());
 
   // Generate Invoice
   const invoiceRes = await fetch(`${SR_BASE_URL}/orders/print/invoice`, {
     method: "POST",
     headers,
-    body: JSON.stringify({ ids: [order_id] }),
-  }).then(res => res.json());
+    body: JSON.stringify({ ids: orderArray }),
+  }).then((res) => res.json());
 
   // Generate Manifest
   const manifestRes = await fetch(`${SR_BASE_URL}/manifests/generate`, {
     method: "POST",
     headers,
-    body: JSON.stringify({ shipment_id: [shipment_id] }),
-  }).then(res => res.json());
+    body: JSON.stringify({ shipment_id: shipmentArray }),
+  }).then((res) => res.json());
 
   return {
     labelUrl: labelRes?.label_url || null,
     invoiceUrl: invoiceRes?.invoice_url || null,
     manifestUrl: manifestRes?.manifest_url || null,
-    raw: { labelRes, invoiceRes, manifestRes }, // keep raw responses for debugging
+    raw: { labelRes, invoiceRes, manifestRes },
   };
 }
 
@@ -166,15 +179,39 @@ async function trackShipment(shipment_id) {
     },
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(errorData)}`);
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
   }
 
-  return await response.json();
+  return data;
 }
 
-// Export it along with the other functions
+async function cancelOrder(ids) {
+  if (!ids || (Array.isArray(ids) && ids.length === 0)) {
+    throw new Error("At least one order ID is required to cancel");
+  }
+
+  const token = await getAdminToken();
+  const response = await fetch(`${SR_BASE_URL}/orders/cancel`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ ids: Array.isArray(ids) ? ids : [ids] }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
+  }
+
+  return data;
+}
+
 export const ShiprocketClient = {
   getAdminToken,
   createOrder,
@@ -183,4 +220,5 @@ export const ShiprocketClient = {
   assignAWB,
   generateDocuments,
   trackShipment,
+  cancelOrder,
 };

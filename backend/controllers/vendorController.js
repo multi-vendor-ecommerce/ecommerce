@@ -8,6 +8,7 @@ import { setNestedValueIfAllowed } from "../utils/setNestedValueIfAllowed.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
 import Order from "../models/Order.js";
 import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
+import { ShiprocketClient } from "../services/shiprocket/client.js"
 
 // ==========================
 // Get all vendors (paginated)
@@ -457,7 +458,7 @@ export const vendorPlaceOrder = async (req, res) => {
         arrayFilters: [{ "item.createdBy": vendorId }]
       }
     );
-    
+
     if (!updatedOrder) {
       return res.status(500).json({
         success: false,
@@ -478,6 +479,115 @@ export const vendorPlaceOrder = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to place vendor order.",
+      error: err.message,
+    });
+  }
+};
+
+export const cancelVendorOrder = async (req, res) => {
+  const orderId = req.params.id;
+
+  try {
+    // ✅ Access control
+    if (req.person.role !== "vendor" && req.person.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Only vendors and admins can cancel their orders.",
+      });
+    }
+
+    if (!orderId) {
+      return res.status(400).json({
+        success: false,
+        message: "Order ID is required.",
+      });
+    }
+
+    // ✅ Fetch the order with product details
+    const order = await Order.findById(orderId).populate("orderItems.product");
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    const role = req.person.role;
+    const userId = req.person.id;
+
+    // ✅ Determine which items can be cancelled
+    const itemsToCancel =
+      role === "admin"
+        ? order.orderItems // admin can cancel all
+        : order.orderItems.filter(
+          (item) => item.product.createdBy?.toString() === userId
+        );
+
+    if (!itemsToCancel.length) {
+      return res.status(403).json({
+        success: false,
+        message:
+          role === "vendor"
+            ? "No items in this order belong to you."
+            : "No cancellable items found.",
+      });
+    }
+
+    // ✅ Check if those items are already cancelled
+    const alreadyCancelled = itemsToCancel.every(
+      (item) => item.shiprocketStatus === "Cancelled"
+    );
+    if (alreadyCancelled) {
+      return res.status(400).json({
+        success: false,
+        message: "These items are already cancelled.",
+      });
+    }
+
+    // ✅ Cancel Shiprocket orders
+    for (const item of itemsToCancel) {
+      try {
+        if (item.shiprocketOrderId) {
+          const shiprocketResult = await ShiprocketClient.cancelOrder(
+            item.shiprocketOrderId
+          );
+          console.log("✅ Shiprocket cancelled:", shiprocketResult);
+          item.shiprocketStatus = "Cancelled";
+        } else {
+          item.shiprocketStatus = "Cancelled"; // local cancel only
+        }
+      } catch (cancelErr) {
+        console.error(
+          `❌ Shiprocket cancel failed for ${item.shiprocketOrderId}:`,
+          cancelErr.message
+        );
+        item.shiprocketStatus = "CancelFailed";
+      }
+    }
+
+    // ✅ Check if full order is cancelled
+    const allCancelled = order.orderItems.every(
+      (item) => item.shiprocketStatus === "Cancelled"
+    );
+    if (allCancelled) order.orderStatus = "cancelled";
+
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        role === "admin"
+          ? "Order cancelled successfully by admin."
+          : allCancelled
+            ? "Entire order cancelled successfully."
+            : "Vendor's items cancelled successfully.",
+      order,
+    });
+  } catch (err) {
+    console.error("Vendor cancel order error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to cancel order.",
       error: err.message,
     });
   }

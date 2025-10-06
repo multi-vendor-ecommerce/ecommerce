@@ -19,12 +19,18 @@ const Login = ({ loginRole }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleRoleAndNavigate = (role) => {
-    if (loginRole !== role) {
+  const handleRoleValidationAndToast = (result) => {
+    if (loginRole !== result.role) {
       toast.error("Invalid role. Please login through the correct portal.");
+      localStorage.removeItem(`${result.role}Token`);
       return false;
+    } else {
+      toast.success(result.message);
+      return true;
     }
+  };
 
+  const handleRoleAndNavigate = (role) => {
     if (role === "admin") navigate("/admin");
     else if (role === "vendor") navigate("/vendor");
     else navigate(redirectPath, { replace: true });
@@ -37,7 +43,8 @@ const Login = ({ loginRole }) => {
 
     const result = await login(form.email, form.password);
     if (result.success) {
-      toast.success(result.message || "Login successful!");
+      if (!handleRoleValidationAndToast(result)) return;
+
       setTimeout(() => handleRoleAndNavigate(result.role), 500);
     } else {
       toast.error(result.error || "Login failed");
@@ -68,7 +75,7 @@ const Login = ({ loginRole }) => {
 
     const result = await verifyOtp(form.email, form.otp);
     if (result.success) {
-      toast.success(result.message || "OTP verified! Logging you in...");
+      if (!handleRoleValidationAndToast(result)) return;
       setTimeout(() => handleRoleAndNavigate(result.role), 500);
     } else {
       toast.error(result.error || result.message || "OTP verification failed");
