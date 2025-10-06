@@ -212,6 +212,30 @@ async function cancelOrder(ids) {
   return data;
 }
 
+async function returnOrder(returnPayload) {
+  if (!returnPayload || !returnPayload.order_id) {
+    throw new Error("Valid return payload with order ID is required for return");
+  }
+  const token = await getAdminToken();
+
+  const response = await fetch(`${SR_BASE_URL}/orders/create/return`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ returnPayload }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(`Shiprocket return order failed: ${JSON.stringify(data)}`);
+  }
+
+  return data;
+}
+
 export const ShiprocketClient = {
   getAdminToken,
   createOrder,
@@ -221,4 +245,5 @@ export const ShiprocketClient = {
   generateDocuments,
   trackShipment,
   cancelOrder,
+  returnOrder,
 };

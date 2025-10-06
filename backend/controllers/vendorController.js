@@ -8,7 +8,8 @@ import { setNestedValueIfAllowed } from "../utils/setNestedValueIfAllowed.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
 import Order from "../models/Order.js";
 import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
-import { ShiprocketClient } from "../services/shiprocket/client.js"
+import { cancelShiprocketOrders } from "../services/shiprocket/cancel.js";
+import { returnOrderToShiprocket } from "../services/shiprocket/return.js";
 
 // ==========================
 // Get all vendors (paginated)
@@ -407,26 +408,26 @@ export const vendorPlaceOrder = async (req, res) => {
   const { packageLength, packageBreadth, packageHeight, packageWeight } = req.body;
   const orderId = req.params.id;
 
+  if (!orderId) {
+    return res.status(400).json({ success: false, message: "Order ID is required." });
+  }
+
+  // Validate packaging fields
+  if (!packageLength || !packageBreadth || !packageHeight || !packageWeight) {
+    return res.status(400).json({
+      success: false,
+      message: "Package length, breadth, height, and weight are required.",
+    });
+  }
+
+  if (packageLength <= 0 || packageBreadth <= 0 || packageHeight <= 0 || packageWeight <= 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Package dimensions and weight must be greater than zero.",
+    });
+  }
+
   try {
-    if (!orderId) {
-      return res.status(400).json({ success: false, message: "Order ID is required." });
-    }
-
-    // Validate packaging fields
-    if (!packageLength || !packageBreadth || !packageHeight || !packageWeight) {
-      return res.status(400).json({
-        success: false,
-        message: "Package length, breadth, height, and weight are required.",
-      });
-    }
-
-    if (packageLength <= 0 || packageBreadth <= 0 || packageHeight <= 0 || packageWeight <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Package dimensions and weight must be greater than zero.",
-      });
-    }
-
     // Fetch order
     const order = await Order.findById(orderId).populate("orderItems.product");
     if (!order) {
@@ -488,87 +489,51 @@ export const cancelVendorOrder = async (req, res) => {
   const orderId = req.params.id;
 
   try {
+    const { role, id: userId } = req.person;
+
     // ✅ Access control
-    if (req.person.role !== "vendor" && req.person.role !== "admin") {
+    if (role !== "vendor" && role !== "admin") {
       return res.status(403).json({
         success: false,
-        message: "Only vendors and admins can cancel their orders.",
+        message: "Only vendors and admins can cancel orders.",
       });
     }
 
     if (!orderId) {
-      return res.status(400).json({
-        success: false,
-        message: "Order ID is required.",
-      });
+      return res.status(400).json({ success: false, message: "Order ID is required." });
     }
 
-    // ✅ Fetch the order with product details
     const order = await Order.findById(orderId).populate("orderItems.product");
     if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found.",
-      });
+      return res.status(404).json({ success: false, message: "Order not found." });
     }
 
-    const role = req.person.role;
-    const userId = req.person.id;
-
-    // ✅ Determine which items can be cancelled
+    // ✅ Determine cancellable items
     const itemsToCancel =
       role === "admin"
-        ? order.orderItems // admin can cancel all
-        : order.orderItems.filter(
-          (item) => item.product.createdBy?.toString() === userId
-        );
+        ? order.orderItems
+        : order.orderItems.filter(item => item.product.createdBy?.toString() === userId);
 
     if (!itemsToCancel.length) {
       return res.status(403).json({
         success: false,
-        message:
-          role === "vendor"
-            ? "No items in this order belong to you."
-            : "No cancellable items found.",
+        message: role === "vendor"
+          ? "No items in this order belong to you."
+          : "No cancellable items found.",
       });
     }
 
-    // ✅ Check if those items are already cancelled
-    const alreadyCancelled = itemsToCancel.every(
-      (item) => item.shiprocketStatus === "Cancelled"
-    );
+    // ✅ Check if already cancelled
+    const alreadyCancelled = itemsToCancel.every(item => item.shiprocketStatus === "Cancelled");
     if (alreadyCancelled) {
-      return res.status(400).json({
-        success: false,
-        message: "These items are already cancelled.",
-      });
+      return res.status(400).json({ success: false, message: "These items are already cancelled." });
     }
 
-    // ✅ Cancel Shiprocket orders
-    for (const item of itemsToCancel) {
-      try {
-        if (item.shiprocketOrderId) {
-          const shiprocketResult = await ShiprocketClient.cancelOrder(
-            item.shiprocketOrderId
-          );
-          console.log("✅ Shiprocket cancelled:", shiprocketResult);
-          item.shiprocketStatus = "Cancelled";
-        } else {
-          item.shiprocketStatus = "Cancelled"; // local cancel only
-        }
-      } catch (cancelErr) {
-        console.error(
-          `❌ Shiprocket cancel failed for ${item.shiprocketOrderId}:`,
-          cancelErr.message
-        );
-        item.shiprocketStatus = "CancelFailed";
-      }
-    }
+    // ✅ Cancel Shiprocket orders via service
+    await cancelShiprocketOrders(itemsToCancel);
 
-    // ✅ Check if full order is cancelled
-    const allCancelled = order.orderItems.every(
-      (item) => item.shiprocketStatus === "Cancelled"
-    );
+    // ✅ Update overall order status if all items cancelled
+    const allCancelled = order.orderItems.every(item => item.shiprocketStatus === "Cancelled");
     if (allCancelled) order.orderStatus = "cancelled";
 
     await order.save();
@@ -583,12 +548,61 @@ export const cancelVendorOrder = async (req, res) => {
             : "Vendor's items cancelled successfully.",
       order,
     });
+
   } catch (err) {
-    console.error("Vendor cancel order error:", err);
+    console.error("Cancel order error:", err);
     return res.status(500).json({
       success: false,
       message: "Failed to cancel order.",
       error: err.message,
     });
+  }
+};
+
+
+export const returnOrderRequest = async (req, res) => {
+  const orderId = req.params.id;
+  if (req.person.role !== "vendor" && req.person.role !== "admin") {
+    return res.status(403).json({
+      success: false,
+      message: "Only vendors and admins can request returns for their orders.",
+    });
+  }
+
+  if (!orderId) {
+    return res.status(400).json({
+      success: false,
+      message: "Order ID is required.",
+    });
+  }
+
+  try {
+    const order = await Order.findById(orderId).populate("orderItems.product");
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    const vendorId = req.person.role === "vendor" ? req.person.id : null;
+
+    // Filter vendor items (or all items if admin)
+    const vendorItems = order.orderItems.filter(
+      item => !vendorId || item.product.createdBy?.toString() === vendorId
+    );
+
+    const anyUndelivered = vendorItems.some(item => item.shiprocketStatus !== "Delivered");
+    if (anyUndelivered) {
+      return res.status(400).json({
+        success: false,
+        message: "You can only request returns for delivered items.",
+      });
+    }
+
+    const result = await returnOrderToShiprocket(orderId, vendorId);
+    res.status(200).json({ success: true, result });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to return order.", error: err.message });
   }
 };
