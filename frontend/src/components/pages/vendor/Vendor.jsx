@@ -21,7 +21,6 @@ import Loader from "../../common/Loader";
 import VendorStatus from "./vendorStatus/VendorStatus";
 import EditProduct from "../adminVendorCommon/product/EditProduct";
 import { toTitleCase } from "../../../utils/titleCase";
-import ManageOrders from "../adminVendorCommon/orders/ManageOrders";
 
 const Vendor = () => {
   const { authTokens } = useContext(AuthContext);
@@ -72,8 +71,6 @@ const Vendor = () => {
               <Route index element={<Orders role={role} />} />
               <Route path="order-details/:orderId" element={<OrderDetails role={role} />} />
             </Route>
-
-            <Route path="manage-orders" element={<ManageOrders />} />
 
             <Route path="all-customers" element={<Customers />} />
 

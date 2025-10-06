@@ -27,7 +27,6 @@ import ApproveVendor from "./adminVendor/ApproveVendor";
 import EditVendor from "./adminVendor/EditVendor";
 import EditProduct from "../adminVendorCommon/product/EditProduct";
 import DeleteProductRequest from "./adminProducts/DeleteProductRequest";
-import ManageOrders from "../adminVendorCommon/orders/ManageOrders";
 
 const Admin = () => {
   const { authTokens } = useContext(AuthContext);
@@ -64,8 +63,6 @@ const Admin = () => {
               <Route index element={<Orders role={role} />} />
               <Route path="order-details/:orderId" element={<OrderDetails role={role} />} />
             </Route>
-
-            <Route path="manage-orders" element={<ManageOrders />} />
 
             <Route path="all-customers" element={<Customers />} />
             <Route path="coupons" element={<CouponsManager />} />
