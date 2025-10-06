@@ -12,7 +12,8 @@ const Button = ({
   text, 
   onClick, 
   className = "", 
-  disabled = false, 
+  disabled = false,
+  active = false,
   type = "button", 
   color = "blue" 
 }) => {
@@ -23,6 +24,7 @@ const Button = ({
       disabled={disabled}
       className={`flex items-center gap-2 px-2.5 md:px-4 border font-semibold rounded-lg transition duration-150
         ${disabled ? "opacity-50 cursor-not-allowed" : `${COLORS[color]} hover:text-white cursor-pointer`}
+        ${active && `bg-green-600 border-green-500 text-white hover:bg-green-700` }
         ${className}`}
     >
       {Icon && <Icon size={20} />}

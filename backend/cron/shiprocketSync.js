@@ -4,13 +4,15 @@ import Order from "../models/Order.js";
 
 cron.schedule("0 */6 * * *", async () => {
   console.log("🔄 Syncing Shiprocket shipments...");
-  const orders = await Order.find({ "items.shiprocketShipmentId": { $exists: true } });
+  const orders = await Order.find({ "orderItems.shiprocketShipmentId": { $exists: true } });
   for (const order of orders) {
-    for (const item of order.items) {
+    for (const item of order.orderItems) {
       if (item.shiprocketShipmentId) {
         const tracking = await ShiprocketClient.trackShipment(item.shiprocketShipmentId);
         item.trackingData = tracking;
-        item.currentStatus = tracking?.tracking_data?.shipment_status || item.currentStatus;
+        const rawStatus = tracking?.tracking_data?.shipment_status;
+        item.originalShiprocketStatus = rawStatus;
+        item.shiprocketStatus = getHighLevelStatus(rawStatus) || item.shiprocketStatus;
       }
     }
     await order.save();

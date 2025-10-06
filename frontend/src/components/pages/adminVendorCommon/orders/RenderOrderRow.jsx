@@ -75,9 +75,9 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
     {/* Order Status */}
     <td
       className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150"
-      title={role === "vendor" ? order.shiprocketStatus : order.orderStatus}
+      title={role === "vendor" ? (toTitleCase(order?.orderItems?.[0]?.originalShiprocketStatus) || order.orderStatus) : order.orderStatus}
     >
-      <StatusChip status={role === "vendor" ? order.shiprocketStatus : order.orderStatus} />
+      <StatusChip status={role === "vendor" ? (toTitleCase(order?.orderItems?.[0]?.originalShiprocketStatus) || order.orderStatus) : order?.orderStatus} />
     </td>
 
     {/* Total Amount */}

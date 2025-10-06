@@ -7,7 +7,8 @@ export const shippingStatusMap = {
     "FC Manifest Generated",
     "Shipment Booked",
     "Box Packing",
-    "FC Allocated"
+    "FC Allocated",
+    "Invoiced"
   ],
   PICKUPS_MANIFESTS: [
     "Picked Up",

@@ -8,11 +8,15 @@ import OrderContext from "../../../../context/orders/OrderContext";
 import Loader from "../../../common/Loader";
 import FilterBar from "../../../common/FilterBar";
 import BackButton from "../../../common/layout/BackButton";
+import TabBar from "../../../common/TabBar"; // <- updated TabBar import
+import { SHIPROCKET_TABS } from "./data/orderFilterFields";
+import { toTitleCase } from "../../../../utils/titleCase";
 
 export default function Orders({ role = "admin", vendorId = null }) {
   const { orders, getAllOrders, loading, totalCount } = useContext(OrderContext);
 
   const [filters, setFilters] = useState({ search: "", status: "", date: "" });
+  const [activeTab, setActiveTab] = useState(""); // active tab state
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -25,6 +29,14 @@ export default function Orders({ role = "admin", vendorId = null }) {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleTabChange = (tabKey) => {
+    const formattedTabKey = toTitleCase(tabKey);
+    setActiveTab(formattedTabKey);
+    setFilters((prev) => ({ ...prev, status: formattedTabKey }));
+    setPage(1);
+    getAllOrders({ ...filters, status: tabKey, vendorId, page: 1, limit: itemsPerPage });
+  };
+
   const handleApply = () => {
     setPage(1);
     getAllOrders({ ...filters, vendorId, page: 1, limit: itemsPerPage });
@@ -33,18 +45,13 @@ export default function Orders({ role = "admin", vendorId = null }) {
   const handleClear = () => {
     const cleared = { search: "", status: "", date: "" };
     setFilters(cleared);
+    setActiveTab(""); // reset active tab
     setPage(1);
     getAllOrders({ ...cleared, vendorId, page: 1, limit: itemsPerPage });
   };
 
-  const handlePageChange = (pg) => {
-    setPage(pg);
-  };
-
-  const handleItemsPerPageChange = (limit) => {
-    setItemsPerPage(limit);
-    setPage(1);
-  };
+  const handlePageChange = (pg) => setPage(pg);
+  const handleItemsPerPageChange = (limit) => { setItemsPerPage(limit); setPage(1); };
 
   const headers = [
     "Order ID",
@@ -87,6 +94,16 @@ export default function Orders({ role = "admin", vendorId = null }) {
             onClear={handleClear}
           />
         </div>
+      </div>
+
+      {/* Vendor Shiprocket Tabs */}
+      <div>
+        <TabBar
+          tabs={SHIPROCKET_TABS}
+          activeTab={activeTab}
+          onChange={handleTabChange}
+          className="mb-4"
+        />
       </div>
 
       <PaginatedLayout
