@@ -138,21 +138,47 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // Cancel Order (Customer)
-  const cancelOrder = async (orderId) => {
-    const token = localStorage.getItem("customerToken");
+  const pushOrder = async (id, formData) => {
+    setLoading(true);
     try {
-      const res = await fetch(`${host}/api/orders/cancel/${orderId}`, {
+      const res = await fetch(`${host}/api/orders/create-order/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("vendorToken"),
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch order");
+
+      return data;
+    } catch (err) {
+      console.error("Error fetching order:", err);
+      return null;
+    }
+  }
+
+  // Cancel Order (Customer)
+  const cancelOrder = async (id) => {
+    setLoading(true);
+    const { role } = getRoleInfo();
+
+    try {
+      const res = await fetch(`${host}/api/orders/cancel-order/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token,
+          "auth-token": role === "admin"
+            ? localStorage.getItem("adminToken")
+            : role === "vendor" ? localStorage.getItem("vendorToken")
+            : localStorage.getItem("customerToken"),
         },
       });
       const data = await res.json();
       return data;
     } catch (error) {
-      return { success: false, message: error.message || "Failed to cancel order"};
+      return { success: false, message: error.message || "Failed to cancel order" };
     }
   };
 
@@ -165,6 +191,7 @@ const OrderState = ({ children }) => {
       getAllOrders,
       getOrderById,
       getUserDraftOrderById,
+      pushOrder,
       cancelOrder
     }}>
       {children}

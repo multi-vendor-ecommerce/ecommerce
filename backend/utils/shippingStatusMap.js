@@ -1,4 +1,7 @@
 export const shippingStatusMap = {
+  pushed_order: [
+    "new"
+  ],
   new_ready_to_ship: [
     "processed at warehouse",
     "picklist generated",

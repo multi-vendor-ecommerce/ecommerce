@@ -1,0 +1,36 @@
+export const pushOrderFields = [
+  {
+    label: "Package Length (cm)",
+    name: "packageLength",
+    placeholder: "Enter package length in centimeters",
+    title: "Enter package length in centimeters",
+    required: true,
+    min: 0,
+  },
+  {
+    label: "Package Breadth (cm)",
+    name: "packageBreadth",
+    placeholder: "Enter package breadth in centimeters",
+    title: "Enter package breadth in centimeters",
+    type: "number",
+    required: true,
+    min: 0,
+  },
+  {
+    label: "Package Height (cm)",
+    name: "packageHeight",
+    placeholder: "Enter package height in centimeters",
+    title: "Enter package height in centimeters",
+    type: "number",
+    min: 0,
+  },
+  {
+    label: "Package Weight (gm)",
+    name: "packageWeight",
+    placeholder: "Enter package weight in grams",
+    title: "Enter package weight in grams",
+    type: "number",
+    required: true,
+    min: 0,
+  },
+]

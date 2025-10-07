@@ -11,16 +11,19 @@ import Button from "./Button";
  */
 const TabBar = ({ tabs = [], activeTab, onChange, className = "" }) => {
   return (
-    <div className={`flex gap-2 md:gap-4 flex-wrap ${className}`}>
-      {tabs.map(tab => (
-        <Button
-          key={tab.key}
-          text={tab.label}
-          onClick={() => onChange(tab.key)}
-          active={activeTab === tab.key}
-          className="py-1.5 text-[14.5px]"
-        />     
-      ))}
+    // outer wrapper enables horizontal scroll when tabs overflow
+    <div className={`overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 -mx-2 px-2 pb-4 ${className}`}>
+      <div className="flex gap-2 md:gap-4 whitespace-nowrap">
+        {tabs.map(tab => (
+          <Button
+            key={tab.key}
+            text={tab.label}
+            onClick={() => onChange(tab.key)}
+            active={activeTab === tab.key}
+            className="py-1.5 text-[14.5px] inline-block"
+          />
+        ))}
+      </div>
     </div>
   );
 };

@@ -454,7 +454,7 @@ export const placeOrder = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Vendor order placed successfully and sent to Shiprocket.",
+      message: "Vendor order placed successfully and awb generated.",
       order: finalOrder,
     });
   } catch (err) {

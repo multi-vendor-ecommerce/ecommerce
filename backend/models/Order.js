@@ -110,7 +110,7 @@ const orderSchema = new Schema(
     orderStatus: {
       type: String,
       default: "pending",
-      enum: ["pending", "processing", "shipped", "delivered", "cancelled"]
+      enum: ["pending", "processing", "shipped", "delivered", "cancelled", "returned", "refunded"]
     },
 
     source: {

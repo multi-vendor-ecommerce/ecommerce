@@ -7,6 +7,7 @@ import {
   FaBan,
   FaUserCheck,
   FaUserSlash,
+  FaClock,
 } from "react-icons/fa";
 import { FiClock } from "react-icons/fi";
 import { toTitleCase } from "../../../utils/titleCase";
@@ -17,7 +18,7 @@ const StatusChip = ({ status }) => {
   const map = {
     pending: {
       text: toTitleCase("pending"),
-      icon: <FaHourglassHalf size={13} className="text-yellow-600" />,
+      icon: <FaClock size={13} className="text-yellow-600" />,
       cls: "text-yellow-800 bg-yellow-100",
     },
     approved: {

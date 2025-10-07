@@ -20,6 +20,10 @@ export default function Orders({ role = "admin", vendorId = null }) {
   const [activeTab, setActiveTab] = useState("");
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [orderState, setOrderState] = useState({
+    isButtonClick: false,
+    orderId: ""
+  });
 
   // 🔹 Regular fetch (for Apply button, pagination, etc.)
   const fetchOrders = useCallback(() => {
@@ -92,6 +96,12 @@ export default function Orders({ role = "admin", vendorId = null }) {
     );
   }
 
+  const filteredFields = role === "vendor"
+    ? orderFilterFields.filter(
+        field => ["search", "date"].includes(field.name)
+      )
+    : orderFilterFields;
+
   return (
     <section className={`min-h-screen ${!vendorId && "bg-gray-100 p-6 shadow-md"}`}>
       {!vendorId && <BackButton />}
@@ -101,7 +111,7 @@ export default function Orders({ role = "admin", vendorId = null }) {
           <h2 className="text-xl md:text-2xl font-bold text-gray-800">All Orders</h2>
         )}
         <FilterBar
-          fields={orderFilterFields}
+          fields={filteredFields}
           values={filters}
           onChange={handleChange}
           onApply={handleApply}
@@ -109,14 +119,16 @@ export default function Orders({ role = "admin", vendorId = null }) {
         />
       </div>
 
-      <div>
-        <TabBar
-          tabs={shiprocketTabs}
-          activeTab={activeTab}
-          onChange={handleTabChange}
-          className="mt-10 mb-4"
-        />
-      </div>
+      {role === "vendor" && (
+        <div>
+          <TabBar
+            tabs={shiprocketTabs}
+            activeTab={activeTab}
+            onChange={handleTabChange}
+            className="mt-10 mb-2"
+          />
+        </div>
+      )}
 
       <PaginatedLayout
         totalItems={totalCount}
@@ -130,7 +142,7 @@ export default function Orders({ role = "admin", vendorId = null }) {
             <TabularData
               headers={headers}
               data={orders}
-              renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, role, vendorId)}
+              renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, role, vendorId, orderState, setOrderState)}
               emptyMessage="No orders found."
             />
           </div>
