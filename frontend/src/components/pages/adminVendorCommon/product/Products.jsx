@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import debounce from "lodash.debounce";
 import ProductContext from "../../../../context/products/ProductContext";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
@@ -44,6 +45,28 @@ export default function Products({ heading, role = "admin" }) {
       setTotalCount(result.total);
     }
   };
+
+  // 🔹 Debounced fetch for search field only
+  useEffect(() => {
+    if (filters.search.trim() !== "") {
+      const debounced = debounce(() => {
+        if (isTopSellingPage) {
+          fetchTopSelling(1, itemsPerPage, filters);
+        } else {
+          fetchPaginatedProducts(1, itemsPerPage, filters);
+        }
+      }, 500);
+      debounced();
+      return () => debounced.cancel();
+    } else {
+      // When search is cleared, reload immediately
+      if (isTopSellingPage) {
+        fetchTopSelling(1, itemsPerPage, filters);
+      } else {
+        fetchPaginatedProducts(1, itemsPerPage, filters);
+      }
+    }
+  }, [filters.search, itemsPerPage, isTopSellingPage]);
 
   const handleChange = (name, value) => {
     setFilters(prev => ({ ...prev, [name]: value }));

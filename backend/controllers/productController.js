@@ -493,13 +493,15 @@ export const deleteProduct = async (req, res) => {
       const review = req.body.review.trim() || "";
 
       // Save a review record
-      await Review.create({
-        targetId: product?._id,
-        targetType: toTitleCase("product"),
-        adminId: req?.person.id,
-        status: product?.status,
-        review
-      });
+      if (review && product.status === "deleted") {
+        await Review.create({
+          targetId: product?._id,
+          targetType: toTitleCase("product"),
+          adminId: req?.person.id,
+          status: product?.status,
+          review
+        });
+      }
 
       await Product.findByIdAndDelete(productId);
 
@@ -574,13 +576,15 @@ export const updateProductStatus = async (req, res) => {
       product.status = "approved"; // fallback to approved
       await product.save();
 
-      await Review.create({
-        targetId: product._id,
-        targetType: "Product",
-        adminId: req.person.id,
-        status: "deletionRejected",
-        review
-      });
+      if (review && !["active", "pending"].includes(product.status)) {
+        await Review.create({
+          targetId: product._id,
+          targetType: "Product",
+          adminId: req.person.id,
+          status: "deletionRejected",
+          review
+        });
+      }
 
       await safeSendMail(sendProductStatusMail, vendorInfo);
 
@@ -700,7 +704,7 @@ export const getPendingBuyNowProducts = async (req, res) => {
 export const searchProducts = async (req, res) => {
   try {
     const {
-      q, 
+      q,
       minPrice,
       maxPrice,
       category,

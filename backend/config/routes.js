@@ -11,7 +11,6 @@ import paymentRoutes from "../routes/paymentRoutes.js";
 import shippingAddressRoutes from "../routes/shippingAddressRoutes.js";
 import imageRoutes from "../routes/imageRoutes.js";
 import wishlistRoutes from "../routes/wishlistRoutes.js";
-import invoiceRoutes from "../routes/invoiceRoutes.js";
 import productReviewRoutes from "../routes/productReviewRoutes.js";
 import shiprocketRoutes from "../routes/shiprocketRoutes.js";
 
@@ -32,7 +31,6 @@ const apiRoutes = [
   { path: "shipping-address", route: shippingAddressRoutes },
   { path: "images", route: imageRoutes },
   { path: "wishlist", route: wishlistRoutes },
-  { path: "invoices", route: invoiceRoutes },
   { path: "product-reviews", route: productReviewRoutes },
   { path: "shiprocket", route: shiprocketRoutes },
 ];

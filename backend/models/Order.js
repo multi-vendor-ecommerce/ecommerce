@@ -58,6 +58,7 @@ const orderSchema = new Schema(
         shiprocketOrderId: { type: String, default: "" },
         shiprocketShipmentId: { type: String, default: "" },
         shiprocketAWB: { type: String, default: "" },
+        originalShiprocketStatus: { type: String, default: "" },
         shiprocketStatus: { type: String, default: "" },
         courierName: { type: String, default: "" },
         shiprocketStatusCode: { type: Number, default: null },
@@ -127,12 +128,6 @@ const orderSchema = new Schema(
 
     userInvoiceUrl: { type: String, default: null },
 
-    vendorInvoices: [
-      {
-        vendorId: { type: mongoose.Schema.Types.ObjectId, ref: "Person" },
-        invoiceUrl: { type: String },
-      },
-    ],
     customNotes: { type: String, default: "" },
   },
   { timestamps: true }

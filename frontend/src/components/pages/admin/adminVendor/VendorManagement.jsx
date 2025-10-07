@@ -9,7 +9,8 @@ import BackButton from "../../../common/layout/BackButton";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 
 const VendorManagement = ({ heading }) => {
-  const { vendors, topVendors, getAllVendors, getTopVendors, totalCount, loading } = useContext(VendorContext);
+  const { vendors, topVendors, getAllVendors, getTopVendors, totalCount, loading } =
+    useContext(VendorContext);
 
   const [filters, setFilters] = useState({ search: "", status: "", date: "" });
   const [page, setPage] = useState(1);
@@ -63,9 +64,21 @@ const VendorManagement = ({ heading }) => {
     fetchPaginatedVendors(1, limit);
   };
 
+  // 🕒 Debounce for search
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (filters.search.trim() !== "") {
+        fetchPaginatedVendors(1, itemsPerPage);
+      }
+    }, 600); // 600ms debounce delay
+
+    return () => clearTimeout(delayDebounce);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.search]);
+
   // Filter out status field for top selling page
   const filterFields = isTopVendorPage
-    ? vendorFilterFields.filter(f => f.name !== "status")
+    ? vendorFilterFields.filter((f) => f.name !== "status")
     : vendorFilterFields;
 
   const headers = [

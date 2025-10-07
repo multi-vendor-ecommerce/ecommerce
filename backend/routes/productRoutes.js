@@ -17,7 +17,7 @@ export const editProductStatusValidator = [
     .withMessage("Invalid status value"),
 
   body("review")
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .customSanitizer(value => sanitizeHtml(value, {
       allowedTags: ["p", "strong", "em", "u", "br", "ul", "ol", "li"],

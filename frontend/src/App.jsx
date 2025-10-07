@@ -12,7 +12,6 @@ import PaymentState from "./context/paymentContext/PaymentState";
 import AddressState from "./context/shippingAddress/AddressState";
 import ImageState from "./context/images/ImageState";
 import WishlistState from "./context/wishlist/WishlistState";
-import InvoiceState from "./context/invoices/InvoiceState";
 import ProductReviewState from "./context/productReview/ProductReviewState";
 
 // Common components
@@ -47,33 +46,31 @@ function AppProviders({ children }) {
   return (
     <AuthState>
       <ProductReviewState>
-        <InvoiceState>
-          <WishlistState>
-            <AddressState>
-              <ImageState>
-                <PersonState>
-                  <OrderState>
-                    <PaymentState>
-                      <CartState>
-                        <CouponState>
-                          <UserState>
-                            <CategoryState>
-                              <VendorState>
-                                <ProductState>
-                                  {children}
-                                </ProductState>
-                              </VendorState>
-                            </CategoryState>
-                          </UserState>
-                        </CouponState>
-                      </CartState>
-                    </PaymentState>
-                  </OrderState>
-                </PersonState>
-              </ImageState>
-            </AddressState>
-          </WishlistState>
-        </InvoiceState>
+        <WishlistState>
+          <AddressState>
+            <ImageState>
+              <PersonState>
+                <OrderState>
+                  <PaymentState>
+                    <CartState>
+                      <CouponState>
+                        <UserState>
+                          <CategoryState>
+                            <VendorState>
+                              <ProductState>
+                                {children}
+                              </ProductState>
+                            </VendorState>
+                          </CategoryState>
+                        </UserState>
+                      </CouponState>
+                    </CartState>
+                  </PaymentState>
+                </OrderState>
+              </PersonState>
+            </ImageState>
+          </AddressState>
+        </WishlistState>
       </ProductReviewState>
     </AuthState>
   );

@@ -4,25 +4,21 @@ import SalesChart from "./SalesChart";
 import { monthlySalesData } from "./data/salesData";
 import RecentOrders from "./RecentOrders";
 import TopProducts from "./TopProducts";
-import RecentInvoices from "./RecentInvoices";
 import TopVendors from "../../admin/adminDashboard/TopVendors";
 import { dateFilterFields } from "./data/dateFilterFields";
 import CustomSelect from "../../../common/layout/CustomSelect";
 import UserContext from "../../../../context/user/UserContext";
 import OrderContext from "../../../../context/orders/OrderContext";
 import VendorContext from "../../../../context/vendors/VendorContext";
-import InvoiceContext from "../../../../context/invoices/InvoiceContext";
 
 const Dashboard = ({ summaryData, role = "admin" }) => {
   const { getAllCustomers } = useContext(UserContext);
   const { getAllOrders } = useContext(OrderContext);
   const { getTopVendors } = useContext(VendorContext);
-  const { getAllInvoices } = useContext(InvoiceContext)
 
   useEffect(() => {
     getAllCustomers();
     getAllOrders();
-    getAllInvoices();
     if (role === "admin") getTopVendors();
   }, []);
 
@@ -60,10 +56,6 @@ const Dashboard = ({ summaryData, role = "admin" }) => {
 
       <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
         <RecentOrders role={role} />
-      </div>
-
-      <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">
-        <RecentInvoices role={role} />
       </div>
 
       <div className="mt-6 rounded-xl shadow-md hover:shadow-blue-500 transition duration-200">

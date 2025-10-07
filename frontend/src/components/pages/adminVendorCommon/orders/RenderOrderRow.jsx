@@ -75,17 +75,17 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
     {/* Order Status */}
     <td
       className="px-6 py-3 min-w-[140px] hover:scale-105 transition duration-150"
-      title={order.orderStatus || "Unknown"}
+      title={role === "vendor" ? (toTitleCase(order?.orderItems?.[0]?.originalShiprocketStatus) || order.orderStatus) : order.orderStatus}
     >
-      <StatusChip status={order.orderStatus} />
+      <StatusChip status={role === "vendor" ? (toTitleCase(order?.orderItems?.[0]?.originalShiprocketStatus) || order.orderStatus) : order?.orderStatus} />
     </td>
 
     {/* Total Amount */}
     <td
       className="px-6 py-3 min-w-[120px] font-semibold hover:scale-105 transition duration-150"
-      title={`₹${order.totalAmount || 0}`}
+      title={`₹${order.grandTotal || 0}`}
     >
-      ₹{formatNumber(order.totalAmount || 0)}
+      ₹{formatNumber(order.grandTotal || 0)}
     </td>
 
     {/* Actions */}

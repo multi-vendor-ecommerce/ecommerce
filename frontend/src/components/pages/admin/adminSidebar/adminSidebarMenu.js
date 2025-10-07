@@ -29,7 +29,6 @@ export const adminSidebarMenu = [
         path: "/admin/all-orders",
         children: [
           { label: "All Orders", path: "/admin/all-orders" },
-          { label: "Invoices", path: "/admin/invoices" },
           { label: "Payment Confirmation", path: "/admin/orders/payment" },
         ],
       },
