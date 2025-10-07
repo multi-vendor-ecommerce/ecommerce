@@ -18,7 +18,7 @@ const TabBar = ({ tabs = [], activeTab, onChange, className = "" }) => {
           text={tab.label}
           onClick={() => onChange(tab.key)}
           active={activeTab === tab.key}
-          className="py-2"
+          className="py-1.5 text-[14.5px]"
         />     
       ))}
     </div>

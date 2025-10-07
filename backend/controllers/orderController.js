@@ -6,6 +6,9 @@ import buildQuery from "../utils/queryBuilder.js";
 import { getShippingInfoForOrder } from "../utils/getShippingInfo.js";
 import { round2 } from "../utils/round2.js";
 import { generateShippingDocs } from "../services/shiprocket/generateDocs.js";
+import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
+import { cancelShiprocketOrders } from "../services/shiprocket/cancel.js";
+import { returnOrderToShiprocket } from "../services/shiprocket/return.js";
 
 // ==========================
 // Create or Update Draft Order
@@ -302,6 +305,7 @@ export const getAllOrders = async (req, res) => {
       limit,
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, message: "Unable to load orders.", error: err.message });
   }
 };
@@ -515,42 +519,47 @@ export const generateOrderDocs = async (req, res) => {
   }
 };
 
+// ==========================
+// Cancel Order
+// ==========================
 export const cancelOrder = async (req, res) => {
+  const orderId = req.params.id;
+  const { role, id: userId } = req.person;
+
+  if (!orderId) return res.status(400).json({ success: false, message: "Order ID is required" });
+  if (!["admin", "vendor", "customer"].includes(role)) {
+    return res.status(403).json({ success: false, message: "Not allowed to cancel orders" });
+  }
+
   try {
-    const orderId = req.params.id;
-    const { role, id: userId } = req.person;
-
-    if (!orderId) {
-      return res.status(400).json({ success: false, message: "Order ID is required" });
-    }
-
     const order = await Order.findById(orderId).populate("orderItems.product");
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
 
-    // Admin can cancel all items
+    // Normalize shiprocketStatus to lowercase before comparison
+    order.orderItems.forEach(item => {
+      if (item.shiprocketStatus) item.shiprocketStatus = item.shiprocketStatus.toLowerCase();
+    });
+
     if (role === "admin") {
-      const itemsToCancel = order.orderItems.filter(item => item.shiprocketStatus !== "Cancelled");
+      const itemsToCancel = order.orderItems.filter(item => item.shiprocketStatus !== "cancelled");
       if (itemsToCancel.length) await cancelShiprocketOrders(itemsToCancel);
       order.orderStatus = "cancelled";
       await order.save();
       return res.status(200).json({ success: true, message: "Order cancelled successfully by admin", order });
     }
 
-    // Vendor can cancel their own items
     if (role === "vendor") {
       const vendorItems = order.orderItems.filter(
-        item => item.product.createdBy?.toString() === userId && item.shiprocketStatus !== "Cancelled"
+        item => item.product.createdBy?.toString() === userId && item.shiprocketStatus !== "cancelled"
       );
       if (!vendorItems.length) return res.status(403).json({ success: false, message: "No cancellable items found" });
+
       await cancelShiprocketOrders(vendorItems);
 
-      // Update overall order status if all items cancelled
-      const allCancelled = order.orderItems.every(item => item.shiprocketStatus === "Cancelled");
+      const allCancelled = order.orderItems.every(item => item.shiprocketStatus === "cancelled");
       if (allCancelled) order.orderStatus = "cancelled";
-      await order.save();
 
+      await order.save();
       return res.status(200).json({
         success: true,
         message: allCancelled ? "Entire order cancelled successfully" : "Vendor's items cancelled successfully",
@@ -558,71 +567,56 @@ export const cancelOrder = async (req, res) => {
       });
     }
 
-    // User can cancel the whole order if status is pending/processing
-    if (role === "user") {
-      if (order.user.toString() !== userId) {
-        return res.status(403).json({ success: false, message: "Unauthorized" });
-      }
-      if (!["pending", "processing"].includes(order.orderStatus)) {
-        return res.status(400).json({ success: false, message: "Order cannot be cancelled at this stage" });
-      }
+    if (role === "customer") {
+      if (order.user.toString() !== userId) return res.status(403).json({ success: false, message: "Unauthorized" });
+      if (!["pending", "processing"].includes(order.orderStatus)) return res.status(400).json({ success: false, message: "Order cannot be cancelled at this stage" });
       order.orderStatus = "cancelled";
       await order.save();
       return res.status(200).json({ success: true, message: "Order cancelled successfully", order });
     }
 
-    // Other roles not allowed
     return res.status(403).json({ success: false, message: "Not allowed to cancel orders" });
-
   } catch (err) {
     console.error("Cancel order error:", err);
     return res.status(500).json({ success: false, message: "Failed to cancel order", error: err.message });
   }
 };
 
+// ==========================
+// Return Order Request
+// ==========================
 export const returnOrderRequest = async (req, res) => {
-  const orderId = req.params.id;
-  if (req.person.role !== "vendor" && req.person.role !== "admin") {
-    return res.status(403).json({
-      success: false,
-      message: "Only vendors and admins can request returns for their orders.",
-    });
-  }
-
-  if (!orderId) {
-    return res.status(400).json({
-      success: false,
-      message: "Order ID is required.",
-    });
-  }
-
   try {
-    const order = await Order.findById(orderId).populate("orderItems.product");
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found.",
-      });
+    const orderId = req.params.id;
+    const { role, id: userId } = req.person;
+
+    if (!["vendor", "admin"].includes(role)) {
+      return res.status(403).json({ success: false, message: "Only vendors and admins can request returns for their orders." });
     }
 
-    const vendorId = req.person.role === "vendor" ? req.person.id : null;
+    if (!orderId) return res.status(400).json({ success: false, message: "Order ID is required." });
 
-    // Filter vendor items (or all items if admin)
+    const order = await Order.findById(orderId).populate("orderItems.product");
+    if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+
+    const vendorId = role === "vendor" ? userId : null;
+
     const vendorItems = order.orderItems.filter(
       item => !vendorId || item.product.createdBy?.toString() === vendorId
     );
 
-    const anyUndelivered = vendorItems.some(item => item.shiprocketStatus !== "Delivered");
-    if (anyUndelivered) {
-      return res.status(400).json({
-        success: false,
-        message: "You can only request returns for delivered items.",
-      });
-    }
+    // Normalize shiprocketStatus
+    vendorItems.forEach(item => {
+      if (item.shiprocketStatus) item.shiprocketStatus = item.shiprocketStatus.toLowerCase();
+    });
+
+    const anyUndelivered = vendorItems.some(item => item.shiprocketStatus !== "delivered");
+    if (anyUndelivered) return res.status(400).json({ success: false, message: "You can only request returns for delivered items." });
 
     const result = await returnOrderToShiprocket(orderId, vendorId);
     res.status(200).json({ success: true, result });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, message: "Failed to return order.", error: err.message });
   }
 };

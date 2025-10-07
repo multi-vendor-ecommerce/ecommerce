@@ -1,69 +1,71 @@
 export const shippingStatusMap = {
-  NEW_READY_TO_SHIP: [
-    "Processed At Warehouse",
-    "Picklist Generated",
-    "Ready To Pack",
-    "Packed",
-    "FC Manifest Generated",
-    "Shipment Booked",
-    "Box Packing",
-    "FC Allocated",
-    "Invoiced"
+  new_ready_to_ship: [
+    "processed at warehouse",
+    "picklist generated",
+    "ready to pack",
+    "packed",
+    "fc manifest generated",
+    "shipment booked",
+    "box packing",
+    "fc allocated",
+    "invoiced"
   ],
-  PICKUPS_MANIFESTS: [
-    "Picked Up",
-    "Out For Pickup",
-    "Pickup Booked",
-    "Pickup Rescheduled"
+  pickups_manifests: [
+    "picked up",
+    "out for pickup",
+    "pickup booked",
+    "pickup rescheduled"
   ],
-  IN_TRANSIT: [
-    "In Transit",
-    "In Transit Overseas",
-    "Connection Aligned",
-    "Reached Overseas Warehouse",
-    "Custom Cleared Overseas",
-    "Handover to Courier",
-    "In Flight",
-    "Reached at Destination Hub",
-    "Misrouted"
+  in_transit: [
+    "in transit",
+    "in transit overseas",
+    "connection aligned",
+    "reached overseas warehouse",
+    "custom cleared overseas",
+    "handover to courier",
+    "in flight",
+    "reached at destination hub",
+    "misrouted"
   ],
-  DELIVERED: [
-    "Delivered",
-    "Fulfilled",
-    "Self Fulfilled"
+  delivered: [
+    "delivered",
+    "fulfilled",
+    "self fulfilled"
   ],
-  RTO: [
-    "RTO Initiated",
-    "RTO Delivered",
-    "RTO NDR",
-    "RTO OFD",
-    "RTO In Transit",
-    "RTO Acknowledged",
-    "RTO Lock"
+  rto: [
+    "rto initiated",
+    "rto delivered",
+    "rto ndr",
+    "rto ofd",
+    "rto in transit",
+    "rto acknowledged",
+    "rto lock"
   ],
-  CANCELLED: [
-    "Cancelled",
-    "Cancelled Before Dispatched",
-    "Disposed Off",
-    "Destroyed"
+  cancelled: [
+    "cancelled",
+    "cancelled before dispatched",
+    "disposed off",
+    "destroyed"
   ],
-  EXCEPTIONS: [
-    "Pickup Error",
-    "Pickup Exception",
-    "Handover Exception",
-    "Packed Exception",
-    "QC Failed",
-    "Issue Related To The Recipient",
-    "Delayed",
-    "Undelivered",
-    "Box Packing"
+  exceptions: [
+    "pickup error",
+    "pickup exception",
+    "handover exception",
+    "packed exception",
+    "qc failed",
+    "issue related to the recipient",
+    "delayed",
+    "undelivered",
+    "box packing"
   ]
 };
 
 // Utility: get high-level status category
 export const getHighLevelStatus = (status) => {
+  if (!status) return "unknown";
+  const lowerStatus = status.toLowerCase();
   for (const [key, values] of Object.entries(shippingStatusMap)) {
-    if (values.includes(status)) return key;
+    if (values.includes(lowerStatus)) return key;
   }
-  return "UNKNOWN";
+  return "unknown";
 };

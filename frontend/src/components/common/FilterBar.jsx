@@ -1,13 +1,42 @@
+import { useEffect, useRef } from "react";
 import { FiFilter } from "react-icons/fi";
 import { BsXCircle } from "react-icons/bs";
+import debounce from "lodash.debounce";
 import CustomSelect from "./layout/CustomSelect";
 
-const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, max }) => {
+const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear }) => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") onApply();
   };
 
   const allFiltersEmpty = Object.values(values).every((v) => !v);
+
+  // 🔹 Create a debounced version of onApply for search
+  const debouncedApply = useRef(
+    debounce(() => {
+      onApply();
+    }, 500)
+  ).current;
+
+  useEffect(() => {
+    return () => {
+      debouncedApply.cancel();
+    };
+  }, [debouncedApply]);
+
+  const handleInputChange = (name, value, type) => {
+    onChange(name, value);
+
+    // ✅ If it's the search field, apply automatically (debounced)
+    if (name === "search") {
+      if (value.trim() === "") {
+        // If user clears search, fetch immediately (no debounce)
+        onApply();
+      } else {
+        debouncedApply();
+      }
+    }
+  };
 
   return (
     <div className="flex flex-wrap gap-4 items-center">
@@ -20,15 +49,17 @@ const FilterBar = ({ fields = [], values = {}, onChange, onApply, onClear, max }
             return (
               <div key={name} className="w-full md:w-auto">
                 <input
-                  key={name}
                   type={type}
                   value={value}
                   placeholder={label}
                   max={type === "date" ? field.max : undefined}
-                  onChange={(e) => onChange(name, e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange(name, e.target.value, type)
+                  }
                   onKeyDown={handleKeyDown}
-                  className={`${type === "date" ? "lg:w-55" : "lg:min-w-[300px]"
-                    } w-full h-full bg-white px-3 py-2 border border-gray-300 rounded-xl shadow-sm text-sm md:text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 hover:border-blue-300 transition-all duration-150`}
+                  className={`${
+                    type === "date" ? "lg:w-55" : "lg:min-w-[300px]"
+                  } w-full h-full bg-white px-3 py-2 border border-gray-300 rounded-xl shadow-sm text-sm md:text-base font-medium focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 hover:border-blue-300 transition-all duration-150`}
                 />
               </div>
             );

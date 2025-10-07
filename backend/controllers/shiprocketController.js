@@ -41,8 +41,11 @@ export const trackOrder = async (req, res) => {
     order.orderItems.forEach(item => {
       if (item.shiprocketShipmentId === shipment_id) {
         item.trackingData = trackingData;
-        const originalStatus = trackingData?.tracking_data?.shipment_track?.current_status;
-        item.originalShiprocketStatus = originalStatus; // optional: keep original
+
+        // Normalize status to lowercase
+        const originalStatus =
+          trackingData?.tracking_data?.shipment_track?.current_status?.toLowerCase() || "";
+        item.originalShiprocketStatus = originalStatus;
         item.shiprocketStatus = getHighLevelStatus(originalStatus);
       }
     });

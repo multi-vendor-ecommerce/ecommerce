@@ -7,9 +7,6 @@ import { sendVendorStatusMail, sendVendorApprovalStatusMail, sendVendorProfileUp
 import { setNestedValueIfAllowed } from "../utils/setNestedValueIfAllowed.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
 import Order from "../models/Order.js";
-import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
-import { cancelShiprocketOrders } from "../services/shiprocket/cancel.js";
-import { returnOrderToShiprocket } from "../services/shiprocket/return.js";
 
 // ==========================
 // Get all vendors (paginated)

@@ -13,13 +13,13 @@ export const orderFilterFields = [
   }
 ];
 
-export const SHIPROCKET_TABS = [
+export const shiprocketTabs = [
   { key: "", label: "All" },
-  { key: "NEW_READY_TO_SHIP", label: "New / Ready to Ship" },
-  { key: "PICKUPS_MANIFESTS", label: "Pickups / Manifests" },
-  { key: "IN_TRANSIT", label: "In Transit" },
-  { key: "DELIVERED", label: "Delivered" },
-  { key: "RTO", label: "RTO" },
-  { key: "CANCELLED", label: "Cancelled" },
-  { key: "EXCEPTIONS", label: "Exceptions" },
+  { key: "new_ready_to_ship", label: "New / Ready to Ship" },
+  { key: "pickups_manifests", label: "Pickups / Manifests" },
+  { key: "in_transit", label: "In Transit" },
+  { key: "delivered", label: "Delivered" },
+  { key: "rto", label: "RTO" },
+  { key: "cancelled", label: "Cancelled" },
+  { key: "exceptions", label: "Exceptions" },
 ];
