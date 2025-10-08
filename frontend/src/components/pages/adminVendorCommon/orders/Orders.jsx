@@ -76,6 +76,10 @@ export default function Orders({ role = "admin", vendorId = null }) {
     setPage(1);
   };
 
+  const hasDocuments = orders?.some(order =>
+    order.orderItems?.some(item => item.labelUrl || item.invoiceUrl || item.manifestUrl)
+  );
+
   const headers = [
     "Order ID",
     "Customer",
@@ -84,9 +88,10 @@ export default function Orders({ role = "admin", vendorId = null }) {
     "Mode",
     "Date",
     "Status",
-    ...(orders?.[0]?.orderItems?.[0]?.shiprocketAWB ? ["Shipping Details"] : []),
+    ...(orders?.some(order => order.orderItems?.some(item => item.shiprocketAWB)) ? ["Shipping Details"] : []),
     "Amount",
-    "Actions"
+    "Actions",
+    ...(hasDocuments ? ["Documents"] : [])
   ];
 
   if (loading && orders.length === 0) {
@@ -99,8 +104,8 @@ export default function Orders({ role = "admin", vendorId = null }) {
 
   const filteredFields = role === "vendor"
     ? orderFilterFields.filter(
-        field => ["search", "date"].includes(field.name)
-      )
+      field => ["search", "date"].includes(field.name)
+    )
     : orderFilterFields;
 
   return (

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { FiEye, FiTrash2 } from "react-icons/fi";
+import { FiDownload, FiEye, FiTrash2 } from "react-icons/fi";
 import { getFormatDate } from "../../../../utils/formatDate";
 import { toTitleCase } from "../../../../utils/titleCase";
 import { formatNumber } from "../../../../utils/formatNumber";
@@ -154,6 +154,32 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
               />
             )}
         </div>
+      </td>
+
+      <td className="px-6 py-3 min-w-[190px] font-semibold hover:scale-105 transition duration-150">
+        {(() => {
+          const { labelUrl, invoiceUrl, manifestUrl } = order.orderItems[0] || {};
+          const docs = { Label: labelUrl, Invoice: invoiceUrl, Manifest: manifestUrl };
+
+          return (
+            <div className="flex gap-2">
+              {Object.entries(docs).map(([name, url]) =>
+                  url && (
+                    <a
+                      key={name}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="border border-yellow-500 text-yellow-600 hover:bg-yellow-500 hover:text-white px-2 py-1 rounded-lg transition duration-200 flex gap-2 justify-center items-center"
+                    >
+                      <span className="pt-0.5">{name}</span>
+                      {(labelUrl || invoiceUrl || manifestUrl) && <FiDownload size={18} />}
+                    </a>
+                  )
+                )}
+            </div>
+          );
+        })()}
       </td>
     </tr>
     {orderState && orderState?.isButtonClick &&
