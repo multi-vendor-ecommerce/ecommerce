@@ -40,6 +40,13 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       const product = await Product.findById(productId);
       if (!product) return res.status(404).json({ success: false, message: "Selected product is unavailable." });
 
+      if (product.stock < quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `${product.title} is out of stock or only ${product.stock} left.`,
+        });
+      }
+
       const originalPrice = round2(product.price);
       const discountPercent = product.discount || 0;
       const discountAmount = round2((originalPrice * discountPercent) / 100);
@@ -106,6 +113,16 @@ export const createOrUpdateDraftOrder = async (req, res) => {
     } else {
       // Cart case
       if (!user.cart.length) return res.status(400).json({ success: false, message: "Your cart is empty." });
+
+      for (let item of user.cart) {
+        const product = item.product;
+        if (product.stock < item.quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `${product.title} is out of stock or only ${product.stock} left.`,
+          });
+        }
+      }
 
       orderItems = user.cart.map((item) => {
         const product = item.product;
