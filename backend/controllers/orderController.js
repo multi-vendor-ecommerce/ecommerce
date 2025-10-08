@@ -9,6 +9,7 @@ import { generateShippingDocs } from "../services/shiprocket/generateDocs.js";
 import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
 import { cancelShiprocketOrders } from "../services/shiprocket/cancel.js";
 import { returnOrderToShiprocket } from "../services/shiprocket/return.js";
+import { assignAWBToOrder } from "../services/shiprocket/generateAwb.js";
 
 // ==========================
 // Create or Update Draft Order
@@ -386,46 +387,22 @@ export const getOrderById = async (req, res) => {
 // ==========================
 // Place Order on Shiprocket
 // ==========================
-export const placeOrder = async (req, res) => {
+export const pushOrder = async (req, res) => {
   const { packageLength, packageBreadth, packageHeight, packageWeight } = req.body;
   const orderId = req.params.id;
 
-  if (!orderId) {
-    return res.status(400).json({ success: false, message: "Order ID is required." });
-  }
-
-  // Validate packaging fields
-  if (!packageLength || !packageBreadth || !packageHeight || !packageWeight) {
-    return res.status(400).json({
-      success: false,
-      message: "Package length, breadth, height, and weight are required.",
-    });
-  }
-
-  if (packageLength <= 0 || packageBreadth <= 0 || packageHeight <= 0 || packageWeight <= 0) {
-    return res.status(400).json({
-      success: false,
-      message: "Package dimensions and weight must be greater than zero.",
-    });
-  }
+  if (!orderId) return res.status(400).json({ success: false, message: "Order ID is required." });
 
   try {
-    // Fetch order
     const order = await Order.findById(orderId).populate("orderItems.product");
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found." });
-    }
+    if (!order) return res.status(404).json({ success: false, message: "Order not found." });
 
     const vendorId = req.person.id;
-    const vendorItems = order.orderItems.filter(
-      item => item.product.createdBy?.toString() === vendorId
-    );
+    const vendorItems = order.orderItems.filter(i => i.product.createdBy?.toString() === vendorId);
+    if (!vendorItems.length) return res.status(403).json({ success: false, message: "No items belong to you." });
 
-    if (!vendorItems.length) {
-      return res.status(403).json({ success: false, message: "No items in this order belong to you." });
-    }
-
-    const updatedOrder = await Order.findByIdAndUpdate(
+    // Update packaging
+    await Order.findByIdAndUpdate(
       orderId,
       {
         $set: {
@@ -435,35 +412,47 @@ export const placeOrder = async (req, res) => {
           "orderItems.$[item].packageWeight": packageWeight,
         }
       },
-      {
-        new: true,
-        runValidators: true,
-        arrayFilters: [{ "item.createdBy": vendorId }]
-      }
+      { new: true, runValidators: true, arrayFilters: [{ "item.product.createdBy": vendorId }] }
     );
 
-    if (!updatedOrder) {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to update order with packaging details.",
-      });
+    // Push order to Shiprocket (sets shipment_id but no AWB)
+    const pushedOrders = await pushOrderToShiprocket(orderId);
+    if (!pushedOrders.length) {
+      return res.status(500).json({ success: false, message: "Failed to push order to Shiprocket." });
     }
 
-    // Push to Shiprocket
-    const finalOrder = await pushOrderToShiprocket(updatedOrder?._id);
+    // Assign AWB & generate documents for items that don't have AWB yet
+    const updatedOrder = await assignAWBToOrder(orderId);
+
+    // Filter vendor items that got AWB
+    const vendorItemsWithAWB = updatedOrder.orderItems.filter(
+      item => item.product.createdBy?.toString() === vendorId && item.shiprocketAWB
+    );
 
     res.status(200).json({
       success: true,
-      message: "Vendor order placed successfully and awb generated.",
-      order: finalOrder,
+      message: vendorItemsWithAWB.length
+        ? "Order pushed and AWB assigned successfully. Documents generated."
+        : "Order pushed, but AWB could not be assigned yet. Try again later.",
+      status: vendorItemsWithAWB.length ? "awb_assigned" : "pending_awb",
+      order: updatedOrder,
     });
   } catch (err) {
-    console.error("Vendor place order error:", err.stack);
-    res.status(500).json({
-      success: false,
-      message: "Failed to place vendor order.",
-      error: err.message,
-    });
+    console.error("Push order error:", err);
+    res.status(500).json({ success: false, message: "Failed to push order.", error: err.message });
+  }
+};
+
+export const generateAWBForOrder = async (req, res) => {
+  const orderId = req.params.id;
+  if (!orderId) throw new Error("Order ID is required.");
+   
+  try {
+    const updatedOrder = await assignAWBToOrder(orderId);
+    return {success: true, message: "AWB assigned successfully. Documents generated.", order: updatedOrder};
+  } catch (err) {
+    console.error("Generate AWB error:", err);
+    throw new Error("Failed to generate AWB: " + err.message);
   }
 };
 
@@ -478,7 +467,7 @@ export const generateOrderDocs = async (req, res) => {
   }
 
   try {
-    // Fetch the order
+    // Fetch order with product info
     const order = await Order.findById(orderId).populate("orderItems.product");
     if (!order) {
       return res.status(404).json({
@@ -487,13 +476,18 @@ export const generateOrderDocs = async (req, res) => {
       });
     }
 
-    // Optional: Access control
     const { role, id: userId } = req.person;
+
+    // Determine which items to process
+    let itemsToGenerate = order.orderItems;
+
+    // Vendor: only their own items
     if (role === "vendor") {
-      const vendorItems = order.orderItems.filter(
-        item => item.product.createdBy?.toString() === userId
+      itemsToGenerate = order.orderItems.filter(
+        item => item.product?.createdBy?.toString() === userId
       );
-      if (!vendorItems.length) {
+
+      if (!itemsToGenerate.length) {
         return res.status(403).json({
           success: false,
           message: "No items in this order belong to you.",
@@ -501,8 +495,24 @@ export const generateOrderDocs = async (req, res) => {
       }
     }
 
-    // Call service to generate documents
-    const updatedOrder = await generateShippingDocs(orderId);
+    // Only include items with AWB/shipment IDs
+    const itemsWithAWB = itemsToGenerate.filter(
+      item => item.awb || item.shiprocketShipmentId
+    );
+
+    if (!itemsWithAWB.length) {
+      return res.status(400).json({
+        success: false,
+        message: "No AWB assigned for these items. Cannot generate documents.",
+      });
+    }
+
+    // Extract shipmentIds / orderIds
+    const shipmentIds = itemsWithAWB.map(i => i.shiprocketShipmentId);
+    const orderIds = itemsWithAWB.map(i => i.shiprocketOrderId);
+
+    // Call service to generate documents (pass filtered IDs)
+    const updatedOrder = await generateShippingDocs(orderId, { shipmentIds, orderIds });
 
     res.status(200).json({
       success: true,

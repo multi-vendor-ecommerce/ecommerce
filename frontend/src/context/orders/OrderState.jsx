@@ -6,8 +6,8 @@ const OrderState = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
 
-  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
+  const host = "http://localhost:5000";
 
   // Utility to get role
   const getRoleInfo = () => {
@@ -156,6 +156,61 @@ const OrderState = ({ children }) => {
     } catch (err) {
       console.error("Error fetching order:", err);
       return null;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const generateAWBForOrder = async (id) => {
+    setLoading(true);
+    const { role } = getRoleInfo();
+
+    let headers = {
+      "Content-Type": "application/json",
+      "auth-token": role === "admin"
+        ? localStorage.getItem("adminToken")
+        : localStorage.getItem("vendorToken"),
+    }
+
+    try {
+      const res = await fetch(`${host}/api/orders/assign-awb/${id}`, {
+        method: "PUT",
+        headers,
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Failed to generate AWB");
+
+      return data;
+    } catch (error) {
+      console.error("Error generating AWB:", error);
+    }
+  }
+
+  const generateDocs = async (id) => {
+    setLoading(true);
+    const { role } = getRoleInfo();
+
+    let headers = {
+      "Content-Type": "application/json",
+      "auth-token": role === "admin"
+        ? localStorage.getItem("adminToken")
+        : localStorage.getItem("vendorToken"),
+    }
+
+    try {
+      const res = await fetch(`${host}/api/orders/generate-docs/${id}`, {
+        method: "POST",
+        headers,
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Failed to generate documents");
+
+      return data;
+    } catch (error) {
+      console.error("Error generating documents:", error);
+      return { success: false, message: error.message || "Failed to generate documents" };
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -172,7 +227,7 @@ const OrderState = ({ children }) => {
           "auth-token": role === "admin"
             ? localStorage.getItem("adminToken")
             : role === "vendor" ? localStorage.getItem("vendorToken")
-            : localStorage.getItem("customerToken"),
+              : localStorage.getItem("customerToken"),
         },
       });
       const data = await res.json();
@@ -192,6 +247,8 @@ const OrderState = ({ children }) => {
       getOrderById,
       getUserDraftOrderById,
       pushOrder,
+      generateAWBForOrder,
+      generateDocs,
       cancelOrder
     }}>
       {children}

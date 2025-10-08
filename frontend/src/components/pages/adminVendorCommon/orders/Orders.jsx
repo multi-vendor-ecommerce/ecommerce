@@ -14,7 +14,7 @@ import { shiprocketTabs } from "./data/orderFilterFields";
 import { toTitleCase } from "../../../../utils/titleCase";
 
 export default function Orders({ role = "admin", vendorId = null }) {
-  const { orders, getAllOrders, loading, totalCount } = useContext(OrderContext);
+  const { orders, getAllOrders, loading, totalCount, generateAWBForOrder } = useContext(OrderContext);
 
   const [filters, setFilters] = useState({ search: "", status: "", date: "" });
   const [activeTab, setActiveTab] = useState("");
@@ -84,6 +84,7 @@ export default function Orders({ role = "admin", vendorId = null }) {
     "Mode",
     "Date",
     "Status",
+    ...(orders?.[0]?.orderItems?.[0]?.shiprocketAWB ? ["Shipping Details"] : []),
     "Amount",
     "Actions"
   ];
@@ -142,7 +143,7 @@ export default function Orders({ role = "admin", vendorId = null }) {
             <TabularData
               headers={headers}
               data={orders}
-              renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, role, vendorId, orderState, setOrderState)}
+              renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, role, vendorId, orderState, setOrderState, generateAWBForOrder)}
               emptyMessage="No orders found."
             />
           </div>

@@ -119,10 +119,7 @@ export async function assignAWB(shipment_id) {
 }
 
 async function generateDocuments(shipmentIds, orderIds) {
-  if (
-    !shipmentIds ||
-    (Array.isArray(shipmentIds) && shipmentIds.length === 0)
-  ) {
+  if (!shipmentIds || (Array.isArray(shipmentIds) && shipmentIds.length === 0)) {
     throw new Error("At least one shipment ID is required for document generation");
   }
 
@@ -132,30 +129,38 @@ async function generateDocuments(shipmentIds, orderIds) {
     Authorization: `Bearer ${token}`,
   };
 
-  // Ensure both are arrays
   const shipmentArray = Array.isArray(shipmentIds) ? shipmentIds : [shipmentIds];
   const orderArray = Array.isArray(orderIds) ? orderIds : [orderIds];
 
-  // Generate Label
-  const labelRes = await fetch(`${SR_BASE_URL}/courier/generate/label`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ shipment_id: shipmentArray }),
-  }).then((res) => res.json());
+  // Helper to safely fetch JSON + handle Shiprocket errors
+  const safeFetch = async (url, body) => {
+    const res = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok || data?.status_code === 400 || data?.status === "error") {
+      console.error("Shiprocket API error:", data);
+      throw new Error(data?.message || `Shiprocket request failed: ${url}`);
+    }
+    return data;
+  };
 
-  // Generate Invoice
-  const invoiceRes = await fetch(`${SR_BASE_URL}/orders/print/invoice`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ ids: orderArray }),
-  }).then((res) => res.json());
+  // 1️⃣ Generate Label
+  const labelRes = await safeFetch(`${SR_BASE_URL}/courier/generate/label`, {
+    shipment_id: shipmentArray,
+  });
 
-  // Generate Manifest
-  const manifestRes = await fetch(`${SR_BASE_URL}/manifests/generate`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ shipment_id: shipmentArray }),
-  }).then((res) => res.json());
+  // 2️⃣ Generate Invoice
+  const invoiceRes = await safeFetch(`${SR_BASE_URL}/orders/print/invoice`, {
+    ids: orderArray,
+  });
+
+  // 3️⃣ Generate Manifest
+  const manifestRes = await safeFetch(`${SR_BASE_URL}/manifests/generate`, {
+    shipment_id: shipmentArray,
+  });
 
   return {
     labelUrl: labelRes?.label_url || null,

@@ -1,7 +1,7 @@
 // services/shiprocket/pushOrder.js
 import { ShiprocketClient } from "./client.js";
 import { buildShiprocketPayload } from "./payloadBuilder.js";
-import { getHighLevelStatus } from "../../utils/shippingStatusMap.js"
+import { getHighLevelStatus } from "../../utils/shippingStatusMap.js";
 
 export async function pushOrderToShiprocket(orderId) {
   const payloads = await buildShiprocketPayload(orderId);
@@ -15,19 +15,12 @@ export async function pushOrderToShiprocket(orderId) {
         continue;
       }
 
-      // Assign AWB
-      const awbResponse = await ShiprocketClient.assignAWB(response.shipment_id);
-
-      // Update items with Shiprocket IDs & AWB
+      // Update items with Shiprocket IDs but do NOT assign AWB yet
       items.forEach(item => {
         item.shiprocketOrderId = response.order_id || "";
         item.shiprocketShipmentId = response.shipment_id || "";
-        item.shiprocketAWB = response.awb_code || "";
-
-        const status = (response.status || "").toLowerCase();
-        item.originalShiprocketStatus = status;
-        item.shiprocketStatus = getHighLevelStatus(status);
-        
+        item.originalShiprocketStatus = (response.status || "").toLowerCase();
+        item.shiprocketStatus = getHighLevelStatus(item.originalShiprocketStatus);
         item.shiprocketStatusCode = response.status_code || null;
         item.courierName = response.courier_company || "";
       });
