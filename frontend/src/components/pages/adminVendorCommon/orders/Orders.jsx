@@ -14,7 +14,7 @@ import { shiprocketTabs } from "./data/orderFilterFields";
 import { toTitleCase } from "../../../../utils/titleCase";
 
 export default function Orders({ role = "admin", vendorId = null }) {
-  const { orders, getAllOrders, loading, totalCount } = useContext(OrderContext);
+  const { orders, getAllOrders, loading, totalCount, generateAWBForOrder } = useContext(OrderContext);
 
   const [filters, setFilters] = useState({ search: "", status: "", date: "" });
   const [activeTab, setActiveTab] = useState("");
@@ -76,6 +76,10 @@ export default function Orders({ role = "admin", vendorId = null }) {
     setPage(1);
   };
 
+  const hasDocuments = orders?.some(order =>
+    order.orderItems?.some(item => item.labelUrl || item.invoiceUrl || item.manifestUrl)
+  );
+
   const headers = [
     "Order ID",
     "Customer",
@@ -84,8 +88,10 @@ export default function Orders({ role = "admin", vendorId = null }) {
     "Mode",
     "Date",
     "Status",
+    ...(orders?.some(order => order.orderItems?.some(item => item.shiprocketAWB)) ? ["Shipping Details"] : []),
     "Amount",
-    "Actions"
+    "Actions",
+    ...(hasDocuments ? ["Documents"] : [])
   ];
 
   if (loading && orders.length === 0) {
@@ -98,8 +104,8 @@ export default function Orders({ role = "admin", vendorId = null }) {
 
   const filteredFields = role === "vendor"
     ? orderFilterFields.filter(
-        field => ["search", "date"].includes(field.name)
-      )
+      field => ["search", "date"].includes(field.name)
+    )
     : orderFilterFields;
 
   return (
@@ -142,7 +148,7 @@ export default function Orders({ role = "admin", vendorId = null }) {
             <TabularData
               headers={headers}
               data={orders}
-              renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, role, vendorId, orderState, setOrderState)}
+              renderRow={(o, i) => RenderOrderRow(o, i, StatusChip, role, vendorId, orderState, setOrderState, generateAWBForOrder)}
               emptyMessage="No orders found."
             />
           </div>

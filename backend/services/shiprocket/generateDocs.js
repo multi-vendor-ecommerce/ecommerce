@@ -6,10 +6,10 @@ export async function generateShippingDocs(orderId) {
   const order = await Order.findById(orderId);
   if (!order) throw new Error("Order not found");
 
-  const shipmentIds = order.items
+  const shipmentIds = order.orderItems
     .map(i => i.shiprocketShipmentId)
     .filter(Boolean);
-  const orderIds = order.items
+  const orderIds = order.orderItems
     .map(i => i.shiprocketOrderId)
     .filter(Boolean);
 
@@ -19,9 +19,10 @@ export async function generateShippingDocs(orderId) {
 
   // Call Shiprocket API to generate documents
   const docsResponse = await ShiprocketClient.generateDocuments(shipmentIds, orderIds);
+  console.log("Document Generation Response:", docsResponse);
 
   // Save URLs to each item
-  order.items.forEach(item => {
+  order.orderItems.forEach(item => {
     item.labelUrl = docsResponse.labelUrl || "";
     item.invoiceUrl = docsResponse.invoiceUrl || "";
     item.manifestUrl = docsResponse.manifestUrl || "";

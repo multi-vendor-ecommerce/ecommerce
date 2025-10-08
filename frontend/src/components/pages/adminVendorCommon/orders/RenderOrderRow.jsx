@@ -1,27 +1,27 @@
 import { NavLink } from "react-router-dom";
-import { FiEye, FiTrash2 } from "react-icons/fi";
+import { FiDownload, FiEye, FiTrash2 } from "react-icons/fi";
 import { getFormatDate } from "../../../../utils/formatDate";
 import { toTitleCase } from "../../../../utils/titleCase";
 import { formatNumber } from "../../../../utils/formatNumber";
 import Button from "../../../common/Button";
 import PushOrder from "./PushOrder";
 
-export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorId = null, orderState = null, setOrderState = null) => (
+export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorId = null, orderState = null, setOrderState = null, generateAWBForOrder = null) => (
   <>
     <tr
-      key={order?._id}
+      key={order?._id || index}
       className={`hover:bg-blue-50 hover:shadow-sm transition ${index !== 0 ? "border-t border-gray-200" : ""}`}
     >
       {/* Order ID */}
       <td
-        className="px-6 py-3 min-w-[90px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150"
-        title={`Order ID: ${order._id}`}
+        className="px-6 py-3 min-w-[50px] text-blue-600 font-medium hover:underline hover:scale-105 transition duration-150 truncate"
+        title={`Order ID: ${order?._id}`}
       >
         <NavLink
-          to={`/${role}/all-orders/order-details/${order._id}`}
-          title={`Order ID: ${order._id}`}
+          to={`/${role}/all-orders/order-details/${order?._id}`}
+          title={`Order ID: ${order?._id}`}
         >
-          #{order._id}
+          #{order?._id}
         </NavLink>
       </td>
 
@@ -84,16 +84,16 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
       </td>
 
       {/* Shipping details */}
-      {order.orderItems?.[0]?.shiprocketAWB || order.orderItems?.[0]?.courierName && (
+      {(order.orderItems?.[0]?.shiprocketAWB || order.orderItems?.[0]?.courierName) && (
         <td
-          className="px-6 py-3 min-w-[120px] font-semibold hover:scale-105 transition duration-150"
+          className="px-6 py-3 min-w-[190px] font-semibold hover:scale-105 transition duration-150"
           title={`
           Shipping AWB: ${order.orderItems?.[0]?.shiprocketAWB || 'N/A'} 
           Shipping Courier Name: ${order.orderItems?.[0]?.courierName || 'N/A'}
         `}
         >
-          AWB: {order.orderItems?.[0]?.shiprocketAWB || 'N/A'}{" "}
-          Courier: {order.orderItems?.[0]?.courierName || 'N/A'}
+          AWB:<span className="font-normal"> {order.orderItems?.[0]?.shiprocketAWB || 'N/A'}</span>{" "}
+          Courier:<span className="font-normal"> {order.orderItems?.[0]?.courierName || 'N/A'}</span>
         </td>
       )}
 
@@ -127,18 +127,59 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
           </button>
 
           {/* Push Order button (Vendor only, status: processing) */}
-          {role === "vendor" && orderState !== null && (order?.orderStatus === "processing" && order?.orderItems?.[0]?.originalShiprocketStatus === "") && (
-            <Button
-              text="Push Order"
-              onClick={() => {
-                setOrderState({ isButtonClick: true, orderId: order._id });
-              }}
-              disabled={orderState.isButtonClick && orderState.orderId === order._id}
-              className="py-1 text-sm"
-              color="green"
-            />
-          )}
+          {role === "vendor" && orderState !== null &&
+            (order?.orderStatus === "processing" && order?.orderItems?.[0]?.originalShiprocketStatus === "") && (
+              <Button
+                text="Push Order"
+                onClick={() => {
+                  setOrderState({ isButtonClick: true, orderId: order._id });
+                }}
+                disabled={orderState.isButtonClick && orderState.orderId === order._id}
+                className="py-1 text-sm"
+                color="green"
+              />
+            )}
+
+          {role === "vendor" && orderState !== null &&
+            (order?.orderItems?.[0]?.originalShiprocketStatus === "new") && (
+              <Button
+                text="Assign AWB"
+                onClick={() => {
+                  generateAWBForOrder(order?._id);
+                  setOrderState({ isButtonClick: true, orderId: order._id });
+                }}
+                disabled={orderState.isButtonClick && orderState.orderId === order._id}
+                className="py-1 text-sm"
+                color="green"
+              />
+            )}
         </div>
+      </td>
+
+      <td className="px-6 py-3 min-w-[190px] font-semibold hover:scale-105 transition duration-150">
+        {(() => {
+          const { labelUrl, invoiceUrl, manifestUrl } = order.orderItems[0] || {};
+          const docs = { Label: labelUrl, Invoice: invoiceUrl, Manifest: manifestUrl };
+
+          return (
+            <div className="flex gap-2">
+              {Object.entries(docs).map(([name, url]) =>
+                  url && (
+                    <a
+                      key={name}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="border border-yellow-500 text-yellow-600 hover:bg-yellow-500 hover:text-white px-2 py-1 rounded-lg transition duration-200 flex gap-2 justify-center items-center"
+                    >
+                      <span className="pt-0.5">{name}</span>
+                      {(labelUrl || invoiceUrl || manifestUrl) && <FiDownload size={18} />}
+                    </a>
+                  )
+                )}
+            </div>
+          );
+        })()}
       </td>
     </tr>
     {orderState && orderState?.isButtonClick &&

@@ -24,7 +24,7 @@ const TabularData = ({
         <thead className="bg-gray-50 text-gray-500 uppercase">
           <tr>
             {headers.map((h, i) => (
-              <th key={i} className="px-6 py-3 min-w-[140px]">
+              <th key={i} className="px-6 py-3 min-w-[100px]">
                 {h}
               </th>
             ))}
