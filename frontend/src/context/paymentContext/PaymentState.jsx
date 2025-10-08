@@ -7,7 +7,7 @@ const PaymentState = ({ children }) => {
   const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
   // const host = "http://localhost:5000";
 
-  // 🔹 Create Razorpay order
+  // Create Razorpay order
   const createRazorpayOrder = async (orderId) => {
     try {
       setLoading(true);
@@ -34,7 +34,7 @@ const PaymentState = ({ children }) => {
     }
   };
 
-  // 🔹 Confirm Razorpay payment (verify signature)
+  //  Confirm Razorpay payment (verify signature)
   const confirmRazorpayPayment = async (orderId, paymentData) => {
     try {
       setLoading(true);

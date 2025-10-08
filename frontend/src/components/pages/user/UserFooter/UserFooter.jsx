@@ -18,7 +18,7 @@ export default function UserFooter() {
           <img
             src={footerLinks.about.logo}
             alt="NoahPlanet Logo"
-            className="w-28 sm:w-32 md:w-40 object-contain mb-3"
+            className="w-24 sm:w-28 md:w-40 object-contain mb-3"
           />
           <p className="text-sm">{footerLinks.about.description}</p>
         </div>
