@@ -4,11 +4,9 @@ import Order from "../models/Order.js";
 import User from "../models/User.js";
 import crypto from "crypto";
 import Products from "../models/Products.js";
-import Vendor from "../models/Vendor.js";
 import { sendOrderSuccessMail } from "../services/email/sender.js";
 import { generateInvoice } from "../services/customerInvoice/generateInvoice.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
-import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -25,10 +23,19 @@ export const createRazorpayOrder = async (req, res) => {
   }
 
   try {
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).populate("orderItems.product", "title stock");
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
     if (order.orderStatus !== "pending") {
       return res.status(400).json({ success: false, message: "Order is already confirmed or processed." });
+    }
+
+    // Check stock availability
+    const outOfStockItems = order.orderItems.filter(item => !item.product || item.product.stock < item.quantity);
+    if (outOfStockItems.length) {
+      return res.status(400).json({
+        success: false,
+        message: `${outOfStockItems.map(i => i.product?.title || "Unknown product").join(", ")} is out of stock.`,
+      });
     }
 
     const options = {
@@ -51,6 +58,7 @@ export const createRazorpayOrder = async (req, res) => {
   }
 };
 
+
 // ==========================
 // Verify Razorpay payment
 // ==========================
@@ -71,7 +79,6 @@ export const verifyRazorpayPayment = async (req, res) => {
       return res.status(403).json({ success: false, message: "Not authorized for this order." });
     }
 
-    // Verify Razorpay signature
     const body = razorpayOrderId + "|" + razorpayPaymentId;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -82,7 +89,6 @@ export const verifyRazorpayPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: "Payment verification failed." });
     }
 
-    // compute expectedAmount first
     const expectedAmount = Math.round(order.grandTotal * 100);
 
     let payment;
@@ -93,12 +99,11 @@ export const verifyRazorpayPayment = async (req, res) => {
       return res.status(500).json({ success: false, message: "Unable to fetch payment details." });
     }
 
-    // If not captured, handle authorized → capture
     if (payment.status !== "captured") {
       if (payment.status === "authorized") {
         try {
           await razorpay.payments.capture(razorpayPaymentId, expectedAmount, "INR");
-          payment = await razorpay.payments.fetch(razorpayPaymentId); // refetch
+          payment = await razorpay.payments.fetch(razorpayPaymentId);
         } catch (captureErr) {
           console.error("Razorpay capture failed:", captureErr);
           return res.status(500).json({ success: false, message: "Payment capture failed." });
@@ -115,14 +120,12 @@ export const verifyRazorpayPayment = async (req, res) => {
     const user = await User.findById(order.user);
     if (!user) return res.status(404).json({ success: false, message: "User not found." });
 
-    // Update order
     order.paymentMethod = "Online";
     order.paymentInfo = { id: razorpayPaymentId, status: "paid" };
     order.paidAt = new Date();
     order.orderStatus = "processing";
     if (shippingInfo) order.shippingInfo = shippingInfo;
 
-    // Deduct stock
     for (const item of order.orderItems) {
       const product = await Products.findById(item.product);
 
@@ -133,104 +136,45 @@ export const verifyRazorpayPayment = async (req, res) => {
         });
       }
 
-      // Safe update
       await Products.findByIdAndUpdate(item.product, {
         $inc: { stock: -item.quantity, unitsSold: item.quantity },
       });
     }
 
-    // Clear cart
     if (order.source === "cart") {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
     }
 
-    // Invoice number
     if (!order.invoiceNumber) {
       order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
     }
 
-    // Save order first (before async tasks)
     await order.save();
 
-    // Send response immediately
     res.status(200).json({
       success: true,
       message: "Payment verified and order confirmed.",
       order,
     });
-    
-    // Async post-processing (emails, invoice, Shiprocket)
-    (async () => {
-      try {
-        // Shiprocket push
-        try {
-          await pushOrderToShiprocket(order._id);
-          console.log("Shiprocket orders created for all vendors");
-        } catch (err) {
-          console.error("Shiprocket push failed:", err.message);
-        }
 
-        // Generate invoice
-        const customerInvoice = await generateInvoice(order, user);
-        order.userInvoiceUrl = customerInvoice?.url || "";
-        await order.save();
+    const customerInvoice = await generateInvoice(order, user);
+    order.userInvoiceUrl = customerInvoice?.url || "";
+    await order.save();
 
-        // Customer email
-        try {
-          await safeSendMail(sendOrderSuccessMail, {
-            to: user?.email,
-            orderId: order._id,
-            customerName: user?.name,
-            paymentMethod: order.paymentMethod,
-            totalAmount: order.grandTotal,
-            items: order.orderItems.map((i) => ({
-              name: i.product?.title || "Unknown product",
-              qty: i.quantity,
-              price: i.product?.price ?? 0,
-            })),
-            invoiceUrl: order.userInvoiceUrl,
-          });
-        } catch (err) {
-          console.error("Failed to send customer email:", err);
-        }
+    await safeSendMail(sendOrderSuccessMail, {
+      to: user?.email,
+      orderId: order._id,
+      customerName: user?.name,
+      paymentMethod: order.paymentMethod,
+      totalAmount: order.grandTotal,
+      items: order.orderItems.map((i) => ({
+        name: i.product?.title || "Unknown product",
+        qty: i.quantity,
+        price: i.product?.price ?? 0,
+      })),
+      invoiceUrl: order.userInvoiceUrl,
+    });
 
-        // Vendor emails
-        const vendorGroups = {};
-        for (const item of order.orderItems) {
-          const vendorId = item.product?.createdBy?.toString();
-          if (!vendorId) continue;
-          if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
-          vendorGroups[vendorId].push(item);
-        }
-
-        for (const [vendorId, items] of Object.entries(vendorGroups)) {
-          const vendor = await Vendor.findById(vendorId);
-          if (!vendor) continue;
-
-          try {
-            await safeSendMail(sendOrderSuccessMail, {
-              to: vendor.email,
-              orderId: order._id,
-              customerName: user?.name,
-              paymentMethod: order.paymentMethod,
-              totalAmount: items.reduce((sum, i) => sum + (i.product?.price ?? 0) * i.quantity, 0),
-              items: items.map(i => ({
-                name: i.product?.title || "Unknown product",
-                qty: i.quantity,
-                price: i.product?.price ?? 0,
-              })),
-              vendorName: vendor.name,
-              vendorShop: vendor.shopName,
-              isVendor: true,
-            });
-          } catch (err) {
-            console.error(`Failed to send vendor email for ${vendorId}:`, err);
-          }
-        }
-      } catch (err) {
-        console.error("Async post-processing failed:", err);
-      }
-    })();
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Unable to verify payment." });
@@ -264,98 +208,52 @@ export const confirmCOD = async (req, res) => {
     order.paymentInfo = { id: null, status: "pending" };
     order.orderStatus = "processing";
 
-    // Deduct stock
     for (const item of order.orderItems) {
       const product = await Products.findById(item.product);
+
       if (!product || product.stock < item.quantity) {
         return res.status(400).json({
           success: false,
           message: `${product?.title || "Product"} is out of stock.`,
         });
       }
+
       await Products.findByIdAndUpdate(item.product, {
         $inc: { stock: -item.quantity, unitsSold: item.quantity },
       });
     }
 
-    // Clear cart
     if (order.source === "cart") {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
     }
 
-    // Invoice number
     if (!order.invoiceNumber) {
       order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
     }
 
-    // Save order first
+    const customerInvoice = await generateInvoice(order, user);
+    order.userInvoiceUrl = customerInvoice?.url || "";
     await order.save();
 
-    // Send response immediately so frontend loader stops
+    await safeSendMail(sendOrderSuccessMail, {
+      to: user?.email,
+      orderId: order._id,
+      customerName: user?.name,
+      paymentMethod: order.paymentMethod,
+      totalAmount: order.grandTotal,
+      items: order.orderItems.map((i) => ({
+        name: i.product?.title || "Unknown product",
+        qty: i.quantity,
+        price: i.product?.price || 0,
+      })),
+      invoiceUrl: order.userInvoiceUrl,
+    });
+
     res.status(200).json({
       success: true,
       message: "COD confirmed and order is processing.",
       order,
     });
-
-    // Async post-processing (emails, invoice, Shiprocket)
-    (async () => {
-      try {
-        await pushOrderToShiprocket(order._id);
-        const customerInvoice = await generateInvoice(order, user);
-        order.userInvoiceUrl = customerInvoice?.url || "";
-        await order.save();
-
-        await safeSendMail(sendOrderSuccessMail, {
-          to: user?.email,
-          orderId: order._id,
-          customerName: user?.name,
-          paymentMethod: order.paymentMethod,
-          totalAmount: order.grandTotal,
-          items: order.orderItems.map((i) => ({
-            name: i.product?.title || "Unknown product",
-            qty: i.quantity,
-            price: i.product?.price || 0,
-          })),
-          invoiceUrl: order.userInvoiceUrl,
-        });
-
-        const vendorGroups = {};
-        for (const item of order.orderItems) {
-          const vendorId = item.product?.createdBy?.toString();
-          if (!vendorId) continue;
-          if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
-          vendorGroups[vendorId].push(item);
-        }
-
-        for (const [vendorId, items] of Object.entries(vendorGroups)) {
-          const vendor = await Vendor.findById(vendorId);
-          if (!vendor) continue;
-
-          try {
-            await safeSendMail(sendOrderSuccessMail, {
-              to: vendor.email,
-              orderId: order._id,
-              customerName: user?.name,
-              paymentMethod: order.paymentMethod,
-              totalAmount: items.reduce((sum, i) => sum + (i.product?.price ?? 0) * i.quantity, 0),
-              items: items.map(i => ({
-                name: i.product?.title || "Unknown product",
-                qty: i.quantity,
-                price: i.product?.price ?? 0,
-              })),
-              vendorName: vendor.name,
-              vendorShop: vendor.shopName,
-              isVendor: true,
-            });
-          } catch (err) {
-            console.error(`Failed to send vendor email for ${vendorId}:`, err);
-          }
-        }
-      } catch (err) {
-        console.error("Async post-processing failed:", err);
-      }
-    })();
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Unable to confirm COD.", error: err.message });

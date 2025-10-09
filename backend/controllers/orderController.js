@@ -71,8 +71,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           gstRate,
           gstAmount,
           totalPrice,
-
-
+          
         },
       ];
 

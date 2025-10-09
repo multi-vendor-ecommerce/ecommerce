@@ -29,6 +29,7 @@ const ProductDetails = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [isBuying, setIsBuying] = useState(false);
 
   const lastAddClickTime = useRef(0);
 
@@ -107,20 +108,29 @@ const ProductDetails = () => {
     }
     if (!productDetails?._id) return;
 
-    const res = await createOrderDraft({
-      buyNow: true,
-      productId: productDetails._id,
-      quantity: 1,
-      color: selectedColor,
-      size: selectedSize,
-    });
+    try {
+      setIsBuying(true);
 
-    if (res?.success && res.draftOrderId) {
-      navigate(`/order-summary/${res.draftOrderId}`);
-    } else {
-      toast.error(res?.message || "Failed to create order draft.");
+      const res = await createOrderDraft({
+        buyNow: true,
+        productId: productDetails._id,
+        quantity: 1,
+        color: selectedColor,
+        size: selectedSize,
+      });
+
+      if (res?.success && res.draftOrderId) {
+        navigate(`/order-summary/${res.draftOrderId}`);
+      } else {
+        toast.error(res?.message || "Failed to create order draft.");
+      }
+    } catch (err) {
+      toast.error(err.message || "Something went wrong");
+    } finally {
+      setIsBuying(false);
     }
   };
+
 
   if (!productDetails) {
     return (
@@ -330,11 +340,12 @@ const ProductDetails = () => {
           <div className="flex flex-wrap gap-4 mt-4">
             {/* Buy Now */}
             <button
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow-md transition cursor-pointer transform hover:scale-105"
+              className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow-md transition cursor-pointer transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
               onClick={handleBuyNow}
+              disabled={isBuying}
             >
               <FaBolt className="text-white text-lg" />
-              Buy Now
+              {isBuying ? "Processing..." : "Buy Now"}
             </button>
 
             {/* Add to Cart */}
@@ -353,7 +364,7 @@ const ProductDetails = () => {
 
           <BackButton className="border-green-500 hover:bg-green-700" />
         </div>
-        
+
       </div>
       <ProductReview productId={productDetails._id} />
       {/* <RecentlyProductList /> */}

@@ -22,7 +22,12 @@ export const handlePayment = async ({
       }
     } else {
       const razorpayData = await createRazorpayOrder(order._id);
-      if (!razorpayData) throw new Error("Failed to create Razorpay order");
+      console.log(razorpayData);
+
+      if (!razorpayData || razorpayData.success === false) {
+        toast.error(razorpayData?.message || "Cannot proceed to payment");
+        return; 
+      }
 
       const { razorpayOrder, key } = razorpayData;
       const options = {
