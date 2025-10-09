@@ -45,7 +45,7 @@ const Vendor = Person.discriminator("vendor", new Schema({
   totalSales: { type: Number, default: 0 },
   totalRevenue: { type: Number, default: 0 },
   registeredAt: { type: Date, default: Date.now },
- 
+  totalCommission: { type: Number, default: 0 },
   shiprocket: {
     pickupLocationCode: { type: String, default: "" }, // SR nickname we create/map
     warehouseId: { type: Number, default: null },      // optional
