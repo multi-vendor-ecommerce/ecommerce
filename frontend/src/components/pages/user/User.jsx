@@ -23,6 +23,8 @@ import Returns from "./UserFooter/Returns";
 import Privacy from "./UserFooter/Privacy";
 import Terms from "./UserFooter/Terms";
 
+import NotFoundPage from "../../common/notPageFound";
+
 export default function User() {
   return (
     <>
@@ -103,6 +105,8 @@ export default function User() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/privacy-policy" element={<Privacy />} />
+            
+            <Route path="*" element={<NotFoundPage destination="/" />} />
           </Routes>
         </main>
 
