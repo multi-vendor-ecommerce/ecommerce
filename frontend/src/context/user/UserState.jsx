@@ -69,14 +69,12 @@ const UserState = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider
-      value={{
-        users,
-        totalCount,
-        loading,
-        getAllCustomers,
-      }}
-    >
+    <UserContext.Provider value={{
+      users,
+      totalCount,
+      loading,
+      getAllCustomers,
+    }}>
       {children}
     </UserContext.Provider>
   );

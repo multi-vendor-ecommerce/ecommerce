@@ -171,7 +171,14 @@ const PersonState = (props) => {
   };
 
   return (
-    <PersonContext.Provider value={{ person, loading, getCurrentPerson, editPerson, deletePerson, changePassword }}>
+    <PersonContext.Provider value={{
+      person,
+      loading,
+      getCurrentPerson,
+      editPerson,
+      deletePerson,
+      changePassword
+    }}>
       {props.children}
     </PersonContext.Provider>
   )

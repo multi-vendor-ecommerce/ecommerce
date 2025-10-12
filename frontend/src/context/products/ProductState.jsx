@@ -341,23 +341,21 @@ const ProductState = ({ children }) => {
   };
 
   return (
-    <ProductContext.Provider
-      value={{
-        products,
-        loading,
-        totalCount,
-        getAllProducts,
-        getProductById,
-        getProductsByCategoryId,
-        addProduct,
-        getTopSellingProducts,
-        editProduct,
-        deleteProduct,
-        updateProductStatus,
-        getRecentlyViewedProducts,
-        searchProducts
-      }}
-    >
+    <ProductContext.Provider value={{
+      products,
+      loading,
+      totalCount,
+      getAllProducts,
+      getProductById,
+      getProductsByCategoryId,
+      addProduct,
+      getTopSellingProducts,
+      editProduct,
+      deleteProduct,
+      updateProductStatus,
+      getRecentlyViewedProducts,
+      searchProducts
+    }}>
       {children}
     </ProductContext.Provider>
   );

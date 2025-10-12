@@ -1,7 +1,7 @@
 import express from "express";
 import verifyToken from "../middleware/verifyToken.js";
 import authorizeRoles from "../middleware/authorizeRole.js";
-import { createOrUpdateDraftOrder, getAllOrders, getOrderById, getUserDraftOrder, pushOrder, cancelOrder, returnOrderRequest, generateOrderDocs, generateAWBForOrder } from "../controllers/orderController.js";
+import { createOrUpdateDraftOrder, getAllOrders, getOrderById, getUserDraftOrder, pushOrder, cancelOrder, returnOrderRequest, generateOrderDocs, generateAWBForOrder, getSalesTrend } from "../controllers/orderController.js";
 
 const router = express.Router();
 
@@ -37,24 +37,28 @@ router.get("/draft/:id", verifyToken, authorizeRoles("customer"), getUserDraftOr
 // Desc: Get specific order details by order ID (customer)
 router.get("/:id", verifyToken, authorizeRoles("customer"), getOrderById);
 
+// Route 9: GET /api/orders/sales-trend
+// Desc: Get sales trend (admin & vendor)
+router.get("/sales-trend", verifyToken, authorizeRoles("admin", "vendor"), getSalesTrend);
+
 // Shiprocket apis
-// ROUTE 9: GET /api/orders/create-order/:id
+// ROUTE 10: GET /api/orders/create-order/:id
 // Desc: Place order on Shiprocket (vendor only)
 router.put("/create-order/:id", verifyToken, authorizeRoles("vendor"), pushOrder);
 
-// Route 9: PUT /api/orders/assign-awb/:id
+// Route 11: PUT /api/orders/assign-awb/:id
 // Desc: Assign AWB to order - accessible by vendor and admin
 router.put("/assign-awb/:id", verifyToken, authorizeRoles("vendor", "admin"), generateAWBForOrder);
 
-// ROUTE 10: POST /api/orders/generate-docs/:id
+// ROUTE 12: POST /api/orders/generate-docs/:id
 // Desc: Generate shipping documents - accessible by vendor and admin
 router.post("/generate-docs/:id", verifyToken, authorizeRoles("vendor", "admin"), generateOrderDocs);
 
-// ROUTE 11: GET /api/orders/cancel-order/:id
+// ROUTE 13: GET /api/orders/cancel-order/:id
 // Desc: Cancel order - accessible by vendor and admin
 router.patch("/cancel-order/:id", verifyToken, authorizeRoles("vendor", "admin", "customer"), cancelOrder);
 
-// ROUTE 12: GET /api/orders/return-order/:id
+// ROUTE 14: GET /api/orders/return-order/:id
 // Desc: Return order - accessible by vendor and admin
 router.get("/return-order/:id", verifyToken, authorizeRoles("vendor", "admin"), returnOrderRequest);
 

@@ -86,13 +86,11 @@ const CategoryState = (props) => {
   }, [categoriesByLevel, host]);
 
   return (
-    <CategoryContext.Provider
-      value={{
-        categoriesByParentId,
-        createCategory,
-        loading,
-      }}
-    >
+    <CategoryContext.Provider value={{
+      categoriesByParentId,
+      createCategory,
+      loading,
+    }}>
       {props.children}
     </CategoryContext.Provider>
   );

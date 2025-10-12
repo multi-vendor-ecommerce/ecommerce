@@ -8,7 +8,6 @@ const VendorState = (props) => {
   const [totalCount, setTotalCount] = useState(0);
 
   const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
-
   // const host = "http://localhost:5000";
 
   const getAllVendors = async ({ search = "", status = "", date = "", page = 1, limit = 10 } = {}) => {
@@ -219,7 +218,19 @@ const VendorState = (props) => {
   };
 
   return (
-    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor, reactivateVendorAccount }}>
+    <VendorContext.Provider value={{
+      vendors,
+      topVendors,
+      loading,
+      totalCount,
+      getAllVendors,
+      getTopVendors,
+      editStore,
+      getVendorById,
+      updateVendorStatus,
+      adminEditVendor,
+      reactivateVendorAccount
+    }}>
       {props.children}
     </VendorContext.Provider>
   )

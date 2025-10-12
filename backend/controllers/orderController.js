@@ -5,6 +5,7 @@ import Product from "../models/Products.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { getShippingInfoForOrder } from "../utils/getShippingInfo.js";
 import { round2 } from "../utils/round2.js";
+import { getDateRange } from "../utils/getDateRange.js"; 
 import { generateShippingDocs } from "../services/shiprocket/generateDocs.js";
 import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
 import { cancelShiprocketOrders } from "../services/shiprocket/cancel.js";
@@ -397,6 +398,59 @@ export const getOrderById = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: "Unable to load order.", error: err.message });
+  }
+};
+
+// ==========================
+// Get Sales Trend (admin & vendor)
+// ==========================
+export const getSalesTrend = async (req, res) => {
+  try {
+    const { role, id: personId } = req.user;
+    const { range = "7d" } = req.query;
+
+    const { startDate, endDate } = getDateRange(range);
+
+    const matchQuery = {
+      orderStatus: "delivered",
+      deliveredAt: { $gte: startDate, $lte: endDate },
+    };
+
+    if (role === "vendor") {
+      matchQuery["orderItems.createdBy"] = personId;
+    }
+
+    const trendData = await Order.aggregate([
+      { $match: matchQuery },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$deliveredAt" } },
+          totalSales: { $sum: "$grandTotal" },
+          orderCount: { $sum: 1 },
+        },
+      },
+      { $sort: { "_id": 1 } },
+    ]);
+
+    const formattedTrend = trendData.map((item) => ({
+      date: item._id,
+      revenue: item.totalSales,
+      orders: item.orderCount,
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "Sales trend fetched successfully",
+      range,
+      salesTrend: formattedTrend,
+    });
+  } catch (err) {
+    console.error("Error fetching sales trend:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch sales trend",
+      error: err.message,
+    });
   }
 };
 

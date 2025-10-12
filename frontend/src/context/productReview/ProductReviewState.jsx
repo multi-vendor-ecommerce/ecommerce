@@ -109,15 +109,13 @@ const ProductReviewState = ({ children }) => {
   };
 
   return (
-    <ProductReviewContext.Provider
-      value={{
-        reviews,
-        loading,
-        addReview,
-        getProductReviews,
-        markReviewHelpful,
-      }}
-    >
+    <ProductReviewContext.Provider value={{
+      reviews,
+      loading,
+      addReview,
+      getProductReviews,
+      markReviewHelpful,
+    }}>
       {children}
     </ProductReviewContext.Provider>
   );

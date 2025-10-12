@@ -4,10 +4,11 @@ import OrderContext from "./OrderContext";
 const OrderState = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [orders, setOrders] = useState([]);
+  const [salesData, setSalesData] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
 
-  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
+  const host = "http://localhost:5000";
 
   // Utility to get role
   const getRoleInfo = () => {
@@ -138,6 +139,39 @@ const OrderState = ({ children }) => {
     }
   };
 
+  const getSalesTrend = async (range = "7d") => {
+    const { role } = getRoleInfo();
+    if (!["admin", "vendor"].includes(role)) {
+      console.error("Sales trend is only available for admin and vendor.");
+      return [];
+    }
+
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (range) params.append("range", range);
+
+      const res = await fetch(`${host}/api/orders/sales-trend?${params.toString()}`, {
+        headers: {
+          "auth-token": role === "admin"
+            ? localStorage.getItem("adminToken")
+            : role === "vendor" ? localStorage.getItem("vendorToken")
+              : null,
+        },
+      });
+      const data = await res.json();
+      const trend = data.salesTrend || [];
+      setSalesData(trend); // store in state
+      return trend;
+    } catch (error) {
+      console.error("Error fetching sales trend:", error);
+      setSalesData([]);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const pushOrder = async (id, formData) => {
     setLoading(true);
     try {
@@ -221,7 +255,7 @@ const OrderState = ({ children }) => {
 
     try {
       const res = await fetch(`${host}/api/orders/cancel-order/${id}`, {
-        method: "PATCH",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           "auth-token": role === "admin"
@@ -241,6 +275,7 @@ const OrderState = ({ children }) => {
     <OrderContext.Provider value={{
       loading,
       orders,
+      salesData,
       totalCount,
       createOrderDraft,
       getAllOrders,
@@ -249,7 +284,8 @@ const OrderState = ({ children }) => {
       pushOrder,
       generateAWBForOrder,
       generateDocs,
-      cancelOrder
+      cancelOrder,
+      getSalesTrend,
     }}>
       {children}
     </OrderContext.Provider>

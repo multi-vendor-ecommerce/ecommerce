@@ -124,17 +124,15 @@ const WishlistState = ({ children }) => {
   };
 
   return (
-    <WishlistContext.Provider
-      value={{
-        wishlist,
-        loading,
-        getWishlist,
-        addToWishlist,
-        removeFromWishlist,
-        isInWishlist,
-        clearWishlist
-      }}
-    >
+    <WishlistContext.Provider value={{
+      wishlist,
+      loading,
+      getWishlist,
+      addToWishlist,
+      removeFromWishlist,
+      isInWishlist,
+      clearWishlist
+    }}>
       {children}
     </WishlistContext.Provider>
   );

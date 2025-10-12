@@ -190,7 +190,16 @@ const AuthState = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ authTokens, people, loading, login, register, logout, requestOtp, verifyOtp }}>
+    <AuthContext.Provider value={{
+      authTokens,
+      people,
+      loading,
+      login,
+      register,
+      logout,
+      requestOtp,
+      verifyOtp
+    }}>
       {children}
     </AuthContext.Provider>
   );

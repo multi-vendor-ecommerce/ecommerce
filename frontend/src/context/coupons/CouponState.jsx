@@ -129,7 +129,15 @@ const CouponState = (props) => {
   };
 
   return (
-    <CouponContext.Provider value={{ coupons, totalCount, getAllCoupons, addCoupon, editCoupon, deleteCoupon, loading }}>
+    <CouponContext.Provider value={{
+      coupons,
+      totalCount,
+      getAllCoupons,
+      addCoupon,
+      editCoupon,
+      deleteCoupon,
+      loading
+      }}>
       {props.children}
     </CouponContext.Provider>
   )

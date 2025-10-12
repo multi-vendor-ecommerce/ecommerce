@@ -6,20 +6,20 @@ export default function SalesChart({ data }) {
       <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">Sales Trend</h2>
       <ResponsiveContainer width="100%" height={280}>
         <LineChart
-          data={data}
+          data={data || []} // Use salesData directly, default to empty array
           margin={{ top: 20, right: 30, left: 10, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 13, fill: "#374151" }} // darker gray
+            tick={{ fontSize: 13, fill: "#374151" }}
             tickMargin={10}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             domain={["auto", "auto"]}
-            tick={{ fontSize: 13, fill: "#374151" }} // darker gray
+            tick={{ fontSize: 13, fill: "#374151" }}
             tickMargin={10}
             axisLine={false}
             tickLine={false}
@@ -30,7 +30,7 @@ export default function SalesChart({ data }) {
               border: "1px solid #e5e7eb",
               borderRadius: 8,
               fontSize: 13,
-              color: "#111827", // darkest text
+              color: "#111827",
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.05)",
             }}
             labelStyle={{ color: "#111827", fontWeight: 500 }}
@@ -41,7 +41,7 @@ export default function SalesChart({ data }) {
             dataKey="sales"
             stroke="#1d4ed8"
             strokeWidth={2.5}
-            dot={{ r: 4, stroke: "#1e3a8a", fill: "#1d4ed8", strokeWidth: 1.5 }} // darker dot
+            dot={{ r: 4, stroke: "#1e3a8a", fill: "#1d4ed8", strokeWidth: 1.5 }}
             activeDot={{ r: 6, strokeWidth: 2, stroke: "#1e3a8a", fill: "#1d4ed8" }}
           />
         </LineChart>

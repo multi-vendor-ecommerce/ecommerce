@@ -4,8 +4,8 @@ import PaymentContext from "./PaymentContext";
 const PaymentState = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
-  // const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
-  const host = "http://localhost:5000";
+  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
+  // const host = "http://localhost:5000";
 
   // Create Razorpay order
   const createRazorpayOrder = async (orderId) => {
@@ -85,9 +85,12 @@ const PaymentState = ({ children }) => {
   };
 
   return (
-    <PaymentContext.Provider
-      value={{ loading, createRazorpayOrder, confirmRazorpayPayment, confirmCOD }}
-    >
+    <PaymentContext.Provider value={{
+      loading,
+      createRazorpayOrder,
+      confirmRazorpayPayment,
+      confirmCOD
+    }}>
       {children}
     </PaymentContext.Provider>
   );
