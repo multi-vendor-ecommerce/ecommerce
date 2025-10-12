@@ -15,7 +15,7 @@ const Dashboard = ({ summaryData, role = "admin" }) => {
   const { users, getAllCustomers } = useContext(UserContext);
   const { orders, getAllOrders, salesData, getSalesTrend } = useContext(OrderContext);
   const { getAllProducts } = useContext(ProductContext);
-  const { vendors, getTopVendors } = useContext(VendorContext);
+  const { getTopVendors } = useContext(VendorContext);
 
   const [dateValue, setDateValue] = useState("today");
   const [products, setProducts] = useState([]); // ✅ Store products here
@@ -26,13 +26,13 @@ const Dashboard = ({ summaryData, role = "admin" }) => {
   }, []);
 
   const fetchDashboardData = async (date) => {
-    getAllCustomers(date);
-    getAllOrders({ date });
+    getAllCustomers();
+    getAllOrders();
     getSalesTrend(date);
-    if (role === "admin") getTopVendors(date);
+    if (role === "admin") getTopVendors();
 
     // Fetch products and save to state
-    const productResult = await getAllProducts(date);
+    const productResult = await getAllProducts();
     if (productResult?.products) setProducts(productResult.products);
   };
 

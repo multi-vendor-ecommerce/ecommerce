@@ -5,6 +5,7 @@ import { toTitleCase } from "../../../../utils/titleCase";
 import { formatNumber } from "../../../../utils/formatNumber";
 import Button from "../../../common/Button";
 import PushOrder from "./PushOrder";
+import { toast } from "react-toastify";
 
 export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorId = null, orderState = null, setOrderState = null, generateAWBForOrder = null) => (
   <>
@@ -86,7 +87,7 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
       {/* Shipping details */}
       {(order.orderItems?.[0]?.shiprocketAWB || order.orderItems?.[0]?.courierName) && (
         <td
-          className="px-6 py-3 min-w-[190px] font-semibold hover:scale-105 transition duration-150"
+          className="px-6 py-3 min-w-[200px] font-semibold hover:scale-105 transition duration-150"
           title={`
           Shipping AWB: ${order.orderItems?.[0]?.shiprocketAWB || 'N/A'} 
           Shipping Courier Name: ${order.orderItems?.[0]?.courierName || 'N/A'}
@@ -107,7 +108,18 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
 
       {/* Actions */}
       <td
-        className={`${role === "vendor" ? "px-6 py-3 min-w-[250px]" : "px-6 py-3 min-w-[120px]"}`}
+        className={`
+          px-6 py-3
+          ${role === "vendor" && orderState
+            ? order?.orderStatus === "processing" &&
+              order?.orderItems?.[0]?.originalShiprocketStatus === ""
+              ? order?.orderItems?.[0]?.invoiceUrl
+                ? "min-w-[380px]" // Both status + invoice
+                : "min-w-[270px]" // Only status
+              : "min-w-[120px]"   // Status not correct
+            : "min-w-[120px]"     // Not vendor / orderState null
+          }
+        `}
       >
         <div className="inline-flex items-center gap-4">
           <NavLink
@@ -141,12 +153,18 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
             )}
 
           {role === "vendor" && orderState !== null &&
-            (order?.orderItems?.[0]?.originalShiprocketStatus === "new") && (
+            order?.orderItems?.[0]?.originalShiprocketStatus === "new" && (
               <Button
                 text="Assign AWB"
-                onClick={() => {
-                  generateAWBForOrder(order?._id);
-                  setOrderState({ isButtonClick: true, orderId: order._id });
+                onClick={async () => {
+                  const data = await generateAWBForOrder(order._id); // returns { success, message }
+
+                  if (data.success) {
+                    toast.success(data.message || "AWB assigned successfully");
+                    setOrderState({ isButtonClick: true, orderId: order._id });
+                  } else {
+                    toast.error(data.message || "Failed to assign AWB");
+                  }
                 }}
                 disabled={orderState.isButtonClick && orderState.orderId === order._id}
                 className="py-1 text-sm"
@@ -156,14 +174,15 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
         </div>
       </td>
 
-      <td className="px-6 py-3 min-w-[190px] font-semibold hover:scale-105 transition duration-150">
-        {(() => {
-          const { labelUrl, invoiceUrl, manifestUrl } = order.orderItems[0] || {};
-          const docs = { Label: labelUrl, Invoice: invoiceUrl, Manifest: manifestUrl };
+      {(order.orderItems?.[0]?.invoiceUrl || order.orderItems?.[0]?.labelUrl || order.orderItems?.[0]?.manifestUrl) && (
+        <td className="px-6 py-3 min-w-[190px] font-semibold hover:scale-105 transition duration-150">
+          {(() => {
+            const { labelUrl, invoiceUrl, manifestUrl } = order.orderItems[0] || {};
+            const docs = { Label: labelUrl, Invoice: invoiceUrl, Manifest: manifestUrl };
 
-          return (
-            <div className="flex gap-2">
-              {Object.entries(docs).map(([name, url]) =>
+            return (
+              <div className="flex gap-2">
+                {Object.entries(docs).map(([name, url]) =>
                   url && (
                     <a
                       key={name}
@@ -177,10 +196,11 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
                     </a>
                   )
                 )}
-            </div>
-          );
-        })()}
-      </td>
+              </div>
+            );
+          })()}
+        </td>
+      )}
     </tr>
     {orderState && orderState?.isButtonClick &&
       role === "vendor" &&

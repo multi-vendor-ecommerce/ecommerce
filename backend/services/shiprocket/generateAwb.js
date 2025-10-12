@@ -25,8 +25,12 @@ export async function assignAWBToOrder(orderId) {
     const awbResponse = await ShiprocketClient.assignAWB(shipmentIds);
     console.log("AWB Assignment Response:", awbResponse);
 
-    if (!awbResponse.awb_code) {
-      throw new Error("AWB assignment failed: No AWB code returned");
+    // After
+    if (!awbResponse || !awbResponse.awb_code || awbResponse[0]?.awb_assign_status !== 1) {
+      const msg =
+        awbResponse?.[0]?.response?.data?.awb_assign_error ||
+        "Failed to assign AWB from Shiprocket";
+      return { success: false, message: msg };
     }
 
     // Update each item with AWB

@@ -7,8 +7,8 @@ const OrderState = ({ children }) => {
   const [salesData, setSalesData] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
 
-  // const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
-  const host = "http://localhost:5000";
+  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
+  // const host = "http://localhost:5000";
 
   // Utility to get role
   const getRoleInfo = () => {
@@ -189,7 +189,7 @@ const OrderState = ({ children }) => {
       return data;
     } catch (err) {
       console.error("Error fetching order:", err);
-      return null;
+      return { success: false, message: err.message || "Failed to fetch order" };
     } finally {
       setLoading(false);
     }
@@ -212,11 +212,16 @@ const OrderState = ({ children }) => {
         headers,
       });
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.message || "Failed to generate AWB");
+      if (!res.ok) {
+        return { success: false, message: data.message || "Failed to generate AWB" };
+      }
 
       return data;
     } catch (error) {
       console.error("Error generating AWB:", error);
+      return { success: false, message: error.message || "Failed to generate AWB" };
+    } finally {
+      setLoading(false);
     }
   }
 
