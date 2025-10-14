@@ -3,7 +3,7 @@ import CategoryContext from "../../../../context/categories/CategoryContext";
 import InputField from "../../../common/InputField";
 import Button from "../../../common/Button";
 import BackButton from "../../../common/layout/BackButton";
-import { FiPlus, FiPlusCircle } from "react-icons/fi";
+import { FiPlus, FiPlusCircle, FiX } from "react-icons/fi";
 import CustomSelect from "../../../common/layout/CustomSelect";
 import useCategorySelection from "../../../../hooks/useCategorySelection";
 import { toast } from "react-toastify";
@@ -20,7 +20,7 @@ const CreateCategory = () => {
     handleCategoryClick,
     getSelectedCategoryPath,
     loadCategories,
-  } = useCategorySelection(() => {}, setSelectedCategories, selectedCategories);
+  } = useCategorySelection(() => { }, setSelectedCategories, selectedCategories);
 
   // Form state
   const [form, setForm] = useState({ name: "", description: "", parent: "" });
@@ -99,7 +99,7 @@ const CreateCategory = () => {
 
         {/* File Upload → only for root categories */}
         {!parentCategoryId && (
-          <div className="w-full min-h-[200px] bg-white rounded-lg hover:shadow-blue-500 shadow-md transition duration-200 flex justify-center items-center p-6">
+          <div className="w-full min-h-[200px] bg-white rounded-lg hover:shadow-blue-500 shadow-md transition duration-200 flex flex-col justify-center gap-3 p-6">
             <div className="bg-gray-200 w-full p-6 rounded-lg flex flex-col justify-center items-center">
               <div>
                 <label
@@ -123,6 +123,34 @@ const CreateCategory = () => {
               <p className="text-yellow-600 text-xs md:text-sm">
                 Image size should not exceed 2MB.
               </p>
+            </div>
+
+            <div>
+              <div className="text-lg md:text-xl font-semibold">Image:</div>
+              {categoryImage && (
+                <div className="flex flex-wrap gap-3 mt-2 mb-3">
+                  <div className="w-24 h-24 rounded-lg overflow-hidden relative">
+                    <img
+                      src={
+                        categoryImage instanceof File
+                          ? URL.createObjectURL(categoryImage)
+                          : categoryImage.url || categoryImage
+                      }
+                      alt={`preview`}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-red-600/60 transition rounded-lg cursor-pointer"
+                      style={{ zIndex: 2 }}
+                      onClick={() => setCategoryImage(null)}
+                      title="Delete image"
+                    >
+                      <FiX size={50} className="text-white select-none pointer-events-none" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -41,7 +41,7 @@ const BasicInfo = ({
                 className="md:ml-1.5 text-blue-600 hover:text-blue-800 truncate"
               >
                 <span className="inline-flex gap-1 mt-1 items-center text-sm md:text-base">
-                  <span className="hover:underline hover:decoration-dotted hover:font-medium">
+                  <span className="hover:underline hover:decoration-dotted">
                     {field.link.text}
                   </span>
                   <FiExternalLink size={16} />
