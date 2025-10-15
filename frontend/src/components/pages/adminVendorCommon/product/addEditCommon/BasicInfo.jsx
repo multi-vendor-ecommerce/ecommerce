@@ -63,7 +63,11 @@ const BasicInfo = ({
             formData.title,
             formData.tags,
             formData.sku,
-            formData.hsnCode
+            formData.hsnCode,
+            formData["dimensions.length"],
+            formData["dimensions.width"],
+            formData["dimensions.height"],
+            formData.weight
             ].some(val => !String(val || "").trim())
           }
         />

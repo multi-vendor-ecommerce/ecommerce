@@ -81,7 +81,7 @@ const UploadImages = ({
           currentStep={step}
           onNext={nextStep}
           onBack={prevStep}
-          nextDisabled={step === 2 && images.length === 0}
+          nextDisabled={step === 2 && images.length < 3}
         />
       )}
     </>

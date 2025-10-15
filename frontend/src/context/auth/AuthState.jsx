@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AuthContext from "./AuthContext";
 
 const AuthState = ({ children }) => {
@@ -19,167 +19,164 @@ const AuthState = ({ children }) => {
   const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
   // const host = "http://localhost:5000";
 
-  // Register Function
+  // ------------------------
+  // Decode JWT to get exp
+  // ------------------------
+  const decodeToken = (token) => {
+    if (!token) return null;
+    
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload;
+    } catch {
+      return null;
+    }
+  };
+
+  // ------------------------
+  // Initialize tokens on load
+  // ------------------------
+  useEffect(() => {
+    ["admin", "vendor", "customer"].forEach((role) => {
+      const token = localStorage.getItem(`${role}Token`);
+      if (token) {
+        const payload = decodeToken(token);
+
+        if (payload && payload.exp > Date.now() / 1000) {
+          setAuthTokens((prev) => ({ ...prev, [role]: token }));
+          setPeople((prev) => ({ ...prev, [role]: { role } }));
+        } else {
+          logout(role);
+        }
+      }
+    });
+  }, []);
+
+  // ------------------------
+  // Handle successful auth response
+  // ------------------------
+  const handleAuthSuccess = (response) => {
+    if (!response?.authToken || !response?.role) {
+      return { success: false, message: response?.message || "Invalid auth response" };
+    }
+
+    const { role, authToken, message } = response;
+
+    setAuthTokens((prev) => ({ ...prev, [role]: authToken }));
+    setPeople((prev) => ({ ...prev, [role]: { role } }));
+
+    localStorage.setItem(`${role}Token`, authToken);
+
+    return { success: true, role, message: message || "Authentication successful" };
+  };
+
+  // ------------------------
+  // Register
+  // ------------------------
   const register = async (formData) => {
     setLoading(true);
+
     try {
       const res = await fetch(`${host}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+      const response = await res.json();
 
-      const data = await res.json();
-
-      if (data.success && data.data.authToken) {
-        const role = data.data.role;
-        const updatedTokens = { ...authTokens, [role]: data.data.authToken };
-        const updatedPeople = { ...people, [role]: { role } };
-        setAuthTokens(updatedTokens);
-        setPeople(updatedPeople);
-        localStorage.setItem(`${role}Token`, data.data.authToken);
-
-        return {
-          success: true,
-          role,
-          message: data.message || "Registration successful.",
-          error: null
-        };
+      if (response.success) {
+        return handleAuthSuccess(response);
       } else {
-        return {
-          success: false,
-          role: null,
-          message: null,
-          error: data.message || "Registration failed."
-        };
+        return { success: false, message: response.message || "Registration failed" };
       }
     } catch (err) {
-      return {
-        success: false,
-        role: null,
-        message: null,
-        error: err.message || "Something went wrong."
-      };
+      return { success: false, message: err.message || "Something went wrong" };
     } finally {
       setLoading(false);
     }
   };
 
-  // Login Function
+  // ------------------------
+  // Login
+  // ------------------------
   const login = async (email, password) => {
     setLoading(true);
+
     try {
       const res = await fetch(`${host}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+      const response = await res.json();
 
-      const data = await res.json();
-
-      if (data.success && data.data.authToken) {
-        const role = data.data.role;
-        const updatedTokens = { ...authTokens, [role]: data.data.authToken };
-        const updatedPeople = { ...people, [role]: { role } };
-        setAuthTokens(updatedTokens);
-        setPeople(updatedPeople);
-        localStorage.setItem(`${role}Token`, data.data.authToken);
-
-        return {
-          success: true,
-          role,
-          message: data.message || "Login successful.",
-        };
+      if (response.success) {
+        return handleAuthSuccess(response);
       } else {
-        return {
-          success: false,
-          error: data.message || "Login failed."
-        };
+        return { success: false, message: response.message || "Login failed" };
       }
     } catch (err) {
-      return {
-        success: false,
-        error: err.message || "Something went wrong."
-      };
+      return { success: false, message: err.message || "Something went wrong" };
     } finally {
       setLoading(false);
     }
   };
 
-  // OTP Request Function
+  // ------------------------
+  // OTP Request
+  // ------------------------
   const requestOtp = async (email) => {
     setLoading(true);
+
     try {
       const res = await fetch(`${host}/api/auth/otp/request`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
+      const response = await res.json();
 
-      const data = await res.json();
-
-      if (data.success) {
-        return {
-          success: true,
-          message: data.message || "OTP sent! (Only valid for 5 minutes)",
-        };
+      if (response.success) {
+        return { success: true, message: response.message || "OTP sent! (Only valid for 5 minutes)" };
       } else {
-        return {
-          success: false,
-          error: data.message || "Failed to send OTP"
-        };
+        return { success: false, message: response.message || "Failed to send OTP" };
       }
     } catch (err) {
-      return {
-        success: false,
-        error: err.message || "Something went wrong."
-      };
+      return { success: false, message: err.message || "Something went wrong" };
     } finally {
       setLoading(false);
     }
   };
 
-  // OTP Verify Function
+  // ------------------------
+  // OTP Verify
+  // ------------------------
   const verifyOtp = async (email, otp) => {
     setLoading(true);
+
     try {
       const res = await fetch(`${host}/api/auth/otp/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
       });
+      const response = await res.json();
 
-      const data = await res.json();
-
-      if (data.success && data.data.authToken) {
-        const role = data.data.role;
-        const updatedTokens = { ...authTokens, [role]: data.data.authToken };
-        const updatedPeople = { ...people, [role]: { role } };
-        setAuthTokens(updatedTokens);
-        setPeople(updatedPeople);
-        localStorage.setItem(`${role}Token`, data.data.authToken);
-
-        return {
-          success: true,
-          role,
-          message: data.message || "OTP verified and login successful.",
-        };
+      if (response.success) {
+        return handleAuthSuccess(response);
       } else {
-        return {
-          success: false,
-          error: data.message || "OTP verification failed."
-        };
+        return { success: false, message: response.message || "OTP verification failed" };
       }
     } catch (err) {
-      return {
-        success: false,
-        error: err.message || "Something went wrong."
-      };
+      return { success: false, message: err.message || "Something went wrong" };
     } finally {
       setLoading(false);
     }
   };
 
+  // ------------------------
+  // Logout
+  // ------------------------
   const logout = (role) => {
     if (!role) return;
 
@@ -190,16 +187,18 @@ const AuthState = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{
-      authTokens,
-      people,
-      loading,
-      login,
-      register,
-      logout,
-      requestOtp,
-      verifyOtp
-    }}>
+    <AuthContext.Provider
+      value={{
+        authTokens,
+        people,
+        loading,
+        login,
+        register,
+        logout,
+        requestOtp,
+        verifyOtp,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
