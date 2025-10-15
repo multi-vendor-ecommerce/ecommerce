@@ -60,7 +60,7 @@ const Dashboard = ({ summaryData, role = "admin" }) => {
           />
         </div>
 
-        <SummaryCards summaryData={summaryData} users={users} orders={orders} products={products} />
+        <SummaryCards summaryData={summaryData} users={users} orders={orders} products={products} role={role} />
 
         <div className="mt-6">
           <SalesChart data={salesData} />

@@ -406,7 +406,7 @@ export const getOrderById = async (req, res) => {
 // ==========================
 export const getSalesTrend = async (req, res) => {
   try {
-    const { role, id: personId } = req.user;
+    const { role, id } = req.person;
     const { range = "7d" } = req.query;
 
     const { startDate, endDate } = getDateRange(range);
@@ -417,7 +417,7 @@ export const getSalesTrend = async (req, res) => {
     };
 
     if (role === "vendor") {
-      matchQuery["orderItems.createdBy"] = personId;
+      matchQuery["orderItems.createdBy"] = id;
     }
 
     const trendData = await Order.aggregate([
@@ -526,7 +526,7 @@ export const generateAWBForOrder = async (req, res) => {
   try {
     const updatedOrder = await assignAWBToOrder(orderId);
     if (!updatedOrder.success) {
-      return res.status(400).json({ success: false, message: updatedOrder.message });
+      return res.status(422).json({ success: false, message: updatedOrder.message });
     }
     return res.json({ success: true, message: "AWB assigned successfully. Documents generated.", order: updatedOrder });
   } catch (err) {

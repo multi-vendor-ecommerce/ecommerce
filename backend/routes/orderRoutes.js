@@ -9,6 +9,10 @@ const router = express.Router();
 // Desc: Get all orders for the logged-in vendor
 router.get("/vendor", verifyToken, authorizeRoles("vendor"), getAllOrders);
 
+// Route 9: GET /api/orders/sales-trend
+// Desc: Get sales trend (admin & vendor)
+router.get("/sales-trend", verifyToken, authorizeRoles("admin", "vendor"), getSalesTrend);
+
 // ROUTE 2: GET /api/orders/vendor/:id
 // Desc: Get specific order details by order ID (vendor)
 router.get("/vendor/:id", verifyToken, authorizeRoles("vendor"), getOrderById);
@@ -37,9 +41,7 @@ router.get("/draft/:id", verifyToken, authorizeRoles("customer"), getUserDraftOr
 // Desc: Get specific order details by order ID (customer)
 router.get("/:id", verifyToken, authorizeRoles("customer"), getOrderById);
 
-// Route 9: GET /api/orders/sales-trend
-// Desc: Get sales trend (admin & vendor)
-router.get("/sales-trend", verifyToken, authorizeRoles("admin", "vendor"), getSalesTrend);
+
 
 // Shiprocket apis
 // ROUTE 10: GET /api/orders/create-order/:id

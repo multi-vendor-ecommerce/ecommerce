@@ -27,9 +27,7 @@ export async function assignAWBToOrder(orderId) {
 
     // After
     if (!awbResponse || !awbResponse.awb_code || awbResponse[0]?.awb_assign_status !== 1) {
-      const msg =
-        awbResponse?.[0]?.response?.data?.awb_assign_error ||
-        "Failed to assign AWB from Shiprocket";
+      const msg = "Failed to assign AWB. Please try again later!";
       return { success: false, message: msg };
     }
 

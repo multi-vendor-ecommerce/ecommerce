@@ -7,8 +7,8 @@ const OrderState = ({ children }) => {
   const [salesData, setSalesData] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
 
-  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
+  const host = "http://localhost:5000";
 
   // Utility to get role
   const getRoleInfo = () => {
@@ -139,6 +139,7 @@ const OrderState = ({ children }) => {
     }
   };
 
+  // Fetch Sales Trend (Admin/Vendor)
   const getSalesTrend = async (range = "7d") => {
     const { role } = getRoleInfo();
     if (!["admin", "vendor"].includes(role)) {
