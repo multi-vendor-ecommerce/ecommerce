@@ -6,40 +6,16 @@ import TopProducts from "./TopProducts";
 import TopVendors from "../../admin/adminDashboard/TopVendors";
 import { dateFilterFields } from "./data/dateFilterFields";
 import CustomSelect from "../../../common/layout/CustomSelect";
-import UserContext from "../../../../context/user/UserContext";
 import OrderContext from "../../../../context/orders/OrderContext";
-import ProductContext from "../../../../context/products/ProductContext";
-import VendorContext from "../../../../context/vendors/VendorContext";
 
 const Dashboard = ({ summaryData, role = "admin" }) => {
-  const { users, getAllCustomers } = useContext(UserContext);
-  const { orders, getAllOrders, salesData, getSalesTrend } = useContext(OrderContext);
-  const { getAllProducts } = useContext(ProductContext);
-  const { getTopVendors } = useContext(VendorContext);
-
+  const { salesData, getSalesTrend } = useContext(OrderContext);
   const [dateValue, setDateValue] = useState("today");
-  const [products, setProducts] = useState([]); // ✅ Store products here
-
-  // Fetch all data on mount
-  useEffect(() => {
-    fetchDashboardData(dateValue);
-  }, []);
-
-  const fetchDashboardData = async (date) => {
-    getAllCustomers();
-    getAllOrders();
-    getSalesTrend(date);
-    if (role === "admin") getTopVendors();
-
-    // Fetch products and save to state
-    const productResult = await getAllProducts();
-    if (productResult?.products) setProducts(productResult.products);
-  };
 
   const handleChange = (name, value) => {
     if (name === "date") {
       setDateValue(value);
-      fetchDashboardData(value); // ✅ Refetch all data for selected date
+      getSalesTrend(value);
     }
   };
 
@@ -60,7 +36,7 @@ const Dashboard = ({ summaryData, role = "admin" }) => {
           />
         </div>
 
-        <SummaryCards summaryData={summaryData} users={users} orders={orders} products={products} role={role} />
+        <SummaryCards summaryData={summaryData} range={dateValue} handleChange={handleChange} />
 
         <div className="mt-6">
           <SalesChart data={salesData} />

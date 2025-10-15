@@ -24,7 +24,7 @@ const AuthState = ({ children }) => {
   // ------------------------
   const decodeToken = (token) => {
     if (!token) return null;
-    
+
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       return payload;
@@ -56,18 +56,19 @@ const AuthState = ({ children }) => {
   // Handle successful auth response
   // ------------------------
   const handleAuthSuccess = (response) => {
-    if (!response?.authToken || !response?.role) {
+    const token = response?.data?.authToken;
+    const role = response?.data?.role;
+
+    if (!token || !role) {
       return { success: false, message: response?.message || "Invalid auth response" };
     }
 
-    const { role, authToken, message } = response;
-
-    setAuthTokens((prev) => ({ ...prev, [role]: authToken }));
+    setAuthTokens((prev) => ({ ...prev, [role]: token }));
     setPeople((prev) => ({ ...prev, [role]: { role } }));
 
-    localStorage.setItem(`${role}Token`, authToken);
+    localStorage.setItem(`${role}Token`, token);
 
-    return { success: true, role, message: message || "Authentication successful" };
+    return { success: true, role, message: response?.message || "Authentication successful" };
   };
 
   // ------------------------

@@ -7,8 +7,8 @@ const OrderState = ({ children }) => {
   const [salesData, setSalesData] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
 
-  // const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
-  const host = "http://localhost:5000";
+  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
+  // const host = "http://localhost:5000";
 
   // Utility to get role
   const getRoleInfo = () => {
@@ -67,15 +67,16 @@ const OrderState = ({ children }) => {
   }, [host]);
 
   // Fetch All Orders (Admin/Vendor)
-  const getAllOrders = async ({ search = "", status = "", date = "", vendorId = "", page = 1, limit = 10 } = {}) => {
+  const getAllOrders = async ({ search = "", status = "", date = "", range = "", vendorId = "", page = 1, limit = 10 } = {}) => {
     setLoading(true);
     try {
       const { role } = getRoleInfo();
 
       const params = new URLSearchParams({ page, limit });
-      if (search.trim()) params.append("search", search);
+      if (String(search || "").trim()) params.append("search", search);
       if (status) params.append("status", status);
       if (date) params.append("date", date);
+      if (String(range || "").trim()) params.append("range", range);
 
       if (role === "admin" && vendorId) params.append("vendorId", vendorId);
 

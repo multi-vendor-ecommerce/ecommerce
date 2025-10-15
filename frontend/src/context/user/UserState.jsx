@@ -20,7 +20,7 @@ const UserState = ({ children }) => {
   };
 
   // Fetch all customers (admin/vendor)
-  const getAllCustomers = async ({ search = "", date = "", page = 1, limit = 10 } = {}) => {
+  const getAllCustomers = async ({ search = "", date = "", range = "", page = 1, limit = 10 } = {}) => {
     try {
       setLoading(true);
       const { role } = getRoleInfo();
@@ -30,12 +30,10 @@ const UserState = ({ children }) => {
         return;
       }
 
-      const params = new URLSearchParams();
-
-      if (search.trim()) params.append("search", search);
+      const params = new URLSearchParams({ page, limit});
+      if (String(search || "").trim()) params.append("search", search);
       if (date.trim()) params.append("date", date);
-      params.append("page", page);
-      params.append("limit", limit);
+      if (String(range || "").trim()) params.append("range", range);
 
       const url = `${host}/api/users/${role}/all-customers?${params.toString()}`;
 

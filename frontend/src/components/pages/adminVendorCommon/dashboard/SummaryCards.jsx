@@ -1,27 +1,45 @@
+import { useContext, useState, useEffect, use } from "react";
 import { formatNumber } from "../../../../utils/formatNumber";
+import OrderContext from "../../../../context/orders/OrderContext";
+import ProductContext from "../../../../context/products/ProductContext";
+import UserContext from "../../../../context/user/UserContext";
 
-export default function SummaryCards({ summaryData, orders, users, products, role }) {
+export default function SummaryCards({ summaryData, range }) {
   if (!summaryData) return null;
+
+  const { orders, getAllOrders } = useContext(OrderContext);
+  const { getAllProducts } = useContext(ProductContext);
+  const { users, getAllCustomers } = useContext(UserContext);
+
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    getAllCustomers({ range });
+    getAllOrders({ range });
+
+    const fetchProducts = async () => {
+      const data = await getAllProducts({ range });
+      setProducts(data?.products);
+    };
+
+    fetchProducts();
+  }, [range]);
 
   let cards = [];
 
-  if (role === "admin") {
-    const totalRevenue = orders
-      ?.filter(order => ["delivered", "shipped", "processing"].includes(order.orderStatus))
-      .reduce((sum, order) => sum + (order.grandTotal || 0), 0);
-    const totalOrders = orders?.length || 0;
-    const totalProducts = products?.length || 0;
-    const totalCustomers = users?.filter(u => u.role === "customer").length || 0;
+  const totalRevenue = orders
+    ?.filter(order => ["delivered", "shipped", "processing"].includes(order.orderStatus))
+    .reduce((sum, order) => sum + (order.grandTotal || 0), 0);
+  const totalOrders = orders?.length || 0;
+  const totalProducts = products?.length || 0;
+  const totalCustomers = users?.filter(u => u.role === "customer")?.length || 0;
 
-    cards = summaryData({
-      totalRevenue: formatNumber(totalRevenue),
-      totalOrders: formatNumber(totalOrders),
-      totalProducts: formatNumber(totalProducts),
-      totalCustomers: formatNumber(totalCustomers),
-    });
-  } else if (role === "vendor") {
-    cards = summaryData(summaryData);
-  }
+  cards = summaryData({
+    totalRevenue: formatNumber(totalRevenue),
+    totalOrders: formatNumber(totalOrders),
+    totalProducts: formatNumber(totalProducts),
+    totalCustomers: formatNumber(totalCustomers),
+  });
 
   return (
     <section>
