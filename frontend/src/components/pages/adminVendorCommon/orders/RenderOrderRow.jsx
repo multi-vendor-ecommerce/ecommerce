@@ -1,3 +1,4 @@
+import React from "react";
 import { NavLink } from "react-router-dom";
 import { FiDownload, FiEye, FiTrash2 } from "react-icons/fi";
 import { getFormatDate } from "../../../../utils/formatDate";
@@ -8,9 +9,8 @@ import PushOrder from "./PushOrder";
 import { toast } from "react-toastify";
 
 export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorId = null, orderState = null, setOrderState = null, generateAWBForOrder = null) => (
-  <>
+  <React.Fragment key={order._id || index}>
     <tr
-      key={order?._id || index}
       className={`hover:bg-blue-50 hover:shadow-sm transition ${index !== 0 ? "border-t border-gray-200" : ""}`}
     >
       {/* Order ID */}
@@ -212,5 +212,5 @@ export const RenderOrderRow = (order, index, StatusChip, role = "admin", vendorI
           </td>
         </tr>
       )}
-  </>
+  </React.Fragment>
 );

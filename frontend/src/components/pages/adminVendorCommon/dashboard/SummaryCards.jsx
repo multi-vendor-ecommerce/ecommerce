@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, use } from "react";
+import { useContext, useEffect, useState } from "react";
 import { formatNumber } from "../../../../utils/formatNumber";
 import OrderContext from "../../../../context/orders/OrderContext";
 import ProductContext from "../../../../context/products/ProductContext";
@@ -7,32 +7,26 @@ import UserContext from "../../../../context/user/UserContext";
 export default function SummaryCards({ summaryData, range }) {
   if (!summaryData) return null;
 
-  const { orders, getAllOrders } = useContext(OrderContext);
-  const { getAllProducts } = useContext(ProductContext);
-  const { users, getAllCustomers } = useContext(UserContext);
+  const { totalCount: totalOrders, getAllOrders } = useContext(OrderContext);
+  const { totalCount: totalProducts, getAllProducts } = useContext(ProductContext);
+  const { totalCount: totalCustomers, getAllCustomers } = useContext(UserContext);
 
-  const [products, setProducts] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   useEffect(() => {
     getAllCustomers({ range });
-    getAllOrders({ range });
+    getAllProducts({ range });
 
-    const fetchProducts = async () => {
-      const data = await getAllProducts({ range });
-      setProducts(data?.products);
+    const fetchOrders = async () => {
+      const result = getAllOrders({ range });
+      if (result.success) setTotalRevenue(result?.totalRevenue || 0);
+      else setTotalRevenue(0);
     };
 
-    fetchProducts();
+    fetchOrders();
   }, [range]);
 
   let cards = [];
-
-  const totalRevenue = orders
-    ?.filter(order => ["delivered", "shipped", "processing"].includes(order.orderStatus))
-    .reduce((sum, order) => sum + (order.grandTotal || 0), 0);
-  const totalOrders = orders?.length || 0;
-  const totalProducts = products?.length || 0;
-  const totalCustomers = users?.filter(u => u.role === "customer")?.length || 0;
 
   cards = summaryData({
     totalRevenue: formatNumber(totalRevenue),

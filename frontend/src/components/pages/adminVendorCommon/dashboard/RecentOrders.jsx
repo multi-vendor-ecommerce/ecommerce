@@ -13,7 +13,7 @@ const RecentOrders = ({ role = "admin" }) => {
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    getAllOrders();
+    getAllOrders({ limit: 10 });
   }, []);
   
   const ordersToShow = showAll ? orders : orders.slice(0, 5);

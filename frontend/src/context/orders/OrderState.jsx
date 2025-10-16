@@ -101,7 +101,7 @@ const OrderState = ({ children }) => {
 
       setOrders(data.orders || []);
       setTotalCount(data.total || 0);
-      return { success: true, total: data.total, orders: data.orders };
+      return { success: true, total: data.total, orders: data.orders, totalRevenue: data?.totalRevenue || 0 };
     } catch (err) {
       console.error("Error fetching orders:", err);
       return { success: false, orders: [], total: 0 };

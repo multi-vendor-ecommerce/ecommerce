@@ -1,13 +1,21 @@
+import { use, useContext, useEffect } from "react";
+import OrderContext from "../../../../context/orders/OrderContext";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
-export default function SalesChart({ data }) {
+export default function SalesChart({ range }) {
+  const { salesData, getSalesTrend } = useContext(OrderContext);
+
+  useEffect(() => {
+    getSalesTrend(range);
+  }, [range]);
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-md shadow-purple-500 transition duration-300">
       <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">Sales Trend</h2>
-      {data && data.length > 0 ? (
+      {salesData && salesData.length > 0 ? (
         <ResponsiveContainer width="100%" height={280}>
           <LineChart
-            data={data || []} // Use salesData directly, default to empty array
+            data={salesData || []} // Use salesData directly, default to empty array
             margin={{ top: 20, right: 30, left: 10, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />

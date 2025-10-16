@@ -6,16 +6,13 @@ import TopProducts from "./TopProducts";
 import TopVendors from "../../admin/adminDashboard/TopVendors";
 import { dateFilterFields } from "./data/dateFilterFields";
 import CustomSelect from "../../../common/layout/CustomSelect";
-import OrderContext from "../../../../context/orders/OrderContext";
 
 const Dashboard = ({ summaryData, role = "admin" }) => {
-  const { salesData, getSalesTrend } = useContext(OrderContext);
-  const [dateValue, setDateValue] = useState("today");
+  const [dateValue, setDateValue] = useState("");
 
   const handleChange = (name, value) => {
     if (name === "date") {
       setDateValue(value);
-      getSalesTrend(value);
     }
   };
 
@@ -39,7 +36,7 @@ const Dashboard = ({ summaryData, role = "admin" }) => {
         <SummaryCards summaryData={summaryData} range={dateValue} handleChange={handleChange} />
 
         <div className="mt-6">
-          <SalesChart data={salesData} />
+          <SalesChart range={dateValue} />
         </div>
       </div>
 

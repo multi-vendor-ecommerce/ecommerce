@@ -218,7 +218,7 @@ export const getUserDraftOrder = async (req, res) => {
 };
 
 // ==========================
-// Get All Orders (role-based access & pagination)
+// Get All Orders (role-based access & pagination) + totalRevenue
 // ==========================
 export const getAllOrders = async (req, res) => {
   try {
@@ -235,50 +235,45 @@ export const getAllOrders = async (req, res) => {
 
     if (role === "customer") {
       query.user = req.person.id;
-    } else {
-      if (role === "admin" && req.query.vendorId) {
-        const vendorProducts = await Product.find({ createdBy: req.query.vendorId }).select("_id");
-        const productIds = vendorProducts.map(p => p._id);
+    } else if (role === "admin" && req.query.vendorId) {
+      const vendorProducts = await Product.find({ createdBy: req.query.vendorId }).select("_id");
+      const productIds = vendorProducts.map(p => p._id);
+      query["orderItems.product"] = { $in: productIds };
+    } else if (role === "vendor") {
+      const allOrders = await Order.find(query)
+        .sort({ createdAt: -1 })
+        .populate({
+          path: "orderItems.product",
+          select: "title price images category brand createdBy",
+          populate: { path: "createdBy", select: "name email shopName address phone" }
+        })
+        .populate({ path: "user", select: "name email address phone" });
 
-        const testOrders = await Order.find({ "orderItems.product": { $in: productIds } });
+      const vendorOrders = allOrders.filter(order =>
+        order.orderItems.some(
+          item => item.product && item.product.createdBy && item.product.createdBy._id.toString() === req.person.id.toString()
+        )
+      );
 
-        query["orderItems.product"] = { $in: productIds };
-      } else if (role === "vendor") {
-        const allOrders = await Order.find(query)
-          .sort({ createdAt: -1 })
-          .populate({
-            path: "orderItems.product",
-            select: "title price images category brand createdBy",
-            populate: {
-              path: "createdBy",
-              select: "name email shopName address phone"
-            }
-          })
-          .populate({ path: "user", select: "name email address phone" });
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+      const paginatedOrders = vendorOrders.slice(skip, skip + limit);
 
-        const vendorOrders = allOrders.filter(order =>
-          order.orderItems.some(
-            item =>
-              item.product &&
-              item.product.createdBy &&
-              item.product.createdBy._id.toString() === req.person.id.toString()
-          )
-        );
+      // Calculate total revenue for vendor orders
+      const totalRevenue = vendorOrders
+        .filter(order => ["delivered", "shipped", "processing"].includes(order.orderStatus))
+        .reduce((sum, order) => sum + (order.grandTotal || 0), 0);
 
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
-        const paginatedOrders = vendorOrders.slice(skip, skip + limit);
-
-        return res.status(200).json({
-          success: true,
-          message: "Orders loaded.",
-          orders: paginatedOrders,
-          total: vendorOrders.length,
-          page,
-          limit,
-        });
-      }
+      return res.status(200).json({
+        success: true,
+        message: "Orders loaded.",
+        orders: paginatedOrders,
+        total: vendorOrders.length,
+        totalRevenue,
+        page,
+        limit,
+      });
     }
 
     const page = parseInt(req.query.page) || 1;
@@ -286,15 +281,8 @@ export const getAllOrders = async (req, res) => {
     const skip = (page - 1) * limit;
 
     let selectFields = "_id invoiceNumber createdAt orderStatus paymentMethod subTotal totalTax shippingCharges totalDiscount grandTotal orderItems shippingInfo user deliveredAt customNotes";
-    if (role === "vendor") {
-      // Vendor cannot see userInvoiceUrl
-      selectFields += "-userInvoiceUrl";
-    } else if (role === "admin") {
-      // Admin sees all fields (no exclusion)
-    } else if (role === "customer") {
-      // Customer cannot see vendorInvoices
-      selectFields += "-vendorInvoices";
-    }
+    if (role === "vendor") selectFields += "-userInvoiceUrl";
+    if (role === "customer") selectFields += "-vendorInvoices";
 
     const [orders, total] = await Promise.all([
       Order.find(query)
@@ -305,20 +293,27 @@ export const getAllOrders = async (req, res) => {
         .populate({
           path: "orderItems.product",
           select: "title price images category brand createdBy",
-          populate: {
-            path: "createdBy",
-            select: "name email shopName address phone"
-          }
+          populate: { path: "createdBy", select: "name email shopName address phone" }
         })
         .populate({ path: "user", select: "name email address phone" }),
       Order.countDocuments(query),
     ]);
+
+    // Calculate total revenue for the filtered orders (all matching, not just paginated)
+    const totalRevenueAggregation = await Order.aggregate([
+      { $match: query },
+      { $match: { orderStatus: { $in: ["delivered", "shipped", "processing"] } } },
+      { $group: { _id: null, totalRevenue: { $sum: "$grandTotal" } } }
+    ]);
+
+    const totalRevenue = totalRevenueAggregation[0]?.totalRevenue || 0;
 
     res.status(200).json({
       success: true,
       message: "Orders loaded.",
       orders,
       total,
+      totalRevenue,
       page,
       limit,
     });
