@@ -59,8 +59,8 @@ const AccordionItem = ({
     <div>
       <div
         className={`sticky z-40 flex justify-between items-center py-2 px-3 rounded cursor-pointer select-none ${isOpen
-            ? "bg-[#E8F5E9] font-semibold text-[#2E7D32]"
-            : "hover:bg-[#F1F8E9]"
+          ? "bg-[#E8F5E9] font-semibold text-[#2E7D32]"
+          : "hover:bg-[#F1F8E9]"
           }`}
       >
         <span
@@ -129,6 +129,7 @@ const CategorySidebar = ({
     const sizeClass =
       parentCircleSize === "large" ? "w-20 h-20 text-sm" : "w-14 h-14 text-xs";
     const rootCategories = categoryLevels[0] || [];
+    console.log(rootCategories);
 
     return (
       <div className="w-full">
@@ -152,15 +153,17 @@ const CategorySidebar = ({
               <div
                 className={`bg-gray-100 rounded-full flex items-center justify-center shadow-sm overflow-hidden ${sizeClass} font-semibold`}
               >
-                {cat.categoryImage ? (
-                  <img
-                    src={cat.categoryImage}
-                    alt={toTitleCase(cat.name)}
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                ) : (
-                  <span>{toTitleCase(cat.name).slice(0, 2)}</span>
-                )}
+                {(cat.image || cat.categoryImage)
+                  ? (
+                    <img
+                      src={cat.image || cat.categoryImage 
+                      }
+                      alt={toTitleCase(cat.name)}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    <span>{toTitleCase(cat.name).slice(0, 2)}</span>
+                  )}
               </div>
               <span
                 className={`mt-1 text-center block overflow-hidden text-ellipsis whitespace-nowrap ${parentCircleSize === "large" ? "text-base" : "text-xs"

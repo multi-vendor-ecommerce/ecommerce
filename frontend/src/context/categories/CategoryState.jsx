@@ -5,8 +5,8 @@ const CategoryState = (props) => {
   const [loading, setLoading] = useState(false);
   const [categoriesByLevel, setCategoriesByLevel] = useState({});
 
-  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
-  // const host = "http://localhost:5000";
+  // const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
+  const host = "http://localhost:5000";
 
   //  CREATE CATEGORY - Admin 
   const createCategory = async (formData) => {
