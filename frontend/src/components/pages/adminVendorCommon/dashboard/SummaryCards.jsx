@@ -18,7 +18,7 @@ export default function SummaryCards({ summaryData, range }) {
     getAllProducts({ range });
 
     const fetchOrders = async () => {
-      const result = getAllOrders({ range });
+      const result = await getAllOrders({ range });
       if (result.success) setTotalRevenue(result?.totalRevenue || 0);
       else setTotalRevenue(0);
     };
