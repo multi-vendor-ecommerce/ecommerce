@@ -98,12 +98,15 @@ ecommerce/
 │
 └── README.md
 
+---
+
 ##  Installation & Setup
 
-## Clone the repository
+### Clone the repository
 
-# git clone https://github.com/Mukesh469/ecommerce.git
-# cd ecommerce
+```bash
+git clone https://github.com/Mukesh469/ecommerce.git
+cd ecommerce
 
 ## Install dependencies
 
