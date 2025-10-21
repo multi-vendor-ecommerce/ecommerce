@@ -60,7 +60,7 @@ This platform enables **multiple vendors** to register, list their products, man
 - Secure checkout process  
 - View order history  
 
-### 🔐 Authentication & Security
+###  Authentication & Security
 - JWT-based authentication  
 - Role-based access (Admin, Vendor, Customer)  
 - Encrypted passwords with bcrypt  
