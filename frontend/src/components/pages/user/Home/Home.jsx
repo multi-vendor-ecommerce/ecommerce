@@ -6,7 +6,7 @@ import HeroSlider from '../../../common/HeroSlider';
 import TopSellingProducts from '../Product/TopSellingProducts.jsx';
 import RecentlyProductList from '../Product/RecentlyProductList.jsx';
 import BannerContext from '../../../../context/banners/BannersContext.jsx';
-import Loader from '../../../common/Loader.jsx'; // your loader
+import Spinner from '../../../common/Spinner.jsx';
 
 export default function Home() {
   const { banners, loading, error, getBanners } = useContext(BannerContext);
@@ -23,7 +23,7 @@ export default function Home() {
 
         {loading ? (
           <div className="flex justify-center py-6">
-            <Loader />
+            <Spinner />
           </div>
         ) : banners.length > 0 ? (
           <HeroSlider banners={banners} />
