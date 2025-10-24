@@ -6,7 +6,6 @@ const BannerState = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Backend URL (dev / prod)
 //   const host = "http://localhost:5000";
   const host = import.meta.env.VITE_BACKEND_URL 
 
