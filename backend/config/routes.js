@@ -13,6 +13,7 @@ import imageRoutes from "../routes/imageRoutes.js";
 import wishlistRoutes from "../routes/wishlistRoutes.js";
 import productReviewRoutes from "../routes/productReviewRoutes.js";
 import shiprocketRoutes from "../routes/shiprocketRoutes.js";
+import bannerRoutes from "../routes/bannerRoutes.js";
 
 // ==========================
 // API Routes
@@ -33,6 +34,7 @@ const apiRoutes = [
   { path: "wishlist", route: wishlistRoutes },
   { path: "product-reviews", route: productReviewRoutes },
   { path: "shiprocket", route: shiprocketRoutes },
+  { path: "banners", route: bannerRoutes},
 ];
 
 export default apiRoutes;
