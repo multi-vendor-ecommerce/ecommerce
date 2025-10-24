@@ -1,33 +1,32 @@
-import { FaRupeeSign, FaUser, FaChartLine, FaPercentage } from "react-icons/fa";
+import { FaRupeeSign, FaUser, FaBoxOpen, FaShoppingCart } from "react-icons/fa";
 
-export const getCards = ({ totalSales, avgOrderValue, commissionEarned, totalCustomers }) => [
+export const getCards = ({ totalRevenue, totalOrders, totalCustomers, totalProducts }) => [
   {
-    label: "Total Sales",
-    value: `₹${totalSales?.toLocaleString() || 0}`,
+    label: "Revenue",
+    value: `${totalRevenue}`,
     bgColor: "bg-green-100",
     shadowColor: "hover:shadow-green-500",
-    icon: FaChartLine,
-  },
-  {
-    label: "Avg Order Value",
-    value: `₹${avgOrderValue?.toFixed(2) || 0}`,
-    bgColor: "bg-blue-100",
-    shadowColor: "hover:shadow-blue-500",
     icon: FaRupeeSign,
   },
   {
-    label: "Commission Earned",
-    value: `₹${commissionEarned?.toLocaleString() || 0}`,
-    bgColor: "bg-yellow-100",
-    shadowColor: "hover:shadow-yellow-500",
-    icon: FaPercentage,
+    label: "Orders",
+    value: totalOrders,
+    bgColor: "bg-pink-200",
+    shadowColor: "hover:shadow-pink-500",
+    icon: FaShoppingCart,
   },
   {
     label: "Customers",
-    value: totalCustomers || 0,
+    value: totalCustomers,
     bgColor: "bg-purple-100",
     shadowColor: "hover:shadow-purple-500",
     icon: FaUser,
   },
+  {
+    label: "Products",
+    value: totalProducts,
+    bgColor: "bg-yellow-100",
+    shadowColor: "hover:shadow-yellow-500",
+    icon: FaBoxOpen,
+  },
 ];
-

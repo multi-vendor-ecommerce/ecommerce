@@ -117,7 +117,7 @@ const ShippingStep = ({ order, setOrder, step, next, prev }) => {
               key={address._id}
               onClick={() => handleSelect(address)}
               className={`p-3 border rounded cursor-pointer flex justify-between items-start ${selectedAddress?._id === address._id
-                ? "border-purple-700 bg-purple-50"
+                ? "border-green-700 bg-green-50"
                 : ""
                 }`}
             >

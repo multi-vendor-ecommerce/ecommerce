@@ -1,11 +1,13 @@
-import { useContext, useEffect, useState } from "react";
-import UserContext from "../../../../context/user/UserContext";
-import { RenderCustomerRow } from "./RenderCustomerRow";
+import { useState, useContext, useEffect, useCallback } from "react";
+import debounce from "lodash.debounce";
+import FilterBar from "../../../common/FilterBar";
 import PaginatedLayout from "../../../common/layout/PaginatedLayout";
 import TabularData from "../../../common/layout/TabularData";
+import UserContext from "../../../../context/user/UserContext";
 import Loader from "../../../common/Loader";
-import FilterBar from "../../../common/FilterBar";
 import BackButton from "../../../common/layout/BackButton";
+import { customerFilterFields } from "./data/customerFilterFields";
+import { RenderCustomerRow } from "./RenderCustomerRow";
 
 const Customers = ({}) => {
   const { users, getAllCustomers, totalCount, loading } = useContext(UserContext);
@@ -14,42 +16,49 @@ const Customers = ({}) => {
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  useEffect(() => {
-    fetchPaginatedCustomers(1, itemsPerPage); // initial fetch
-  }, []);
+  const fetchCustomers = useCallback(() => {
+    getAllCustomers({ ...filters, page, limit: itemsPerPage });
+  }, [filters, page, itemsPerPage]);
 
-  const fetchPaginatedCustomers = async (pg = 1, limit = itemsPerPage) => {
-    await getAllCustomers({ ...filters, page: pg, limit });
-    setPage(pg);
-  };
+  useEffect(() => {
+    fetchCustomers();
+  }, [page, itemsPerPage]);
+
+  // 🔹 Debounced fetch for search field only
+  useEffect(() => {
+    if (filters.search.trim() !== "") {
+      const debounced = debounce(() => {
+        getAllCustomers({ ...filters, page: 1, limit: itemsPerPage });
+      }, 500);
+      debounced();
+      return () => debounced.cancel();
+    } else {
+      // When search cleared, reload immediately
+      getAllCustomers({ ...filters, page: 1, limit: itemsPerPage });
+    }
+  }, [filters.search, itemsPerPage]);
 
   const handleChange = (name, value) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleApply = () => {
-    fetchPaginatedCustomers(1, itemsPerPage);
+    setPage(1);
+    fetchCustomers();
   };
 
   const handleClear = () => {
-    const reset = { search: "", date: "" };
-    setFilters(reset);
-    fetchPaginatedCustomers(1, itemsPerPage);
+    const cleared = { search: "", date: "" };
+    setFilters(cleared);
+    setPage(1);
+    getAllCustomers({ ...cleared, page: 1, limit: itemsPerPage });
   };
 
-  const handlePageChange = (pg) => {
-    fetchPaginatedCustomers(pg, itemsPerPage);
-  };
-
+  const handlePageChange = (pg) => setPage(pg);
   const handleItemsPerPageChange = (limit) => {
     setItemsPerPage(limit);
-    fetchPaginatedCustomers(1, limit);
+    setPage(1);
   };
-
-  const customerFilterFields = [
-    { name: "search", label: "Search by name, email, or location", type: "text" },
-    { name: "date", label: "Date", type: "date", max: new Date().toISOString().split("T")[0], },
-  ];
 
   const headers = ["Customer", "Email", "Phone", "Location", "Total Orders", "Total Value", "Registered On"];
 
@@ -97,6 +106,6 @@ const Customers = ({}) => {
       </PaginatedLayout>
     </section>
   );
-};
+}
 
 export default Customers;

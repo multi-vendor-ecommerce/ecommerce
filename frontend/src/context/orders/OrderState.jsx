@@ -4,6 +4,7 @@ import OrderContext from "./OrderContext";
 const OrderState = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [orders, setOrders] = useState([]);
+  const [salesData, setSalesData] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
 
   const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
@@ -66,15 +67,16 @@ const OrderState = ({ children }) => {
   }, [host]);
 
   // Fetch All Orders (Admin/Vendor)
-  const getAllOrders = async ({ search = "", status = "", date = "", vendorId = "", page = 1, limit = 10 } = {}) => {
+  const getAllOrders = async ({ search = "", status = "", date = "", range = "", vendorId = "", page = 1, limit = 10 } = {}) => {
     setLoading(true);
     try {
       const { role } = getRoleInfo();
 
       const params = new URLSearchParams({ page, limit });
-      if (search.trim()) params.append("search", search);
+      if (String(search || "").trim()) params.append("search", search);
       if (status) params.append("status", status);
       if (date) params.append("date", date);
+      if (String(range || "").trim()) params.append("range", range);
 
       if (role === "admin" && vendorId) params.append("vendorId", vendorId);
 
@@ -99,7 +101,7 @@ const OrderState = ({ children }) => {
 
       setOrders(data.orders || []);
       setTotalCount(data.total || 0);
-      return { success: true, total: data.total, orders: data.orders };
+      return { success: true, total: data.total, orders: data.orders, totalRevenue: data?.totalRevenue || 0 };
     } catch (err) {
       console.error("Error fetching orders:", err);
       return { success: false, orders: [], total: 0 };
@@ -138,21 +140,141 @@ const OrderState = ({ children }) => {
     }
   };
 
-  // Cancel Order (Customer)
-  const cancelOrder = async (orderId) => {
-    const token = localStorage.getItem("customerToken");
+  // Fetch Sales Trend (Admin/Vendor)
+  const getSalesTrend = async (range = "7d") => {
+    const { role } = getRoleInfo();
+    if (!["admin", "vendor"].includes(role)) {
+      console.error("Sales trend is only available for admin and vendor.");
+      return [];
+    }
+
+    setLoading(true);
     try {
-      const res = await fetch(`${host}/api/orders/cancel/${orderId}`, {
-        method: "PATCH",
+      const params = new URLSearchParams();
+      if (range) params.append("range", range);
+
+      const res = await fetch(`${host}/api/orders/sales-trend?${params.toString()}`, {
+        headers: {
+          "auth-token": role === "admin"
+            ? localStorage.getItem("adminToken")
+            : role === "vendor" ? localStorage.getItem("vendorToken")
+              : null,
+        },
+      });
+      const data = await res.json();
+      const trend = data.salesTrend || [];
+      setSalesData(trend); // store in state
+      return trend;
+    } catch (error) {
+      console.error("Error fetching sales trend:", error);
+      setSalesData([]);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const pushOrder = async (id, formData) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${host}/api/orders/create-order/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "auth-token": token,
+          "auth-token": localStorage.getItem("vendorToken"),
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Failed to fetch order");
+
+      return data;
+    } catch (err) {
+      console.error("Error fetching order:", err);
+      return { success: false, message: err.message || "Failed to fetch order" };
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const generateAWBForOrder = async (id) => {
+    setLoading(true);
+    const { role } = getRoleInfo();
+
+    let headers = {
+      "Content-Type": "application/json",
+      "auth-token": role === "admin"
+        ? localStorage.getItem("adminToken")
+        : localStorage.getItem("vendorToken"),
+    }
+
+    try {
+      const res = await fetch(`${host}/api/orders/assign-awb/${id}`, {
+        method: "PUT",
+        headers,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, message: data.message || "Failed to generate AWB" };
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error generating AWB:", error);
+      return { success: false, message: error.message || "Failed to generate AWB" };
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const generateDocs = async (id) => {
+    setLoading(true);
+    const { role } = getRoleInfo();
+
+    let headers = {
+      "Content-Type": "application/json",
+      "auth-token": role === "admin"
+        ? localStorage.getItem("adminToken")
+        : localStorage.getItem("vendorToken"),
+    }
+
+    try {
+      const res = await fetch(`${host}/api/orders/generate-docs/${id}`, {
+        method: "POST",
+        headers,
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || "Failed to generate documents");
+
+      return data;
+    } catch (error) {
+      console.error("Error generating documents:", error);
+      return { success: false, message: error.message || "Failed to generate documents" };
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Cancel Order (Customer)
+  const cancelOrder = async (id) => {
+    setLoading(true);
+    const { role } = getRoleInfo();
+
+    try {
+      const res = await fetch(`${host}/api/orders/cancel-order/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": role === "admin"
+            ? localStorage.getItem("adminToken")
+            : role === "vendor" ? localStorage.getItem("vendorToken")
+              : localStorage.getItem("customerToken"),
         },
       });
       const data = await res.json();
       return data;
     } catch (error) {
-      return { success: false, message: error.message || "Failed to cancel order"};
+      return { success: false, message: error.message || "Failed to cancel order" };
     }
   };
 
@@ -160,12 +282,17 @@ const OrderState = ({ children }) => {
     <OrderContext.Provider value={{
       loading,
       orders,
+      salesData,
       totalCount,
       createOrderDraft,
       getAllOrders,
       getOrderById,
       getUserDraftOrderById,
-      cancelOrder
+      pushOrder,
+      generateAWBForOrder,
+      generateDocs,
+      cancelOrder,
+      getSalesTrend,
     }}>
       {children}
     </OrderContext.Provider>

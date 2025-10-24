@@ -2,10 +2,15 @@ import mongoose from "mongoose";
 import Order from "../models/Order.js";
 import User from "../models/User.js";
 import Product from "../models/Products.js";
-import Vendor from "../models/Vendor.js";
 import buildQuery from "../utils/queryBuilder.js";
 import { getShippingInfoForOrder } from "../utils/getShippingInfo.js";
 import { round2 } from "../utils/round2.js";
+import { getDateRange } from "../utils/getDateRange.js";
+import { generateShippingDocs } from "../services/shiprocket/generateDocs.js";
+import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
+import { cancelShiprocketOrders } from "../services/shiprocket/cancel.js";
+import { returnOrderToShiprocket } from "../services/shiprocket/return.js";
+import { assignAWBToOrder } from "../services/shiprocket/generateAwb.js";
 
 // ==========================
 // Create or Update Draft Order
@@ -37,6 +42,13 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       const product = await Product.findById(productId);
       if (!product) return res.status(404).json({ success: false, message: "Selected product is unavailable." });
 
+      if (product.stock < quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `${product.title} is out of stock or only ${product.stock} left.`,
+        });
+      }
+
       const originalPrice = round2(product.price);
       const discountPercent = product.discount || 0;
       const discountAmount = round2((originalPrice * discountPercent) / 100);
@@ -60,7 +72,6 @@ export const createOrUpdateDraftOrder = async (req, res) => {
           gstRate,
           gstAmount,
           totalPrice,
-
 
         },
       ];
@@ -104,6 +115,16 @@ export const createOrUpdateDraftOrder = async (req, res) => {
       // Cart case
       if (!user.cart.length) return res.status(400).json({ success: false, message: "Your cart is empty." });
 
+      for (let item of user.cart) {
+        const product = item.product;
+        if (product.stock < item.quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `${product.title} is out of stock or only ${product.stock} left.`,
+          });
+        }
+      }
+
       orderItems = user.cart.map((item) => {
         const product = item.product;
         const originalPrice = round2(product.price);
@@ -121,7 +142,7 @@ export const createOrUpdateDraftOrder = async (req, res) => {
 
         return {
           product: product._id,
-          createdBy: product.createdBy, 
+          createdBy: product.createdBy,
           quantity: item.quantity,
           color: item.color,
           size: item.size,
@@ -197,7 +218,7 @@ export const getUserDraftOrder = async (req, res) => {
 };
 
 // ==========================
-// Get All Orders (role-based access & pagination)
+// Get All Orders (role-based access & pagination) + totalRevenue
 // ==========================
 export const getAllOrders = async (req, res) => {
   try {
@@ -210,54 +231,49 @@ export const getAllOrders = async (req, res) => {
     }
 
     // Build query for status and paymentMethod only
-    query = buildQuery(req.query, ["paymentMethod"], "orderStatus");
+    query = buildQuery(req.query, ["paymentMethod"], ["orderStatus", "orderItems.shiprocketStatus"]);
 
     if (role === "customer") {
       query.user = req.person.id;
-    } else {
-      if (role === "admin" && req.query.vendorId) {
-        const vendorProducts = await Product.find({ createdBy: req.query.vendorId }).select("_id");
-        const productIds = vendorProducts.map(p => p._id);
+    } else if (role === "admin" && req.query.vendorId) {
+      const vendorProducts = await Product.find({ createdBy: req.query.vendorId }).select("_id");
+      const productIds = vendorProducts.map(p => p._id);
+      query["orderItems.product"] = { $in: productIds };
+    } else if (role === "vendor") {
+      const allOrders = await Order.find(query)
+        .sort({ createdAt: -1 })
+        .populate({
+          path: "orderItems.product",
+          select: "title price images category brand createdBy",
+          populate: { path: "createdBy", select: "name email shopName address phone" }
+        })
+        .populate({ path: "user", select: "name email address phone" });
 
-        const testOrders = await Order.find({ "orderItems.product": { $in: productIds } });
+      const vendorOrders = allOrders.filter(order =>
+        order.orderItems.some(
+          item => item.product && item.product.createdBy && item.product.createdBy._id.toString() === req.person.id.toString()
+        )
+      );
 
-        query["orderItems.product"] = { $in: productIds };
-      } else if (role === "vendor") {
-        const allOrders = await Order.find(query)
-          .sort({ createdAt: -1 })
-          .populate({
-            path: "orderItems.product",
-            select: "title price images category brand createdBy",
-            populate: {
-              path: "createdBy",
-              select: "name email shopName address phone"
-            }
-          })
-          .populate({ path: "user", select: "name email address phone" });
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+      const paginatedOrders = vendorOrders.slice(skip, skip + limit);
 
-        const vendorOrders = allOrders.filter(order =>
-          order.orderItems.some(
-            item =>
-              item.product &&
-              item.product.createdBy &&
-              item.product.createdBy._id.toString() === req.person.id.toString()
-          )
-        );
+      // Calculate total revenue for vendor orders
+      const totalRevenue = vendorOrders
+        .filter(order => ["delivered", "shipped", "processing"].includes(order.orderStatus))
+        .reduce((sum, order) => sum + (order.grandTotal || 0), 0);
 
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
-        const paginatedOrders = vendorOrders.slice(skip, skip + limit);
-
-        return res.status(200).json({
-          success: true,
-          message: "Orders loaded.",
-          orders: paginatedOrders,
-          total: vendorOrders.length,
-          page,
-          limit,
-        });
-      }
+      return res.status(200).json({
+        success: true,
+        message: "Orders loaded.",
+        orders: paginatedOrders,
+        total: vendorOrders.length,
+        totalRevenue,
+        page,
+        limit,
+      });
     }
 
     const page = parseInt(req.query.page) || 1;
@@ -265,15 +281,8 @@ export const getAllOrders = async (req, res) => {
     const skip = (page - 1) * limit;
 
     let selectFields = "_id invoiceNumber createdAt orderStatus paymentMethod subTotal totalTax shippingCharges totalDiscount grandTotal orderItems shippingInfo user deliveredAt customNotes";
-    if (role === "vendor") {
-      // Vendor cannot see userInvoiceUrl
-      selectFields += "-userInvoiceUrl";
-    } else if (role === "admin") {
-      // Admin sees all fields (no exclusion)
-    } else if (role === "customer") {
-      // Customer cannot see vendorInvoices
-      selectFields += "-vendorInvoices";
-    }
+    if (role === "vendor") selectFields += "-userInvoiceUrl";
+    if (role === "customer") selectFields += "-vendorInvoices";
 
     const [orders, total] = await Promise.all([
       Order.find(query)
@@ -284,24 +293,32 @@ export const getAllOrders = async (req, res) => {
         .populate({
           path: "orderItems.product",
           select: "title price images category brand createdBy",
-          populate: {
-            path: "createdBy",
-            select: "name email shopName address phone"
-          }
+          populate: { path: "createdBy", select: "name email shopName address phone" }
         })
         .populate({ path: "user", select: "name email address phone" }),
       Order.countDocuments(query),
     ]);
+
+    // Calculate total revenue for the filtered orders (all matching, not just paginated)
+    const totalRevenueAggregation = await Order.aggregate([
+      { $match: query },
+      { $match: { orderStatus: { $in: ["delivered", "shipped", "processing"] } } },
+      { $group: { _id: null, totalRevenue: { $sum: "$grandTotal" } } }
+    ]);
+
+    const totalRevenue = totalRevenueAggregation[0]?.totalRevenue || 0;
 
     res.status(200).json({
       success: true,
       message: "Orders loaded.",
       orders,
       total,
+      totalRevenue,
       page,
       limit,
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, message: "Unable to load orders.", error: err.message });
   }
 };
@@ -365,7 +382,7 @@ export const getOrderById = async (req, res) => {
     if (req.person.role === "vendor" && order.vendorInvoices && Array.isArray(order.vendorInvoices)) {
       order.vendorInvoices = order.vendorInvoices.filter(
         vi => vi.vendorId?.toString() === req.person.id.toString() ||
-              (vi.vendorId?._id && vi.vendorId._id.toString() === req.person.id.toString())
+          (vi.vendorId?._id && vi.vendorId._id.toString() === req.person.id.toString())
       );
     }
 
@@ -379,30 +396,311 @@ export const getOrderById = async (req, res) => {
   }
 };
 
-// User order cancel
-export const cancelOrder = async (req, res) => {
+// ==========================
+// Get Sales Trend (admin & vendor)
+// ==========================
+export const getSalesTrend = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userId = req.person.id;
+    const { role, id } = req.person;
+    const { range = "7d" } = req.query;
 
-    const order = await Order.findById(id);
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found" });
-    }
-    if (order.user.toString() !== userId) {
-      return res.status(403).json({ success: false, message: "Unauthorized" });
-    }
+    const { startDate, endDate } = getDateRange(range);
 
-    // Only allow cancel if status is pending or processing
-    if (!["pending", "processing"].includes(order.orderStatus)) {
-      return res.status(400).json({ success: false, message: "Order cannot be cancelled at this stage" });
+    const matchQuery = {
+      orderStatus: "delivered",
+      deliveredAt: { $gte: startDate, $lte: endDate },
+    };
+
+    if (role === "vendor") {
+      matchQuery["orderItems.createdBy"] = id;
     }
 
-    order.orderStatus = "cancelled";
-    await order.save();
+    const trendData = await Order.aggregate([
+      { $match: matchQuery },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$deliveredAt" } },
+          totalSales: { $sum: "$grandTotal" },
+          orderCount: { $sum: 1 },
+        },
+      },
+      { $sort: { "_id": 1 } },
+    ]);
 
-    res.json({ success: true, message: "Order cancelled successfully", order });
+    const formattedTrend = trendData.map((item) => ({
+      date: item._id,
+      revenue: item.totalSales,
+      orders: item.orderCount,
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "Sales trend fetched successfully",
+      range,
+      salesTrend: formattedTrend,
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error", error: err.message });
+    console.error("Error fetching sales trend:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch sales trend",
+      error: err.message,
+    });
+  }
+};
+
+// ==========================
+// Push Vendor Items to Shiprocket
+// ==========================
+export const pushOrder = async (req, res) => {
+  const { packageLength, packageBreadth, packageHeight, packageWeight } = req.body;
+  const orderId = req.params.id;
+
+  if (!orderId)
+    return res.status(400).json({ success: false, message: "Order ID is required." });
+
+  try {
+    const order = await Order.findById(orderId).populate("orderItems.product");
+    if (!order)
+      return res.status(404).json({ success: false, message: "Order not found." });
+
+    const vendorId = req.person.id;
+
+    const vendorItems = order.orderItems.filter(
+      item => item.createdBy.toString() === vendorId
+    );
+    if (!vendorItems.length)
+      return res.status(403).json({ success: false, message: "No items belong to you." });
+
+    // Update packaging using arrayFilters
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      {
+        $set: {
+          "orderItems.$[item].packageLength": packageLength,
+          "orderItems.$[item].packageBreadth": packageBreadth,
+          "orderItems.$[item].packageHeight": packageHeight,
+          "orderItems.$[item].packageWeight": packageWeight,
+        }
+      },
+      {
+        new: true,
+        runValidators: true,
+        arrayFilters: [{ "item.createdBy": vendorId }]
+      }
+    ).populate("orderItems.product");
+
+    // Push vendor items to Shiprocket
+    const pushedItems = await pushOrderToShiprocket(orderId, vendorId);
+
+    res.status(200).json({
+      success: true,
+      message: "Order pushed successfully",
+      status: "pending_awb",
+      orderId: order._id,
+      orderItems: updatedOrder.orderItems.filter(
+        item => item.createdBy.toString() === vendorId
+      ),
+      pushedItems, // Optional: info returned from Shiprocket for vendor items
+    });
+  } catch (err) {
+    console.error("Push order error:", err);
+    res.status(500).json({ success: false, message: "Failed to push order.", error: err.message });
+  }
+};
+
+// ==========================
+// Generate AWB for Order (admin & vendor)
+// ==========================
+export const generateAWBForOrder = async (req, res) => {
+  const orderId = req.params.id;
+  if (!orderId) {
+    return res.status(400).json({ success: false, message: "Order ID is required." });
+  }
+
+  try {
+    const updatedOrder = await assignAWBToOrder(orderId);
+    if (!updatedOrder.success) {
+      return res.status(422).json({ success: false, message: updatedOrder.message });
+    }
+    return res.json({ success: true, message: "AWB assigned successfully. Documents generated.", order: updatedOrder });
+  } catch (err) {
+    console.error("Generate AWB error:", err);
+    return res.status(500).json({ success: false, message: "Failed to generate AWB.", error: err.message });
+  }
+};
+
+// ==========================
+// Generate Shipping Documents
+// ==========================
+export const generateOrderDocs = async (req, res) => {
+  const orderId = req.params.id;
+
+  if (!orderId) {
+    return res.status(400).json({ success: false, message: "Order ID is required." });
+  }
+
+  try {
+    // Fetch order with product info
+    const order = await Order.findById(orderId).populate("orderItems.product");
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    const { role, id: userId } = req.person;
+
+    // Determine which items to process
+    let itemsToGenerate = order.orderItems;
+
+    // Vendor: only their own items
+    if (role === "vendor") {
+      itemsToGenerate = order.orderItems.filter(
+        item => item.product?.createdBy?.toString() === userId
+      );
+
+      if (!itemsToGenerate.length) {
+        return res.status(403).json({
+          success: false,
+          message: "No items in this order belong to you.",
+        });
+      }
+    }
+
+    // Only include items with AWB/shipment IDs
+    const itemsWithAWB = itemsToGenerate.filter(
+      item => item.awb || item.shiprocketShipmentId
+    );
+
+    if (!itemsWithAWB.length) {
+      return res.status(400).json({
+        success: false,
+        message: "No AWB assigned for these items. Cannot generate documents.",
+      });
+    }
+
+    // Extract shipmentIds / orderIds
+    const shipmentIds = itemsWithAWB.map(i => i.shiprocketShipmentId);
+    const orderIds = itemsWithAWB.map(i => i.shiprocketOrderId);
+
+    // Call service to generate documents (pass filtered IDs)
+    const updatedOrder = await generateShippingDocs(orderId, { shipmentIds, orderIds });
+
+    res.status(200).json({
+      success: true,
+      message: "Shipping documents generated successfully.",
+      order: updatedOrder,
+    });
+  } catch (err) {
+    console.error("Generate shipping docs error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate shipping documents.",
+      error: err.message,
+    });
+  }
+};
+
+// ==========================
+// Cancel Order
+// ==========================
+export const cancelOrder = async (req, res) => {
+  const orderId = req.params.id;
+  const { role, id: userId } = req.person;
+
+  if (!orderId) return res.status(400).json({ success: false, message: "Order ID is required" });
+  if (!["admin", "vendor", "customer"].includes(role)) {
+    return res.status(403).json({ success: false, message: "Not allowed to cancel orders" });
+  }
+
+  try {
+    const order = await Order.findById(orderId).populate("orderItems.product");
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    // Normalize shiprocketStatus to lowercase before comparison
+    order.orderItems.forEach(item => {
+      if (item.shiprocketStatus) item.shiprocketStatus = item.shiprocketStatus.toLowerCase();
+    });
+
+    if (role === "admin") {
+      const itemsToCancel = order.orderItems.filter(item => item.shiprocketStatus !== "cancelled");
+      if (itemsToCancel.length) await cancelShiprocketOrders(itemsToCancel);
+      order.orderStatus = "cancelled";
+      await order.save();
+      return res.status(200).json({ success: true, message: "Order cancelled successfully by admin", order });
+    }
+
+    if (role === "vendor") {
+      const vendorItems = order.orderItems.filter(
+        item => item.product.createdBy?.toString() === userId && item.shiprocketStatus !== "cancelled"
+      );
+      if (!vendorItems.length) return res.status(403).json({ success: false, message: "No cancellable items found" });
+
+      await cancelShiprocketOrders(vendorItems);
+
+      const allCancelled = order.orderItems.every(item => item.shiprocketStatus === "cancelled");
+      if (allCancelled) order.orderStatus = "cancelled";
+
+      await order.save();
+      return res.status(200).json({
+        success: true,
+        message: allCancelled ? "Entire order cancelled successfully" : "Vendor's items cancelled successfully",
+        order
+      });
+    }
+
+    if (role === "customer") {
+      if (order.user.toString() !== userId) return res.status(403).json({ success: false, message: "Unauthorized" });
+      if (!["pending", "processing"].includes(order.orderStatus)) return res.status(400).json({ success: false, message: "Order cannot be cancelled at this stage" });
+      order.orderStatus = "cancelled";
+      await order.save();
+      return res.status(200).json({ success: true, message: "Order cancelled successfully", order });
+    }
+
+    return res.status(403).json({ success: false, message: "Not allowed to cancel orders" });
+  } catch (err) {
+    console.error("Cancel order error:", err);
+    return res.status(500).json({ success: false, message: "Failed to cancel order", error: err.message });
+  }
+};
+
+// ==========================
+// Return Order Request
+// ==========================
+export const returnOrderRequest = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { role, id: userId } = req.person;
+
+    if (!["vendor", "admin"].includes(role)) {
+      return res.status(403).json({ success: false, message: "Only vendors and admins can request returns for their orders." });
+    }
+
+    if (!orderId) return res.status(400).json({ success: false, message: "Order ID is required." });
+
+    const order = await Order.findById(orderId).populate("orderItems.product");
+    if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+
+    const vendorId = role === "vendor" ? userId : null;
+
+    const vendorItems = order.orderItems.filter(
+      item => !vendorId || item.product.createdBy?.toString() === vendorId
+    );
+
+    // Normalize shiprocketStatus
+    vendorItems.forEach(item => {
+      if (item.shiprocketStatus) item.shiprocketStatus = item.shiprocketStatus.toLowerCase();
+    });
+
+    const anyUndelivered = vendorItems.some(item => item.shiprocketStatus !== "delivered");
+    if (anyUndelivered) return res.status(400).json({ success: false, message: "You can only request returns for delivered items." });
+
+    const result = await returnOrderToShiprocket(orderId, vendorId);
+    res.status(200).json({ success: true, result });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Failed to return order.", error: err.message });
   }
 };

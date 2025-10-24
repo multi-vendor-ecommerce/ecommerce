@@ -6,11 +6,16 @@ import { RenderOrderRow } from "../../adminVendorCommon/orders/RenderOrderRow";
 import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Loader from "../../../common/Loader";
 import StatusChip from "../../../common/helperComponents/StatusChip";
+import { useEffect } from "react";
 
 const RecentOrders = ({ role = "admin" }) => {
-  const { orders, loading } = useContext(OrderContext);
+  const { orders, getAllOrders, loading } = useContext(OrderContext);
   const [showAll, setShowAll] = useState(false);
 
+  useEffect(() => {
+    getAllOrders({ limit: 10 });
+  }, []);
+  
   const ordersToShow = showAll ? orders : orders.slice(0, 5);
 
   const headers = [

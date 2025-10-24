@@ -36,7 +36,6 @@ export const vendorSidebarMenu = [
         path: "/vendor/orders",
         children: [
           { label: "All Orders", path: "/vendor/all-orders" },
-          { label: "Invoices", path: "/vendor/invoices" },
         ],
       },
     ],

@@ -46,12 +46,13 @@ async function createOrder(orderPayload) {
     body: JSON.stringify(orderPayload),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Shiprocket order creation failed: ${JSON.stringify(errorData)}`);
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
   }
 
-  return await response.json();
+  return data;
 }
 
 async function addPickup(pickupPayload) {
@@ -66,12 +67,13 @@ async function addPickup(pickupPayload) {
     body: JSON.stringify(pickupPayload),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Shiprocket add pickup failed: ${JSON.stringify(errorData)}`);
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
   }
 
-  return await response?.json();
+  return data;
 }
 
 async function getPickups() {
@@ -84,12 +86,13 @@ async function getPickups() {
     },
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Shiprocket get pickups failed: ${JSON.stringify(errorData)}`);
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
   }
 
-  return await response.json();
+  return data;
 }
 
 // client.js
@@ -106,16 +109,19 @@ export async function assignAWB(shipment_id) {
     body: JSON.stringify({ shipment_id }),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Shiprocket AWB assignment failed: ${JSON.stringify(errorData)}`);
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
   }
 
-  return await response.json();
+  return data;
 }
 
-async function generateDocuments(shipment_id, order_id) {
-  if (!shipment_id) throw new Error("Shipment ID required for document generation");
+async function generateDocuments(shipmentIds, orderIds) {
+  if (!shipmentIds || (Array.isArray(shipmentIds) && shipmentIds.length === 0)) {
+    throw new Error("At least one shipment ID is required for document generation");
+  }
 
   const token = await getAdminToken();
   const headers = {
@@ -123,32 +129,44 @@ async function generateDocuments(shipment_id, order_id) {
     Authorization: `Bearer ${token}`,
   };
 
-  // Generate Label
-  const labelRes = await fetch(`${SR_BASE_URL}/courier/generate/label`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ shipment_id: [shipment_id] }),
-  }).then(res => res.json());
+  const shipmentArray = Array.isArray(shipmentIds) ? shipmentIds : [shipmentIds];
+  const orderArray = Array.isArray(orderIds) ? orderIds : [orderIds];
 
-  // Generate Invoice
-  const invoiceRes = await fetch(`${SR_BASE_URL}/orders/print/invoice`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ ids: [order_id] }),
-  }).then(res => res.json());
+  // Helper to safely fetch JSON + handle Shiprocket errors
+  const safeFetch = async (url, body) => {
+    const res = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok || data?.status_code === 400 || data?.status === "error") {
+      console.error("Shiprocket API error:", data);
+      throw new Error(data?.message || `Shiprocket request failed: ${url}`);
+    }
+    return data;
+  };
 
-  // Generate Manifest
-  const manifestRes = await fetch(`${SR_BASE_URL}/manifests/generate`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ shipment_id: [shipment_id] }),
-  }).then(res => res.json());
+  // 1️⃣ Generate Label
+  const labelRes = await safeFetch(`${SR_BASE_URL}/courier/generate/label`, {
+    shipment_id: shipmentArray,
+  });
+
+  // 2️⃣ Generate Invoice
+  const invoiceRes = await safeFetch(`${SR_BASE_URL}/orders/print/invoice`, {
+    ids: orderArray,
+  });
+
+  // 3️⃣ Generate Manifest
+  const manifestRes = await safeFetch(`${SR_BASE_URL}/manifests/generate`, {
+    shipment_id: shipmentArray,
+  });
 
   return {
     labelUrl: labelRes?.label_url || null,
     invoiceUrl: invoiceRes?.invoice_url || null,
     manifestUrl: manifestRes?.manifest_url || null,
-    raw: { labelRes, invoiceRes, manifestRes }, // keep raw responses for debugging
+    raw: { labelRes, invoiceRes, manifestRes },
   };
 }
 
@@ -166,15 +184,63 @@ async function trackShipment(shipment_id) {
     },
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(errorData)}`);
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
   }
 
-  return await response.json();
+  return data;
 }
 
-// Export it along with the other functions
+async function cancelOrder(ids) {
+  if (!ids || (Array.isArray(ids) && ids.length === 0)) {
+    throw new Error("At least one order ID is required to cancel");
+  }
+
+  const token = await getAdminToken();
+  const response = await fetch(`${SR_BASE_URL}/orders/cancel`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ ids: Array.isArray(ids) ? ids : [ids] }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(`Shiprocket tracking failed: ${JSON.stringify(data)}`);
+  }
+
+  return data;
+}
+
+async function returnOrder(returnPayload) {
+  if (!returnPayload || !returnPayload.order_id) {
+    throw new Error("Valid return payload with order ID is required for return");
+  }
+  const token = await getAdminToken();
+
+  const response = await fetch(`${SR_BASE_URL}/orders/create/return`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ returnPayload }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(`Shiprocket return order failed: ${JSON.stringify(data)}`);
+  }
+
+  return data;
+}
+
 export const ShiprocketClient = {
   getAdminToken,
   createOrder,
@@ -183,4 +249,6 @@ export const ShiprocketClient = {
   assignAWB,
   generateDocuments,
   trackShipment,
+  cancelOrder,
+  returnOrder,
 };

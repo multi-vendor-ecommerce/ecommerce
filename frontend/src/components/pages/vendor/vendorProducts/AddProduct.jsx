@@ -67,11 +67,12 @@ const AddProduct = () => {
     }
 
     if (step === 3) {
-      const { title, sku, hsnCode, "dimensions.height": height, "dimensions.length": length, "dimensions.width": width, weight } = formData;
-      if (!title.trim() || !sku.trim() || !hsnCode.trim() || !length.trim() || !width.trim() || !height.trim() || !weight.trim()) {
+      const { title, sku, hsnCode, tags, "dimensions.height": height, "dimensions.length": length, "dimensions.width": width, weight } = formData;
+      if (!title.trim() || !sku.trim() || !hsnCode.trim() || !length.trim() || !width.trim() || !height.trim() || !weight.trim() || !tags.length) {
         toast.error("Please fill all required fields.");
         return;
       }
+
       if (!skuRegex.test(sku.trim())) {
         toast.error("SKU must be 4-20 characters using only letters, numbers, hyphens, or underscores.");
         return;
@@ -117,13 +118,13 @@ const AddProduct = () => {
 
     // Add dimensions as an object
     submitData.append("dimensions", JSON.stringify({
-      length: Number(formData["dimensions.length"]),
-      width: Number(formData["dimensions.width"]),
-      height: Number(formData["dimensions.height"]),
+      length: parseFloat(formData["dimensions.length"]),
+      width: parseFloat(formData["dimensions.width"]),
+      height: parseFloat(formData["dimensions.height"]),
     }));
 
     // Add weight as a number
-    submitData.append("weight", Number(formData.weight));
+    submitData.append("weight", parseFloat(formData.weight));
 
     images.forEach((img) => submitData.append("images", img));
 

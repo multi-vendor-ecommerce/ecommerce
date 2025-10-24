@@ -7,7 +7,6 @@ import { sendVendorStatusMail, sendVendorApprovalStatusMail, sendVendorProfileUp
 import { setNestedValueIfAllowed } from "../utils/setNestedValueIfAllowed.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
 import Order from "../models/Order.js";
-import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
 
 // ==========================
 // Get all vendors (paginated)
@@ -200,13 +199,15 @@ export const updateVendorStatus = async (req, res) => {
     const result = await Product.updateMany(productMatch, productUpdate);
 
     // Save a review record
-    await Review.create({
-      targetId: vendor?._id,
-      targetType: toTitleCase("vendor"),
-      adminId: req?.person.id,
-      status: vendor?.status,
-      review
-    });
+    if (!["active", "pending"].includes(status) && review) {
+      await Review.create({
+        targetId: vendor?._id,
+        targetType: toTitleCase("vendor"),
+        adminId: req?.person.id,
+        status: vendor?.status,
+        review
+      });
+    }
 
     // Send status email to vendor using safeSendMail
     if (status !== "pending" && status !== "") {
@@ -396,89 +397,5 @@ export const reactivateVendorAccount = async (req, res) => {
   } catch (error) {
     console.error("Reactivate Vendor Account Error:", error);
     res.status(500).json({ success: false, message: "Unable to request account reactivation.", error: error.message });
-  }
-};
-
-// ==========================
-// Vendor Place Order
-// ==========================
-export const vendorPlaceOrder = async (req, res) => {
-  const { packageLength, packageBreadth, packageHeight, packageWeight } = req.body;
-  const orderId = req.params.id;
-
-  try {
-    if (!orderId) {
-      return res.status(400).json({ success: false, message: "Order ID is required." });
-    }
-
-    // Validate packaging fields
-    if (!packageLength || !packageBreadth || !packageHeight || !packageWeight) {
-      return res.status(400).json({
-        success: false,
-        message: "Package length, breadth, height, and weight are required.",
-      });
-    }
-
-    if (packageLength <= 0 || packageBreadth <= 0 || packageHeight <= 0 || packageWeight <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Package dimensions and weight must be greater than zero.",
-      });
-    }
-
-    // Fetch order
-    const order = await Order.findById(orderId).populate("orderItems.product");
-    if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found." });
-    }
-
-    const vendorId = req.person.id;
-    const vendorItems = order.orderItems.filter(
-      item => item.product.createdBy?.toString() === vendorId
-    );
-
-    if (!vendorItems.length) {
-      return res.status(403).json({ success: false, message: "No items in this order belong to you." });
-    }
-
-    const updatedOrder = await Order.findByIdAndUpdate(
-      orderId,
-      {
-        $set: {
-          "orderItems.$[item].packageLength": packageLength,
-          "orderItems.$[item].packageBreadth": packageBreadth,
-          "orderItems.$[item].packageHeight": packageHeight,
-          "orderItems.$[item].packageWeight": packageWeight,
-        }
-      },
-      {
-        new: true,
-        runValidators: true,
-        arrayFilters: [{ "item.createdBy": vendorId }]
-      }
-    );
-    
-    if (!updatedOrder) {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to update order with packaging details.",
-      });
-    }
-
-    // Push to Shiprocket
-    const finalOrder = await pushOrderToShiprocket(updatedOrder?._id);
-
-    res.status(200).json({
-      success: true,
-      message: "Vendor order placed successfully and sent to Shiprocket.",
-      order: finalOrder,
-    });
-  } catch (err) {
-    console.error("Vendor place order error:", err.stack);
-    res.status(500).json({
-      success: false,
-      message: "Failed to place vendor order.",
-      error: err.message,
-    });
   }
 };

@@ -15,8 +15,9 @@ export const orderFilterFields = [
       { value: "processing", label: "Processing" },
       { value: "shipped", label: "Shipped" },
       { value: "delivered", label: "Delivered" },
-      { value: "cancelled", label: "Cancelled" }
-
+      { value: "cancelled", label: "Cancelled" },
+      { value: "returned", label: "Returned" },
+      { value: "refunded", label: "Refunded" }
     ]
   },
   {
@@ -25,4 +26,17 @@ export const orderFilterFields = [
     type: "date",
     max: new Date().toISOString().split("T")[0],
   }
+];
+
+export const shiprocketTabs = [
+  { key: "", label: "All" },
+  { key: "processing", label: "Processing" },
+  { key: "pushed_order", label: "Pushed Order" },
+  { key: "new_ready_to_ship", label: "New / Ready to Ship" },
+  { key: "pickups_manifests", label: "Pickups / Manifests" },
+  { key: "in_transit", label: "In Transit" },
+  { key: "delivered", label: "Delivered" },
+  { key: "rto", label: "RTO" },
+  { key: "cancelled", label: "Cancelled" },
+  { key: "exceptions", label: "Exceptions" },
 ];

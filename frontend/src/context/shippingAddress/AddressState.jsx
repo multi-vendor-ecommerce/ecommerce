@@ -163,9 +163,18 @@ const AddressState = ({ children }) => {
   };
 
   return (
-    <AddressContext.Provider
-      value={{ address, addresses, loading, getAddresses, getAddressById, addAddress, updateAddress, deleteAddress, setAddresses, setDefaultAddress }}
-    >
+    <AddressContext.Provider value={{
+      address,
+      addresses,
+      loading,
+      getAddresses,
+      getAddressById,
+      addAddress,
+      updateAddress,
+      deleteAddress,
+      setAddresses,
+      setDefaultAddress
+    }}>
       {children}
     </AddressContext.Provider>
   );

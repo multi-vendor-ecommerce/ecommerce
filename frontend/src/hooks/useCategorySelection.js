@@ -37,9 +37,9 @@ const useCategorySelection = (
     if (children.length > 0) {
       // Has subcategories → not final
       setCategoryLevels((prev) => [...newLevels, children]);
-      // 🚫 Don't call onCategoryFinalSelect yet
+      // Don't call onCategoryFinalSelect yet
     } else {
-      // ✅ Leaf node → final category
+      // Leaf node → final category
       onCategoryFinalSelect(categoryId);
     }
   };

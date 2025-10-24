@@ -3,7 +3,7 @@ import { FaCaretDown } from "react-icons/fa";
 import CategorySidebar from "./CategorySidebar";
 import Spinner from "../../../../common/Spinner";
 
-const HEADER_HEIGHT = "4rem"; // Adjust if your header is a different height
+const HEADER_HEIGHT = "4rem"; 
 
 const CategorySection = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -12,11 +12,10 @@ const CategorySection = () => {
   return (
     <div
       className="px-6 py-3"
-      style={{ top: HEADER_HEIGHT }} // Ensures it appears below the header
+      style={{ top: HEADER_HEIGHT }} 
     >
       <div className="max-w-screen-xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:gap-6">
-          {/* All Categories Button */}
           <div
             onClick={() => {
               setSidebarOpen(true);

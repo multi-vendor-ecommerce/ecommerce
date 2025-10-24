@@ -3,7 +3,9 @@ import Order from "../../models/Order.js";
 import Vendor from "../../models/Vendor.js";
 import { formatDate } from "../../utils/formatDate.js";
 
-export async function buildShiprocketPayload(orderId) {
+export async function buildShiprocketPayload(orderId, options = {}) {
+  const { mode = "create", vendorFilter = null } = options;
+
   const order = await Order.findById(orderId)
     .populate("orderItems.product")
     .populate("user", "name email phone address")
@@ -16,7 +18,10 @@ export async function buildShiprocketPayload(orderId) {
   for (const item of order.orderItems) {
     const vendorId = item.product.createdBy?.toString();
     if (!vendorId) continue;
+    if (vendorFilter && vendorId !== vendorFilter) continue; // filter by specific vendor
     if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
+    // For return, include only delivered items
+    if (mode === "return" && item.shiprocketStatus !== "Delivered") continue;
     vendorGroups[vendorId].push(item);
   }
 
@@ -29,11 +34,9 @@ export async function buildShiprocketPayload(orderId) {
     const shipping = order.shippingInfo;
     if (!shipping?.line1 || !shipping?.city || !shipping?.state || !shipping?.pincode) continue;
 
-    // Default values
     const defaultDim = 10;
     const defaultWeight = 0.5;
 
-    // Calculate packaging dimensions
     let maxLength = 0, maxBreadth = 0, stackedHeight = 0, totalWeight = 0;
     items.forEach(item => {
       const prod = item.product;
@@ -48,15 +51,19 @@ export async function buildShiprocketPayload(orderId) {
       totalWeight += weight * item.quantity;
     });
 
+    // For returns, use original Shiprocket order ID
+    const orderIdForPayload = mode === "return"
+      ? items[0].shiprocketOrderId
+      : `${order._id}-${vendorId}`.substring(0, 50);
+
     const payload = {
       vendorId,
       order,
       items,
       payload: {
-        order_id: `${order._id}-${vendorId}`.substring(0, 50),
-        order_date: formatDate(),
+        order_id: orderIdForPayload,
+        order_date: formatDate(order.createdAt),
         pickup_location: vendor.shiprocket.pickupLocationCode,
-
         billing_customer_name: order.user.name || "Customer",
         billing_last_name: "",
         billing_address: order.user.address.line1,
@@ -67,7 +74,6 @@ export async function buildShiprocketPayload(orderId) {
         billing_pincode: parseInt(order.user.address.pincode, 10),
         billing_email: order.user.email,
         billing_phone: parseInt(order.user.phone, 10),
-
         shipping_is_billing: true,
         shipping_customer_name: shipping.recipientName || order.user.name,
         shipping_last_name: "",
@@ -78,9 +84,7 @@ export async function buildShiprocketPayload(orderId) {
         shipping_country: shipping.country || "India",
         shipping_pincode: parseInt(shipping.pincode, 10),
         shipping_phone: parseInt(shipping.recipientPhone || order.user.phone || "0", 10),
-
         payment_method: order.paymentMethod === "COD" ? "COD" : "Prepaid",
-
         order_items: items.map(item => ({
           name: item.product.title,
           sku: item.product.sku || item.product._id.toString(),
@@ -90,7 +94,6 @@ export async function buildShiprocketPayload(orderId) {
           discount: item.discountAmount,
           tax: item.gstRate,
         })),
-
         shipping_charges: order.shippingCharges,
         total_discount: order.totalDiscount,
         sub_total: order.subTotal,
@@ -98,7 +101,6 @@ export async function buildShiprocketPayload(orderId) {
         breadth: maxBreadth,
         height: stackedHeight,
         weight: totalWeight,
-
         invoice_number: order.invoiceNumber ? order.invoiceNumber.substring(0, 50) : undefined,
         order_type: "NON ESSENTIALS",
       },

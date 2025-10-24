@@ -1,6 +1,7 @@
 // controllers/shiprocketController.js
 import { ShiprocketClient } from "../services/shiprocket/client.js";
 import Order from "../models/Order.js";
+import { getHighLevelStatus } from "../utils/shippingStatusMap.js";
 
 export const trackOrder = async (req, res) => {
   const { shipment_id } = req.params;
@@ -16,7 +17,6 @@ export const trackOrder = async (req, res) => {
     const order = await Order.findOne({ "orderItems.shiprocketShipmentId": shipment_id });
 
     if (!order) {
-      // Instead of error, return tracking data so user/vendor can still see it
       return res.status(200).json({
         success: true,
         message: "Tracking data fetched (order not found in DB)",
@@ -24,7 +24,7 @@ export const trackOrder = async (req, res) => {
       });
     }
 
-    // 3️⃣ Vendor authorization check (for multi-vendor platform)
+    // 3️⃣ Vendor authorization check
     if (req.person.role === "vendor") {
       const ownsShipment = order.orderItems.some(
         item =>
@@ -37,12 +37,16 @@ export const trackOrder = async (req, res) => {
       }
     }
 
-    // 4️⃣ Update matching item’s tracking data
+    // 4️⃣ Update matching item's tracking data and high-level status
     order.orderItems.forEach(item => {
       if (item.shiprocketShipmentId === shipment_id) {
         item.trackingData = trackingData;
-        item.shiprocketStatus =
-          trackingData?.tracking_data?.shipment_track?.current_status || item.shiprocketStatus;
+
+        // Normalize status to lowercase
+        const originalStatus =
+          trackingData?.tracking_data?.shipment_track?.current_status?.toLowerCase() || "";
+        item.originalShiprocketStatus = originalStatus;
+        item.shiprocketStatus = getHighLevelStatus(originalStatus);
       }
     });
 

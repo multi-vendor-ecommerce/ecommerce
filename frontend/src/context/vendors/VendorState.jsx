@@ -10,16 +10,15 @@ const VendorState = (props) => {
   const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
   // const host = "http://localhost:5000";
 
-  const getAllVendors = async ({ search = "", status = "", date = "", page = 1, limit = 10 } = {}) => {
+  const getAllVendors = async ({ search = "", status = "", date = "", range = "", page = 1, limit = 10 } = {}) => {
     try {
       setLoading(true);
 
-      const params = new URLSearchParams();
-      if (search?.trim()) params.append("search", search);
+      const params = new URLSearchParams({ page, limit });
+      if (String(search || "").trim()) params.append("search", search);
       if (status) params.append("status", status);
       if (date) params.append("date", date);
-      params.append("page", page);
-      params.append("limit", limit);
+      if (String(range || "").trim()) params.append("range", range);
 
       const response = await fetch(`${host}/api/vendors?${params.toString()}`, {
         method: "GET",
@@ -48,12 +47,12 @@ const VendorState = (props) => {
     try {
       setLoading(true);
 
-      const params = new URLSearchParams();
-      if (search?.trim()) params.append("search", search);
+      const params = new URLSearchParams({ page, limit });
+      if (String(search || "").trim()) {
+        params.append("search", search);
+      }
       if (status) params.append("status", status);
       if (date) params.append("date", date);
-      params.append("page", page);
-      params.append("limit", limit);
 
       const response = await fetch(`${host}/api/vendors/top?${params.toString()}`, {
         method: "GET",
@@ -218,7 +217,19 @@ const VendorState = (props) => {
   };
 
   return (
-    <VendorContext.Provider value={{ vendors, topVendors, loading, totalCount, getAllVendors, getTopVendors, editStore, getVendorById, updateVendorStatus, adminEditVendor, reactivateVendorAccount }}>
+    <VendorContext.Provider value={{
+      vendors,
+      topVendors,
+      loading,
+      totalCount,
+      getAllVendors,
+      getTopVendors,
+      editStore,
+      getVendorById,
+      updateVendorStatus,
+      adminEditVendor,
+      reactivateVendorAccount
+    }}>
       {props.children}
     </VendorContext.Provider>
   )

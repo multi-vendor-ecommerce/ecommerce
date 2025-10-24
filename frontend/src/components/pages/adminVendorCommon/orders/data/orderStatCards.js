@@ -1,7 +1,6 @@
 import { FaMoneyBillWave, FaCreditCard, FaShippingFast, FaClock, FaShoppingBag } from "react-icons/fa";
 import { formatNumber } from "../../../../../utils/formatNumber";
 import { getFormatDate } from "../../../../../utils/formatDate";
-import { capitalize } from "../../../../../utils/capitalize";
 import { toTitleCase } from "../../../../../utils/titleCase";
 
 export const getOrderCardData = (order) => [
@@ -15,7 +14,7 @@ export const getOrderCardData = (order) => [
   {
     icon: FaShippingFast,
     label: "Status",
-    value: capitalize(order?.orderStatus) || "N/A",
+    value: toTitleCase(order?.orderItems?.[0]?.originalShiprocketStatus) || toTitleCase(order?.orderStatus),
     bg: "bg-purple-100",
     shadow: "hover:shadow-purple-500",
   },

@@ -77,7 +77,10 @@ const ImageState = ({ children }) => {
   };
 
   return (
-    <ImageContext.Provider value={{ editProfileImage, removeProfileImage }}>
+    <ImageContext.Provider value={{
+      editProfileImage,
+      removeProfileImage
+    }}>
       {children}
     </ImageContext.Provider>
   );

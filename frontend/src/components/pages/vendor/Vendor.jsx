@@ -20,7 +20,6 @@ import PersonContext from "../../../context/person/PersonContext";
 import Loader from "../../common/Loader";
 import VendorStatus from "./vendorStatus/VendorStatus";
 import EditProduct from "../adminVendorCommon/product/EditProduct";
-import Invoices from "../adminVendorCommon/invoices/Invoices";
 import { toTitleCase } from "../../../utils/titleCase";
 
 const Vendor = () => {
@@ -72,8 +71,6 @@ const Vendor = () => {
               <Route index element={<Orders role={role} />} />
               <Route path="order-details/:orderId" element={<OrderDetails role={role} />} />
             </Route>
-
-            <Route path="invoices" element={<Invoices role={role} />} />
 
             <Route path="all-customers" element={<Customers />} />
 

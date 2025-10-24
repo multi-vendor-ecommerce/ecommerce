@@ -1,21 +1,22 @@
-// ==========================
-// Build MongoDB Query from Parameters
-// ==========================
-const buildQuery = (params, searchFields = [], statusField = "status") => {
-  const { search, date, status } = params;
+import { getDateRange } from "./getDateRange.js"; // your helper function
+
+const buildQuery = (params, searchFields = [], statusFields = ["status"]) => {
+  const { search, date, status,  range } = params;
   const query = {};
 
-  // Only apply $regex to string fields
+  // -------------------
+  // Search by text fields
+  // -------------------
   if (search && searchFields.length > 0) {
     const regex = new RegExp(search, "i");
     query.$or = searchFields
-      .filter(field => !field.includes(".") && !field.endsWith("Id")) // crude filter, adjust as needed
-      .map(field => ({
-        [field]: { $regex: regex }
-      }));
+      .filter(field => !field.includes(".") && !field.endsWith("Id"))
+      .map(field => ({ [field]: { $regex: regex } }));
   }
 
-  // Date filter
+  // -------------------
+  // Date filter (specific date or range)
+  // -------------------
   if (date && !isNaN(Date.parse(date))) {
     const start = new Date(date);
     start.setHours(0, 0, 0, 0);
@@ -24,11 +25,20 @@ const buildQuery = (params, searchFields = [], statusField = "status") => {
     end.setHours(23, 59, 59, 999);
 
     query.createdAt = { $gte: start, $lte: end };
+  } else if (range) {
+    const { startDate, endDate } = getDateRange(range); // your helper
+    query.createdAt = { $gte: startDate, $lte: endDate };
   }
 
-  // Flexible status field
-  if (status) {
-    query[statusField] = status;
+  // -------------------
+  // Flexible status field(s)
+  // -------------------
+  if (status && Array.isArray(statusFields)) {
+    if (statusFields.length === 1) {
+      query[statusFields[0]] = status;
+    } else {
+      query.$or = statusFields.map(field => ({ [field]: status }));
+    }
   }
 
   return query;

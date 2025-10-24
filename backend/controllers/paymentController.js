@@ -4,11 +4,9 @@ import Order from "../models/Order.js";
 import User from "../models/User.js";
 import crypto from "crypto";
 import Products from "../models/Products.js";
-import Vendor from "../models/Vendor.js";
 import { sendOrderSuccessMail } from "../services/email/sender.js";
 import { generateInvoice } from "../services/customerInvoice/generateInvoice.js";
 import { safeSendMail } from "../utils/safeSendMail.js";
-import { pushOrderToShiprocket } from "../services/shiprocket/order.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -25,10 +23,19 @@ export const createRazorpayOrder = async (req, res) => {
   }
 
   try {
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).populate("orderItems.product", "title stock");
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
     if (order.orderStatus !== "pending") {
       return res.status(400).json({ success: false, message: "Order is already confirmed or processed." });
+    }
+
+    // Check stock availability
+    const outOfStockItems = order.orderItems.filter(item => !item.product || item.product.stock < item.quantity);
+    if (outOfStockItems.length) {
+      return res.status(400).json({
+        success: false,
+        message: `${outOfStockItems.map(i => i.product?.title || "Unknown product").join(", ")} is out of stock.`,
+      });
     }
 
     const options = {
@@ -51,6 +58,7 @@ export const createRazorpayOrder = async (req, res) => {
   }
 };
 
+
 // ==========================
 // Verify Razorpay payment
 // ==========================
@@ -64,12 +72,13 @@ export const verifyRazorpayPayment = async (req, res) => {
   try {
     const order = await Order.findById(orderId)
       .populate("orderItems.product", "title price createdBy hsnCode gstRate");
+
     if (!order) return res.status(404).json({ success: false, message: "Order not found." });
+
     if (order.user.toString() !== req.person.id) {
       return res.status(403).json({ success: false, message: "Not authorized for this order." });
     }
 
-    // Verify Razorpay signature
     const body = razorpayOrderId + "|" + razorpayPaymentId;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -80,12 +89,30 @@ export const verifyRazorpayPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: "Payment verification failed." });
     }
 
-    const payment = await razorpay.payments.fetch(razorpayPaymentId);
-    if (payment.status !== "captured") {
-      return res.status(400).json({ success: false, message: "Payment not captured." });
+    const expectedAmount = Math.round(order.grandTotal * 100);
+
+    let payment;
+    try {
+      payment = await razorpay.payments.fetch(razorpayPaymentId);
+    } catch (err) {
+      console.error("Failed to fetch Razorpay payment:", err);
+      return res.status(500).json({ success: false, message: "Unable to fetch payment details." });
     }
 
-    const expectedAmount = Math.round(order.grandTotal * 100);
+    if (payment.status !== "captured") {
+      if (payment.status === "authorized") {
+        try {
+          await razorpay.payments.capture(razorpayPaymentId, expectedAmount, "INR");
+          payment = await razorpay.payments.fetch(razorpayPaymentId);
+        } catch (captureErr) {
+          console.error("Razorpay capture failed:", captureErr);
+          return res.status(500).json({ success: false, message: "Payment capture failed." });
+        }
+      } else {
+        return res.status(400).json({ success: false, message: "Payment not captured." });
+      }
+    }
+
     if (payment.amount !== expectedAmount) {
       return res.status(400).json({ success: false, message: "Payment amount mismatch." });
     }
@@ -93,44 +120,47 @@ export const verifyRazorpayPayment = async (req, res) => {
     const user = await User.findById(order.user);
     if (!user) return res.status(404).json({ success: false, message: "User not found." });
 
-    // Update order
     order.paymentMethod = "Online";
     order.paymentInfo = { id: razorpayPaymentId, status: "paid" };
     order.paidAt = new Date();
     order.orderStatus = "processing";
     if (shippingInfo) order.shippingInfo = shippingInfo;
 
-    // Deduct stock
     for (const item of order.orderItems) {
+      const product = await Products.findById(item.product);
+
+      if (!product || product.stock < item.quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `${product?.title || "Product"} is out of stock.`,
+        });
+      }
+
       await Products.findByIdAndUpdate(item.product, {
         $inc: { stock: -item.quantity, unitsSold: item.quantity },
       });
     }
 
-    // Clear cart
     if (order.source === "cart") {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
     }
 
-    // Invoice number
     if (!order.invoiceNumber) {
       order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
     }
 
-    // Shiprocket integration
-    try {
-      await pushOrderToShiprocket(order._id);
-      console.log("Shiprocket orders created for all vendors");
-    } catch (err) {
-      console.error("Shiprocket push failed:", err.message);
-    }
+    await order.save();
 
-    // Generate customer invoice only
+    res.status(200).json({
+      success: true,
+      message: "Payment verified and order confirmed.",
+      order,
+    });
+
     const customerInvoice = await generateInvoice(order, user);
     order.userInvoiceUrl = customerInvoice?.url || "";
     await order.save();
 
-    // Send order success email to customer
     await safeSendMail(sendOrderSuccessMail, {
       to: user?.email,
       orderId: order._id,
@@ -145,45 +175,6 @@ export const verifyRazorpayPayment = async (req, res) => {
       invoiceUrl: order.userInvoiceUrl,
     });
 
-    // Send order success email to vendors
-    const vendorGroups = {};
-    for (const item of order.orderItems) {
-      const vendorId = item.product?.createdBy?.toString();
-      if (!vendorId) continue;
-      if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
-      vendorGroups[vendorId].push(item);
-    }
-
-    for (const [vendorId, items] of Object.entries(vendorGroups)) {
-      const vendor = await Vendor.findById(vendorId);
-      if (!vendor) continue;
-
-      try {
-        await safeSendMail(sendOrderSuccessMail, {
-          to: vendor.email,
-          orderId: order._id,
-          customerName: user?.name,
-          paymentMethod: order.paymentMethod,
-          totalAmount: items.reduce((sum, i) => sum + (i.product?.price ?? 0) * i.quantity, 0),
-          items: items.map(i => ({
-            name: i.product?.title || "Unknown product",
-            qty: i.quantity,
-            price: i.product?.price ?? 0,
-          })),
-          vendorName: vendor.name,
-          vendorShop: vendor.shopName,
-          isVendor: true,
-        });
-      } catch (err) {
-        console.error(`Failed to send vendor email for ${vendorId}:`, err);
-      }
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Payment verified and order confirmed.",
-      order,
-    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Unable to verify payment." });
@@ -217,37 +208,33 @@ export const confirmCOD = async (req, res) => {
     order.paymentInfo = { id: null, status: "pending" };
     order.orderStatus = "processing";
 
-    // Deduct stock
     for (const item of order.orderItems) {
+      const product = await Products.findById(item.product);
+
+      if (!product || product.stock < item.quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `${product?.title || "Product"} is out of stock.`,
+        });
+      }
+
       await Products.findByIdAndUpdate(item.product, {
         $inc: { stock: -item.quantity, unitsSold: item.quantity },
       });
     }
 
-    // Clear cart
     if (order.source === "cart") {
       await User.findByIdAndUpdate(order.user, { $set: { cart: [] } });
     }
 
-    // Invoice number
     if (!order.invoiceNumber) {
       order.invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${order._id}`;
     }
 
-    // Shiprocket integration
-    try {
-      await pushOrderToShiprocket(order._id);
-      console.log("Shiprocket orders created for all vendors");
-    } catch (err) {
-      console.error("Shiprocket push failed:", err.message);
-    }
-
-    // Generate customer invoice only
     const customerInvoice = await generateInvoice(order, user);
     order.userInvoiceUrl = customerInvoice?.url || "";
     await order.save();
 
-    // Send order success email to customer
     await safeSendMail(sendOrderSuccessMail, {
       to: user?.email,
       orderId: order._id,
@@ -261,40 +248,6 @@ export const confirmCOD = async (req, res) => {
       })),
       invoiceUrl: order.userInvoiceUrl,
     });
-
-    // Send order success email to vendors
-    const vendorGroups = {};
-    for (const item of order.orderItems) {
-      const vendorId = item.product?.createdBy?.toString();
-      if (!vendorId) continue;
-      if (!vendorGroups[vendorId]) vendorGroups[vendorId] = [];
-      vendorGroups[vendorId].push(item);
-    }
-
-    for (const [vendorId, items] of Object.entries(vendorGroups)) {
-      const vendor = await Vendor.findById(vendorId);
-      if (!vendor) continue;
-
-      try {
-        await safeSendMail(sendOrderSuccessMail, {
-          to: vendor.email,
-          orderId: order._id,
-          customerName: user?.name,
-          paymentMethod: order.paymentMethod,
-          totalAmount: items.reduce((sum, i) => sum + (i.product?.price ?? 0) * i.quantity, 0),
-          items: items.map(i => ({
-            name: i.product?.title || "Unknown product",
-            qty: i.quantity,
-            price: i.product?.price ?? 0,
-          })),
-          vendorName: vendor.name,
-          vendorShop: vendor.shopName,
-          isVendor: true,
-        });
-      } catch (err) {
-        console.error(`Failed to send vendor email for ${vendorId}:`, err);
-      }
-    }
 
     res.status(200).json({
       success: true,

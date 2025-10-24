@@ -51,11 +51,12 @@ const ProductState = ({ children }) => {
   };
 
   // Get all products (public/vendor/admin)
-  const getAllProducts = async ({ search = "", status = "", page = 1, limit = 10 } = {}) => {
+  const getAllProducts = async ({ search = "", status = "", range = "", page = 1, limit = 10 } = {}) => {
     const { role } = getRoleInfo();
 
     const params = new URLSearchParams({ page, limit });
-    if (search.trim()) params.append("search", search);
+    if (String(search || "").trim()) params.append("search", search);
+    if (String(range || "").trim()) params.append("range", range);
 
     // Always show only approved products to customers/public
     if (role === "customer") {
@@ -84,7 +85,9 @@ const ProductState = ({ children }) => {
     const { role } = getRoleInfo();
 
     const params = new URLSearchParams({ page, limit });
-    if (search.trim()) params.append("search", search);
+    if (String(search || "").trim()) {
+      params.append("search", search);
+    }
 
     let endpoint;
     if (role === "customer") endpoint = "/api/products/top-products";
@@ -340,25 +343,22 @@ const ProductState = ({ children }) => {
     }
   };
 
-
   return (
-    <ProductContext.Provider
-      value={{
-        products,
-        loading,
-        totalCount,
-        getAllProducts,
-        getProductById,
-        getProductsByCategoryId,
-        addProduct,
-        getTopSellingProducts,
-        editProduct,
-        deleteProduct,
-        updateProductStatus,
-        getRecentlyViewedProducts,
-        searchProducts
-      }}
-    >
+    <ProductContext.Provider value={{
+      products,
+      loading,
+      totalCount,
+      getAllProducts,
+      getProductById,
+      getProductsByCategoryId,
+      addProduct,
+      getTopSellingProducts,
+      editProduct,
+      deleteProduct,
+      updateProductStatus,
+      getRecentlyViewedProducts,
+      searchProducts
+    }}>
       {children}
     </ProductContext.Provider>
   );

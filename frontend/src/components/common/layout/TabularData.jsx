@@ -19,12 +19,12 @@ const TabularData = ({
 }) => {
   return (
     <div className="overflow-x-auto">
-      <table className={`${widthClass} table-auto text-left text-gray-600`}>
+      <table className={`${widthClass} table-auto text-left text-sm text-gray-600`}>
         {/* ── HEAD ─────────────────────────────────────────────── */}
-        <thead className="bg-gray-50 text-sm text-gray-500 uppercase">
+        <thead className="bg-gray-50 text-gray-500 uppercase">
           <tr>
             {headers.map((h, i) => (
-              <th key={i} className="px-6 py-3 min-w-[150px]">
+              <th key={i} className="px-6 py-3 min-w-[100px]">
                 {h}
               </th>
             ))}

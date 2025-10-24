@@ -42,7 +42,7 @@ export function validateProductFields(fields, isEdit = false) {
   }
 
   // Weight required check
-  if (fields.weight === undefined || fields.weight === null) {
+  if (fields.weight !== undefined && fields.weight === null) {
     errors.push("Weight is required.");
   }
 

@@ -4,6 +4,7 @@ export const dateFilterFields = [
     label: "Filter by Date",
     type: "select",
     options: [
+      { value: "", label: "All" },
       { value: "today", label: "Today" },
       { value: "yesterday", label: "Yesterday" },
       { value: "this_week", label: "This Week" },

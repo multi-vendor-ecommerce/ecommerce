@@ -7,8 +7,12 @@ import ShowLessMore from "../../../common/helperComponents/ShowLessMore";
 import Loader from "../../../common/Loader";
 
 const TopVendors = () => {
-  const { topVendors, loading } = useContext(VendorContext);
+  const { topVendors, getTopVendors, loading } = useContext(VendorContext);
   const [showAll, setShowAll] = useState(false);
+
+  useEffect(() => {
+    getTopVendors();
+  }, []);
 
   const sortedVendors = [...topVendors].sort((a, b) => b.totalSales - a.totalSales);
   const vendorsToShow = showAll ? sortedVendors : sortedVendors.slice(0, 5);

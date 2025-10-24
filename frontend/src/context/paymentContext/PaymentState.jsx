@@ -7,7 +7,7 @@ const PaymentState = ({ children }) => {
   const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
   // const host = "http://localhost:5000";
 
-  // 🔹 Create Razorpay order
+  // Create Razorpay order
   const createRazorpayOrder = async (orderId) => {
     try {
       setLoading(true);
@@ -21,20 +21,21 @@ const PaymentState = ({ children }) => {
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success)
-        throw new Error(data.message || "Failed to create Razorpay order");
 
-      // return both order + key
-      return { razorpayOrder: data.razorpayOrder, key: data.key };
+      if (!res.ok || !data.success) {
+        return { success: false, message: data.message || "Failed to create Razorpay order" };
+      }
+
+      return { success: true, razorpayOrder: data.razorpayOrder, key: data.key };
     } catch (err) {
       console.error(err);
-      return null;
+      return { success: false, message: err.message || "Failed to create Razorpay order" };
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔹 Confirm Razorpay payment (verify signature)
+  //  Confirm Razorpay payment (verify signature)
   const confirmRazorpayPayment = async (orderId, paymentData) => {
     try {
       setLoading(true);
@@ -58,35 +59,38 @@ const PaymentState = ({ children }) => {
   };
 
   // Confirm COD
-    const confirmCOD = async (orderId, shippingInfo) => {
-      if (!shippingInfo) {
-        throw new Error("shippingInfo is required for COD confirmation");
-      }
-      try {
-        setLoading(true);
-        const res = await fetch(`${host}/api/payment/confirm-cod`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token": localStorage.getItem("customerToken"),
-          },
-          body: JSON.stringify({ orderId, shippingInfo }),
-        });
+  const confirmCOD = async (orderId, shippingInfo) => {
+    if (!shippingInfo) {
+      throw new Error("shippingInfo is required for COD confirmation");
+    }
+    try {
+      setLoading(true);
+      const res = await fetch(`${host}/api/payment/confirm-cod`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": localStorage.getItem("customerToken"),
+        },
+        body: JSON.stringify({ orderId, shippingInfo }),
+      });
 
-        const data = await res.json();
-        return data;
-      } catch (err) {
-        console.error(err);
-        return { success: false, message: "COD confirmation failed" };
-      } finally {
-        setLoading(false);
-      }
-    };
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error(err);
+      return { success: false, message: "COD confirmation failed" };
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <PaymentContext.Provider
-      value={{ loading, createRazorpayOrder, confirmRazorpayPayment, confirmCOD }}
-    >
+    <PaymentContext.Provider value={{
+      loading,
+      createRazorpayOrder,
+      confirmRazorpayPayment,
+      confirmCOD
+    }}>
       {children}
     </PaymentContext.Provider>
   );

@@ -12,7 +12,6 @@ import PaymentState from "./context/paymentContext/PaymentState";
 import AddressState from "./context/shippingAddress/AddressState";
 import ImageState from "./context/images/ImageState";
 import WishlistState from "./context/wishlist/WishlistState";
-import InvoiceState from "./context/invoices/InvoiceState";
 import ProductReviewState from "./context/productReview/ProductReviewState";
 
 // Common components
@@ -31,6 +30,7 @@ import VendorLogin from "./components/common/login/VendorLogin";
 // Register components
 import UserRegister from "./components/common/register/UserRegister";
 import VendorRegister from "./components/common/register/VendorRegister";
+import BannerState from "./context/banners/BannersState";
 
 function App() {
   return (
@@ -47,7 +47,7 @@ function AppProviders({ children }) {
   return (
     <AuthState>
       <ProductReviewState>
-        <InvoiceState>
+        <BannerState>
           <WishlistState>
             <AddressState>
               <ImageState>
@@ -73,7 +73,7 @@ function AppProviders({ children }) {
               </ImageState>
             </AddressState>
           </WishlistState>
-        </InvoiceState>
+        </BannerState>
       </ProductReviewState>
     </AuthState>
   );
