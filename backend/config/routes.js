@@ -34,7 +34,7 @@ const apiRoutes = [
   { path: "wishlist", route: wishlistRoutes },
   { path: "product-reviews", route: productReviewRoutes },
   { path: "shiprocket", route: shiprocketRoutes },
-  { path: "banners", route: bannerRoutes},
+  { path: "banners", route: bannerRoutes },
 ];
 
 export default apiRoutes;
