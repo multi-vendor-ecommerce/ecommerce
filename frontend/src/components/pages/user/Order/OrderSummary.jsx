@@ -28,6 +28,7 @@ const OrderSummary = () => {
     const fetchDraft = async () => {
       setLoading(true);
       const data = await getUserDraftOrderById(id);
+      console.log(data);
       if (data) setOrder(data);
       else navigate("/");
       setLoading(false);
@@ -61,11 +62,12 @@ const OrderSummary = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow">
+    <div className="max-w-3xl mx-auto p-8 bg-gray-50 rounded-2xl shadow-lg min-h-100 my-10 border border-[#C8E6C9]">
+
       <Stepper
         stepLabels={["Shipping", "Review", "Payment"]}
         currentStep={step}
-        className="flex justify-between mb-6"
+        className="flex justify-between mb-8 text-[#2E7D32] font-semibold"
       />
 
       {step === 1 && (

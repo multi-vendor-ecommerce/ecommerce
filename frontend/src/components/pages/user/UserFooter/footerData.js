@@ -2,7 +2,7 @@
 export const footerLinks = {
     about: { 
         logo: "./SecondaryLogo.jpg", 
-        description: "Your multi-vendor marketplace connecting buyers and sellers worldwide." 
+        description: "Our multi-vendor marketplace connecting buyers and sellers worldwide." 
     },
     customerSupport: [
         { label: "Help Center", url: "/help" }, 
