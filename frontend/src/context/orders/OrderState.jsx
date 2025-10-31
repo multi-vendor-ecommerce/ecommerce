@@ -7,8 +7,8 @@ const OrderState = ({ children }) => {
   const [salesData, setSalesData] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
 
-  // const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
-  const host = "http://localhost:5000";
+  const host = import.meta.env.VITE_BACKEND_URL || "https://ecommerce-psww.onrender.com";
+  // const host = "http://localhost:5000";
 
   // Utility to get role
   const getRoleInfo = () => {
