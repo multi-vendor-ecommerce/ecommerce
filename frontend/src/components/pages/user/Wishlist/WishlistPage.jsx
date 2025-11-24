@@ -105,7 +105,7 @@ const WishlistPage = () => {
               <div className="mt-3 flex items-center justify-between w-full">
                 <span className="text-base md:text-lg font-semibold">
                   Price:{" "}
-                  <span className="text-green-700">₹{(product?.price).toLocaleString()}</span>
+                  <span className="text-green-700">₹{(product?.price ||'not available').toLocaleString()}</span>
                 </span>
 
                 <Button

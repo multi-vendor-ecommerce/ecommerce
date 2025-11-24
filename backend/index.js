@@ -26,7 +26,8 @@ app.use(express.json());
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://multi-vendor-e-commerce.netlify.app"
+    "https://multi-vendor-e-commerce.netlify.app",
+    "https://multi-vendor-ecommerce-project.netlify.app"
   ],
   // credentials: true
 }));
