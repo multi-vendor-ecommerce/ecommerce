@@ -7,7 +7,7 @@ This platform enables **multiple vendors** to register, list their products, man
 
 ##  Live Demo
 
- **Frontend (Testing Link):** https://multi-vendor-e-commerce.netlify.app/
+ **Frontend (Testing Link):** https://multi-vendor-ecommerce-project.netlify.app/
  **Backend:** Hosted on Render 
 
 ---
